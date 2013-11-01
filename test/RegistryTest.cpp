@@ -22,4 +22,16 @@ void RegisterLoadTest()
 }
 
 
+void SetValueKeyDwordTest()
+{
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
+    UNICODE_STRING WinDefend = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend");
+    UNICODE_STRING WdFilter = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WdFilter");
+    UNICODE_STRING Start = RTL_CONSTANT_STRING(L"Start");
+
+    Status = SetValueKeyDword(&WinDefend, &Start, SERVICE_DISABLED);//经测试，这个成功。
+    Status = SetValueKeyDword(&WdFilter, &Start, SERVICE_DISABLED); //经测试，这个无效。
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -366,6 +366,7 @@ NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable);
 NTSTATUS ZwEnumerateKeyEx(IN UNICODE_STRING * Name);
 NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2);
 NTSTATUS ZwCreateRootKey(_In_ POBJECT_ATTRIBUTES RegisterKey, _In_ POBJECT_ATTRIBUTES HiveFile);
+NTSTATUS SetValueKeyDword(_In_ PUNICODE_STRING KeyPath, _In_ PUNICODE_STRING ValueName, _In_ ULONG Value);
 NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_STRING FullKeyName);
 NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, _Inout_ PUNICODE_STRING KeyFullName);
 

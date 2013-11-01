@@ -532,6 +532,31 @@ HiveFile：形如\\DosDevices\\c:\\correy.DAT，但必须是适合本机的且合法的HIVE文件。
 }
 
 
+NTSTATUS SetValueKeyDword(_In_ PUNICODE_STRING KeyPath, _In_ PUNICODE_STRING ValueName, _In_ ULONG Value)
+{
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
+    OBJECT_ATTRIBUTES ObjectAttributes{};
+    HANDLE  KeyHandle = nullptr;
+
+    InitializeObjectAttributes(&ObjectAttributes, KeyPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    Status = ZwOpenKey(&KeyHandle, KEY_ALL_ACCESS, &ObjectAttributes);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+        return Status;
+    }
+
+    ULONG Data = Value;
+    Status = ZwSetValueKey(KeyHandle, ValueName, 0, REG_DWORD, &Data, sizeof(ULONG));
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+    }
+
+    ZwClose(KeyHandle);
+
+    return Status;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
