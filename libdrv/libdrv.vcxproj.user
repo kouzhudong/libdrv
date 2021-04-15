@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AMD64_SOURCES Condition="'$(OVERRIDE_AMD64_SOURCES)'!='true'">.\amd64\asm.asm</AMD64_SOURCES>
+    <I386_SOURCES Condition="'$(OVERRIDE_I386_SOURCES)'!='true'">.\i386\asm.asm</I386_SOURCES>
+  </PropertyGroup>
+</Project>
