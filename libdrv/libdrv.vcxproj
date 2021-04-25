@@ -43,6 +43,7 @@
     <ClInclude Include="hash.h" />
     <ClInclude Include="idt.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="object.h" />
@@ -67,6 +68,7 @@
     <ClCompile Include="hash.cpp" />
     <ClCompile Include="idt.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="object.cpp" />
