@@ -1525,3 +1525,232 @@ SMEP机制是全局机制，不是限定某个进程的。
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+这里放置的是几个nt内核的几个虚拟化函数。
+
+暂时这里只有HviIsAnyHypervisorPresent以及直接调用这个函数的三个函数。
+HviGetHypervisorInterface
+HviGetHypervisorVendorAndMaxFunction
+HviIsHypervisorVendorMicrosoft
+可以一次向上递归逆向，应该能逆向不少函数。
+*/
+
+
+bool IsAnyHypervisorPresent()
+/*
+char HviIsAnyHypervisorPresent()
+{
+  __int64 _RAX; // rax
+  char b; // r8
+  __int64 _RCX; // rcx
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+
+  _RAX = 1i64;
+  b = 0;
+  __asm { cpuid }
+  if ( (int)_RCX < 0 )
+  {
+    b = 0;
+    _RAX = 0x40000001i64;
+    __asm { cpuid }
+    if ( (_DWORD)_RAX != 'vnbX' )
+      b = 1;
+  }
+
+  return b;
+}
+*/
+{
+    bool b = false;
+
+    int CPUInfo[4] = {-1};
+    __cpuid(CPUInfo, 0);
+    if (CPUInfo[2] > 0) {
+        __cpuid(CPUInfo, 0x40000001);
+        if (CPUInfo[0] != 'vnbX') {
+            b = true;
+        }
+    }
+
+    return b;
+}
+
+
+bool GetHypervisorInterface(DWORD * cpuid)
+/*
+char __fastcall HviGetHypervisorInterface(_DWORD *a1)
+{
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  LOBYTE(_RAX) = HviIsAnyHypervisorPresent();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000001i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+/*
+这个函数的参数是：int CPUInfo[4]。
+*/
+{
+    bool b = false;
+
+    b = IsAnyHypervisorPresent();
+    if (b) {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000001);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return b;
+}
+
+
+DWORD GetHypervisorVendorAndMaxFunction(DWORD * cpuid)
+/*
+char __fastcall HviGetHypervisorVendorAndMaxFunction(_DWORD *a1)
+{
+  LOBYTE(_RAX) = HviIsAnyHypervisorPresent();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000000i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+/*
+这个函数的参数是：int CPUInfo[4]。
+*/
+{
+    int CPUInfo[4] = {0};
+
+    if (IsAnyHypervisorPresent()) {
+        __cpuid(CPUInfo, 0x40000000);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return cpuid[0];
+}
+
+
+bool IsHypervisorVendorMicrosoft()
+/*
+char HviIsHypervisorVendorMicrosoft()
+{
+  char b; // al
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  if ( !HviIsAnyHypervisorPresent() )
+    goto error;
+
+  _RAX = 0x40000000i64;
+  __asm { cpuid }
+  if ( (_DWORD)_RBX != 'rciM' )
+    goto error;
+
+  if ( (_DWORD)_RCX == 'foso' && (_DWORD)_RDX == 'vH t' )
+    b = 1;
+  else
+error:
+    b = 0;
+
+  return b;
+}
+*/
+/*
+从这里细想可以拼出："Micrtosoft Hv".
+*/
+{
+    bool ret = false;
+
+    if (!IsAnyHypervisorPresent()) {
+        return ret;
+    }
+
+    int CPUInfo[4] = {0};
+    __cpuid(CPUInfo, 0x40000000);
+
+    if (CPUInfo[1] != 'rciM') {
+        return ret;
+    }
+
+    if (CPUInfo[2] == 'foso' && CPUInfo[3] == 'vH t') {
+        ret = true;
+    }
+
+    return ret;
+}
+
+
+int HviTest()
+/*
+注意：这里的测试代码是在应用层测试的。
+*/
+{
+    bool b = IsAnyHypervisorPresent();
+
+    DWORD HypervisorInterface[4] = {0};
+    b = GetHypervisorInterface(&HypervisorInterface[0]);
+
+    DWORD HypervisorVendor[4] = {0};
+    DWORD MaxFunction = GetHypervisorVendorAndMaxFunction(&HypervisorVendor[0]);
+    MaxFunction = 0;
+
+    b = IsHypervisorVendorMicrosoft();
+
+    return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
