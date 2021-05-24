@@ -1733,6 +1733,234 @@ error:
 }
 
 
+bool IsHypervisorMicrosoftCompatible()
+/*
+bool HviIsHypervisorMicrosoftCompatible()
+{
+  __int128 v1; // [rsp+20h] [rbp-28h] BYREF
+
+  v1 = 0i64;
+  HviGetHypervisorInterface(&v1);
+  return (_DWORD)v1 == '1#vH';
+}
+*/
+{
+    DWORD CPUInfo[4] = {0};
+
+    GetHypervisorInterface(&CPUInfo[0]);
+
+    return CPUInfo[0] == '1#vH';
+}
+
+
+bool GetEnlightenmentInformation(DWORD * cpuid)
+/*
+char __fastcall HviGetEnlightenmentInformation(_DWORD *a1)
+{
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  LOBYTE(_RAX) = HviIsHypervisorMicrosoftCompatible();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000004i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+{
+    bool b = false;
+
+    b = IsHypervisorMicrosoftCompatible();
+    if (b) {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000004);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return b;
+}
+
+
+bool GetHypervisorFeatures(DWORD * cpuid)
+/*
+char __fastcall HviGetHypervisorFeatures(_DWORD *a1)
+{
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  LOBYTE(_RAX) = HviIsHypervisorMicrosoftCompatible();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000003i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+{
+    bool b = false;
+
+    b = IsHypervisorMicrosoftCompatible();
+    if (b) {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000003);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return b;
+}
+
+
+bool GetHypervisorVersion(DWORD * cpuid)
+/*
+char __fastcall HviGetHypervisorVersion(_DWORD *a1)
+{
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  LOBYTE(_RAX) = HviIsHypervisorMicrosoftCompatible();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000002i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+{
+    bool b = false;
+
+    b = IsHypervisorMicrosoftCompatible();
+    if (b) {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000002);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return b;
+}
+
+
+bool GetImplementationLimits(DWORD * cpuid)
+/*
+char __fastcall HviGetImplementationLimits(_DWORD *a1)
+{
+  __int64 _RAX; // rax
+  __int64 _RAX; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+
+  LOBYTE(_RAX) = HviIsHypervisorMicrosoftCompatible();
+  if ( (_BYTE)_RAX )
+  {
+    _RAX = 0x40000005i64;
+    __asm { cpuid }
+    *a1 = _RAX;
+    a1[1] = _RBX;
+    a1[2] = _RCX;
+    a1[3] = _RDX;
+  }
+  else
+  {
+    *(_QWORD *)a1 = 0i64;
+    *((_QWORD *)a1 + 1) = 0i64;
+  }
+
+  return _RAX;
+}
+*/
+{
+    bool b = false;
+
+    b = IsHypervisorMicrosoftCompatible();
+    if (b) {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000005);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    } else {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    }
+
+    return b;
+}
+
+
 int HviTest()
 /*
 注意：这里的测试代码是在应用层测试的。
@@ -1748,6 +1976,20 @@ int HviTest()
     MaxFunction = 0;
 
     b = IsHypervisorVendorMicrosoft();
+
+    b = IsHypervisorMicrosoftCompatible();
+
+    DWORD EnlightenmentInformation[4] = {0};
+    b = GetEnlightenmentInformation(&EnlightenmentInformation[0]);
+
+    DWORD HypervisorFeatures[4] = {0};
+    b = GetHypervisorFeatures(&HypervisorFeatures[0]);
+
+    DWORD HypervisorVersion[4] = {0};
+    b = GetHypervisorVersion(&HypervisorVersion[0]);
+
+    DWORD ImplementationLimits[4] = {0};
+    b = GetImplementationLimits(&ImplementationLimits[0]);
 
     return 0;
 }
