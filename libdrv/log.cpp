@@ -7,6 +7,8 @@
 #pragma warning(disable:28719) //Banned API Usage:  wcscpy
 #pragma warning(disable:28719) //Banned API Usage:  wcsncpy
 
+#pragma warning(disable:4996)
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

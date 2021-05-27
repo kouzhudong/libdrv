@@ -3,6 +3,7 @@
 
 #pragma warning(disable:6328)
 #pragma warning(disable:26451)
+#pragma warning(disable:4189)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1961,6 +1962,80 @@ char __fastcall HviGetImplementationLimits(_DWORD *a1)
 }
 
 
+DWORD GetHardwareFeatures(DWORD cpuid[4])
+/*
+__int64 __fastcall HviGetHardwareFeatures(__int64 a1)
+{
+  __int64 _RAX; // rax
+  __int64 result; // rax
+  __int64 _RDX; // rdx
+  __int64 _RCX; // rcx
+  __int64 _RBX; // rbx
+  __int128 v7; // [rsp+20h] [rbp-28h] BYREF
+
+  v7 = 0i64;
+  HviGetHypervisorVendorAndMaxFunction(&v7);
+  _RAX = 0x40000006i64;
+  if ( (unsigned int)v7 < 0x40000006 )
+  {
+    result = 0i64;
+    *(_QWORD *)a1 = 0i64;
+    *(_QWORD *)(a1 + 8) = 0i64;
+  }
+  else
+  {
+    __asm { cpuid }
+    *(_DWORD *)a1 = result;
+    *(_DWORD *)(a1 + 4) = _RBX;
+    *(_DWORD *)(a1 + 8) = _RCX;
+    *(_DWORD *)(a1 + 12) = _RDX;
+  }
+
+  return result;
+}
+*/
+{
+    DWORD HypervisorVendor[4] = {0};
+    DWORD MaxFunction = GetHypervisorVendorAndMaxFunction(&HypervisorVendor[0]);
+
+    if (HypervisorVendor[0] < 0x40000006) {
+        cpuid[0] = 0;
+        cpuid[1] = 0;
+        cpuid[2] = 0;
+        cpuid[3] = 0;
+    } else {
+        int CPUInfo[4] = {-1};
+        __cpuid(CPUInfo, 0x40000006);
+
+        cpuid[0] = CPUInfo[0];
+        cpuid[1] = CPUInfo[1];
+        cpuid[2] = CPUInfo[2];
+        cpuid[3] = CPUInfo[3];
+    }
+
+    return cpuid[0];
+}
+
+
+bool IsIommuInUse()
+/*
+bool HviIsIommuInUse()
+{
+  int v1[4]; // [rsp+20h] [rbp-28h] BYREF
+
+  *(_OWORD *)v1 = 0i64;
+  HviGetHardwareFeatures((__int64)v1);
+  return (v1[0] & 0x30) == 0x30;
+}
+*/
+{
+    DWORD HardwareFeatures[4] = {0};
+    GetHardwareFeatures(&HardwareFeatures[0]);
+
+    return (HardwareFeatures[0] & 0x30) == 0x30;
+}
+
+
 int HviTest()
 /*
 注意：这里的测试代码是在应用层测试的。
@@ -1990,6 +2065,8 @@ int HviTest()
 
     DWORD ImplementationLimits[4] = {0};
     b = GetImplementationLimits(&ImplementationLimits[0]);
+
+    b = IsIommuInUse();
 
     return 0;
 }
