@@ -588,4 +588,28 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 }
 
 
+NTSTATUS EnumIpForwardTable2()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552536(v=vs.85)
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IPFORWARD_TABLE2   Table = NULL;
+
+    status = GetIpForwardTable2(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IPFORWARD_ROW2 pTable = &Table->Table[i];
+
+        KdPrint(("Loopback:%d.\r\n", pTable->Loopback));
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
