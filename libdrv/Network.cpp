@@ -420,6 +420,9 @@ NTSTATUS EnumUnicastIpAddressTable()
 
 
 NTSTATUS EnumIpPathTable()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552559(v=vs.85)
+*/
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
     PMIB_IPPATH_TABLE Table = NULL;
@@ -466,6 +469,50 @@ NTSTATUS EnumIpPathTable()
         {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Destination.Ipv6.sin6_addr, S);
+
+            KdPrint(("ipv6:%ws.\r\n", S));
+        }
+        break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
+NTSTATUS EnumAnycastIpAddressTable()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552508(v=vs.85)
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_ANYCASTIPADDRESS_TABLE Table = NULL;
+
+    status = GetAnycastIpAddressTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_ANYCASTIPADDRESS_ROW pTable = &Table->Table[i];
+
+        switch (pTable->Address.si_family) {
+        case AF_INET:
+        {
+            WCHAR S[32 + 1] = {0};
+            (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
+
+            KdPrint(("ipv4:%ls.\r\n", S));
+        }
+        break;
+        case AF_INET6:
+        {
+            WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
+            (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
         }

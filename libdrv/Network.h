@@ -31,6 +31,6 @@ NTSTATUS EnumUnicastIpAddressTable();
 
 NTSTATUS EnumIpPathTable();
 
-
+NTSTATUS EnumAnycastIpAddressTable();
 
 EXTERN_C_END
