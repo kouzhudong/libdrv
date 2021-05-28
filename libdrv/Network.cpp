@@ -380,6 +380,9 @@ NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
 
 
 NTSTATUS EnumUnicastIpAddressTable()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552594(v=vs.85)
+*/
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
     PMIB_UNICASTIPADDRESS_TABLE Table = NULL;
@@ -390,6 +393,10 @@ NTSTATUS EnumUnicastIpAddressTable()
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
+
+        status = GetUnicastIpAddressEntry(pTable);
+        //status = SetUnicastIpAddressEntry(pTable);        
+
         switch (pTable->Address.si_family) {
         case AF_INET:
         {
@@ -488,6 +495,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumAnycastIpAddressTable()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552508(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552504(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -499,6 +507,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_ANYCASTIPADDRESS_ROW pTable = &Table->Table[i];
+
+        status = GetAnycastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -521,6 +531,31 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             ASSERT(FALSE);
             break;
         }
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
+NTSTATUS EnumIfTable2Ex()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552528(v=vs.85)
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IF_TABLE2 Table = NULL;
+
+    status = GetIfTable2Ex(MibIfTableRaw, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IF_ROW2 pTable = &Table->Table[i];
+
+        KdPrint(("Alias:%ls.\r\n", pTable->Alias));
+        KdPrint(("Description:%ls.\r\n", pTable->Description));
     }
 
     FreeMibTable(Table);
