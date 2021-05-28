@@ -33,6 +33,8 @@ NTSTATUS EnumIpPathTable();
 
 NTSTATUS EnumAnycastIpAddressTable();
 
+NTSTATUS EnumIfTable2();
+
 NTSTATUS EnumIfTable2Ex();
 
 NTSTATUS EnumIpInterfaceTable();
@@ -44,5 +46,7 @@ NTSTATUS EnumIfStackTable();
 NTSTATUS EnumIpNetTable2();
 
 NTSTATUS EnumMulticastIpAddressTable();
+
+void NetioEnumTest();
 
 EXTERN_C_END

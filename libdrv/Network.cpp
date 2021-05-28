@@ -429,6 +429,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumIpPathTable()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552559(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552556(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -440,6 +441,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPPATH_ROW pTable = &Table->Table[i];
+
+        status = GetIpPathEntry(pTable);
 
         switch (pTable->Source.si_family) {
         case AF_INET:
@@ -539,9 +542,41 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 }
 
 
+NTSTATUS EnumIfTable2()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552524(v=vs.85)
+
+Your driver can use a similar function, GetIfTable2Ex, 
+to specify the level of interfaces to return. 
+A call to the GetIfTable2Ex function with the Level parameter set to MibIfTableNormal retrieves the same results as calling the GetIfTable2 function.
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IF_TABLE2 Table = NULL;
+
+    status = GetIfTable2(&Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IF_ROW2 pTable = &Table->Table[i];
+
+        status = GetIfEntry2(pTable);
+
+        KdPrint(("Alias:%ls.\r\n", pTable->Alias));
+        KdPrint(("Description:%ls.\r\n", pTable->Description));
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
 NTSTATUS EnumIfTable2Ex()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552528(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552517(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -553,6 +588,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IF_ROW2 pTable = &Table->Table[i];
+
+        status = GetIfEntry2(pTable);
 
         KdPrint(("Alias:%ls.\r\n", pTable->Alias));
         KdPrint(("Description:%ls.\r\n", pTable->Description));
@@ -567,6 +604,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumIpInterfaceTable()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552543(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552540(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -578,6 +616,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPINTERFACE_ROW pTable = &Table->Table[i];
+
+        status = GetIpInterfaceEntry(pTable);
 
         KdPrint(("Family:%d.\r\n", pTable->Family));
     }
@@ -591,6 +631,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumIpForwardTable2()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552536(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552535(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -602,6 +643,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPFORWARD_ROW2 pTable = &Table->Table[i];
+
+        status = GetIpForwardEntry2(pTable);
 
         KdPrint(("Loopback:%d.\r\n", pTable->Loopback));
     }
@@ -640,6 +683,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumIpNetTable2()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552551(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552546(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -651,6 +695,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPNET_ROW2 pTable = &Table->Table[i];
+
+        status = GetIpNetEntry2(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -684,6 +730,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 NTSTATUS EnumMulticastIpAddressTable()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552570(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552565(v=vs.85)
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -695,6 +742,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_MULTICASTIPADDRESS_ROW pTable = &Table->Table[i];
+
+        status = GetMulticastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -722,6 +771,30 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     FreeMibTable(Table);
 
     return status;
+}
+
+
+void NetioEnumTest()
+{
+    EnumUnicastIpAddressTable();
+
+    EnumIpPathTable();
+
+    EnumAnycastIpAddressTable();
+
+    EnumIfTable2();
+
+    EnumIfTable2Ex();
+
+    EnumIpInterfaceTable();
+
+    EnumIpForwardTable2();
+
+    EnumIfStackTable();
+
+    EnumIpNetTable2();
+
+    EnumMulticastIpAddressTable();
 }
 
 
