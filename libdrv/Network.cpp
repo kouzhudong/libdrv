@@ -102,46 +102,6 @@ Purpose: Determine if the layer is an IPv4 layer.
 }
 
 
-NTSTATUS GetUnicastIpAddressTableEx()
-{
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
-    PMIB_UNICASTIPADDRESS_TABLE Table = NULL;
-
-    status = GetUnicastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
-    ASSERT(Table);
-
-    for (ULONG i = 0; i < Table->NumEntries; i++) {
-        PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
-        switch (pTable->Address.si_family) {
-        case AF_INET:
-        {
-            WCHAR S[32 + 1] = {0};
-            (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
-
-            KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
-            WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
-            (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
-
-            KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
-        default:
-            ASSERT(FALSE);
-            break;
-        }
-    }
-
-    FreeMibTable(Table);
-
-    return status;
-}
-
-
 NTSTATUS AleEndpointEnum()
 /*
 目的：演示FwpsAleEndpointEnum的用法。
@@ -361,8 +321,8 @@ made at 2014.12.25
 }
 
 
-NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject, 
-                         IN PFILE_OBJECT FileObject,  
+NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
+                         IN PFILE_OBJECT FileObject,
                          OUT PTDI_ADDRESS_INFO LocalAddress
 )
 /*
@@ -414,3 +374,112 @@ NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
 
     return Status == STATUS_SUCCESS ? IoStatus.Status : Status;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+NTSTATUS EnumUnicastIpAddressTable()
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_UNICASTIPADDRESS_TABLE Table = NULL;
+
+    status = GetUnicastIpAddressTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
+        switch (pTable->Address.si_family) {
+        case AF_INET:
+        {
+            WCHAR S[32 + 1] = {0};
+            (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
+
+            KdPrint(("ipv4:%ls.\r\n", S));
+        }
+        break;
+        case AF_INET6:
+        {
+            WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
+            (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
+
+            KdPrint(("ipv6:%ws.\r\n", S));
+        }
+        break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
+NTSTATUS EnumIpPathTable()
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IPPATH_TABLE Table = NULL;
+
+    status = GetIpPathTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IPPATH_ROW pTable = &Table->Table[i];
+
+        switch (pTable->Source.si_family) {
+        case AF_INET:
+        {
+            WCHAR S[32 + 1] = {0};
+            (void)RtlIpv4AddressToString(&pTable->Source.Ipv4.sin_addr, S);
+
+            KdPrint(("ipv4:%ls.\r\n", S));
+        }
+        break;
+        case AF_INET6:
+        {
+            WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
+            (void)RtlIpv6AddressToStringW(&pTable->Source.Ipv6.sin6_addr, S);
+
+            KdPrint(("ipv6:%ws.\r\n", S));
+        }
+        break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+
+        switch (pTable->Destination.si_family) {
+        case AF_INET:
+        {
+            WCHAR S[32 + 1] = {0};
+            (void)RtlIpv4AddressToString(&pTable->Destination.Ipv4.sin_addr, S);
+
+            KdPrint(("ipv4:%ls.\r\n", S));
+        }
+        break;
+        case AF_INET6:
+        {
+            WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
+            (void)RtlIpv6AddressToStringW(&pTable->Destination.Ipv6.sin6_addr, S);
+
+            KdPrint(("ipv6:%ws.\r\n", S));
+        }
+        break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////

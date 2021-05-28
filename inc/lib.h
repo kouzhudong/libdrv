@@ -232,13 +232,15 @@ void StringToLUID(wchar_t * rule_text, PLARGE_INTEGER pli);
 
 BOOLEAN LayerIsIPv4(_In_ UINT32 layerID);
 
-NTSTATUS GetUnicastIpAddressTableEx();
-
 NTSTATUS AleEndpointEnum();
 
 ADDRESS_FAMILY GetAddressFamilyForLayer(_In_ UINT16 layerId);
 
 FWP_DIRECTION GetPacketDirectionForLayer(_In_ UINT16 layerId);
+
+NTSTATUS EnumUnicastIpAddressTable();
+
+NTSTATUS EnumIpPathTable();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
