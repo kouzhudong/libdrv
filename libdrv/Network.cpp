@@ -612,4 +612,29 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 }
 
 
+NTSTATUS EnumIfStackTable()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552521(v=vs.85)
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IFSTACK_TABLE    Table = NULL;
+
+    status = GetIfStackTable(&Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IFSTACK_ROW pTable = &Table->Table[i];
+
+        KdPrint(("HigherLayerInterfaceIndex:%d.\r\n", pTable->HigherLayerInterfaceIndex));
+        KdPrint(("LowerLayerInterfaceIndex:%d.\r\n", pTable->LowerLayerInterfaceIndex));
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -39,4 +39,6 @@ NTSTATUS EnumIpInterfaceTable();
 
 NTSTATUS EnumIpForwardTable2();
 
+NTSTATUS EnumIfStackTable();
+
 EXTERN_C_END
