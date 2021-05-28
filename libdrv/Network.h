@@ -43,4 +43,6 @@ NTSTATUS EnumIfStackTable();
 
 NTSTATUS EnumIpNetTable2();
 
+NTSTATUS EnumMulticastIpAddressTable();
+
 EXTERN_C_END
