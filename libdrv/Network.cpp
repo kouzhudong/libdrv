@@ -564,4 +564,28 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 }
 
 
+NTSTATUS EnumIpInterfaceTable()
+/*
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552543(v=vs.85)
+*/
+{
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    PMIB_IPINTERFACE_TABLE  Table = NULL;
+
+    status = GetIpInterfaceTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(status));
+    ASSERT(Table);
+
+    for (ULONG i = 0; i < Table->NumEntries; i++) {
+        PMIB_IPINTERFACE_ROW pTable = &Table->Table[i];
+
+        KdPrint(("Family:%d.\r\n", pTable->Family));
+    }
+
+    FreeMibTable(Table);
+
+    return status;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////

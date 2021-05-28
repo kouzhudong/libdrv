@@ -35,4 +35,6 @@ NTSTATUS EnumAnycastIpAddressTable();
 
 NTSTATUS EnumIfTable2Ex();
 
+NTSTATUS EnumIpInterfaceTable();
+
 EXTERN_C_END

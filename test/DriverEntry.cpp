@@ -41,7 +41,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     DriverObject->DriverUnload = Unload;
 
-    EnumIfTable2Ex();
+    EnumIpInterfaceTable();
 
     return status;
 }
