@@ -871,7 +871,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 }
 
 
-VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING FileFullName,
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in_opt PUNICODE_STRING  FullImageName,
                                    __in HANDLE  ProcessId,
                                    __in PIMAGE_INFO  ImageInfo
@@ -894,10 +894,10 @@ VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING FileFullName,
 3.
 
 用法示例：
-UNICODE_STRING FileFullName = {0};
-RtlGetLoadImageFullName(&FileFullName, FullImageName, ProcessId, ImageInfo);
+UNICODE_STRING LoadImageFullName = {0};
+RtlGetLoadImageFullName(&LoadImageFullName, FullImageName, ProcessId, ImageInfo);
 ...
-FreeUnicodeString(&FileFullName);
+FreeUnicodeString(&LoadImageFullName);
 */
 {
     NTSTATUS status = STATUS_SUCCESS;
@@ -933,12 +933,12 @@ FreeUnicodeString(&FileFullName);
     status = KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
     if (NT_SUCCESS(status) && NT_SUCCESS(ctx->info.status)) {
         if (ctx->info.ImageLoaded.Buffer != NULL) {
-            FileFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
-            FileFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, FileFullName->MaximumLength, TAG);//由调用者释放。
-            ASSERT(FileFullName->Buffer);
-            RtlZeroMemory(FileFullName->Buffer, FileFullName->MaximumLength);
+            LoadImageFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
+            LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG);//由调用者释放。
+            ASSERT(LoadImageFullName->Buffer);
+            RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
 
-            RtlCopyUnicodeString(FileFullName, &ctx->info.ImageLoaded);
+            RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
 
             ExFreePoolWithTag(ctx->info.ImageLoaded.Buffer, TAG);
         } else {

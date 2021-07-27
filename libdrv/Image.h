@@ -304,7 +304,7 @@ NTSTATUS GetMemoryMappedFilenameInformation(_In_opt_ PVOID DllBase,
 
 NTSTATUS ZwGetSystemModuleInformation();
 
-VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING FileFullName,
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in_opt PUNICODE_STRING  FullImageName,
                                    __in HANDLE  ProcessId,
                                    __in PIMAGE_INFO  ImageInfo);
