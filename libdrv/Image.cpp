@@ -7,6 +7,7 @@
 
 
 #pragma warning(disable:4366)
+#pragma warning(disable:4996)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,14 +204,14 @@ homepage:http://correy.webs.com
             le1 = le1->Flink;
         } while (le1 != le2);
 
-#if defined(_WIN64)
+        #if defined(_WIN64)
         //如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
         //ZwQueryInformationProcess +　ProcessWow64Information
         PWOW64_PROCESS pwp = (PWOW64_PROCESS)PsGetProcessWow64Process(Process);
         if (NULL != pwp) {
             EnumWow64Module(pwp, CallBack, Context);
         }
-#endif
+        #endif
     } else {//win10上有不少进程是没有用户空间的，也没有命令行。
         KdPrint(("进程:%d没有PEB(用户层空间).\n", HandleToLong(Pid)));
     }
@@ -361,10 +362,10 @@ PVOID GetImageBase(__in PCSTR Name)
     }
 
     for (i = 0; i < numberOfModules; i++) {
-#pragma prefast(push)
-#pragma prefast(disable: 6385, "从“modules”中读取的数据无效: 可读大小为“_Old_8`modulesSize”个字节，但可能读取了“536”个字节。")
+        #pragma prefast(push)
+        #pragma prefast(disable: 6385, "从“modules”中读取的数据无效: 可读大小为“_Old_8`modulesSize”个字节，但可能读取了“536”个字节。")
         UCHAR * FileName = modules[i].FullPathName + modules[i].FileNameOffset;
-#pragma prefast(pop)        
+        #pragma prefast(pop)        
 
         if (_stricmp((const char *)FileName, Name) == 0) {
             ImageBase = modules[i].BasicInfo.ImageBase;
@@ -398,12 +399,12 @@ NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules,
         PUCHAR ModuleName = modules[i].FullPathName + modules[i].FileNameOffset;
         PVOID ImageBase = modules[i].BasicInfo.ImageBase;
 
-#if DBG 
+        #if DBG 
         KdPrint(("ImageBase:%p, FullDllName:%s.\n", ImageBase, ModuleName));
-#else 
+        #else 
         DBG_UNREFERENCED_LOCAL_VARIABLE(ModuleName);
         DBG_UNREFERENCED_LOCAL_VARIABLE(ImageBase);
-#endif 
+        #endif 
     }
 
     return STATUS_SUCCESS;
@@ -548,11 +549,11 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     PVOID ImageBase = 0;
 
     ppeb = PsGetProcessPeb(Process);//注意：IDLE和system这两个应该获取不到。
-#if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
+    #if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-#else
+    #else
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-#endif 
+    #endif 
     le2 = le1;
 
     do {
@@ -604,7 +605,7 @@ NTSTATUS NTAPI HandleOneSection(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_o
 }
 
 
-BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, 
+BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName,
                          _In_opt_ HandleSection CallBack,
                          _In_opt_ PVOID Context
 )
@@ -738,12 +739,12 @@ WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c的PerfInfoSysModuleRunD
 */
 {
     NTSTATUS Status;
-    PRTL_PROCESS_MODULES            Modules;    
+    PRTL_PROCESS_MODULES Modules;
     PVOID Buffer;
     ULONG BufferSize = 4096;
-    ULONG ReturnLength;    
+    ULONG ReturnLength;
 
-retry:
+    retry:
     Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (!Buffer) {
         return STATUS_NO_MEMORY;
@@ -757,7 +758,7 @@ retry:
 
     Modules = (PRTL_PROCESS_MODULES)Buffer;
 
-    if (NT_SUCCESS(Status)) {   
+    if (NT_SUCCESS(Status)) {
         PRTL_PROCESS_MODULE_INFORMATION ModuleInfo;
         ULONG i = 0;
 
@@ -771,6 +772,183 @@ retry:
 
     ExFreePoolWithTag(Buffer, TAG);
     return Status;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+VOID ImageLoadedThreadEx(_In_ PVOID Parameter)
+{
+    PLOAD_IMAGE_CONTEXT ctx = (PLOAD_IMAGE_CONTEXT)Parameter;
+
+    PAGED_CODE();
+
+    ctx->info.status = GetObjectDosName(ctx->info.ImageInfoEx->FileObject, &ctx->info.ImageLoaded);
+
+    KeSetEvent(ctx->Event, IO_NO_INCREMENT, FALSE);
+}
+
+
+VOID ImageLoadedThread(_In_ PVOID Parameter)
+{
+    PLOAD_IMAGE_CONTEXT ctx = (PLOAD_IMAGE_CONTEXT)Parameter;
+    HANDLE File;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    IO_STATUS_BLOCK IoStatus;
+    PFILE_OBJECT FileObject;
+    UNICODE_STRING FullName = {0};
+
+    PAGED_CODE();
+
+    InitializeObjectAttributes(&ObjectAttributes,
+                               ctx->info.FullImageName,
+                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+                               NULL,
+                               NULL);
+    ctx->info.status = ZwOpenFile(&File,
+                                  SYNCHRONIZE | FILE_EXECUTE,
+                                  &ObjectAttributes,
+                                  &IoStatus,
+                                  FILE_SHARE_READ,
+                                  0);
+    if (NT_SUCCESS(ctx->info.status)) {
+        ctx->info.status = ObReferenceObjectByHandle(File,
+                                                     FILE_READ_ACCESS,
+                                                     *IoFileObjectType,
+                                                     KernelMode,
+                                                     (PVOID *)&FileObject,
+                                                     0);
+        if (NT_SUCCESS(ctx->info.status)) {
+            ctx->info.status = GetObjectDosName(FileObject, &FullName);
+            ASSERT(NT_SUCCESS(ctx->info.status));
+
+            ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,
+                                                                       ctx->info.ImageLoaded.MaximumLength,
+                                                                       TAG);//由调用者释放。
+            ASSERT(ctx->info.ImageLoaded.Buffer);
+            RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
+
+            //KdPrint(("DOS name:%wZ.\r\n", &FullName));
+            RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+
+            if (FullName.Buffer) {
+                ExFreePoolWithTag(FullName.Buffer, TAG);
+            }
+            ObDereferenceObject(FileObject);
+        } else {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ",
+                  ctx->info.status, ctx->info.FullImageName);
+        }
+
+        ZwClose(File);
+    } else {
+        FileObject = CONTAINING_RECORD(ctx->info.FullImageName, FILE_OBJECT, FileName);
+        ASSERT(FileObject);
+
+        ctx->info.status = GetObjectDosName(FileObject, &FullName);
+        if (NT_SUCCESS(ctx->info.status)) {
+            ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,
+                                                                       ctx->info.ImageLoaded.MaximumLength,
+                                                                       TAG);//由调用者释放。
+            ASSERT(ctx->info.ImageLoaded.Buffer);
+            RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
+
+            RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+        } else {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ",
+                  ctx->info.status, ctx->info.FullImageName);
+        }
+
+        if (FullName.Buffer) {
+            ExFreePoolWithTag(FullName.Buffer, TAG);
+        }
+    }
+
+    KeSetEvent(ctx->Event, IO_NO_INCREMENT, FALSE);
+}
+
+
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING FileFullName,
+                                   __in_opt PUNICODE_STRING  FullImageName,
+                                   __in HANDLE  ProcessId,
+                                   __in PIMAGE_INFO  ImageInfo
+)
+/*
+功能：在LoadImageNotifyRoutine中获取LoadImage的全路径。
+
+适用于XP，VISTA，windows 7/8/8.1/10，以及Windows server 2003/2008/2012/2016/2019等。
+
+简要说明：
+1.XP下FullImageName是FILE_OBJECT的FileName。所以这个也不一定是完整的路径。
+2.windows 7下此时有锁，不可直接获取，需要一个WorkItem解决，否则蓝屏。
+3.windows 8.1之后很简单了。
+4.FullImageName的路径非完整的，相对的，带环境变量的等后有可能。
+5.
+
+注意：
+1.此函数只适用于LoadImageNotifyRoutine中。
+2.函数返回成功，FullImageName的内存由调用者释放。
+3.
+
+用法示例：
+UNICODE_STRING FileFullName = {0};
+RtlGetLoadImageFullName(&FileFullName, FullImageName, ProcessId, ImageInfo);
+...
+FreeUnicodeString(&FileFullName);
+*/
+{
+    NTSTATUS status = STATUS_SUCCESS;
+    KEVENT event;
+    PLOAD_IMAGE_CONTEXT ctx = NULL;
+
+    ctx = (PLOAD_IMAGE_CONTEXT)ExAllocatePoolWithTag(NonPagedPool, sizeof(LOAD_IMAGE_CONTEXT), TAG);
+    ASSERT(ctx);
+    RtlZeroMemory(ctx, sizeof(LOAD_IMAGE_CONTEXT));
+    ctx->Event = &event;
+    KeInitializeEvent(&event, NotificationEvent, FALSE);
+
+    if (ImageInfo->ExtendedInfoPresent) {
+        PIMAGE_INFO_EX ImageInfoEx = CONTAINING_RECORD(ImageInfo, IMAGE_INFO_EX, ImageInfo);
+
+        ASSERT(ImageInfoEx);
+
+        ctx->info.ImageInfoEx = ImageInfoEx;
+        ExInitializeWorkItem(&ctx->hdr, ImageLoadedThreadEx, ctx);
+    } else {
+        /*
+        此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。
+        */
+
+        ctx->info.ImageInfo = ImageInfo;
+        ctx->info.ProcessId = ProcessId;
+        ctx->info.FullImageName = FullImageName;
+
+        ExInitializeWorkItem(&ctx->hdr, ImageLoadedThread, ctx);
+    }
+
+    ExQueueWorkItem(&ctx->hdr, DelayedWorkQueue);
+    status = KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
+    if (NT_SUCCESS(status) && NT_SUCCESS(ctx->info.status)) {
+        if (ctx->info.ImageLoaded.Buffer != NULL) {
+            FileFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
+            FileFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, FileFullName->MaximumLength, TAG);//由调用者释放。
+            ASSERT(FileFullName->Buffer);
+            RtlZeroMemory(FileFullName->Buffer, FileFullName->MaximumLength);
+
+            RtlCopyUnicodeString(FileFullName, &ctx->info.ImageLoaded);
+
+            ExFreePoolWithTag(ctx->info.ImageLoaded.Buffer, TAG);
+        } else {
+            KdPrint(("FILE:%s, LINE:%d.\r\n", __FILE__, __LINE__));
+        }
+    } else {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x", status);
+    }
+
+    ExFreePoolWithTag(ctx, TAG);
 }
 
 

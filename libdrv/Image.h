@@ -238,6 +238,30 @@ PsGetProcessPeb(
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+typedef struct _ImageContext {
+    PWORK_QUEUE_ITEM Item;
+    OUT NTSTATUS status;
+
+    OUT UNICODE_STRING ImageLoaded;
+
+    IN HANDLE  ProcessId;
+    IN PUNICODE_STRING  FullImageName;
+
+    IN PIMAGE_INFO  ImageInfo;
+    IN PIMAGE_INFO_EX ImageInfoEx;
+}ImageContext, * PImageContext;
+
+
+typedef struct _LOAD_IMAGE_CONTEXT {
+    WORK_QUEUE_ITEM hdr;
+    ImageContext info;
+    PKEVENT Event;
+}LOAD_IMAGE_CONTEXT, * PLOAD_IMAGE_CONTEXT;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 typedef NTSTATUS(WINAPI * HandleKernelModule)(_In_ ULONG numberOfModules,
                                               _In_ PAUX_MODULE_EXTENDED_INFO ModuleInfo,
                                               _In_opt_ PVOID Context);
@@ -280,6 +304,10 @@ NTSTATUS GetMemoryMappedFilenameInformation(_In_opt_ PVOID DllBase,
 
 NTSTATUS ZwGetSystemModuleInformation();
 
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING FileFullName,
+                                   __in_opt PUNICODE_STRING  FullImageName,
+                                   __in HANDLE  ProcessId,
+                                   __in PIMAGE_INFO  ImageInfo);
 
 EXTERN_C_END
 
