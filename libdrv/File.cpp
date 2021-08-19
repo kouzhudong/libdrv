@@ -1437,3 +1437,77 @@ Could not read field "Number" of fltmgr!_EX_RUNDOWN_REF_CACHE_AWARE from address
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#define MAX_NTFS_METADATA_FILE 11
+
+
+/*
+这个摘自：filemon。
+*/
+CHAR * NtfsMetadataFileNames[] = {
+    "$Mft",
+    "$MftMirr",
+    "$LogFile",
+    "$Volume",
+    "$AttrDef",
+    "$Root",
+    "$Bitmap",
+    "$Boot",
+    "$BadClus",
+    "$Secure",
+    "$UpCase",
+    "$Extend"
+};
+
+
+void PrintNtfsMetadataFileName(_In_ PFLT_INSTANCE Instance, _In_ PFILE_OBJECT FileObject)
+/*
+功能：识别NTFS/REFS等文件系统的元数据。
+
+这里是：ftl的实现，还有zw的实现。
+
+参考：
+1.filemon.c
+2.Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver
+3.passThrough
+
+注意在卷的实例化/挂载的时候可以选择：
+if (VolumeFilesystemType != FLT_FSTYPE_NTFS && VolumeFilesystemType != FLT_FSTYPE_FAT && VolumeFilesystemType != FLT_FSTYPE_REFS)
+{
+    status = STATUS_NOT_SUPPORTED;
+    ......
+}
+
+其实:
+1.filemon很久，但是很有参考的价值。
+2.Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver很累赘，在win 10上好多消息都没有拦截到，可以用Procmon.exe过滤":\$"做比较.
+3.所以正确的和满足自己需求的还是自己来。
+
+//其实这个可以为过滤的条件。摘自：\Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver
+FLT_ASSERT((!(Data->Iopb->TargetFileObject->FileName.Length == 0 && Data->Iopb->TargetFileObject->RelatedFileObject == NULL)) ||
+            FlagOn(Data->Iopb->TargetFileObject->Flags, FO_VOLUME_OPEN));
+
+made by correy
+made at 2016/4/11
+http://correy.webs.com
+*/
+{
+    FILE_INTERNAL_INFORMATION fileInternalInfo;
+    ULONG LengthReturned = 0;
+    NTSTATUS status = FltQueryInformationFile(Instance,
+                                              FileObject,
+                                              &fileInternalInfo,
+                                              sizeof(fileInternalInfo),
+                                              FileInternalInformation,
+                                              &LengthReturned);
+    if (NT_SUCCESS(status)) {
+        ULONGLONG mftIndex = fileInternalInfo.IndexNumber.QuadPart & ~0xF0000000;// Use the name in the metadata name index
+        if (mftIndex <= MAX_NTFS_METADATA_FILE) {
+            KdPrint(("NtfsMetadataFileName:%s.\r\n", NtfsMetadataFileNames[mftIndex]));
+        }
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
