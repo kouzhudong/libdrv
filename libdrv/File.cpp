@@ -254,6 +254,74 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+VOID FASTCALL WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer, ULONG Length)
+/*
+功能：写磁盘的扇区。
+
+参数：
+DiskIndex:磁盘索引。
+StartingOffset：写入位置，以字节为单位，以扇区边界对齐。
+Buffer：扇区的倍数。
+Length：扇区的倍数。
+
+注意：
+1.如果没有设置FileObject，在Windows 10上，会蓝屏，发生在fileinfo!FIPreReadWriteCallback在调用nt!FsRtlIsPagingFile时。
+2.此函数在Windows 10上会失败。
+3.写第一个扇区之外的扇区会失败。
+*/
+{
+    LARGE_INTEGER partitionTableOffset = {0};
+    KEVENT event;
+    IO_STATUS_BLOCK ioStatus;
+    PIRP irp;
+    NTSTATUS status = STATUS_SUCCESS;
+    wchar_t deviceNameBuffer[128];
+    UNICODE_STRING ObjectName;
+    PDEVICE_OBJECT DeviceObject;//设备L"\\Device\\Harddisk%d\\DR%d" 或者 符号连接L"\\Device\\Harddisk%d\\Partition0" 所代表的对象。
+    PFILE_OBJECT FileObject;
+
+    _swprintf(deviceNameBuffer, L"\\Device\\Harddisk%d\\Partition0", DiskIndex);
+    //_swprintf(deviceNameBuffer, L"\\Device\\Harddisk%d\\DR%d", index, index);
+    RtlInitUnicodeString(&ObjectName, deviceNameBuffer);
+    status = IoGetDeviceObjectPointer(&ObjectName, FILE_ALL_ACCESS, &FileObject, &DeviceObject);
+    if (!NT_SUCCESS(status)) {
+        return;
+    }
+
+    partitionTableOffset.QuadPart = StartingOffset;
+
+    KeInitializeEvent(&event, NotificationEvent, FALSE);
+    irp = IoBuildSynchronousFsdRequest(IRP_MJ_WRITE,
+                                       DeviceObject,
+                                       Buffer,
+                                       Length,
+                                       &partitionTableOffset,
+                                       &event,
+                                       &ioStatus);
+    if (!irp) {
+        ObDereferenceObject(FileObject);
+        return;
+    } else {
+        PIO_STACK_LOCATION irpStack;
+        irpStack = IoGetNextIrpStackLocation(irp);
+        irpStack->FileObject = FileObject;//https://community.osr.com/discussion/34920/how-to-use-iobuildsynchronousfsdrequest-to-read-a-disk-file
+        irpStack->Flags |= SL_OVERRIDE_VERIFY_VOLUME;
+    }
+
+    status = IoCallDriver(DeviceObject, irp);
+    if (status == STATUS_PENDING) {
+        (VOID)KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)NULL);
+        status = ioStatus.Status;
+    }
+
+    if (!NT_SUCCESS(status)) {
+        
+    }
+
+    ObDereferenceObject(FileObject);
+}
+
+
 VOID FASTCALL ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer)
 {
     LARGE_INTEGER partitionTableOffset;
