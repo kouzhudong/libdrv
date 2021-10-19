@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="APC.h" />
     <ClInclude Include="CopyFile.h" />
+    <ClInclude Include="cpp.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="gdt.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="idt.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="map.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="object.h" />
@@ -55,6 +57,7 @@
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="Registry.h" />
     <ClInclude Include="ssdt.h" />
+    <ClInclude Include="stl.h" />
     <ClInclude Include="SystemInfo.h" />
     <ClInclude Include="TEB.h" />
     <ClInclude Include="thread.h" />
@@ -63,6 +66,7 @@
   <ItemGroup>
     <ClCompile Include="APC.cpp" />
     <ClCompile Include="CopyFile.cpp" />
+    <ClCompile Include="cpp.cpp" />
     <ClCompile Include="cpu.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="gdt.cpp" />
@@ -70,6 +74,7 @@
     <ClCompile Include="idt.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="map.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="object.cpp" />
@@ -80,6 +85,7 @@
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="ssdt.cpp" />
+    <ClCompile Include="stl.cpp" />
     <ClCompile Include="SystemInfo.cpp" />
     <ClCompile Include="TEB.cpp" />
     <ClCompile Include="thread.cpp" />
