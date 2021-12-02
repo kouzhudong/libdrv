@@ -1,5 +1,5 @@
 # libdrv
-Static Library For Windows Kernel Drivers
+Static Library For Windows KernelMode Drivers
 
 创建本工程的目的。
 
