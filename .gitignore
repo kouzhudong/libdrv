@@ -53,3 +53,8 @@ dkms.conf
 
 #以上摘自：https://github.com/github/gitignore/blob/main/C.gitignore
 #以下是自己添加。
+
+.vs/
+x64/
+Debug/
+Release/

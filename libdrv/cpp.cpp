@@ -2,7 +2,7 @@
 
 
 _IRQL_requires_max_(DISPATCH_LEVEL)
-void * __cdecl operator new(_In_ SIZE_T size)
+void * __cdecl operator new(_In_ size_t size)
 {
     if (size == 0) {
         return NULL;
@@ -38,7 +38,7 @@ void __cdecl operator delete(_In_ void * p, _In_ SIZE_T size)
 
 
 _IRQL_requires_max_(DISPATCH_LEVEL)
-void * __cdecl operator new[](_In_ SIZE_T size) {
+void * __cdecl operator new[](_In_ size_t size) {
     if (size == 0) {
         return NULL;
     }

@@ -670,6 +670,10 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IFSTACK_ROW pTable = &Table->Table[i];
 
+#if !DBG 
+        DBG_UNREFERENCED_LOCAL_VARIABLE(pTable);
+#endif
+
         KdPrint(("HigherLayerInterfaceIndex:%d.\r\n", pTable->HigherLayerInterfaceIndex));
         KdPrint(("LowerLayerInterfaceIndex:%d.\r\n", pTable->LowerLayerInterfaceIndex));
     }
