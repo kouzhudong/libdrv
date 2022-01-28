@@ -234,7 +234,7 @@ BOOL GetCurrentDirectory(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING CurrentDirecto
 NTSTATUS GetUserOfProcess(_In_ HANDLE Pid, _Out_ PUNICODE_STRING User);
 
 BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter,
-                                    _In_ PFLT_INSTANCE Instance,
+                                    _In_opt_ PFLT_INSTANCE Instance,
                                     _In_ HANDLE Pid,
                                     _Inout_ PUNICODE_STRING FileName);
 

@@ -269,7 +269,7 @@ made at 2013.11.15
 
 //#pragma alloc_text(PAGE, GetFullDosProcessImageFileName)
 BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter,
-                                    _In_ PFLT_INSTANCE Instance,
+                                    _In_opt_ PFLT_INSTANCE Instance,
                                     _In_ HANDLE Pid,
                                     _Inout_ PUNICODE_STRING FileName
 )
