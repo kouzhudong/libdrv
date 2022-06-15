@@ -807,6 +807,11 @@ homepage:http://correy.webs.com
 
 
 DWORD GetSessionId(_In_ PEPROCESS Process)
+/*
+功能：获取进程的会话ID。
+
+另一个实现办法是用高版本的PsGetProcessSessionId。
+*/
 {
     NTSTATUS status = STATUS_SUCCESS;
     DWORD SessionId = 0;
