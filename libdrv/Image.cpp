@@ -45,6 +45,14 @@ ZwQueryVirtualMemory使用有几个注意事项：
 4.NtQueryVirtualMemory会有进去出不来的情况，即卡在那里了，这个函数内部用两个锁。
   只有一个工作线程，也会出现，所以用自己的工作线程排队也解决不了。
 5.如果第一个参数是NtCurrentProcess()，建议用KeStackAttachProcess。
+
+参考函数：
+MmGetFileNameForAddress
+0: kd> x nt!RtlPcTo* 这几个函数应该仅仅支持内核模块
+fffff804`65544fb0 nt!RtlPcToFileHeader (RtlPcToFileHeader)
+fffff804`65b169e0 nt!RtlPcToFilePath (RtlPcToFilePath)
+fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
+
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;

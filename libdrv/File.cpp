@@ -1579,3 +1579,164 @@ http://correy.webs.com
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
+/*
+功能:判断文件存在不？
+注意：这里没有考虑别的打开失败的情况。
+*/
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    HANDLE FileHandle = NULL;
+    OBJECT_ATTRIBUTES objAttributes = {0};
+    IO_STATUS_BLOCK ioStatusBlock = {0};
+    BOOL B = FALSE;
+    PFLT_FILE_NAME_INFORMATION NameInfo = NULL;
+
+    if (IRP_MJ_CREATE != Data->Iopb->MajorFunction) {
+        return B;//只支持这个操作。
+    }
+
+    if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
+        return B;
+    }
+
+    do {
+        Status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &NameInfo);
+        if (!NT_SUCCESS(Status)) {//STATUS_OBJECT_PATH_NOT_FOUND
+            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            break;
+        }
+
+        Status = FltParseFileNameInformation(NameInfo);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        InitializeObjectAttributes(&objAttributes, &NameInfo->Name, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
+        Status = FltCreateFile(NULL,
+                               Data->Iopb->TargetInstance,//FltObjects->Instance,
+                               &FileHandle,
+                               FILE_GENERIC_READ | SYNCHRONIZE,
+                               &objAttributes,
+                               &ioStatusBlock,
+                               0,
+                               FILE_ATTRIBUTE_NORMAL,
+                               FILE_SHARE_VALID_FLAGS,
+                               FILE_OPEN,
+                               FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
+                               NULL,
+                               0,
+                               IO_IGNORE_SHARE_ACCESS_CHECK);
+        if (!NT_SUCCESS(Status)) {
+            //PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            break;
+        }
+
+        B = TRUE;
+    } while (FALSE);
+
+    if (FileHandle) {
+        Status = FltClose(FileHandle);//严禁使用ZwClose，否者资源泄露，驱动程序验证器下会检测到。
+    }
+
+    if (NameInfo) {
+        FltReleaseFileNameInformation(NameInfo);
+    }
+
+    return B;
+}
+
+
+void GetResultOfCreateDisposition(_Inout_ PFLT_CALLBACK_DATA Data)
+/*
+功能：根据CreateDisposition的值判断出结果(OPEN,CREATE,DELETED只有这三种，这是本函数指定的，规则可商讨)。
+      仅仅适用于PreCreateFile。
+
+另一做法和思路：只要有创建的意图的，都为创建，无论是否存在，以及权限之类的限制。
+
+注意：此函数对pipe有恶劣影响，建议不使用，其核心应该是IsFileExist函数。
+
+检查规则：
+Value              Meaning
+FILE_SUPERSEDE     If the file already exists, replace it with the given file. If it does not, create the given file.
+FILE_CREATE        If the file already exists, fail the request and do not create or open the given file. If it does not, create the given file.
+FILE_OPEN          If the file already exists, open it instead of creating a new file. If it does not, fail the request and do not create a new file.
+FILE_OPEN_IF       If the file already exists, open it. If it does not, create the given file.
+FILE_OVERWRITE     If the file already exists, open it and overwrite it. If it does not, fail the request.
+FILE_OVERWRITE_IF  If the file already exists, open it and overwrite it. If it does not, create the given file.
+以上信息摘自：
+https://docs.microsoft.com/zh-cn/windows/win32/api/winternl/nf-winternl-ntcreatefile?redirectedfrom=MSDN
+http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
+*/
+{
+    UCHAR CreateDisposition = (UCHAR)(Data->Iopb->Parameters.Create.Options >> 24);
+
+    if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
+        return;//对于目录不处理，放过。
+    }
+
+    if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
+        return;
+    }
+
+    //对于文件不存在的，不处理，只处理文件已经存在的。
+    if (IsFileExist(Data)) {
+        switch (CreateDisposition) {
+        case FILE_SUPERSEDE:
+            //ret = CREATE;// FILE_CREATED;
+            break;
+        case FILE_CREATE:
+            //ret = CREATE;// FILE_EXISTS;
+            break;
+        case FILE_OPEN:
+            //ret = OPEN;
+            break;
+        case FILE_OPEN_IF:
+            //ret = OPEN;
+            break;
+        case FILE_OVERWRITE:
+            //ret = CREATE;
+            break;
+        case FILE_OVERWRITE_IF:
+            //ret = CREATE;
+            break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+    } else {
+        switch (CreateDisposition) {
+        case FILE_SUPERSEDE:
+            //ret = CREATE;
+            break;
+        case FILE_CREATE:
+            //ret = CREATE;
+            break;
+        case FILE_OPEN:
+            //ret = OPEN;
+            break;
+        case FILE_OPEN_IF:
+            ///ret = CREATE;
+            break;
+        case FILE_OVERWRITE:
+            //ret = CREATE;
+            break;
+        case FILE_OVERWRITE_IF:
+            //ret = CREATE;
+            break;
+        default:
+            ASSERT(FALSE);
+            break;
+        }
+    }
+
+    //再来个安全检查。
+
+    return;//ret
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
