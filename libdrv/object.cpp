@@ -50,17 +50,17 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
 }
 
 
-NTSTATUS GetObjectDosName(_In_ PVOID Object, _Inout_ PUNICODE_STRING DosName)
+NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STRING DosName)
 {
     NTSTATUS status = STATUS_SUCCESS;
     POBJECT_NAME_INFORMATION FileNameInfo = NULL;
 
-    if (NULL == Object) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%p", Object);
+    if (NULL == FileObject) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%p", FileObject);
         return STATUS_UNSUCCESSFUL;
     }
 
-    status = IoQueryFileDosDeviceName((PFILE_OBJECT)Object, &FileNameInfo);
+    status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
     if (!NT_SUCCESS(status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
         return status;

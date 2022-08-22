@@ -93,7 +93,7 @@ EXTERN_C_START
 
 
 NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName);
-NTSTATUS GetObjectDosName(_In_ PVOID Object, _Inout_ PUNICODE_STRING DosName);
+NTSTATUS GetFileObjectDosName(_In_ PVOID Object, _Inout_ PUNICODE_STRING DosName);
 
 void GetKnownDllPath();
 void GetKnownDllPathEx();

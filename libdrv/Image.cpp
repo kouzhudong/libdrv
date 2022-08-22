@@ -794,7 +794,7 @@ VOID ImageLoadedThreadEx(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    ctx->info.status = GetObjectDosName(ctx->info.ImageInfoEx->FileObject, &ctx->info.ImageLoaded);
+    ctx->info.status = GetFileObjectDosName(ctx->info.ImageInfoEx->FileObject, &ctx->info.ImageLoaded);
 
     KeSetEvent(ctx->Event, IO_NO_INCREMENT, FALSE);
 }
@@ -830,7 +830,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
                                                      (PVOID *)&FileObject,
                                                      0);
         if (NT_SUCCESS(ctx->info.status)) {
-            ctx->info.status = GetObjectDosName(FileObject, &FullName);
+            ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
             ASSERT(NT_SUCCESS(ctx->info.status));
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
@@ -857,7 +857,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         FileObject = CONTAINING_RECORD(ctx->info.FullImageName, FILE_OBJECT, FileName);
         ASSERT(FileObject);
 
-        ctx->info.status = GetObjectDosName(FileObject, &FullName);
+        ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
         if (NT_SUCCESS(ctx->info.status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
             ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,
