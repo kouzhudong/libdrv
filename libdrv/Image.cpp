@@ -131,14 +131,13 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
             //         LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
 
             //\nt4\private\sdktools\psapi\mapfile.c
-            struct {
+            struct
+            {
                 OBJECT_NAME_INFORMATION ObjectNameInfo;
                 WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {0};
 
-            NTSTATUS Status = GetMemoryMappedFilenameInformation(ULongToPtr(LdrEntry32->DllBase),
-                                                                 &s.ObjectNameInfo,
-                                                                 sizeof(s));
+            NTSTATUS Status = GetMemoryMappedFilenameInformation(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo, sizeof(s));
             if (NT_SUCCESS(Status)) {
                 //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 
@@ -214,14 +213,14 @@ homepage:http://correy.webs.com
             le1 = le1->Flink;
         } while (le1 != le2);
 
-        #if defined(_WIN64)
+    #if defined(_WIN64)
         //如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
         //ZwQueryInformationProcess +　ProcessWow64Information
         PWOW64_PROCESS pwp = (PWOW64_PROCESS)PsGetProcessWow64Process(Process);
         if (NULL != pwp) {
             EnumWow64Module(pwp, CallBack, Context);
         }
-        #endif
+    #endif
     } else {//win10上有不少进程是没有用户空间的，也没有命令行。
         KdPrint(("进程:%d没有PEB(用户层空间).\n", HandleToLong(Pid)));
     }
@@ -372,10 +371,10 @@ PVOID GetImageBase(__in PCSTR Name)
     }
 
     for (i = 0; i < numberOfModules; i++) {
-        #pragma prefast(push)
-        #pragma prefast(disable: 6385, "从“modules”中读取的数据无效: 可读大小为“_Old_8`modulesSize”个字节，但可能读取了“536”个字节。")
+    #pragma prefast(push)
+    #pragma prefast(disable: 6385, "从“modules”中读取的数据无效: 可读大小为“_Old_8`modulesSize”个字节，但可能读取了“536”个字节。")
         UCHAR * FileName = modules[i].FullPathName + modules[i].FileNameOffset;
-        #pragma prefast(pop)        
+    #pragma prefast(pop)        
 
         if (_stricmp((const char *)FileName, Name) == 0) {
             ImageBase = modules[i].BasicInfo.ImageBase;
@@ -393,10 +392,7 @@ PVOID GetImageBase(__in PCSTR Name)
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 
 
-NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules,
-                                      PAUX_MODULE_EXTENDED_INFO modules,
-                                      _In_opt_ PVOID Context
-)
+NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules, PAUX_MODULE_EXTENDED_INFO modules, _In_opt_ PVOID Context)
 /*
 枚举内核模块（EnumAllKernelModule）的示例函数。
 
@@ -409,12 +405,12 @@ NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules,
         PUCHAR ModuleName = modules[i].FullPathName + modules[i].FileNameOffset;
         PVOID ImageBase = modules[i].BasicInfo.ImageBase;
 
-        #if DBG 
+    #if DBG 
         KdPrint(("ImageBase:%p, FullDllName:%s.\n", ImageBase, ModuleName));
-        #else 
+    #else 
         DBG_UNREFERENCED_LOCAL_VARIABLE(ModuleName);
         DBG_UNREFERENCED_LOCAL_VARIABLE(ImageBase);
-        #endif 
+    #endif 
     }
 
     return STATUS_SUCCESS;
@@ -446,9 +442,8 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
         return status;
     }
-
-    // Calculate the number of modules.
-    ULONG numberOfModules = modulesSize / sizeof(AUX_MODULE_EXTENDED_INFO);
+    
+    ULONG numberOfModules = modulesSize / sizeof(AUX_MODULE_EXTENDED_INFO);// Calculate the number of modules.
 
     // Allocate memory to receive data.
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
@@ -559,11 +554,11 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     PVOID ImageBase = 0;
 
     ppeb = PsGetProcessPeb(Process);//注意：IDLE和system这两个应该获取不到。
-    #if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
+#if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-    #else
+#else
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-    #endif 
+#endif 
     le2 = le1;
 
     do {
@@ -615,10 +610,7 @@ NTSTATUS NTAPI HandleOneSection(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_o
 }
 
 
-BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName,
-                         _In_opt_ HandleSection CallBack,
-                         _In_opt_ PVOID Context
-)
+BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, _In_opt_ HandleSection CallBack, _In_opt_ PVOID Context)
 /*
 功能：通用的内核映射处理函数。
 
@@ -650,27 +642,14 @@ http://correy.webs.com
 
     // Attempt to open the driver image itself.
     // If this fails, then the driver image cannot be located, so nothing else matters.
-    InitializeObjectAttributes(&ObjectAttributes,
-                               ImageFileName,
-                               (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE),
-                               NULL,
-                               NULL);
-    Status = ZwOpenFile(&ImageFileHandle,
-                        FILE_EXECUTE,//FILE_READ_DATA
-                        &ObjectAttributes,
-                        &IoStatus,
-                        FILE_SHARE_READ | FILE_SHARE_DELETE,
-                        0);
+    InitializeObjectAttributes(&ObjectAttributes, ImageFileName, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), NULL, NULL);
+    Status = ZwOpenFile(&ImageFileHandle, FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return RetValue;
     }
 
-    InitializeObjectAttributes(&ObjectAttributes,
-                               NULL,
-                               (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE),
-                               NULL,
-                               NULL);
+    InitializeObjectAttributes(&ObjectAttributes, NULL, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), NULL, NULL);
     Status = ZwCreateSection(&Section,
                              SECTION_MAP_EXECUTE,//SECTION_MAP_READ
                              &ObjectAttributes,
@@ -691,25 +670,10 @@ http://correy.webs.com
     // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
     KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
 
-    Status = ObOpenObjectByPointer(PsInitialSystemProcess,
-                                   OBJ_KERNEL_HANDLE,
-                                   NULL,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &Handle);
+    Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = ZwMapViewOfSection(Section,
-                                Handle,
-                                &ViewBase,
-                                0L,
-                                0L,
-                                NULL,
-                                &ViewSize,
-                                ViewShare,
-                                0L,
-                                PAGE_EXECUTE);
+    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ZwClose(Handle);
@@ -743,9 +707,7 @@ http://correy.webs.com
 
 NTSTATUS ZwGetSystemModuleInformation()
 /*
-
-参考：
-WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c的PerfInfoSysModuleRunDown函数。
+参考：WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c的PerfInfoSysModuleRunDown函数。
 */
 {
     NTSTATUS Status;
@@ -754,7 +716,7 @@ WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c的PerfInfoSysModuleRunD
     ULONG BufferSize = 4096;
     ULONG ReturnLength;
 
-    retry:
+retry:
     Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (!Buffer) {
         return STATUS_NO_MEMORY;
@@ -811,32 +773,16 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    InitializeObjectAttributes(&ObjectAttributes,
-                               ctx->info.FullImageName,
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                               NULL,
-                               NULL);
-    ctx->info.status = ZwOpenFile(&File,
-                                  SYNCHRONIZE | FILE_EXECUTE,
-                                  &ObjectAttributes,
-                                  &IoStatus,
-                                  FILE_SHARE_READ,
-                                  0);
+    InitializeObjectAttributes(&ObjectAttributes, ctx->info.FullImageName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    ctx->info.status = ZwOpenFile(&File, SYNCHRONIZE | FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
     if (NT_SUCCESS(ctx->info.status)) {
-        ctx->info.status = ObReferenceObjectByHandle(File,
-                                                     FILE_READ_ACCESS,
-                                                     *IoFileObjectType,
-                                                     KernelMode,
-                                                     (PVOID *)&FileObject,
-                                                     0);
+        ctx->info.status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
         if (NT_SUCCESS(ctx->info.status)) {
             ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
             ASSERT(NT_SUCCESS(ctx->info.status));
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,
-                                                                       ctx->info.ImageLoaded.MaximumLength,
-                                                                       TAG);//由调用者释放。
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
             ASSERT(ctx->info.ImageLoaded.Buffer);
             RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
 
@@ -848,8 +794,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
             }
             ObDereferenceObject(FileObject);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ",
-                  ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
         }
 
         ZwClose(File);
@@ -860,16 +805,13 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
         if (NT_SUCCESS(ctx->info.status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,
-                                                                       ctx->info.ImageLoaded.MaximumLength,
-                                                                       TAG);//由调用者释放。
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
             ASSERT(ctx->info.ImageLoaded.Buffer);
             RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
 
             RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ",
-                  ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
         }
 
         if (FullName.Buffer) {
