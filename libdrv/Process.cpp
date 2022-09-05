@@ -192,10 +192,10 @@ made at 2013.11.15
 
     status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
     if (!NT_SUCCESS(status)) {
-#pragma warning(push)
-#pragma warning(disable:6387)//“User->Buffer”可能是“0”: 这不符合函数“ExFreePoolWithTag”的规范
+    #pragma warning(push)
+    #pragma warning(disable:6387)//“User->Buffer”可能是“0”: 这不符合函数“ExFreePoolWithTag”的规范
         ExFreePoolWithTag(User->Buffer, TAG);
-#pragma warning(pop)        
+    #pragma warning(pop)        
         RtlInitEmptyUnicodeString(User, NULL, 0);
         PsDereferencePrimaryToken(pat);
         ObDereferenceObject(Process);
@@ -322,13 +322,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
         return FALSE;
     }
     ObDereferenceObject(EProcess); //微软建议加上。
-    status = ObOpenObjectByPointer(EProcess,
-                                   OBJ_KERNEL_HANDLE,
-                                   NULL,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &Handle);
+    status = ObOpenObjectByPointer(EProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     if (!NT_SUCCESS(status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
         return FALSE;
@@ -379,11 +373,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     }
 
     //获取DOS名.
-    InitializeObjectAttributes(&ObjectAttributes,
-                               p,
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                               NULL,
-                               NULL);
+    InitializeObjectAttributes(&ObjectAttributes, p, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
     status = FltCreateFile(Filter,
                            Instance,
                            &File,
@@ -409,12 +399,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
         return FALSE;
     }
 
-    status = ObReferenceObjectByHandle(File,
-                                       FILE_READ_ACCESS,
-                                       *IoFileObjectType,
-                                       KernelMode,
-                                       (PVOID *)&FileObject,
-                                       0);
+    status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
     if (!NT_SUCCESS(status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
@@ -506,13 +491,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     }
     ObDereferenceObject(Process); //微软建议加上。
     HANDLE  Handle = 0;
-    status = ObOpenObjectByPointer(Process,
-                                   OBJ_KERNEL_HANDLE,
-                                   NULL,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &Handle);
+    status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     if (!NT_SUCCESS(status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
         return FALSE;
@@ -781,26 +760,19 @@ homepage:http://correy.webs.com
 {
     DWORD Integrity = GetProcessIntegrityLevel(UniqueProcess);
 
-    if (/*Integrity >= SECURITY_MANDATORY_UNTRUSTED_RID && */ Integrity < SECURITY_MANDATORY_LOW_RID)
-    {
+    if (/*Integrity >= SECURITY_MANDATORY_UNTRUSTED_RID && */ Integrity < SECURITY_MANDATORY_LOW_RID) {
         KdPrint(("PID:%d, Integrity:Untrusted.\r\n", HandleToULong(UniqueProcess)));
-    } else if (Integrity >= SECURITY_MANDATORY_LOW_RID && Integrity < SECURITY_MANDATORY_MEDIUM_RID)
-    {
+    } else if (Integrity >= SECURITY_MANDATORY_LOW_RID && Integrity < SECURITY_MANDATORY_MEDIUM_RID) {
         KdPrint(("PID:%d, Integrity:Low.\r\n", HandleToULong(UniqueProcess)));//Process Explorer显示为AppContainer。
-    } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_RID && Integrity < SECURITY_MANDATORY_MEDIUM_PLUS_RID)
-    {
+    } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_RID && Integrity < SECURITY_MANDATORY_MEDIUM_PLUS_RID) {
         KdPrint(("PID:%d, Integrity:Medium.\r\n", HandleToULong(UniqueProcess)));
-    } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_PLUS_RID && Integrity < SECURITY_MANDATORY_HIGH_RID)
-    {
+    } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_PLUS_RID && Integrity < SECURITY_MANDATORY_HIGH_RID) {
         KdPrint(("PID:%d, Integrity:Medium Plus.\r\n", HandleToULong(UniqueProcess)));
-    } else if (Integrity >= SECURITY_MANDATORY_HIGH_RID && Integrity < SECURITY_MANDATORY_SYSTEM_RID)
-    {
+    } else if (Integrity >= SECURITY_MANDATORY_HIGH_RID && Integrity < SECURITY_MANDATORY_SYSTEM_RID) {
         KdPrint(("PID:%d, Integrity:High.\r\n", HandleToULong(UniqueProcess)));
-    } else if (Integrity >= SECURITY_MANDATORY_SYSTEM_RID && Integrity < SECURITY_MANDATORY_PROTECTED_PROCESS_RID)
-    {
+    } else if (Integrity >= SECURITY_MANDATORY_SYSTEM_RID && Integrity < SECURITY_MANDATORY_PROTECTED_PROCESS_RID) {
         KdPrint(("PID:%d, Integrity:System.\r\n", HandleToULong(UniqueProcess)));
-    } else
-    {
+    } else {
         KdPrint(("PID:%d, Integrity:Invalid.\r\n", HandleToULong(UniqueProcess)));
     }
 }
@@ -830,11 +802,11 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
     if (NT_SUCCESS(status)) {
         //SessionId = *(DWORD *)TokenInformation;//TokenInformation有肯能为0.
 
-#pragma warning(push)
-#pragma warning(disable:4311)
-#pragma warning(disable:4302)
+    #pragma warning(push)
+    #pragma warning(disable:4311)
+    #pragma warning(disable:4302)
         SessionId = (DWORD)TokenInformation;
-#pragma warning(pop) 
+    #pragma warning(pop) 
 
         //KdPrint(("TokenSessionId:%d.\r\n", SessionId));
     } else {
@@ -1375,57 +1347,57 @@ NTSTATUS IsSecureProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * SecureProces
 /*
 Isolated User Mode (IUM) Processes
 
-Windows 10 introduced a new security feature named Virtual Secure Mode (VSM). 
-VSM leverages the Hyper-V Hypervisor and Second Level Address Translation (SLAT) to create a set of modes called Virtual Trust Levels (VTLs). 
-This new software architecture creates a security boundary to prevent processes running in one VTL from accessing the memory of another VTL. 
+Windows 10 introduced a new security feature named Virtual Secure Mode (VSM).
+VSM leverages the Hyper-V Hypervisor and Second Level Address Translation (SLAT) to create a set of modes called Virtual Trust Levels (VTLs).
+This new software architecture creates a security boundary to prevent processes running in one VTL from accessing the memory of another VTL.
 The benefit of this isolation includes additional mitigation from kernel exploits while protecting assets such as password hashes and Kerberos keys.
 
-Diagram 1 depicts the traditional model of Kernel mode and User mode code running in CPU ring 0 and ring 3, respectively. 
-In this new model, the code running in the traditional model executes in VTL0 and it cannot access the higher privileged VTL1, 
-where the Secure Kernel and Isolated User Mode (IUM) execute code. 
+Diagram 1 depicts the traditional model of Kernel mode and User mode code running in CPU ring 0 and ring 3, respectively.
+In this new model, the code running in the traditional model executes in VTL0 and it cannot access the higher privileged VTL1,
+where the Secure Kernel and Isolated User Mode (IUM) execute code.
 The VTLs are hierarchal meaning any code running in VTL1 is more privileged than code running in VTL0.
 
-The VTL isolation is created by the Hyper-V Hypervisor which assigns memory at boot time using Second Level Address Translation (SLAT). 
-It continues this dynamically as the system runs, protecting memory the Secure Kernel specifies needing protection from VTL0 because it will be used to contain secrets. 
-As separate blocks of memory are allocated for the two VTLs, 
+The VTL isolation is created by the Hyper-V Hypervisor which assigns memory at boot time using Second Level Address Translation (SLAT).
+It continues this dynamically as the system runs, protecting memory the Secure Kernel specifies needing protection from VTL0 because it will be used to contain secrets.
+As separate blocks of memory are allocated for the two VTLs,
 a secure runtime environment is created for VTL1 by assigning exclusive memory blocks to VTL1 and VTL0 with the appropriate access permissions.
 
 Trustlets
-Trustlets (also known as trusted processes, secure processes, or IUM processes) are programs running as IUM processes in VSM. 
-They complete system calls by marshalling them over to the Windows kernel running in VTL0 ring 0. 
-VSM creates a small execution environment that includes the small Secure Kernel executing in VTL1 (isolated from the kernel and drivers running in VTL0). 
+Trustlets (also known as trusted processes, secure processes, or IUM processes) are programs running as IUM processes in VSM.
+They complete system calls by marshalling them over to the Windows kernel running in VTL0 ring 0.
+VSM creates a small execution environment that includes the small Secure Kernel executing in VTL1 (isolated from the kernel and drivers running in VTL0).
 The clear security benefit is isolation of trustlet user mode pages in VTL1 from drivers running in the VTL0 kernel.
 Even if kernel mode of VTL0 is compromised by malware, it will not have access to the IUM process pages.
 
-With VSM enabled, the Local Security Authority (LSASS) environment runs as a trustlet. 
-LSASS manages the local system policy, user authentication, 
-and auditing while handling sensitive security data such as password hashes and Kerberos keys. 
-To leverage the security benefits of VSM, 
-a trustlet named LSAISO.exe (LSA Isolated) runs in VTL1 and 
-communicates with LSASS.exe running in VTL0 through an RPC channel. 
-The LSAISO secrets are encrypted before sending them over to LSASS running in VSM Normal Mode and 
+With VSM enabled, the Local Security Authority (LSASS) environment runs as a trustlet.
+LSASS manages the local system policy, user authentication,
+and auditing while handling sensitive security data such as password hashes and Kerberos keys.
+To leverage the security benefits of VSM,
+a trustlet named LSAISO.exe (LSA Isolated) runs in VTL1 and
+communicates with LSASS.exe running in VTL0 through an RPC channel.
+The LSAISO secrets are encrypted before sending them over to LSASS running in VSM Normal Mode and
 the pages of LSAISO are protected from malicious code running in VTL0.
 
 solated User Mode (IUM) Implications
-It is not possible to attach to an IUM process, inhibiting the ability to debug VTL1 code. 
+It is not possible to attach to an IUM process, inhibiting the ability to debug VTL1 code.
 This includes post mortem debugging of memory dumps and attaching the Debugging Tools for live debugging.
-It also includes attempts by privileged accounts or kernel drivers to load a DLL into an IUM process, 
-to inject a thread, or deliver a user-mode APC. Such attempts may result in destabilization of the entire system. 
-Windows APIs that would compromise the security of a Trustlet may fail in unexpected ways. 
+It also includes attempts by privileged accounts or kernel drivers to load a DLL into an IUM process,
+to inject a thread, or deliver a user-mode APC. Such attempts may result in destabilization of the entire system.
+Windows APIs that would compromise the security of a Trustlet may fail in unexpected ways.
 For example, loading a DLL into a Trustlet will make it available in VTL0 but not VTL1.
 QueueUserApc may silently fail if the target thread is in a Trustlet.
-Other APIs, such as CreateRemoteThread, VirtualAllocEx, 
+Other APIs, such as CreateRemoteThread, VirtualAllocEx,
 and Read/WriteProcessMemory will also not work as expected when used against Trustlets.
 
-Use the sample code below to prevent calling any functions which attempt to attach or inject code into an IUM process. 
+Use the sample code below to prevent calling any functions which attempt to attach or inject code into an IUM process.
 This includes kernel drivers that queue APCs for execution of code in a trustlet.
 
 If the return status of IsSecureProcess is success, examine the SecureProcess _Out_ parameter to determine if the process is an IUM process.
-IUM processes are marked by the system to be “Secure Processes”. 
+IUM processes are marked by the system to be “Secure Processes”.
 A Boolean result of TRUE means the target process is of type IUM.
 
-The WDK for Windows 10, “Windows Driver Kit - Windows 10.0.15063.0”, 
-contains the required definition of the PROCESS_EXTENDED_BASIC_INFORMATION structure. 
+The WDK for Windows 10, “Windows Driver Kit - Windows 10.0.15063.0”,
+contains the required definition of the PROCESS_EXTENDED_BASIC_INFORMATION structure.
 The updated version of the structure is defined in ntddk.h with the new IsSecureProcess field.
 
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes
@@ -1471,11 +1443,7 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information  
-    status = ZwQueryInformationProcess(ProcessHandle, 
-                                       ProcessBasicInformation,
-                                       &extendedInfo,
-                                       sizeof(extendedInfo), 
-                                       NULL);
+    status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), NULL);
     if (NT_SUCCESS(status)) {
         *ProtectedProcess = (BOOLEAN)(extendedInfo.IsProtectedProcess != 0);
     }
@@ -1503,11 +1471,7 @@ NTSTATUS IsWow64Process(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Wow64Process)
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information  
-    status = ZwQueryInformationProcess(ProcessHandle,
-                                       ProcessBasicInformation,
-                                       &extendedInfo,
-                                       sizeof(extendedInfo),
-                                       NULL);
+    status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), NULL);
     if (NT_SUCCESS(status)) {
         *Wow64Process = (BOOLEAN)(extendedInfo.IsWow64Process != 0);
     }

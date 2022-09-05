@@ -140,7 +140,7 @@ void GetKnownDllPathEx()
 
 
 void GetSystemRootPathName(PUNICODE_STRING PathName,
-                           PUNICODE_STRING NtPathName, 
+                           PUNICODE_STRING NtPathName,
                            PUNICODE_STRING DosPathName
 )
 /*
@@ -245,13 +245,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         UNICODE_STRING FullName = {0};
 
         RestartScan = FALSE;//为TRUE会导致死循环;
-        status = ZwQueryDirectoryObject(FileHandle,
-                                        FileInformation,
-                                        Length,
-                                        TRUE,
-                                        RestartScan,
-                                        &Context,
-                                        &ReturnedLength);
+        status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);
         if (status != STATUS_NO_MORE_FILES && status != STATUS_SUCCESS) {
             break;//这里好像没有走过。
         }
@@ -356,11 +350,7 @@ void EnumerateTransactionObject()
     ULONG ReturnedBytes;
 
     for (int x = 0; ; x++) {
-        Status = ZwEnumerateTransactionObject(NULL,
-                                              KTMOBJECT_TRANSACTION,
-                                              &Cursor,
-                                              sizeof(Cursor),
-                                              &ReturnedBytes);
+        Status = ZwEnumerateTransactionObject(NULL, KTMOBJECT_TRANSACTION, &Cursor, sizeof(Cursor), &ReturnedBytes);
         if (STATUS_NO_MORE_ENTRIES == Status) {
             break;
         }
@@ -375,11 +365,7 @@ void EnumerateTransactionObject()
 
 
     for (int x = 0; ; x++) {
-        Status = ZwEnumerateTransactionObject(NULL,
-                                              KTMOBJECT_TRANSACTION_MANAGER,
-                                              &Cursor,
-                                              sizeof(Cursor),
-                                              &ReturnedBytes);
+        Status = ZwEnumerateTransactionObject(NULL, KTMOBJECT_TRANSACTION_MANAGER, &Cursor, sizeof(Cursor), &ReturnedBytes);
         if (STATUS_NO_MORE_ENTRIES == Status) {
             break;
         }
@@ -432,8 +418,7 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
     RtlZeroMemory(pu, Length);
 
     status = ObQueryNameString(Object, pu, Length, &Length);
-    if (status != STATUS_SUCCESS)
-    {
+    if (status != STATUS_SUCCESS) {
         /*
         经查此时的返回值是0xC0000001。
         即连到系统上的设备没有发挥作用。
@@ -449,11 +434,9 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
     ObDereferenceObject(Object);
 
     //有的对象是没有名字的。
-    if (pu->Name.Length == 0)
-    {
+    if (pu->Name.Length == 0) {
         status = STATUS_UNSUCCESSFUL;
-    } else
-    {
+    } else {
         RtlCopyUnicodeString(ObjectName, &pu->Name);
         //ObjectName->Buffer = pu->Name.Buffer;
         //ObjectName->Length = pu->Name.Length;
@@ -504,16 +487,15 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
         return status;
     }
 
-    for (; i < pSysHandleInfo->NumberOfHandles; i++)
-    {
+    for (; i < pSysHandleInfo->NumberOfHandles; i++) {
         PSYSTEM_HANDLE_TABLE_ENTRY_INFO pHandle = &(pSysHandleInfo->Handles[i]);
 
         //根据进程进行搜索。
-#pragma prefast(push)
-#pragma warning(disable:4302)
-//#pragma prefast(disable:4302, "“类型强制转换”: 从“HANDLE”到“USHORT”截断")
+    #pragma prefast(push)
+    #pragma warning(disable:4302)
+    //#pragma prefast(disable:4302, "“类型强制转换”: 从“HANDLE”到“USHORT”截断")
         if (pHandle->UniqueProcessId == (USHORT)Pid)
-#pragma prefast(pop)        
+        #pragma prefast(pop)        
         {
             HANDLE hCopy;// Duplicate the handle in the current process
             PVOID  ObjectInformation = 0;
@@ -530,10 +512,10 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             pchunter没有显示句柄为进程和线程的信息。但是process explorer能。
             process explorer默认的情况下是不显示没有名字的句柄的MAPPINGS的。但是可以设置和修改。
             */
-            status = ZwDuplicateObject(ProcessHandle, 
+            status = ZwDuplicateObject(ProcessHandle,
                                        (HANDLE)pHandle->HandleValue,
                                        NtCurrentProcess(),
-                                       &hCopy, 
+                                       &hCopy,
                                        PROCESS_ALL_ACCESS,
                                        FALSE,
                                        DUPLICATE_SAME_ACCESS);
@@ -562,13 +544,12 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
                 return STATUS_INSUFFICIENT_RESOURCES;
             }
             RtlZeroMemory(ObjectInformation, ObjectInformationLength);
-            status = ZwQueryObject(hCopy, 
-                                   ObjectTypeInformation, 
+            status = ZwQueryObject(hCopy,
+                                   ObjectTypeInformation,
                                    ObjectInformation,
                                    ObjectInformationLength,
                                    &ReturnLength);
-            if (!NT_SUCCESS(status))
-            {
+            if (!NT_SUCCESS(status)) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
                 ExFreePoolWithTag(ObjectInformation, TAG);
                 ZwClose(hCopy);
@@ -593,13 +574,11 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             2.ObReferenceObjectByHandle+ObQueryNameString。
             */
             status = ZwQueryObjectNameByHandle(hCopy, &object_name);
-            if (NT_SUCCESS(status))
-            {
+            if (NT_SUCCESS(status)) {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ, NAME:%wZ\n", pHandle->HandleValue, &ppoti->TypeName, &object_name));
                 RtlFreeUnicodeString(&object_name);
                 //ExFreePoolWithTag(object_name.Buffer, tag );
-            } else
-            {
+            } else {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ\n", pHandle->HandleValue, &ppoti->TypeName));
             }
 

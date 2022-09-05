@@ -315,7 +315,7 @@ Length£ºÉÈÇøµÄ±¶Êý¡£
     }
 
     if (!NT_SUCCESS(status)) {
-        
+
     }
 
     ObDereferenceObject(FileObject);
@@ -827,11 +827,7 @@ homepage:https://correy.webs.com
     FILELINKINFORMATION->FileNameLength = HardLinkFileName->Length;
     RtlCopyMemory(FILELINKINFORMATION->FileName, HardLinkFileName->Buffer, HardLinkFileName->Length);
 
-    status = ZwSetInformationFile(FileHandle,
-                                  &IoStatusBlock,
-                                  FILELINKINFORMATION,
-                                  Length,
-                                  FileLinkInformation);
+    status = ZwSetInformationFile(FileHandle, &IoStatusBlock, FILELINKINFORMATION, Length, FileLinkInformation);
     if (!NT_SUCCESS(status)) {
         KdPrint(("ZwSetInformationFile fail %d\n", status));
     }

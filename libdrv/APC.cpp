@@ -69,12 +69,7 @@ Return Value:
     //Mode = ExGetPreviousMode();//KeGetPreviousMode
     Mode = KernelMode;
 
-    st = ObReferenceObjectByHandle(ThreadHandle,
-                                   THREAD_SET_CONTEXT,
-                                   *PsThreadType,
-                                   Mode,
-                                   (PVOID *)&Thread,
-                                   NULL);
+    st = ObReferenceObjectByHandle(ThreadHandle, THREAD_SET_CONTEXT, *PsThreadType, Mode, (PVOID *)&Thread, NULL);
     if (NT_SUCCESS(st)) {
         st = STATUS_SUCCESS;
         //if (PsIsSystemThread(Thread)) {//IS_SYSTEM_THREAD
@@ -136,11 +131,7 @@ NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
                                            KernelMode,
                                            &KernelHandle);
             if (NT_SUCCESS(Status)) {
-                Status = NtQueueApcThread(KernelHandle,
-                                          ApcRoutine,
-                                          ApcArgument1,
-                                          ApcArgument2,
-                                          ApcArgument3);
+                Status = NtQueueApcThread(KernelHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
                 if (!NT_SUCCESS(Status)) {
                     KdPrint(("Status:%#x.\n", Status));
                 }
@@ -191,11 +182,7 @@ Return Value:
 {
     NTSTATUS Status;
 
-    Status = NtQueueApcThread(hThread,
-                              (PPS_APC_ROUTINE)BaseDispatchAPC,
-                              (PVOID)pfnAPC,
-                              (PVOID)dwData,
-                              NULL);
+    Status = NtQueueApcThread(hThread, (PPS_APC_ROUTINE)BaseDispatchAPC, (PVOID)pfnAPC, (PVOID)dwData, NULL);
     if (!NT_SUCCESS(Status)) {
         return 0;
     }
