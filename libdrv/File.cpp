@@ -684,14 +684,14 @@ VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
 ´Ëº¯ÊýÒ»°ã½¨ÒéÓÃÔÚInstanceSetupÖÐ¡£
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     PVOID Buffer;
     ULONG BufferSizeNeeded;
     UNICODE_STRING Volume;
 
-    status = FltGetVolumeName(FltObjects->Volume, NULL, &BufferSizeNeeded);
-    if (status != STATUS_BUFFER_TOO_SMALL) {
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+    Status = FltGetVolumeName(FltObjects->Volume, NULL, &BufferSizeNeeded);
+    if (Status != STATUS_BUFFER_TOO_SMALL) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return;
     }
 
@@ -705,9 +705,9 @@ VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
     Volume.Buffer = (PWCH)Buffer;
     Volume.Length = (USHORT)BufferSizeNeeded;
     Volume.MaximumLength = (USHORT)BufferSizeNeeded + 2;
-    status = FltGetVolumeName(FltObjects->Volume, &Volume, &BufferSizeNeeded);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+    Status = FltGetVolumeName(FltObjects->Volume, &Volume, &BufferSizeNeeded);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     } else {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ÐÅÏ¢£ºattached device:%wZ", &Volume);
     }
@@ -764,11 +764,11 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
             status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
             ASSERT(NT_SUCCESS(status));
         } else {
-            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "status:%#X, FileName:%wZ",
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
                     status, &FltObjects->FileObject->FileName);
         }
     } else {//×ßÕâÀïµÄ²»ÉÙ¡£
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "status:%#X, FileName:%wZ",
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
                 status, &FltObjects->FileObject->FileName);//STATUS_FLT_NO_DEVICE_OBJECT
     }
 

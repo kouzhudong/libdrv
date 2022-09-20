@@ -133,7 +133,7 @@ NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
             if (NT_SUCCESS(Status)) {
                 Status = NtQueueApcThread(KernelHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
                 if (!NT_SUCCESS(Status)) {
-                    KdPrint(("Status:%#x.\n", Status));
+                    PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
                 }
 
                 ZwClose(KernelHandle);

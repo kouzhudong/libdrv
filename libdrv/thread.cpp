@@ -18,33 +18,34 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     SIZE_T          ThreadInformation = 0;
     ULONG           ThreadInformationLength = sizeof(PVOID);
     ULONG           ReturnLength = 0;
-    NTSTATUS        status = STATUS_SUCCESS;
+    NTSTATUS        Status = STATUS_SUCCESS;
 
-    status = PsLookupThreadByThreadId(ThreadId, &Thread);
-    if (!NT_SUCCESS(status)) {
-        return status;
+    Status = PsLookupThreadByThreadId(ThreadId, &Thread);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        return Status;
     }
 
-    status = ObOpenObjectByPointer(Thread,
+    Status = ObOpenObjectByPointer(Thread,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_READ,
                                    *PsThreadType,
                                    KernelMode,
                                    &kernelThreadHandle);//注意要关闭句柄。  
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Thread);
-        return status;
+        return Status;
     }
 
-    status = ZwQueryInformationThread(kernelThreadHandle,
+    Status = ZwQueryInformationThread(kernelThreadHandle,
                                       ThreadInformationClass,
                                       &ThreadInformation,
                                       ThreadInformationLength,
                                       &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     }
 
     *StartAddress = (PVOID)ThreadInformation;
@@ -55,13 +56,13 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     ObDereferenceObject(Thread);
     ZwClose(kernelThreadHandle);
 
-    return status;
+    return Status;
 }
 
 
 NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION temp = {0};
     PSYSTEM_PROCESS_INFORMATION ProcessInfo = &temp;
     PSYSTEM_PROCESS_INFORMATION it = 0;
@@ -72,25 +73,26 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
     int r = 0;
 
     //获取需要的内存。
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        return Status;
     }
     ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return STATUS_INSUFFICIENT_RESOURCES;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        return Status;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
 
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
-        return status;
+        return Status;
     }
 
     //枚举进程信息。
@@ -139,7 +141,7 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
 
     *thread_number = r;
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 
@@ -194,7 +196,7 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
 
 NTSTATUS KillUserThread(_In_ PETHREAD Thread)
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     HANDLE   kernelThreadHandle = NULL;
 
     ZwTerminateThread_pfn ZwTerminateThread = (ZwTerminateThread_pfn)GetZwRoutineAddress("ZwTerminateThread");
@@ -204,35 +206,37 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
     }
 
     //KernelMode/UserMode获取的都是内核句柄，都可以用，且都可以杀死线程。
-    status = ObOpenObjectByPointer(Thread,
+    Status = ObOpenObjectByPointer(Thread,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_ALL,
                                    *PsThreadType,
                                    KernelMode,
                                    &kernelThreadHandle);//注意要关闭句柄。  
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        return Status;
     }
 
-    status = ZwTerminateThread(kernelThreadHandle, STATUS_SUCCESS);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ZwTerminateThread(kernelThreadHandle, STATUS_SUCCESS);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     }
 
     ZwClose(kernelThreadHandle);
 
-    return status;
+    return Status;
 }
 
 
 NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In_opt_ PVOID Context)
 /*
 功能：通用的枚举线程的函数。
+
+注释：回调函数返回成功，结束枚举。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION_EX buffer = {0};
     PSYSTEM_PROCESS_INFORMATION_EX ProcessInfo = &buffer;
     PSYSTEM_PROCESS_INFORMATION_EX it = 0;
@@ -242,25 +246,25 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
     PSYSTEM_THREAD_INFORMATION ThreadInfo = 0;
 
     //获取需要的内存。
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        KdPrint(("ZwQuerySystemInformation fail with 0x%x in line %d\n", status, __LINE__));
-        return status;
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        return Status;
     }
     ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
-        KdPrint(("ExAllocatePoolWithTag fail with 0x%x\n", status));
+        KdPrint(("ExAllocatePoolWithTag fail with 0x%x\n", Status));
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
 
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        KdPrint(("ZwQuerySystemInformation fail with 0x%x in line %d\n", status, __LINE__));
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
-        return status;
+        return Status;
     }
 
     //枚举进程信息。
@@ -288,7 +292,10 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
                 //KdPrint(("    ThreadState:%d\n", ThreadInfo->ThreadState));
 
                 if (CallBack) {
-                    CallBack(&ThreadInfo->ClientId, Context);
+                    Status = CallBack(&ThreadInfo->ClientId, Context);
+                    if (NT_SUCCESS(Status)) {
+                        break;
+                    }
                 }
 
                 /*
@@ -314,7 +321,7 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 
     ExFreePoolWithTag(ProcessInfo, TAG);
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 
