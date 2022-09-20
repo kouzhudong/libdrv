@@ -187,11 +187,17 @@
   <ItemGroup>
     <ClInclude Include="..\inc\lib.h" />
     <ClInclude Include="DriverEntry.h" />
+    <ClInclude Include="FileTest.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ProcessTest.h" />
+    <ClInclude Include="RegistryTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DriverEntry.cpp" />
+    <ClCompile Include="FileTest.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="ProcessTest.cpp" />
+    <ClCompile Include="RegistryTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

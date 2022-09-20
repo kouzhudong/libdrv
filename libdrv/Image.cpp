@@ -142,7 +142,10 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
                 //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 
                 if (CallBack) {
-                    CallBack(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo.Name, Context);
+                    Status = CallBack(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo.Name, Context);
+                    if (NT_SUCCESS(Status)) {
+                        break;
+                    }
                 }
             }
         }
@@ -173,7 +176,7 @@ homepage:http://correy.webs.com
 */
 {
     PEPROCESS    Process;
-    NTSTATUS     status = STATUS_SUCCESS;
+    NTSTATUS     Status = STATUS_SUCCESS;
     KAPC_STATE   ApcState;
     PPEB peb = 0;
     PLIST_ENTRY le1, le2;
@@ -188,8 +191,8 @@ homepage:http://correy.webs.com
         return;//system
     }
 
-    status = PsLookupProcessByProcessId(Pid, &Process);
-    if (!NT_SUCCESS(status)) {
+    Status = PsLookupProcessByProcessId(Pid, &Process);
+    if (!NT_SUCCESS(Status)) {
         return;//无效进程。
     }
 
@@ -206,7 +209,10 @@ homepage:http://correy.webs.com
                 KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
                 if (CallBack) {
-                    CallBack(pldte->DllBase, &pldte->FullDllName, Context);
+                    Status = CallBack(pldte->DllBase, &pldte->FullDllName, Context);
+                    if (NT_SUCCESS(Status)) {
+                        break;
+                    }
                 }
             }
 
@@ -228,28 +234,6 @@ homepage:http://correy.webs.com
     KeUnstackDetachProcess(&ApcState);
 
     ObDereferenceObject(Process);
-}
-
-
-NTSTATUS WINAPI HandleOneProcess(HANDLE UniqueProcessId, _In_opt_ PVOID Context)
-/*
-测试样例：一个枚举进程的回调处理函数，用于枚举这个进程的所有的模块。
-*/
-{
-    UNREFERENCED_PARAMETER(Context);
-
-    EnumUserModule(UniqueProcessId, NULL, NULL);
-
-    return STATUS_SUCCESS;
-}
-
-
-NTSTATUS PringAllModuleOfAllProcess(VOID)
-/*
-测试用例：枚举所有进程的所有的模块。
-*/
-{
-    return EnumAllProcess(HandleOneProcess, NULL);
 }
 
 
@@ -275,14 +259,14 @@ PVOID GetNtBase()
 
     status = AuxKlibInitialize();
     if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return ImageBase;
     }
 
     // Get the required array size.
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
     if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return ImageBase;
     }
 
@@ -293,7 +277,7 @@ PVOID GetNtBase()
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
         status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
@@ -301,7 +285,7 @@ PVOID GetNtBase()
     // Obtain the module information.
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         ExFreePoolWithTag(modules, TAG);
         return ImageBase;
     }
@@ -346,7 +330,7 @@ PVOID GetImageBase(__in PCSTR Name)
     // Get the required array size.
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
     if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return ImageBase;
     }
 
@@ -357,7 +341,7 @@ PVOID GetImageBase(__in PCSTR Name)
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
         status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
@@ -365,7 +349,7 @@ PVOID GetImageBase(__in PCSTR Name)
     // Obtain the module information.
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         ExFreePoolWithTag(modules, TAG);
         return ImageBase;
     }
@@ -392,31 +376,6 @@ PVOID GetImageBase(__in PCSTR Name)
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 
 
-NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules, PAUX_MODULE_EXTENDED_INFO modules, _In_opt_ PVOID Context)
-/*
-枚举内核模块（EnumAllKernelModule）的示例函数。
-
-注释：此回调函数注册一次，调用一次。
-*/
-{
-    UNREFERENCED_PARAMETER(Context);
-
-    for (ULONG i = 0; i < numberOfModules; i++) {
-        PUCHAR ModuleName = modules[i].FullPathName + modules[i].FileNameOffset;
-        PVOID ImageBase = modules[i].BasicInfo.ImageBase;
-
-    #if DBG 
-        KdPrint(("ImageBase:%p, FullDllName:%s.\n", ImageBase, ModuleName));
-    #else 
-        DBG_UNREFERENCED_LOCAL_VARIABLE(ModuleName);
-        DBG_UNREFERENCED_LOCAL_VARIABLE(ImageBase);
-    #endif 
-    }
-
-    return STATUS_SUCCESS;
-}
-
-
 NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Context)
 /*
 功能：通用的处理每个内核模块的函数。
@@ -424,6 +383,8 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 其实有一个更简单的办法，只有知道NT里的一个地址，然后调用一个函数即可获得，这个API便是RtlPcToFileHeader。
 
 运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
+
+其实只要包含Aux_klib.lib，在XP和2003上也可以用，因为这个是静态连接的。
 */
 {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
@@ -431,7 +392,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 
     status = AuxKlibInitialize();
     if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return status;
     }
 
@@ -439,7 +400,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
     ULONG  modulesSize = 0;
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
     if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return status;
     }
     
@@ -449,7 +410,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
         status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return status;
     }
     RtlZeroMemory(modules, modulesSize);
@@ -457,7 +418,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
     // Obtain the module information.
     status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         ExFreePoolWithTag(modules, TAG);
         return status;
     }
@@ -469,15 +430,6 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
     ExFreePoolWithTag(modules, TAG);
 
     return status;
-}
-
-
-NTSTATUS PrintAllKernelModule()
-/*
-这是一个EnumAllKernelModule的用法的例子。
-*/
-{
-    return EnumKernelModule(HandleAllKernelModule, NULL);
 }
 
 
@@ -794,7 +746,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
             }
             ObDereferenceObject(FileObject);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
         }
 
         ZwClose(File);
@@ -811,7 +763,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
             RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
         }
 
         if (FullName.Buffer) {
@@ -897,7 +849,7 @@ FreeUnicodeString(&LoadImageFullName);
             KdPrint(("FILE:%s, LINE:%d.\r\n", __FILE__, __LINE__));
         }
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:0x%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x", status);
     }
 
     ExFreePoolWithTag(ctx, TAG);

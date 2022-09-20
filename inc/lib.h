@@ -263,7 +263,7 @@ void NetioEnumTest();
 
 
 NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName);
-NTSTATUS GetFileObjectDosName(_In_ PVOID Object, _Inout_ PUNICODE_STRING DosName);
+NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STRING DosName);
 void GetKnownDllPath();
 void GetKnownDllPathEx();
 NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory);
