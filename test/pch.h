@@ -89,6 +89,7 @@ typedef unsigned short  u_short;
 //#include <emmintrin.h>//WDK ±‡“Î°£
 //#include <xmmintrin.h>//WDK ±‡“Î°£
 
+#include "..\inc\lib.h"
 
 #define TAG 'tset' //test
 

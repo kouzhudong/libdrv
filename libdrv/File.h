@@ -34,6 +34,9 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
                                      __in PCFLT_RELATED_OBJECTS FltObjects,
                                      OUT PUNICODE_STRING usFullPath);
 
+VOID NTAPI WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer, ULONG Length);
+VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer);
+
 #if (NTDDI_VERSION < NTDDI_VISTA)
 NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP 为XP量身打造的FltQueryDirectoryFile
                                _In_ PFLT_INSTANCE Instance,

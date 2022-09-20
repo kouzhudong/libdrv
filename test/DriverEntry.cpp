@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "DriverEntry.h"
 #include "..\inc\lib.h"
+#include "ProcessTest.h"
+#include "FileTest.h"
+#include "RegistryTest.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

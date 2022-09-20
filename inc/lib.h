@@ -131,6 +131,9 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
 NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory);
 NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory);
 
+VOID NTAPI WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer, ULONG Length);
+VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer);
+
 NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
                                      __in PCFLT_RELATED_OBJECTS FltObjects,
                                      OUT PUNICODE_STRING usFullPath);
