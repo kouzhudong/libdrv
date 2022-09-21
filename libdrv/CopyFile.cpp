@@ -2,10 +2,6 @@
 #include "CopyFile.h"
 
 
-#pragma warning(disable:6387)
-#pragma warning(disable:6011)
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //以下代码摘自OSR.
 
@@ -99,11 +95,16 @@ static VOID KfcRead(PFILE_OBJECT FileObject,
     PIO_STACK_LOCATION ioStackLocation;
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
 
+    if (nullptr == Mdl) {
+        return;
+    }
+
     KeInitializeEvent(&event, SynchronizationEvent, FALSE);// Set up the event we'll use.   
     irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);// Allocate and build the IRP we'll be sending to the FSD.    
     if (!irp) {
         IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES;// Allocation failed, presumably due to memory allocation failure.
         IoStatusBlock->Information = 0;
+        return;
     }
 
     irp->MdlAddress = Mdl;
@@ -191,12 +192,18 @@ static VOID KfcWrite(PFILE_OBJECT FileObject,
     PIO_STACK_LOCATION ioStackLocation;
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
 
+    if (nullptr == Mdl) {
+        return;
+    }
+
     KeInitializeEvent(&event, SynchronizationEvent, FALSE);// Set up the event we'll use.    
     irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);// Allocate and build the IRP we'll be sending to the FSD.       
     if (!irp) {
         IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES;// Allocation failed, presumably due to memory allocation failure.        
         IoStatusBlock->Information = 0;
+        return;
     }
+
     irp->MdlAddress = Mdl;
     irp->UserEvent = &event;
     irp->UserIosb = IoStatusBlock;

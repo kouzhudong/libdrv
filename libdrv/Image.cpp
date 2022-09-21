@@ -6,10 +6,7 @@
 #include "ssdt.h"
 
 
-#pragma warning(disable:4366)
-#pragma warning(disable:4996)
-#pragma warning(disable:6387)
-#pragma warning(disable:6011)
+#pragma warning(disable:4366) //一元“&”运算符的结果可能是未对齐的
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +49,6 @@ MmGetFileNameForAddress
 fffff804`65544fb0 nt!RtlPcToFileHeader (RtlPcToFileHeader)
 fffff804`65b169e0 nt!RtlPcToFilePath (RtlPcToFilePath)
 fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
-
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -96,7 +92,6 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
     //    ExFreePool (Name.Buffer);
     //}  
 }
-
 
 
 #if defined(_WIN64)
@@ -374,8 +369,6 @@ PVOID GetImageBase(__in PCSTR Name)
 
 
 #if (NTDDI_VERSION >= NTDDI_VISTA)
-
-
 NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Context)
 /*
 功能：通用的处理每个内核模块的函数。
@@ -403,7 +396,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
         return status;
     }
-    
+
     ULONG numberOfModules = modulesSize / sizeof(AUX_MODULE_EXTENDED_INFO);// Calculate the number of modules.
 
     // Allocate memory to receive data.
@@ -431,8 +424,6 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 
     return status;
 }
-
-
 #endif
 
 
@@ -581,75 +572,101 @@ http://correy.webs.com
 用法示例：MapViewOfSection(&PsNtDllPathName);
 */
 {
-    HANDLE ImageFileHandle;
-    IO_STATUS_BLOCK IoStatus;
+    HANDLE ImageFileHandle = nullptr;
+    IO_STATUS_BLOCK IoStatus{};
     OBJECT_ATTRIBUTES ObjectAttributes;
-    HANDLE Section;
-    PVOID ViewBase;
-    SIZE_T ViewSize;
-    KAPC_STATE ApcState;
-    NTSTATUS Status;
+    HANDLE Section = nullptr;
+    PVOID ViewBase = nullptr;
+    SIZE_T ViewSize = 0;
+    KAPC_STATE ApcState{};
+    NTSTATUS Status = STATUS_SUCCESS;
     BOOLEAN RetValue = FALSE;
-    HANDLE  Handle = 0;
-
-    // Attempt to open the driver image itself.
-    // If this fails, then the driver image cannot be located, so nothing else matters.
-    InitializeObjectAttributes(&ObjectAttributes, ImageFileName, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), NULL, NULL);
-    Status = ZwOpenFile(&ImageFileHandle, FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
-    if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-        return RetValue;
-    }
-
-    InitializeObjectAttributes(&ObjectAttributes, NULL, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), NULL, NULL);
-    Status = ZwCreateSection(&Section,
-                             SECTION_MAP_EXECUTE,//SECTION_MAP_READ
-                             &ObjectAttributes,
-                             NULL,
-                             PAGE_EXECUTE,//PAGE_READONLY
-                             SEC_COMMIT,
-                             ImageFileHandle);
-    if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-        ZwClose(ImageFileHandle);
-        return RetValue;
-    }
-
-    ViewBase = NULL;
-    ViewSize = 0;
-
-    // Since callees are not always in the context of the system process, 
-    // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
-    KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
-
-    Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
-    ASSERT(NT_SUCCESS(Status));
-
-    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
-    if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-        ZwClose(Handle);
-        KeUnstackDetachProcess(&ApcState);
-        ZwClose(Section);
-        ZwClose(ImageFileHandle);
-        return RetValue;
-    }
-
-    RetValue = TRUE;
+    HANDLE  Handle = nullptr;
 
     __try {
-        if (CallBack) {
-            CallBack(ViewBase, ViewSize, Context);
+        // Attempt to open the driver image itself.
+        // If this fails, then the driver image cannot be located, so nothing else matters.
+        InitializeObjectAttributes(&ObjectAttributes,
+                                   ImageFileName,
+                                   OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+                                   NULL,
+                                   NULL);
+        Status = ZwOpenFile(&ImageFileHandle,
+                            FILE_EXECUTE,
+                            &ObjectAttributes,
+                            &IoStatus,
+                            FILE_SHARE_READ | FILE_SHARE_DELETE,
+                            0);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+            __leave;
         }
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+
+        InitializeObjectAttributes(&ObjectAttributes, NULL, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+        Status = ZwCreateSection(&Section,
+                                 SECTION_MAP_EXECUTE,//SECTION_MAP_READ
+                                 &ObjectAttributes,
+                                 NULL,
+                                 PAGE_EXECUTE,//PAGE_READONLY
+                                 SEC_COMMIT,
+                                 ImageFileHandle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+            __leave;
+        }
+
+        Status = ObOpenObjectByPointer(PsInitialSystemProcess,
+                                       OBJ_KERNEL_HANDLE,
+                                       NULL,
+                                       GENERIC_READ,
+                                       *PsProcessType,
+                                       KernelMode,
+                                       &Handle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+            __leave;
+        }
+
+        Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+            __leave;;
+        }
+
+        RetValue = TRUE;
+
+        // Since callees are not always in the context of the system process, 
+        // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
+        KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
+
+        __try {
+            if (CallBack) {
+                CallBack(ViewBase, ViewSize, Context);
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+            RetValue = FALSE;
+        }
+
+        KeUnstackDetachProcess(&ApcState);
+    } __finally {
+        if (Handle && ViewBase) {
+            ZwUnmapViewOfSection(Handle, ViewBase);
+        }
+
+        if (Section) {
+            ZwClose(Section);
+        }
+
+        if (ImageFileHandle) {
+            ZwClose(ImageFileHandle);
+        }
+
+        if (Handle) {
+            ZwClose(Handle);
+        }
     }
 
-    ZwUnmapViewOfSection(Handle, ViewBase);
-    KeUnstackDetachProcess(&ApcState);
-    ZwClose(Section);
-    ZwClose(ImageFileHandle);
-    ZwClose(Handle);
     return RetValue;
 }
 
@@ -686,7 +703,7 @@ retry:
         PRTL_PROCESS_MODULE_INFORMATION ModuleInfo;
         ULONG i = 0;
 
-        for (ModuleInfo = &(Modules->Modules[0]); i < Modules->NumberOfModules; i++, ModuleInfo++) {
+        for (ModuleInfo = &Modules->Modules[0]; i < Modules->NumberOfModules; i++, ModuleInfo++) {
             ANSI_STRING    AstrModuleName;
             RtlInitAnsiString(&AstrModuleName, (PCSZ)ModuleInfo->FullPathName);
 
