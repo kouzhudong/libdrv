@@ -201,6 +201,9 @@
     <ClCompile Include="RegistryTest.cpp" />
     <ClCompile Include="SsdtTest.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
