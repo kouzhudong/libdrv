@@ -407,6 +407,8 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ PVOID DllBase,
                                        _In_opt_ PVOID Context
 )
 /*
+枚举用户模块的回调函数。
+
 注意：双方的DLL路径是全路径且格式一致。
 */
 {

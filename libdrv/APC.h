@@ -111,6 +111,7 @@ NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle,
                                 __in_opt PVOID ApcArgument3);
 
 NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
+                                  //HANDLE MemoryReserveHandle, //真实的版本还有这个参数。
                                   __in PPS_APC_ROUTINE ApcRoutine,
                                   __in_opt PVOID ApcArgument1,
                                   __in_opt PVOID ApcArgument2,

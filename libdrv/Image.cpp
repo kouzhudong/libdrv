@@ -132,7 +132,9 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
                 WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {0};
 
-            NTSTATUS Status = GetMemoryMappedFilenameInformation(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo, sizeof(s));
+            NTSTATUS Status = GetMemoryMappedFilenameInformation(ULongToPtr(LdrEntry32->DllBase),
+                                                                 &s.ObjectNameInfo,
+                                                                 sizeof(s));
             if (NT_SUCCESS(Status)) {
                 //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 
@@ -195,24 +197,30 @@ homepage:http://correy.webs.com
 
     peb = PsGetProcessPeb(Process);//注意：IDLE和system这两个应该获取不到。
     if (peb) {
-        le1 = peb->Ldr->InMemoryOrderModuleList.Flink;
-        le2 = le1;
-        do {
-            pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-            if (pldte->FullDllName.Length) //过滤掉最后一个，多余的。
-            {
-                KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
+        __try {
+            if (peb->Ldr) {
+                le1 = peb->Ldr->InMemoryOrderModuleList.Flink;
+                le2 = le1;
+                do {
+                    pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+                    if (pldte->FullDllName.Length) //过滤掉最后一个，多余的。
+                    {
+                        KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
-                if (CallBack) {
-                    Status = CallBack(pldte->DllBase, &pldte->FullDllName, Context);
-                    if (NT_SUCCESS(Status)) {
-                        break;
+                        if (CallBack) {
+                            Status = CallBack(pldte->DllBase, &pldte->FullDllName, Context);
+                            if (NT_SUCCESS(Status)) {
+                                break;
+                            }
+                        }
                     }
-                }
-            }
 
-            le1 = le1->Flink;
-        } while (le1 != le2);
+                    le1 = le1->Flink;
+                } while (le1 != le2);
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+        }
 
     #if defined(_WIN64)
         //如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
