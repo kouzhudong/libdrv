@@ -38,12 +38,12 @@ NTSTATUS WINAPI HandleOneProcess(HANDLE UniqueProcessId, _In_opt_ PVOID Context)
 }
 
 
-NTSTATUS EnumProcess(VOID)
+NTSTATUS EnumProcessTest(VOID)
 /*
 测试用例：枚举进程的用法。
 */
 {
-    return EnumAllProcess(HandleOneProcess, NULL);
+    return EnumProcess(HandleOneProcess, NULL);
 }
 
 

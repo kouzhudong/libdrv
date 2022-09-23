@@ -321,7 +321,7 @@ DWORD GetSessionId(_In_ PEPROCESS Process);
 
 NTSTATUS GetPidFromProcessName(_In_ PWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId);
 
-NTSTATUS EnumAllProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context);
+NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context);
 
 BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessName);
 

@@ -1026,7 +1026,7 @@ made at 2015.07.08.
 }
 
 
-NTSTATUS EnumAllProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
+NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
 /*
 功能：通用的处理所有进程的函数。
 
