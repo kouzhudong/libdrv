@@ -1408,10 +1408,8 @@ The updated version of the structure is defined in ntddk.h with the new IsSecure
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes
 */
 {
-    NTSTATUS status;
-
-    // definition included in ntddk.h  
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};
+    NTSTATUS status;    
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
 
@@ -1440,10 +1438,8 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
 注意适用的范围。
 */
 {
-    NTSTATUS status;
-
-    // definition included in ntddk.h  
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};
+    NTSTATUS status;    
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
 
@@ -1469,13 +1465,15 @@ NTSTATUS IsWow64Process(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Wow64Process)
 
 仿照IsSecureProcess而建。
 
-注意适用的范围。
+参数：
+ProcessHandle是内核态的句柄，不是用户层的pid.
+
+注意:
+1.适用的范围。
 */
 {
-    NTSTATUS status;
-
-    // definition included in ntddk.h  
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};
+    NTSTATUS status;    
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
 
