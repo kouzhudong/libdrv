@@ -530,14 +530,6 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#define NTDLL_PATH_NAME L"\\SystemRoot\\System32\\ntdll.dll"
-UNICODE_STRING PsNtDllPathName = {
-    sizeof(NTDLL_PATH_NAME) - sizeof(UNICODE_NULL),
-    sizeof(NTDLL_PATH_NAME),
-    NTDLL_PATH_NAME
-};
-
-
 NTSTATUS NTAPI HandleOneSection(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_opt_ PVOID Context)
 /*
 说明：内核映射的回调处理函数的样例。
