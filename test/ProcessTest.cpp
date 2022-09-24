@@ -5,6 +5,57 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+NTSTATUS WINAPI HandleVirtualMemory(_In_ HANDLE Pid,
+                                    _In_ PMEMORY_BASIC_INFORMATION MemoryBasicInfo,
+                                    _In_opt_ PVOID Context
+)
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    PEPROCESS Process = nullptr;
+    HANDLE  KernelHandle = 0;
+
+    //\nt4\private\sdktools\psapi\mapfile.c
+    struct
+    {
+        OBJECT_NAME_INFORMATION ObjectNameInfo;
+        WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+    } s = {0};
+
+    UNREFERENCED_PARAMETER(Context);    
+
+    Status = PsLookupProcessByProcessId(Pid, &Process);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
+    }
+
+    Status = ObOpenObjectByPointer(Process,
+                                   OBJ_KERNEL_HANDLE,
+                                   NULL,
+                                   GENERIC_READ,
+                                   *PsProcessType,
+                                   KernelMode,
+                                   &KernelHandle);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        ObDereferenceObject(Process);
+        return Status;
+    }
+
+    Status = GetMemoryMappedFilenameInformation(KernelHandle,
+                                                MemoryBasicInfo->BaseAddress,
+                                                &s.ObjectNameInfo,
+                                                sizeof(s));
+    if (NT_SUCCESS(Status)) {
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, "FullDllName:%wZ\n", &s.ObjectNameInfo.Name);
+    }
+
+    ZwClose(KernelHandle);
+    ObDereferenceObject(Process);
+    return STATUS_UNSUCCESSFUL;//继续枚举
+}
+
+
 NTSTATUS WINAPI HandleOneUserModule(_In_ PVOID DllBase, _In_ PUNICODE_STRING FullDllName, _In_opt_ PVOID Context)
 {
     UNREFERENCED_PARAMETER(DllBase);
@@ -33,6 +84,7 @@ NTSTATUS WINAPI HandleOneProcess(HANDLE UniqueProcessId, _In_opt_ PVOID Context)
 
     EnumThread(UniqueProcessId, HandleOneThread, NULL);
     EnumUserModule(UniqueProcessId, HandleOneUserModule, NULL);
+    EnumVirtualMemory(UniqueProcessId, HandleVirtualMemory, NULL);
 
     return STATUS_UNSUCCESSFUL;//继续枚举
 }

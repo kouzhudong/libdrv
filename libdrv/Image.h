@@ -298,7 +298,8 @@ BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName,
                          _In_opt_ HandleSection CallBack,
                          _In_opt_ PVOID Context);
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_opt_ PVOID DllBase,
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+                                            _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength);
 

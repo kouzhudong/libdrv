@@ -12,7 +12,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_opt_ PVOID DllBase,
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+                                            _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength
 )
@@ -60,7 +61,7 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
         return Status;
     }
 
-    Status = ZwQueryVirtualMemoryFn(NtCurrentProcess(),
+    Status = ZwQueryVirtualMemoryFn(KernelProcessHandle, //NtCurrentProcess(),
                                     DllBase,
                                     MemoryMappedFilenameInformation,
                                     MemoryInformation,
@@ -132,7 +133,8 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
                 WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {0};
 
-            NTSTATUS Status = GetMemoryMappedFilenameInformation(ULongToPtr(LdrEntry32->DllBase),
+            NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
+                                                                 ULongToPtr(LdrEntry32->DllBase),
                                                                  &s.ObjectNameInfo,
                                                                  sizeof(s));
             if (NT_SUCCESS(Status)) {

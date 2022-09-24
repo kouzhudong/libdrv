@@ -46,6 +46,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="object.h" />
@@ -75,6 +76,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="object.cpp" />

@@ -107,6 +107,10 @@ typedef VOID(*PPS_APC_ROUTINE) (__in_opt PVOID ApcArgument1,
                                 __in_opt PVOID ApcArgument2,
                                 __in_opt PVOID ApcArgument3);
 
+typedef NTSTATUS(WINAPI * VirtualMemoryCallBack)(_In_ HANDLE Pid,
+                                                 _In_ PMEMORY_BASIC_INFORMATION MemoryBasicInfo,
+                                                 _In_opt_ PVOID Context);
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +200,8 @@ BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName,
                          _In_opt_ HandleSection CallBack,
                          _In_opt_ PVOID Context);
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_opt_ PVOID DllBase,
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+                                            _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength);
 
@@ -206,6 +211,13 @@ VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in_opt PUNICODE_STRING  FullImageName,
                                    __in HANDLE  ProcessId,
                                    __in PIMAGE_INFO  ImageInfo);
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//ÄÚ´æÏà¹Ø¡£
+
+
+NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBack CallBack, _In_opt_ PVOID Context);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
