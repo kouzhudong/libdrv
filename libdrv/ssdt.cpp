@@ -8,6 +8,10 @@
 #include "File.h"
 
 
+volatile ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn;
+volatile ZwTerminateThread_pfn ZwTerminateThreadFn;
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -393,4 +397,19 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 #endif 
 
     return RoutineAddress;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress)
+{
+    InterlockedExchangePointer((PVOID volatile *)&ZwQueryVirtualMemoryFn, ZwQueryVirtualMemoryAddress);
+}
+
+
+void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress)
+{
+    InterlockedExchangePointer((PVOID volatile *)&ZwTerminateThreadFn, ZwTerminateThreadAddress);
 }

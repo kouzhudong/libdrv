@@ -199,8 +199,7 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
     NTSTATUS Status = STATUS_SUCCESS;
     HANDLE   kernelThreadHandle = NULL;
 
-    ZwTerminateThread_pfn ZwTerminateThread = (ZwTerminateThread_pfn)GetZwRoutineAddress("ZwTerminateThread");
-    if (NULL == ZwTerminateThread) {
+    if (NULL == ZwTerminateThreadFn) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "获取ZwTerminateThread的地址失败");
         return STATUS_UNSUCCESSFUL;
     }
@@ -218,7 +217,7 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
         return Status;
     }
 
-    Status = ZwTerminateThread(kernelThreadHandle, STATUS_SUCCESS);
+    Status = ZwTerminateThreadFn(kernelThreadHandle, STATUS_SUCCESS);
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     }

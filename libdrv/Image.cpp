@@ -50,13 +50,13 @@ MmGetFileNameForAddress
 fffff804`65544fb0 nt!RtlPcToFileHeader (RtlPcToFileHeader)
 fffff804`65b169e0 nt!RtlPcToFilePath (RtlPcToFilePath)
 fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
+
+调用此函数前需先调用SetZwQueryVirtualMemoryAddress函数。
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SIZE_T ReturnLength = {0};
 
-    ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn = (ZwQueryVirtualMemory_PFN)
-        GetZwRoutineAddress("ZwQueryVirtualMemory");
     if (NULL == ZwQueryVirtualMemoryFn) {
         return Status;
     }

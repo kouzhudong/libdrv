@@ -10,6 +10,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
 /*
 功能：枚举一个进程的用户空间的内存。
 
+调用此函数前，需先调用SetZwQueryVirtualMemoryAddress函数。
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -18,8 +19,6 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
     PEPROCESS Process = nullptr;
     HANDLE  KernelHandle = 0;
 
-    ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn = (ZwQueryVirtualMemory_PFN)
-        GetZwRoutineAddress("ZwQueryVirtualMemory");
     if (NULL == ZwQueryVirtualMemoryFn) {
         return STATUS_UNSUCCESSFUL;
     }

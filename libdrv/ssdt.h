@@ -1,6 +1,8 @@
 #pragma once
 
 #include "pch.h"
+#include "Image.h"
+#include "thread.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,10 +46,22 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+extern volatile ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn;
+extern volatile ZwTerminateThread_pfn ZwTerminateThreadFn;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 EXTERN_C_START
 
 
 EXTERN_C SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
+
+void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
+void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
+
+
 
 
 EXTERN_C_END

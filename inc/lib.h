@@ -366,6 +366,33 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
 //SSDT
 
 
+//原型摘自：\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
+//尽管\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h加了(NTDDI_VERSION >= NTDDI_WIN2K)。
+//但是早期的系统（XP）并没有导出这个函数。
+//所以有此定义。
+typedef
+NTSTATUS
+(NTAPI * ZwQueryVirtualMemory_PFN) (
+    _In_ HANDLE ProcessHandle,
+    _In_opt_ PVOID BaseAddress,
+    _In_ MEMORY_INFORMATION_CLASS MemoryInformationClass,
+    _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
+    _In_ SIZE_T MemoryInformationLength,
+    _Out_opt_ PSIZE_T ReturnLength
+    );
+
+
+typedef
+NTSTATUS
+(WINAPI * ZwTerminateThread_pfn)(
+    __in_opt HANDLE ThreadHandle,
+    __in NTSTATUS ExitStatus
+    );
+
+
+void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
+void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
+
 SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 
 
