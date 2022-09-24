@@ -487,6 +487,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
 
     __try {
         if (!MemoryBasicInfo || !UserFunctionAddress) {
+            Status = STATUS_UNSUCCESSFUL;
             __leave;
         }
 
@@ -512,8 +513,8 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
                                                     MemoryBasicInfo->BaseAddress,
                                                     &s.ObjectNameInfo,
                                                     sizeof(s));
-        if (!NT_SUCCESS(Status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        if (!NT_SUCCESS(Status)) {//地址为0会返回STATUS_INVALID_ADDRESS。
+            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
         }
 
@@ -522,6 +523,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
         UNICODE_STRING DllFullName = {0};
         RtlInitUnicodeString(&DllFullName, UserFunctionAddress->DllFullName);
         if (0 != RtlCompareUnicodeString(&s.ObjectNameInfo.Name, &DllFullName, TRUE)) {
+            Status = STATUS_UNSUCCESSFUL;
             __leave;
         }
 
