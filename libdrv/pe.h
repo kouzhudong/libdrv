@@ -62,6 +62,7 @@ EXTERN_C_START
 
 PVOID MiFindExportedRoutineByName(_In_ PVOID DllBase, _In_ PANSI_STRING AnsiImageRoutineName);
 PVOID MiFindExportedRoutineByNameEx(_In_ PVOID DllBase, _In_ PANSI_STRING AnsiImageRoutineName);
+PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName);
 PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName);
 BOOL IsPe64(_In_ PVOID ImageBase);
 VOID ModifyPeEntry(_In_ PVOID ImageBase);

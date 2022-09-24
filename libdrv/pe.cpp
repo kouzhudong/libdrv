@@ -1,6 +1,7 @@
 #include "pe.h"
 #include "Image.h"
 #include "Process.h"
+#include "Memory.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,7 +403,10 @@ made at 2014.08.18
 }
 
 
-NTSTATUS WINAPI GetUserFunctionAddress(_In_ PVOID DllBase,
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
                                        _In_ PUNICODE_STRING FullDllName,
                                        _In_opt_ PVOID Context
 )
@@ -443,6 +447,105 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ PVOID DllBase,
 }
 
 
+PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
+/*
+功能：获取某个进程的某个模块的某个(导出)函数的地址。
+
+参数说明：
+DllFullName：模块的全路径。
+
+注释：之所以用全路径，是因为一个进程可能加载两个相同名字的模块，如WOW64进程有两个ntdll.dll。
+*/
+{
+    GetUserFunctionAddressInfo UserFunctionAddress = {0};
+
+    RtlStringCchCopyW(UserFunctionAddress.DllFullName, ARRAYSIZE(UserFunctionAddress.DllFullName), DllFullName);
+    RtlStringCchCopyA(UserFunctionAddress.FunctionName, ARRAYSIZE(UserFunctionAddress.FunctionName), FunctionName);
+
+    EnumUserModule(ProcessId, GetUserFunctionAddressByPeb, &UserFunctionAddress);
+
+    return UserFunctionAddress.UserFunctionAddress;
+}
+
+
+NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
+                                       _In_ PMEMORY_BASIC_INFORMATION MemoryBasicInfo,
+                                       _In_opt_ PVOID Context
+)
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    PEPROCESS Process = nullptr;
+    HANDLE  KernelHandle = 0;
+    PGetUserFunctionAddressInfo UserFunctionAddress = (PGetUserFunctionAddressInfo)Context;
+
+    //\nt4\private\sdktools\psapi\mapfile.c
+    struct
+    {
+        OBJECT_NAME_INFORMATION ObjectNameInfo;
+        WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+    } s = {0};
+
+    __try {
+        if (!MemoryBasicInfo || !UserFunctionAddress) {
+            __leave;
+        }
+
+        Status = PsLookupProcessByProcessId(Pid, &Process);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = ObOpenObjectByPointer(Process,
+                                       OBJ_KERNEL_HANDLE,
+                                       NULL,
+                                       GENERIC_READ,
+                                       *PsProcessType,
+                                       KernelMode,
+                                       &KernelHandle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = GetMemoryMappedFilenameInformation(KernelHandle,
+                                                    MemoryBasicInfo->BaseAddress,
+                                                    &s.ObjectNameInfo,
+                                                    sizeof(s));
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, "FullDllName:%wZ\n", &s.ObjectNameInfo.Name);
+
+        UNICODE_STRING DllFullName = {0};
+        RtlInitUnicodeString(&DllFullName, UserFunctionAddress->DllFullName);
+        if (0 != RtlCompareUnicodeString(&s.ObjectNameInfo.Name, &DllFullName, TRUE)) {
+            __leave;
+        }
+
+        ANSI_STRING FunctionName = {0};
+        RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
+        UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress, 
+                                                                               &FunctionName);
+        if (UserFunctionAddress->UserFunctionAddress) {
+            Status = STATUS_SUCCESS;//结束上层的枚举。
+        }
+    } __finally {
+        if (KernelHandle) {
+            ZwClose(KernelHandle);
+        }
+
+        if (Process) {
+            ObDereferenceObject(Process);
+        }
+    }
+
+    return Status;
+}
+
+
 PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
 /*
 功能：获取某个进程的某个模块的某个(导出)函数的地址。
@@ -458,7 +561,7 @@ DllFullName：模块的全路径。
     RtlStringCchCopyW(UserFunctionAddress.DllFullName, ARRAYSIZE(UserFunctionAddress.DllFullName), DllFullName);
     RtlStringCchCopyA(UserFunctionAddress.FunctionName, ARRAYSIZE(UserFunctionAddress.FunctionName), FunctionName);
 
-    EnumUserModule(ProcessId, GetUserFunctionAddress, &UserFunctionAddress);
+    EnumVirtualMemory(ProcessId, GetUserFunctionAddress, &UserFunctionAddress);
 
     return UserFunctionAddress.UserFunctionAddress;
 }
@@ -678,11 +781,7 @@ VOID ModifyPeEntry(_In_ PVOID ImageBase)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-BOOLEAN ExtraFile(_In_ PCSTR FileName,
-                  _In_ ULONG_PTR Type,
-                  _In_ ULONG_PTR Id,
-                  _In_ PUNICODE_STRING NewFileName
-)
+BOOLEAN ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName)
 /*
 功能：在驱动层释放资源信息到文件。
 
