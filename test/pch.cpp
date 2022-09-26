@@ -56,7 +56,7 @@ L"\\SystemRoot\\SysWOW64\\kernel32.dll"
     #endif
     }
 
-    //方法二的测试。
+    //方法二的测试：不支持WOW64。
     UserRoutine = GetUserFunctionAddressByPeb(UniqueProcess, g_DosKernel32Path.Buffer, "LoadLibraryExW");
     if (!UserRoutine) {
     #ifdef _WIN64 //为了这个API费时，为了加快速度，最好判断是不是WOW64进程.

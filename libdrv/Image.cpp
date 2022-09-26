@@ -96,7 +96,9 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
 
 
 #if defined(_WIN64)
-void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
+
+
+void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
 /*
 功能：遍历一个WOW64进程的WOW64模块。
 
@@ -114,7 +116,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
         for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink);
              LdrNext32 != LdrHead32;
              LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {
-            LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
+            LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//非法地址。
 
             //必须转换一下才能打印。%Z是对STRING32打印不出的。
             //这个路径有的显示的不对，应是WOW64。
@@ -152,6 +154,134 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
 }
+
+
+void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
+/*
+功能：遍历一个WOW64进程的WOW64模块。
+
+参考：WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\dbgk\dbgkobj.c的DbgkpPostFakeModuleMessages函数。
+
+不建议使用：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了。
+*/
+{
+    PPEB32 Peb32 = (PPEB32)pwp;
+    PPEB_LDR_DATA32 Ldr32;
+    PLIST_ENTRY32 LdrHead32, LdrNext32;
+    PLDR_DATA_TABLE_ENTRY32 LdrEntry32;
+
+    UNREFERENCED_PARAMETER(CallBack);
+    UNREFERENCED_PARAMETER(Context);
+
+    //方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了。
+    __try {
+        Ldr32 = (PPEB_LDR_DATA32)UlongToPtr(Peb32->Ldr);
+        LdrHead32 = &Ldr32->InLoadOrderModuleList;
+
+        for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink); 
+             LdrNext32 != LdrHead32; 
+             LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {           
+
+            LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
+
+            //必须转换一下才能打印。%Z是对STRING32打印不出的。
+            //这个路径有的显示的不对，应是WOW64，可用NtQueryVirtualMemory或MmGetFileNameForAddress来解决。
+            UNICODE_STRING ImagePathName = {0};
+            ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
+            ImagePathName.Length = LdrEntry32->FullDllName.Length;
+            ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
+
+            //因为是32位的地址，就不用0x%p了。
+            KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n", LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+    }
+
+    //方法二。
+    //__try {
+    //    PPEB32 peb32 = (PPEB32)pwp;
+    //    if (!peb32 || !peb32->Ldr) {
+    //        return;
+    //    }
+    //    for (PLIST_ENTRY32 Entry = (PLIST_ENTRY32)((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList.Flink;
+    //         Entry != &((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList;
+    //         Entry = (PLIST_ENTRY32)Entry->Flink) {
+    //        PLDR_DATA_TABLE_ENTRY32 DataTableEntry = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);            
+    //        struct{//\nt4\private\sdktools\psapi\mapfile.c
+    //            OBJECT_NAME_INFORMATION ObjectNameInfo;
+    //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+    //        } s = {0};
+    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
+    //                                                             ULongToPtr(DataTableEntry->DllBase),
+    //                                                             &s.ObjectNameInfo,
+    //                                                             sizeof(s));
+    //        if (NT_SUCCESS(Status)) {
+    //            //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
+    //            if (CallBack) {
+    //                Status = CallBack(ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo.Name, Context);
+    //                if (NT_SUCCESS(Status)) {
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //    }
+    //} __except (EXCEPTION_EXECUTE_HANDLER) {
+    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+    //}
+
+    //方法一。
+    //PPEB32 Peb32 = (PPEB32)pwp;
+    //PPEB_LDR_DATA32 Ldr32;
+    //PLIST_ENTRY32 LdrHead32, LdrNext32;
+    //PLDR_DATA_TABLE_ENTRY32 LdrEntry32;
+
+    //__try {
+    //    Ldr32 = (PPEB_LDR_DATA32)UlongToPtr(Peb32->Ldr);
+    //    LdrHead32 = &Ldr32->InLoadOrderModuleList;
+    //    for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink);
+    //         LdrNext32 != LdrHead32;
+    //         LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {
+    //        LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//非法地址。
+
+    //        //必须转换一下才能打印。%Z是对STRING32打印不出的。
+    //        //这个路径有的显示的不对，应是WOW64。
+    //        //解决思路：可用NtQueryVirtualMemory或MmGetFileNameForAddress或者RtlPcToFileName来解决。
+    //        //UNICODE_STRING ImagePathName = {0};
+    //        //ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
+    //        //ImagePathName.Length = LdrEntry32->FullDllName.Length;
+    //        //ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;            
+    //        //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//因为是32位的地址，就不用0x%p了。
+    //        //         LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
+
+    //        //\nt4\private\sdktools\psapi\mapfile.c
+    //        struct
+    //        {
+    //            OBJECT_NAME_INFORMATION ObjectNameInfo;
+    //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+    //        } s = {0};
+
+    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
+    //                                                             ULongToPtr(LdrEntry32->DllBase),
+    //                                                             &s.ObjectNameInfo,
+    //                                                             sizeof(s));
+    //        if (NT_SUCCESS(Status)) {
+    //            //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
+
+    //            if (CallBack) {
+    //                Status = CallBack(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo.Name, Context);
+    //                if (NT_SUCCESS(Status)) {
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //    }
+    //} __except (EXCEPTION_EXECUTE_HANDLER) {
+    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+    //}
+}
+
+
 #endif
 
 
