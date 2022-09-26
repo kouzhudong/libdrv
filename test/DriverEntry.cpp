@@ -18,6 +18,8 @@ VOID Unload(_In_ struct _DRIVER_OBJECT * DriverObject)
     UNREFERENCED_PARAMETER(DriverObject);
 
     PAGED_CODE();
+
+    StopSystemThreadInIdleProcess();
 }
 
 
@@ -48,9 +50,11 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
     GetKernel32FullPath();
     GetSomeSystemRoutineAddress();
 
-    HANDLE UniqueProcess = NULL;
-    ASSERTMSG("请填写期望的PID", UniqueProcess);
-    IsWow64Process(UniqueProcess);
+    //HANDLE UniqueProcess = NULL;
+    //ASSERTMSG("请填写期望的PID", UniqueProcess);
+    //IsWow64Process(UniqueProcess);
+
+    CreateSystemThreadInIdleProcess();
 
     //EnumProcessTest();
 

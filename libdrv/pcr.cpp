@@ -69,30 +69,3 @@ struct _KPRCB * KeGetPrcb(PKPCR pkpcr)
     return pkpcr->CurrentPrcb;
 #endif
 }
-
-
-NTSTATUS GetPcrTest()
-{
-    NTSTATUS Status = STATUS_SUCCESS;
-    PKPCR pkpcr;
-    struct _KPRCB * Prcb;
-    //DBGKD_GET_VERSION64 * pdgv;
-    //PKDDEBUGGER_DATA64 pkdd;
-    //char * p;
-
-    KeSetSystemAffinityThread(1);
-    pkpcr = KeGetPcr();
-    KeRevertToUserAffinityThread();
-
-    Prcb = KeGetPrcb(pkpcr);
-
-    ////下面打印获取一些没有导出的重要的信息，如诸多变量。
-    //pdgv = pkpcr->KdVersionBlock;//在X64下这个等于零。
-
-    ////pkdd = (PKDDEBUGGER_DATA64)((char *)pkpcr + sizeof(DBGKD_GET_VERSION64));
-    //p = (char *)pdgv;
-    //p += sizeof(DBGKD_GET_VERSION64);
-    //pkdd = (PKDDEBUGGER_DATA64)p;     
-
-    return Status;
-}

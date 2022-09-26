@@ -153,3 +153,4 @@ extern UNICODE_STRING g_NtkernelWow64Path;
 
 void GetKernel32FullPath();
 PVOID GetLoadLibraryExWAddress(HANDLE UniqueProcess);
+NTSTATUS GetPcrTest();

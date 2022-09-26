@@ -598,3 +598,12 @@ class pcr
 {
 
 };
+
+
+EXTERN_C_START
+
+
+struct _KPRCB * KeGetPrcb(PKPCR pkpcr);
+
+
+EXTERN_C_END

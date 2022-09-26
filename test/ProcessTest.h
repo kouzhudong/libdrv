@@ -16,5 +16,8 @@ class ProcessTest
 NTSTATUS EnumProcessTest(VOID);
 NTSTATUS PrintAllKernelModule();
 
+void CreateSystemThreadInIdleProcess();
+void StopSystemThreadInIdleProcess();
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

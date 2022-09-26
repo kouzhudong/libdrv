@@ -137,3 +137,120 @@ NTSTATUS PrintAllKernelModule()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+PVOID gLogThreadObj;
+LONG gDriverUnloading = FALSE;//为TRUE时就不再接受各个消息了，包括网络和进程。
+
+
+VOID SystemThreadInIdleProcess(__in PVOID  StartContext)
+/*
+
+*/
+{
+    UNREFERENCED_PARAMETER(StartContext);
+
+    for (; ; ) {
+        if (gDriverUnloading) {
+            break;//注意驱动卸载时，还有记录没有被读取/写入的情况。
+        }
+
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, 
+              "i am in pid = %d process", HandleToLong(PsGetCurrentProcessId()));
+
+        Sleep(1000);
+    }
+
+    //ASSERT(gDriverUnloading);
+
+    PsTerminateSystemThread(STATUS_SUCCESS);
+}
+
+
+void StopSystemThreadInIdleProcess()
+{
+    InterlockedIncrement(&gDriverUnloading);
+
+    ASSERT(gLogThreadObj);
+    KeWaitForSingleObject(gLogThreadObj, Executive, KernelMode, FALSE, NULL);
+    ObDereferenceObject(gLogThreadObj);
+}
+
+
+void CreateSystemThreadInIdleProcess()
+/*
+革命尚未成功，同志仍需努力。
+*/
+{
+    NTSTATUS status;
+    HANDLE threadHandle;
+    HANDLE ProcessHandle = NULL;
+    PKPCR pkpcr;
+    struct _KPRCB * Prcb;
+    
+    /*
+    0: kd> dt _KPRCB IdleThread
+    nt!_KPRCB
+    +0x018 IdleThread : Ptr64 _KTHREAD
+    */
+    int IdleThreadOffset = 0x018;
+
+    /*
+    0: kd> dt _kthread Process
+    nt!_KTHREAD
+    +0x220 Process : Ptr64 _KPROCESS
+    */
+    int ProcessOffsetInThread = 0x220;
+
+    KeSetSystemAffinityThread(1);
+    pkpcr = KeGetPcr();
+    KeRevertToUserAffinityThread();
+
+    Prcb = KeGetPrcb(pkpcr);
+
+    PETHREAD IdleThread = (PETHREAD)((PCHAR)Prcb + IdleThreadOffset);
+    DBG_UNREFERENCED_LOCAL_VARIABLE(IdleThread);
+
+    //PEPROCESS IdleProcess = PsGetThreadProcess(IdleThread);//得到的值是NULL。
+
+//    PEPROCESS IdleProcess = NULL;
+//#pragma warning(push)
+//#pragma warning(disable:6387)//“_Param_(1)”可能是“0”: 这不符合函数“PsLookupProcessByProcessId”的规范。
+//    status = PsLookupProcessByProcessId(0, &IdleProcess);//STATUS_INVALID_CID
+//#pragma warning(pop)      
+//    ASSERT(NT_SUCCESS(status));
+
+    //HANDLE IdleProcessId = PsGetProcessId(IdleProcess);
+    //ASSERT(0 == IdleProcessId);
+    //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcessId);
+
+    PEPROCESS IdleProcess = (PEPROCESS)((PCHAR)IdleThread + ProcessOffsetInThread);
+    DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcess);
+    
+    //status = ObOpenObjectByPointer(IdleProcess,
+    //                               OBJ_KERNEL_HANDLE,
+    //                               NULL,
+    //                               GENERIC_READ,
+    //                               *PsProcessType,
+    //                               KernelMode,
+    //                               &ProcessHandle);
+    //ASSERT(NT_SUCCESS(status));//STATUS_OBJECT_TYPE_MISMATCH
+
+    status = PsCreateSystemThread(&threadHandle,
+                                  THREAD_ALL_ACCESS,
+                                  NULL,
+                                  NULL, //ProcessHandle,
+                                  NULL, 
+                                  SystemThreadInIdleProcess, 
+                                  NULL);
+    ASSERT(NT_SUCCESS(status));
+    status = ObReferenceObjectByHandle(threadHandle, 0, NULL, KernelMode, &gLogThreadObj, NULL);
+    ASSERT(NT_SUCCESS(status));
+    ZwClose(threadHandle);
+    
+    //ZwClose(ProcessHandle);
+    //ObDereferenceObject(IdleProcess);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
