@@ -1498,7 +1498,7 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
 }
 
 
-bool IsWow64Process(_In_ HANDLE ProcessHandle)
+BOOLEAN IsWow64Process(_In_ HANDLE ProcessHandle)
 /*
 
 */
