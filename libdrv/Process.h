@@ -264,7 +264,7 @@ NTSTATUS ZwAllocateHeap();
 
 NTSTATUS IsSecureProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * SecureProcess);
 NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * ProtectedProcess);
-NTSTATUS IsWow64Process(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Wow64Process);
+bool IsWow64Process(_In_ HANDLE ProcessHandle);
 
 NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable);
 

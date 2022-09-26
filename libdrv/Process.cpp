@@ -242,10 +242,10 @@ made at 2013.11.15
         return status;
     }
 
-    //status = RtlConvertSidToUnicodeString(&SidString, UserInformation->pSid,TRUE);
-    //if( !NT_SUCCESS( status ) )//成功.#define STATUS_INVALID_SID ((NTSTATUS)0xC0000078L)   -1073741704
+    //Status = RtlConvertSidToUnicodeString(&SidString, UserInformation->pSid,TRUE);
+    //if( !NT_SUCCESS( Status ) )//成功.#define STATUS_INVALID_SID ((NTSTATUS)0xC0000078L)   -1073741704
     //{
-    //    return status;
+    //    return Status;
     //}        
 
     //KdPrint(("UserName:%wZ\n",&UserInformation->UserName));
@@ -412,7 +412,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     //if (KeAreAllApcsDisabled())
     //{
     //    ExFreePoolWithTag(ProcessFileName, TAG);
-    //    ZwClose(Handle);
+    //    ZwClose(KernelHandle);
     //    ZwClose(File);
     //    return FALSE;
     //}
@@ -840,7 +840,7 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
     */
     status = PsLookupProcessByProcessId(Pid, &EProcess);
     if (!NT_SUCCESS(status)) {
-        //KdPrint(("PsLookupProcessByProcessId fail with 0x%x in line %d\n",status, __LINE__));
+        //KdPrint(("PsLookupProcessByProcessId fail with 0x%x in line %d\n",Status, __LINE__));
         return FALSE;
     }
     ObDereferenceObject(EProcess); //微软建议加上。
@@ -1107,45 +1107,45 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
 功能：获取一个进程的父进程。
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     PROCESS_BASIC_INFORMATION ProcessBasicInfo = {0};
     ULONG ReturnLength = 0;
-    PEPROCESS  EProcess = 0;
-    HANDLE  Handle = 0;
-    HANDLE ParentsPID = 0;
+    PEPROCESS  Process = nullptr;
+    HANDLE  KernelHandle = nullptr;
+    HANDLE ParentsPID = nullptr;
 
     /*
     必须转换一下，不然是无效的句柄。
     大概是句柄的类型转换为内核的。
     */
-    status = PsLookupProcessByProcessId(UniqueProcessId, &EProcess);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = PsLookupProcessByProcessId(UniqueProcessId, &Process);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ParentsPID;
     }
 
-    ObDereferenceObject(EProcess); //微软建议加上。
+    ObDereferenceObject(Process); //微软建议加上。
 
-    status = ObOpenObjectByPointer(EProcess,
+    Status = ObOpenObjectByPointer(Process,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_READ,
                                    *PsProcessType,
                                    KernelMode,
-                                   &Handle);//注意要关闭句柄。  
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+                                   &KernelHandle);//注意要关闭句柄。  
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ParentsPID;
     }
 
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(KernelHandle,
                                        ProcessBasicInformation,
                                        &ProcessBasicInfo,
                                        sizeof(PROCESS_BASIC_INFORMATION),
                                        &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        ZwClose(Handle);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        ZwClose(KernelHandle);
         return ParentsPID;
     }
 
@@ -1155,7 +1155,7 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
     ParentsPID = (HANDLE)ProcessBasicInfo.InheritedFromUniqueProcessId;
 #endif 
 
-    ZwClose(Handle);
+    ZwClose(KernelHandle);
     return ParentsPID;
 }
 
@@ -1397,7 +1397,7 @@ and Read/WriteProcessMemory will also not work as expected when used against Tru
 Use the sample code below to prevent calling any functions which attempt to attach or inject code into an IUM process.
 This includes kernel drivers that queue APCs for execution of code in a trustlet.
 
-If the return status of IsSecureProcess is success, examine the SecureProcess _Out_ parameter to determine if the process is an IUM process.
+If the return Status of IsSecureProcess is success, examine the SecureProcess _Out_ parameter to determine if the process is an IUM process.
 IUM processes are marked by the system to be “Secure Processes”.
 A Boolean result of TRUE means the target process is of type IUM.
 
@@ -1408,7 +1408,7 @@ The updated version of the structure is defined in ntddk.h with the new IsSecure
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes
 */
 {
-    NTSTATUS status;    
+    NTSTATUS status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1418,7 +1418,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--iu
     // Query for the process information  
     status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
-                                       &extendedInfo, 
+                                       &extendedInfo,
                                        sizeof(extendedInfo),
                                        NULL);
     if (NT_SUCCESS(status)) {
@@ -1438,7 +1438,7 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
 注意适用的范围。
 */
 {
-    NTSTATUS status;    
+    NTSTATUS status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1448,7 +1448,7 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
     // Query for the process information  
     status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
-                                       &extendedInfo, 
+                                       &extendedInfo,
                                        sizeof(extendedInfo),
                                        NULL);
     if (NT_SUCCESS(status)) {
@@ -1470,9 +1470,14 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
 
 注意:
 1.适用的范围。
+
+另外的思路：
+1.ZwQueryInformationProcess +　ProcessWow64Information
+2.X64下仅有的PsGetProcessWow64Process(Process);
+3.
 */
 {
-    NTSTATUS status;    
+    NTSTATUS status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1482,14 +1487,62 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
     // Query for the process information  
     status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
-                                       &extendedInfo, 
-                                       sizeof(extendedInfo), 
+                                       &extendedInfo,
+                                       sizeof(extendedInfo),
                                        NULL);
     if (NT_SUCCESS(status)) {
         *Wow64Process = (BOOLEAN)(extendedInfo.IsWow64Process != 0);
     }
 
     return status;
+}
+
+
+bool IsWow64Process(_In_ HANDLE ProcessHandle)
+/*
+
+*/
+{
+    NTSTATUS Status;
+    BOOLEAN Wow64Process = FALSE;
+    PEPROCESS  Process = nullptr;
+    HANDLE  KernelHandle = nullptr;
+
+    __try {
+        Status = PsLookupProcessByProcessId(ProcessHandle, &Process);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = ObOpenObjectByPointer(Process,
+                                       OBJ_KERNEL_HANDLE,
+                                       NULL,
+                                       GENERIC_READ,
+                                       *PsProcessType,
+                                       KernelMode,
+                                       &KernelHandle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = IsWow64Process(KernelHandle, &Wow64Process);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+    } __finally {
+        if (KernelHandle) {
+            ZwClose(KernelHandle);
+        }
+
+        if (Process) {
+            ObDereferenceObject(Process);
+        }
+    }
+
+    return Wow64Process;
 }
 
 
