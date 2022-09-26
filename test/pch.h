@@ -13,6 +13,7 @@
 2.统一规划文件的包含关系.
 */
 
+
 #pragma once
 
 
@@ -142,3 +143,13 @@ typedef unsigned short  u_short;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+extern UNICODE_STRING g_DosKernel32Path;
+extern UNICODE_STRING g_Ntkernel32Path;
+extern UNICODE_STRING g_DosKernelWow64Path;
+extern UNICODE_STRING g_NtkernelWow64Path;
+
+
+void GetKernel32FullPath();
+PVOID GetLoadLibraryExWAddress(HANDLE UniqueProcess);

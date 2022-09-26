@@ -319,6 +319,9 @@ NdisGetRoutineAddress有类似的限制。
 本文的一些信息摘自：WRK。
 不过这也是源码，加入驱动也是可以使用的。
 
+注意：
+如果是获取应用层的地址，需要附加到进程。
+
 made by correy
 made at 2014.08.18
 */
@@ -407,8 +410,8 @@ made at 2014.08.18
 
 
 NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
-                                       _In_ PUNICODE_STRING FullDllName,
-                                       _In_opt_ PVOID Context
+                                            _In_ PUNICODE_STRING FullDllName,
+                                            _In_opt_ PVOID Context
 )
 /*
 枚举用户模块的回调函数。
@@ -527,6 +530,9 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
             __leave;
         }
 
+        KAPC_STATE   ApcState;
+        KeStackAttachProcess(Process, &ApcState);
+
         ANSI_STRING FunctionName = {0};
         RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
         UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress, 
@@ -534,6 +540,8 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
         if (UserFunctionAddress->UserFunctionAddress) {
             Status = STATUS_SUCCESS;//结束上层的枚举。
         }
+
+        KeUnstackDetachProcess(&ApcState);
     } __finally {
         if (KernelHandle) {
             ZwClose(KernelHandle);
