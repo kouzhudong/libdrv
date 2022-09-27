@@ -209,7 +209,8 @@ void CreateSystemThreadInIdleProcess()
     Prcb = KeGetPrcb(pkpcr);
 
     PETHREAD IdleThread = (PETHREAD)((PCHAR)Prcb + IdleThreadOffset);
-    DBG_UNREFERENCED_LOCAL_VARIABLE(IdleThread);
+    IdleThread = *(PETHREAD *)IdleThread;
+    //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleThread);
 
     //PEPROCESS IdleProcess = PsGetThreadProcess(IdleThread);//得到的值是NULL。
 
@@ -225,7 +226,8 @@ void CreateSystemThreadInIdleProcess()
     //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcessId);
 
     PEPROCESS IdleProcess = (PEPROCESS)((PCHAR)IdleThread + ProcessOffsetInThread);
-    DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcess);
+    IdleProcess = *(PEPROCESS *)IdleProcess;
+    //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcess);
     
     //status = ObOpenObjectByPointer(IdleProcess,
     //                               OBJ_KERNEL_HANDLE,
@@ -234,7 +236,7 @@ void CreateSystemThreadInIdleProcess()
     //                               *PsProcessType,
     //                               KernelMode,
     //                               &ProcessHandle);
-    //ASSERT(NT_SUCCESS(status));//STATUS_OBJECT_TYPE_MISMATCH
+    //ASSERT(NT_SUCCESS(status));//即使填写正确的Idle进程，也会返回STATUS_OBJECT_TYPE_MISMATCH。
 
     status = PsCreateSystemThread(&threadHandle,
                                   THREAD_ALL_ACCESS,
