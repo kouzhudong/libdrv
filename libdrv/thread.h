@@ -132,7 +132,103 @@ PsIsThreadImpersonating(
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//Win2K3\NT\base\published\winbase.w
+typedef DWORD(WINAPI * PTHREAD_START_ROUTINE)(
+    LPVOID lpThreadParameter
+    );
+typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
+
+
+//typedef DWORD(__stdcall * LPTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);
+
+//IDA
+//NTSTATUS __stdcall RtlCreateUserThread(
+//    HANDLE ProcessHandle,
+//    PSECURITY_DESCRIPTOR SecurityDescriptor,
+//    BOOLEAN CreateSuspended,
+//    SIZE_T StackZeroBits,
+//    SIZE_T StackReserve,
+//    SIZE_T StackCommit,
+//    PTHREAD_START_ROUTINE StartAddress,
+//    PVOID Parameter,
+//    PHANDLE ThreadHandle,
+//    PCLIENT_ID ClientId);
+
+//Win2K3\NT\public\sdk\inc\ntrtl.h
+typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(
+    PVOID ThreadParameter
+    );
+
+//Win2K3\NT\base\ntos\rtl\rtlexec.c
+//NTSTATUS NTAPI
+//RtlCreateUserThread(
+//    IN HANDLE Process,
+//    IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
+//    IN BOOLEAN CreateSuspended,
+//    IN ULONG ZeroBits OPTIONAL,
+//    IN SIZE_T MaximumStackSize OPTIONAL,
+//    IN SIZE_T CommittedStackSize OPTIONAL,
+//    IN PUSER_THREAD_START_ROUTINE StartAddress,
+//    IN PVOID Parameter OPTIONAL,
+//    OUT PHANDLE Thread OPTIONAL,
+//    OUT PCLIENT_ID ClientId OPTIONAL
+//);
+
+//此函数已经导出，但是编译环境（二进制和文本）没有这个定义。
+//只需用MmGetSystemRoutineAddress获取即可。
+typedef
+NTSTATUS (NTAPI *
+RtlCreateUserThreadFn)(
+    IN HANDLE Process,
+    IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
+    IN BOOLEAN CreateSuspended,
+    IN ULONG ZeroBits OPTIONAL,
+    IN SIZE_T MaximumStackSize OPTIONAL,
+    IN SIZE_T CommittedStackSize OPTIONAL,
+    IN PUSER_THREAD_START_ROUTINE StartAddress,
+    IN PVOID Parameter OPTIONAL,
+    OUT PHANDLE Thread OPTIONAL,
+    OUT PCLIENT_ID ClientId OPTIONAL
+);
+
+//Win2K3\NT\public\sdk\inc\ntrtl.h
+//NTSYSAPI
+//NTSTATUS
+//NTAPI
+//RtlCreateUserThread(
+//    HANDLE Process,
+//    PSECURITY_DESCRIPTOR ThreadSecurityDescriptor,
+//    BOOLEAN CreateSuspended,
+//    ULONG StackZeroBits,
+//    SIZE_T MaximumStackSize OPTIONAL,
+//    SIZE_T InitialStackSize OPTIONAL,
+//    PUSER_THREAD_START_ROUTINE StartAddress,
+//    PVOID Parameter,
+//    PHANDLE Thread,
+//    PCLIENT_ID ClientId
+//);
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//NtCreateThreadEx这个函数是新增的，XP源码里没有。
+
+
+/*
+其实也无需测试NtCreateThreadEx。
+因为RtlCreateUserThread->RtlpCreateUserThreadEx->ZwCreateThreadEx->NtCreateThreadEx。
+除非ZwCreateThreadEx比RtlCreateUserThread有额外的功能，或者说RtlCreateUserThread删减ZwCreateThreadEx的功能。
+其实RtlCreateUserThread封装了ZwCreateThreadEx，比ZwCreateThreadEx更好用更友好。
+一个使用ZwCreateThreadEx的原因是RtlCreateUserThread没有导出。
+*/
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 typedef NTSTATUS(WINAPI * HandleThread) (_In_ PCLIENT_ID Cid, _In_opt_ PVOID Context);
+
+
+extern volatile RtlCreateUserThreadFn RtlCreateUserThread;
 
 
 EXTERN_C_START
@@ -147,6 +243,8 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread);
 NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In_opt_ PVOID Context);
 
 bool IsRemoteThread(_In_ HANDLE ProcessId);
+
+NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID Parameter);
 
 
 EXTERN_C_END

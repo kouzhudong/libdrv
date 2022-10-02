@@ -102,7 +102,10 @@ NTSTATUS EnumProcessTest(VOID)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules, PAUX_MODULE_EXTENDED_INFO modules, _In_opt_ PVOID Context)
+NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules, 
+                                      PAUX_MODULE_EXTENDED_INFO modules, 
+                                      _In_opt_ PVOID Context
+)
 /*
 枚举内核模块（EnumAllKernelModule）的示例函数。
 
@@ -184,7 +187,7 @@ void CreateSystemThreadInIdleProcess()
 {
     NTSTATUS status;
     HANDLE threadHandle;
-    HANDLE ProcessHandle = NULL;
+    //HANDLE ProcessHandle = NULL;
     PKPCR pkpcr;
     struct _KPRCB * Prcb;
     

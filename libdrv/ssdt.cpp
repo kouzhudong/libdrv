@@ -191,16 +191,7 @@ IDA中的信息：
                                    &Handle);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = ZwMapViewOfSection(Section,
-                                Handle,
-                                (PVOID *)&ViewBase,
-                                0L,
-                                0L,
-                                NULL,
-                                &ViewSize,
-                                ViewShare,
-                                0L,
-                                PAGE_EXECUTE);
+    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
     if (!NT_SUCCESS(Status)) {
         ZwClose(Handle);
         KeUnstackDetachProcess(&ApcState);
@@ -412,4 +403,10 @@ void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtual
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress)
 {
     InterlockedExchangePointer((PVOID volatile *)&ZwTerminateThreadFn, ZwTerminateThreadAddress);
+}
+
+
+void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress)
+{
+    InterlockedExchangePointer((PVOID volatile *)&RtlCreateUserThread, RtlCreateUserThreadAddress);
 }

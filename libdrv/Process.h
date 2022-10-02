@@ -195,6 +195,9 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS64
 EXTERN_C PUCHAR PsGetProcessImageFileName(IN PEPROCESS Process); //未公开的函数。
 
 
+EXTERN_C bool NTAPI FsRtlIs32BitProcess(PEPROCESS Process);//已经导出。
+
+
 //摘自WRK。
 EXTERN_C
 //NTKERNELAPI

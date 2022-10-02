@@ -3,6 +3,8 @@
 #include "Process.h"
 #include "ssdt.h"
 
+volatile RtlCreateUserThreadFn RtlCreateUserThread;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -360,6 +362,146 @@ ProcessId
     }
 
     return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//以下函数有待完善和测试，这里只是给出思路和原型。
+
+
+NTSTATUS
+NTAPI
+RtlpStartThread(
+    PUSER_THREAD_START_ROUTINE Function,
+    PVOID Parameter,
+    HANDLE * ThreadHandleReturn
+)
+/*
+摘自：\Win2K3\NT\base\ntos\rtl\threads.c
+
+只做参考，直接使用不大，因为目的是注入。
+*/
+{
+    if (nullptr == RtlCreateUserThread) {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    return RtlCreateUserThread(
+        NtCurrentProcess(),     // process handle
+        NULL,                   // security descriptor
+        TRUE,                   // Create suspended?
+        0L,                     // ZeroBits: default
+        0L,                     // Max stack size: default
+        0L,                     // Committed stack size: default
+        Function,               // Function to start in
+        Parameter,              // Parameter to start with
+        ThreadHandleReturn,     // Thread handle return
+        NULL                    // Thread id
+    );
+}
+
+
+NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID Parameter)
+/*
+功能：RtlCreateUserThread的简单封装。
+
+参数：
+1.Pid，其实是一个整数。
+2.Function，应用层的代码的地址。
+3.Parameter，应用层的内存地址。
+
+注意：调用此函数之前应该先调用SetRtlCreateUserThreadAddress。
+*/
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    HANDLE ThreadHandleReturn = nullptr;
+    CLIENT_ID ClientId{};
+    PEPROCESS  Process = nullptr;
+    HANDLE  KernelHandle = nullptr;
+
+    if (nullptr == RtlCreateUserThread) {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    __try {
+        Status = PsLookupProcessByProcessId(Pid, &Process);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = ObOpenObjectByPointer(Process,
+                                       OBJ_KERNEL_HANDLE,
+                                       NULL,
+                                       GENERIC_ALL,
+                                       *PsProcessType,
+                                       KernelMode,
+                                       &KernelHandle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = RtlCreateUserThread(
+            KernelHandle,           // process handle 内核句柄还是应用层的pid?有待实验。
+            NULL,                   // security descriptor
+            FALSE,                  // Create suspended?
+            0L,                     // ZeroBits: default
+            0L,                     // Max stack size: default
+            0L,                     // Committed stack size: default
+            Function,               // Function to start in
+            Parameter,              // Parameter to start with
+            &ThreadHandleReturn,    // Thread handle return
+            &ClientId               // Thread id
+        );
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            __leave;
+        }
+
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "ThreadHandle:%p, UniqueThread:%p",
+                ThreadHandleReturn, ClientId.UniqueThread);
+    } __finally {
+        if (KernelHandle) {
+            ZwClose(KernelHandle);
+        }
+
+        if (Process) {
+            ObDereferenceObject(Process);
+        }
+    }
+
+    return Status;
+}
+
+
+NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
+/*
+
+注意：WOW64的处理。
+"\\SystemRoot\\System32\\kernel32.dll"
+"\\SystemRoot\\SysWOW64\\kernel32.dll"
+
+感叹！
+多么的巧合。
+PUSER_THREAD_START_ROUTINE和LoadLibraryW的原型竟然一致。
+所以，这省去了在应用层申请可执行内存的操作。
+当然更多的是复制代码（可以不是shellcode，当然要支持WOW64）到应用层的操作。
+更不用说shellcode了。
+
+注意：WOW64的参数的大小，如：指针和size_t等。
+
+DllPullPath所在的内存是应用层的。
+*/
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    PUSER_THREAD_START_ROUTINE LoadLibraryW = nullptr;//LoadLibraryW的地址。
+
+    ASSERT(LoadLibraryW);
+
+    Status = CreateUserThread(Process, LoadLibraryW, (PVOID)DllPullPath);
+
+    return Status;
 }
 
 

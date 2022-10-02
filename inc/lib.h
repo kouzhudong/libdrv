@@ -404,6 +404,11 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread);
 NTSTATUS KillUserThread(_In_ PETHREAD Thread);
 NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In_opt_ PVOID Context);
 
+//Win2K3\NT\public\sdk\inc\ntrtl.h
+typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
+
+NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID Parameter);
+
 DWORD WINAPI QueueUserAPC(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData);
 
 NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle,
