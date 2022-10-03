@@ -459,8 +459,8 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
             __leave;
         }
 
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "ThreadHandle:%p, UniqueThread:%p",
-                ThreadHandleReturn, ClientId.UniqueThread);
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
+                ThreadHandleReturn, ClientId.UniqueThread, ClientId.UniqueProcess);
     } __finally {
         if (KernelHandle) {
             ZwClose(KernelHandle);
