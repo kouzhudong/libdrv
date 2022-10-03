@@ -143,7 +143,7 @@ RtlUnicodeToUTF8N(
 注释：一个字符，Unicode占两个字节，UTF8最多占4字节。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
@@ -152,7 +152,7 @@ RtlUnicodeToUTF8N(
     UNREFERENCED_PARAMETER(UTF8StringDestination);
 
 
-    rturn status;
+    rturn Status;
 }
 #endif
 
@@ -176,7 +176,7 @@ RtlUTF8ToUnicodeN(
 注释：一个字符，Unicode占两个字节，UTF8最多占4字节。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
@@ -185,7 +185,7 @@ RtlUTF8ToUnicodeN(
     UNREFERENCED_PARAMETER(UTF8StringDestination); 
 
 
-    rturn status;
+    rturn Status;
 }
 #endif
 
@@ -215,13 +215,13 @@ _When_(AllocateDestinationString,
     调用RtlUnicodeToUTF8N实现。
     */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     UNREFERENCED_PARAMETER(DestinationString);
     UNREFERENCED_PARAMETER(SourceString);
     UNREFERENCED_PARAMETER(AllocateDestinationString);
 
-    return status;
+    return Status;
 }
 
 
@@ -241,13 +241,13 @@ RtlUTF8StringToUnicodeString(
 调用RtlUTF8ToUnicodeN实现。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     UNREFERENCED_PARAMETER(DestinationString);
     UNREFERENCED_PARAMETER(SourceString);
     UNREFERENCED_PARAMETER(AllocateDestinationString);
 
-    return status;
+    return Status;
 }
 
 

@@ -22,7 +22,7 @@ PCL由调用者释放。
 */
 {
     PEPROCESS    Process;
-    NTSTATUS     status = STATUS_SUCCESS;
+    NTSTATUS     Status = STATUS_SUCCESS;
     KAPC_STATE   ApcState;
     PPEB peb = 0;
     PRTL_USER_PROCESS_PARAMETERS  ProcessParameters = 0;
@@ -38,8 +38,8 @@ PCL由调用者释放。
         return FALSE;//system
     }
 
-    status = PsLookupProcessByProcessId(PId, &Process);
-    if (!NT_SUCCESS(status)) {
+    Status = PsLookupProcessByProcessId(PId, &Process);
+    if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "pid:%d", HandleToULong(PId));
         return FALSE;//无效进程。
     }
@@ -104,7 +104,7 @@ homepage:http://correy.webs.com
 {
     BOOL ret = FALSE;
     PEPROCESS    Process;
-    NTSTATUS     status = STATUS_SUCCESS;
+    NTSTATUS     Status = STATUS_SUCCESS;
     KAPC_STATE   ApcState;
     PPEB peb = 0;
     PRTL_USER_PROCESS_PARAMETERS_WRK  ProcessParameters = 0;
@@ -118,8 +118,8 @@ homepage:http://correy.webs.com
         return FALSE;//system
     }
 
-    status = PsLookupProcessByProcessId(Pid, &Process);
-    if (!NT_SUCCESS(status)) {
+    Status = PsLookupProcessByProcessId(Pid, &Process);
+    if (!NT_SUCCESS(Status)) {
         return FALSE;//无效进程。
     }
 
@@ -173,7 +173,7 @@ made by correy
 made at 2013.11.15
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     PACCESS_TOKEN pat = 0;
     UNICODE_STRING  SidString = {0};
     PTOKEN_STATISTICS pts;
@@ -185,13 +185,13 @@ made at 2013.11.15
     RtlZeroMemory(User->Buffer, MAX_PATH * sizeof(wchar_t));
     RtlInitEmptyUnicodeString(User, User->Buffer, MAX_PATH * sizeof(wchar_t));
 
-    status = PsLookupProcessByProcessId(Pid, &Process);
-    ASSERT(NT_SUCCESS(status));
+    Status = PsLookupProcessByProcessId(Pid, &Process);
+    ASSERT(NT_SUCCESS(Status));
 
     pat = PsReferencePrimaryToken(Process);
 
-    status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
-    if (!NT_SUCCESS(status)) {
+    Status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
+    if (!NT_SUCCESS(Status)) {
     #pragma warning(push)
     #pragma warning(disable:6387)//“User->Buffer”可能是“0”: 这不符合函数“ExFreePoolWithTag”的规范
         ExFreePoolWithTag(User->Buffer, TAG);
@@ -199,7 +199,7 @@ made at 2013.11.15
         RtlInitEmptyUnicodeString(User, NULL, 0);
         PsDereferencePrimaryToken(pat);
         ObDereferenceObject(Process);
-        return status;
+        return Status;
     }
 
     //还有一种情况也会发生如下情况,就是在Windows server 2008 X64上,具体的有待检查和添加.
@@ -227,19 +227,19 @@ made at 2013.11.15
 
         PsDereferencePrimaryToken(pat);
         ObDereferenceObject(Process);
-        return status;
+        return Status;
     }
 
     //可以考虑把下面的代码写成工作线程.
 
     //下面的函数需要连接Ksecdd.lib,如:TARGETLIBS=$(DDK_LIB_PATH)\ksecdd.lib
-    status = GetSecurityUserInfo(&pts->AuthenticationId, 0, &UserInformation);
-    if (!NT_SUCCESS(status)) {
+    Status = GetSecurityUserInfo(&pts->AuthenticationId, 0, &UserInformation);
+    if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(User->Buffer, TAG);
         RtlInitEmptyUnicodeString(User, NULL, 0);
         PsDereferencePrimaryToken(pat);
         ObDereferenceObject(Process);
-        return status;
+        return Status;
     }
 
     //Status = RtlConvertSidToUnicodeString(&SidString, UserInformation->pSid,TRUE);
@@ -263,7 +263,7 @@ made at 2013.11.15
 
     PsDereferencePrimaryToken(pat);
     ObDereferenceObject(Process);
-    return status;
+    return Status;
 }
 
 
@@ -282,7 +282,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
 2.也不可用于文件过滤回调中，因为有IoQueryFileDosDeviceName。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PVOID us_ProcessImageFileName = 0;//UNICODE_STRING
     ULONG ProcessInformationLength = 0;
     ULONG ReturnLength = 0;
@@ -316,26 +316,26 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     必须转换一下，不然是无效的句柄。
     句柄的类型转换为内核的。
     */
-    status = PsLookupProcessByProcessId(Pid, &EProcess);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = PsLookupProcessByProcessId(Pid, &EProcess);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
     ObDereferenceObject(EProcess); //微软建议加上。
-    status = ObOpenObjectByPointer(EProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ObOpenObjectByPointer(EProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
 
     //获取需要的内存。
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(Handle);
         return FALSE;
     }
@@ -343,20 +343,20 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     ProcessInformationLength = ReturnLength;
     us_ProcessImageFileName = ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (us_ProcessImageFileName == NULL) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        status = STATUS_INSUFFICIENT_RESOURCES;
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        Status = STATUS_INSUFFICIENT_RESOURCES;
         ZwClose(Handle);
         return FALSE;
     }
     RtlZeroMemory(us_ProcessImageFileName, ReturnLength);
 
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ZwClose(Handle);
         return FALSE;
@@ -366,7 +366,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     //形如：ProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvview.exe
     p = (PUNICODE_STRING)us_ProcessImageFileName;
     if (0 == p->Length) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, pid:%d", status, HandleToULong(Pid));
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, pid:%d", Status, HandleToULong(Pid));
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ZwClose(Handle);
         return FALSE;
@@ -374,7 +374,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
 
     //获取DOS名.
     InitializeObjectAttributes(&ObjectAttributes, p, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
-    status = FltCreateFile(Filter,
+    Status = FltCreateFile(Filter,
                            Instance,
                            &File,
                            FILE_READ_DATA | SYNCHRONIZE,
@@ -388,20 +388,20 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
                            NULL,
                            0,
                            IO_IGNORE_SHARE_ACCESS_CHECK);
-    if (!NT_SUCCESS(status)) {
+    if (!NT_SUCCESS(Status)) {
         //STATUS_OBJECT_NAME_INVALID                0xC0000033L
         //STATUS_INVALID_DEVICE_OBJECT_PARAMETER    0xC0000369L 启动时会返回这个值，设备已经挂载了。
         //STATUS_OBJECT_PATH_SYNTAX_BAD             0xC000003BL
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%X, pid:%d, FileName:%wZ",
-              status, HandleToULong(Pid), p);
+              Status, HandleToULong(Pid), p);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ZwClose(Handle);
         return FALSE;
     }
 
-    status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ZwClose(Handle);
         ZwClose(File);
@@ -417,9 +417,9 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     //    return FALSE;
     //}
 
-    status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ObDereferenceObject(FileObject);
         ZwClose(Handle);
@@ -484,29 +484,29 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     句柄的类型转换为内核的。
     */
     PEPROCESS  Process = 0;
-    NTSTATUS status = PsLookupProcessByProcessId(Pid, &Process);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    NTSTATUS Status = PsLookupProcessByProcessId(Pid, &Process);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
     ObDereferenceObject(Process); //微软建议加上。
     HANDLE  Handle = 0;
-    status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
 
     //获取需要的内存。
     ULONG ProcessInformationLength = 0;
     ULONG ReturnLength = 0;
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        *ProcessFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(Handle);
         return FALSE;
     }
@@ -514,7 +514,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
     *ProcessFileName = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (*ProcessFileName == NULL) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "");
-        status = STATUS_INSUFFICIENT_RESOURCES;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
         ZwClose(Handle);
         return FALSE;
     }
@@ -522,13 +522,13 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
 
     //真正的操作。
     BOOL ret = TRUE;
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        *ProcessFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(*ProcessFileName, TAG);
         ret = FALSE;
     }
@@ -552,7 +552,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
 */
 {
     PEPROCESS    eprocess;
-    NTSTATUS     status = STATUS_SUCCESS;
+    NTSTATUS     Status = STATUS_SUCCESS;
     KAPC_STATE   ApcState;
     BOOL ret = FALSE;
     PUNICODE_STRING temp = NULL;
@@ -577,16 +577,16 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
         }
     }
 
-    status = PsLookupProcessByProcessId(pid, &eprocess);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = PsLookupProcessByProcessId(pid, &eprocess);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return FALSE;//无效进程。
     }
 
     KeStackAttachProcess(eprocess, &ApcState);
 
-    status = SeLocateProcessImageName(eprocess, &temp);
-    if (NT_SUCCESS(status)) {
+    Status = SeLocateProcessImageName(eprocess, &temp);
+    if (NT_SUCCESS(Status)) {
         ImagePathName->MaximumLength = temp->MaximumLength;
         ImagePathName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ImagePathName->MaximumLength, TAG);
         if (NULL == ImagePathName->Buffer) {
@@ -624,16 +624,16 @@ NTSTATUS GetLogonId(_Inout_ PLUID LogonId)
 打印当前操作的当前进程的用户名等.
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     PACCESS_TOKEN pat = 0;
     PTOKEN_STATISTICS pts;
 
     pat = PsReferencePrimaryToken(PsGetCurrentProcess());
 
-    status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
-    if (!NT_SUCCESS(status)) {
+    Status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
+    if (!NT_SUCCESS(Status)) {
         PsDereferencePrimaryToken(pat);
-        return status;
+        return Status;
     }
 
     LogonId->HighPart = pts->AuthenticationId.HighPart;
@@ -641,7 +641,7 @@ NTSTATUS GetLogonId(_Inout_ PLUID LogonId)
 
     PsDereferencePrimaryToken(pat);
 
-    return status;
+    return Status;
 }
 
 
@@ -697,7 +697,7 @@ DWORD GetProcessIntegrityLevelFromString(_In_ PWCHAR Integrity)
 
 DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     CLIENT_ID   ClientId = {0};
     OBJECT_ATTRIBUTES ob;
     HANDLE  ProcessHandle;
@@ -714,15 +714,15 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
 
     ClientId.UniqueProcess = UniqueProcess;
     InitializeObjectAttributes(&ob, 0, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
-    status = ZwOpenProcess(&ProcessHandle, GENERIC_ALL, &ob, &ClientId);
-    ASSERT(NT_SUCCESS(status));
+    Status = ZwOpenProcess(&ProcessHandle, GENERIC_ALL, &ob, &ClientId);
+    ASSERT(NT_SUCCESS(Status));
 
-    status = ZwOpenProcessTokenEx(ProcessHandle, TOKEN_READ, OBJ_KERNEL_HANDLE, &TokenHandle);
-    ASSERT(NT_SUCCESS(status));
+    Status = ZwOpenProcessTokenEx(ProcessHandle, TOKEN_READ, OBJ_KERNEL_HANDLE, &TokenHandle);
+    ASSERT(NT_SUCCESS(Status));
 
-    status = ZwQueryInformationToken(TokenHandle, TokenIntegrityLevel, NULL, 0, &ReturnLength);
-    ASSERT(!NT_SUCCESS(status));
-    ASSERT(STATUS_BUFFER_TOO_SMALL == status);
+    Status = ZwQueryInformationToken(TokenHandle, TokenIntegrityLevel, NULL, 0, &ReturnLength);
+    ASSERT(!NT_SUCCESS(Status));
+    ASSERT(STATUS_BUFFER_TOO_SMALL == Status);
     ASSERT(ReturnLength);
 
     pTIL = (PTOKEN_MANDATORY_LABEL)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
@@ -730,8 +730,8 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
     } else {
         RtlZeroMemory(pTIL, ReturnLength);
-        status = ZwQueryInformationToken(TokenHandle, TokenIntegrityLevel, pTIL, ReturnLength, &ReturnLength);
-        ASSERT(NT_SUCCESS(status));
+        Status = ZwQueryInformationToken(TokenHandle, TokenIntegrityLevel, pTIL, ReturnLength, &ReturnLength);
+        ASSERT(NT_SUCCESS(Status));
 
         SubAuthority = (*RtlSubAuthorityCountSid(pTIL->Label.Sid) - 1);
         Integrity = *RtlSubAuthoritySid(pTIL->Label.Sid, SubAuthority);
@@ -739,8 +739,8 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
         ExFreePoolWithTag(pTIL, TAG);
     }
 
-    status = ZwClose(TokenHandle);
-    status = ZwClose(ProcessHandle);
+    Status = ZwClose(TokenHandle);
+    Status = ZwClose(ProcessHandle);
     return Integrity;
 }
 
@@ -785,7 +785,7 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
 另一个实现办法是用高版本的PsGetProcessSessionId。
 */
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     DWORD SessionId = 0;
     PACCESS_TOKEN AccessToken = 0;
 
@@ -798,8 +798,8 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
     In a non-Terminal Services environment, the session identifier is zero.
     */
     PVOID  TokenInformation = NULL;
-    status = SeQueryInformationToken(AccessToken, TokenSessionId, &TokenInformation);
-    if (NT_SUCCESS(status)) {
+    Status = SeQueryInformationToken(AccessToken, TokenSessionId, &TokenInformation);
+    if (NT_SUCCESS(Status)) {
         //SessionId = *(DWORD *)TokenInformation;//TokenInformation有肯能为0.
 
     #pragma warning(push)
@@ -810,7 +810,7 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
 
         //KdPrint(("TokenSessionId:%d.\r\n", SessionId));
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
     }
 
     PsDereferencePrimaryToken(AccessToken);
@@ -824,7 +824,7 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
 功能：获取进程名，只是进程名，不是全路径，常用于临时性的测试。
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     PVOID us_ProcessImageFileName = 0;//UNICODE_STRING
     ULONG ProcessInformationLength = 0;
     ULONG ReturnLength = 0;
@@ -838,52 +838,52 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
     必须转换一下，不然是无效的句柄。
     大概是句柄的类型转换为内核的。
     */
-    status = PsLookupProcessByProcessId(Pid, &EProcess);
-    if (!NT_SUCCESS(status)) {
+    Status = PsLookupProcessByProcessId(Pid, &EProcess);
+    if (!NT_SUCCESS(Status)) {
         //KdPrint(("PsLookupProcessByProcessId fail with 0x%x in line %d\n",Status, __LINE__));
         return FALSE;
     }
     ObDereferenceObject(EProcess); //微软建议加上。
-    status = ObOpenObjectByPointer(EProcess,
+    Status = ObOpenObjectByPointer(EProcess,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_READ,
                                    *PsProcessType,
                                    KernelMode,
                                    &Handle);//注意要关闭句柄。  
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return FALSE;
     }
 
     //获取需要的内存。
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ZwClose(Handle);
         return FALSE;
     }
     ProcessInformationLength = ReturnLength;
     us_ProcessImageFileName = ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (us_ProcessImageFileName == NULL) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
-        status = STATUS_INSUFFICIENT_RESOURCES;
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        Status = STATUS_INSUFFICIENT_RESOURCES;
         ZwClose(Handle);
         return FALSE;
     }
     RtlZeroMemory(us_ProcessImageFileName, ReturnLength);
 
-    status = ZwQueryInformationProcess(Handle,
+    Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
                                        ProcessInformationLength,
                                        &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
         ZwClose(Handle);
         return FALSE;
@@ -949,7 +949,7 @@ made by correy
 made at 2015.07.08.
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION buffer = {0};
     PSYSTEM_PROCESS_INFORMATION ProcessInfo = &buffer;
     PSYSTEM_PROCESS_INFORMATION it = 0;
@@ -964,23 +964,23 @@ made at 2015.07.08.
     RtlInitUnicodeString(&temp, ProcessName);
 
     //获取需要的内存。
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
-        return status;
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        return Status;
     }
     ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
 
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -1017,12 +1017,12 @@ made at 2015.07.08.
     }
 
     if (*UniqueProcessId == ULongToHandle((const unsigned long)STATUS_INVALID_HANDLE)) {//进程名不存在，没有找到。
-        status = STATUS_INVALID_HANDLE;//STATUS_UNSUCCESSFUL
+        Status = STATUS_INVALID_HANDLE;//STATUS_UNSUCCESSFUL
     }
 
     ExFreePoolWithTag(ProcessInfo, TAG);
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 
@@ -1167,7 +1167,7 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
 做法：遍历。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION buffer = {0};
     PSYSTEM_PROCESS_INFORMATION ProcessInfo = &buffer;
     PSYSTEM_PROCESS_INFORMATION iter = 0;
@@ -1177,10 +1177,10 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
     //参数检查就不做了。
 
     //获取需要的内存。
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status) && status != STATUS_INFO_LENGTH_MISMATCH) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
     }
     ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
@@ -1191,9 +1191,9 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
 
-    status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -1226,7 +1226,7 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
 
     ExFreePoolWithTag(ProcessInfo, TAG);
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 
@@ -1258,16 +1258,16 @@ made at 2015.07.13.
 */
 {
     PEPROCESS  EProcess;
-    NTSTATUS   status = PsLookupProcessByProcessId(Pid, &EProcess);
-    if (NT_SUCCESS(status)) {
+    NTSTATUS   Status = PsLookupProcessByProcessId(Pid, &EProcess);
+    if (NT_SUCCESS(Status)) {
         PEJOB job = PsGetProcessJob(EProcess);
         if (NULL != job) {
             ULONG len = MAXPATHLEN;
             PUNICODE_STRING JobName = (PUNICODE_STRING)ExAllocatePoolWithTag(NonPagedPool, len, TAG);
             if (NULL != JobName) {
-                status = ObQueryNameString(job, (POBJECT_NAME_INFORMATION)JobName, len, &len);
-                if (!NT_SUCCESS(status)) {
-                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+                Status = ObQueryNameString(job, (POBJECT_NAME_INFORMATION)JobName, len, &len);
+                if (!NT_SUCCESS(Status)) {
+                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
                 } else {
                     KdPrint(("JobName:%wZ\n", JobName));//形如：\BaseNamedObjects\XXXXX
                 }
@@ -1278,10 +1278,10 @@ made at 2015.07.13.
 
         ObDereferenceObject(EProcess); //微软建议加上。
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1302,7 +1302,7 @@ made by correy
 made at 2014.09.04
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PVOID HeapHandle = 0;
     PVOID p = 0;
     BOOLEAN B = FALSE;
@@ -1344,7 +1344,7 @@ made at 2014.09.04
         KdPrint(("RtlDestroyHeap fails!\n"));
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1408,7 +1408,7 @@ The updated version of the structure is defined in ntddk.h with the new IsSecure
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1416,16 +1416,16 @@ https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--iu
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information  
-    status = ZwQueryInformationProcess(ProcessHandle,
+    Status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
                                        &extendedInfo,
                                        sizeof(extendedInfo),
                                        NULL);
-    if (NT_SUCCESS(status)) {
+    if (NT_SUCCESS(Status)) {
         *SecureProcess = (BOOLEAN)(extendedInfo.IsSecureProcess != 0);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1438,7 +1438,7 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
 注意适用的范围。
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1446,16 +1446,16 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information  
-    status = ZwQueryInformationProcess(ProcessHandle,
+    Status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
                                        &extendedInfo,
                                        sizeof(extendedInfo),
                                        NULL);
-    if (NT_SUCCESS(status)) {
+    if (NT_SUCCESS(Status)) {
         *ProtectedProcess = (BOOLEAN)(extendedInfo.IsProtectedProcess != 0);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1477,7 +1477,7 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
 3.
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};// definition included in ntddk.h  
 
     PAGED_CODE();
@@ -1485,16 +1485,16 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information  
-    status = ZwQueryInformationProcess(ProcessHandle,
+    Status = ZwQueryInformationProcess(ProcessHandle,
                                        ProcessBasicInformation,
                                        &extendedInfo,
                                        sizeof(extendedInfo),
                                        NULL);
-    if (NT_SUCCESS(status)) {
+    if (NT_SUCCESS(Status)) {
         *Wow64Process = (BOOLEAN)(extendedInfo.IsWow64Process != 0);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1555,15 +1555,15 @@ NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable)
 摘自：http://www.osronline.com/article.cfm?article=23
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     TOKEN_PRIVILEGES privSet;
     HANDLE tokenHandle;
 
     // Open current process token
-    status = ZwOpenProcessTokenEx(NtCurrentProcess(), TOKEN_ALL_ACCESS, OBJ_KERNEL_HANDLE, &tokenHandle);
-    if (!NT_SUCCESS(status)) {
-        DbgPrint("NtOpenProcessToken failed, Status 0x%x\n", status);
-        return status;
+    Status = ZwOpenProcessTokenEx(NtCurrentProcess(), TOKEN_ALL_ACCESS, OBJ_KERNEL_HANDLE, &tokenHandle);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("NtOpenProcessToken failed, Status 0x%x\n", Status);
+        return Status;
     }
 
     // Set up the information about the privilege we are adjusting
@@ -1575,19 +1575,19 @@ NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable)
         privSet.Privileges[0].Attributes = 0;
     }
 
-    status = ZwAdjustPrivilegesToken(tokenHandle,
+    Status = ZwAdjustPrivilegesToken(tokenHandle,
                                      FALSE, // don't disable all privileges
                                      &privSet,
                                      sizeof(privSet),
                                      NULL, // old privileges - don't care
                                      NULL); // returned length
-    if (!NT_SUCCESS(status)) {
-        DbgPrint("ZwAdjustPrivilegesToken failed, Status 0x%x\n", status);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("ZwAdjustPrivilegesToken failed, Status 0x%x\n", Status);
     }
 
     (void)ZwClose(tokenHandle);// Close the process token handle
 
-    return status;
+    return Status;
 }
 
 

@@ -31,7 +31,7 @@ _IRQL_requires_same_
 _IRQL_requires_(PASSIVE_LEVEL)
 EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
 
     UNREFERENCED_PARAMETER(RegistryPath);
 
@@ -58,5 +58,5 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     //EnumProcessTest();
 
-    return status;
+    return Status;
 }

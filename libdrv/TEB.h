@@ -406,7 +406,7 @@ typedef struct PEBTEB_STRUCT(_TEB) {
     PEBTEB_POINTER(PVOID) BStoreLimit;
 #endif    
     LCID ImpersonationLocale;       // Current locale of impersonated user
-    ULONG IsImpersonating;          // Thread impersonation status
+    ULONG IsImpersonating;          // Thread impersonation Status
     PEBTEB_POINTER(PVOID) NlsCache;                 // NLS thread cache
     PEBTEB_POINTER(PVOID) pShimData;                // Per thread data used in the shim
     ULONG HeapVirtualAffinity;

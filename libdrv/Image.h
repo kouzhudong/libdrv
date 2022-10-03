@@ -240,7 +240,7 @@ PsGetProcessPeb(
 
 typedef struct _ImageContext {
     PWORK_QUEUE_ITEM Item;
-    OUT NTSTATUS status;
+    OUT NTSTATUS Status;
 
     OUT UNICODE_STRING ImageLoaded;
 

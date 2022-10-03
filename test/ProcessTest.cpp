@@ -185,7 +185,7 @@ void CreateSystemThreadInIdleProcess()
 革命尚未成功，同志仍需努力。
 */
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     HANDLE threadHandle;
     //HANDLE ProcessHandle = NULL;
     PKPCR pkpcr;
@@ -220,9 +220,9 @@ void CreateSystemThreadInIdleProcess()
 //    PEPROCESS IdleProcess = NULL;
 //#pragma warning(push)
 //#pragma warning(disable:6387)//“_Param_(1)”可能是“0”: 这不符合函数“PsLookupProcessByProcessId”的规范。
-//    status = PsLookupProcessByProcessId(0, &IdleProcess);//STATUS_INVALID_CID
+//    Status = PsLookupProcessByProcessId(0, &IdleProcess);//STATUS_INVALID_CID
 //#pragma warning(pop)      
-//    ASSERT(NT_SUCCESS(status));
+//    ASSERT(NT_SUCCESS(Status));
 
     //HANDLE IdleProcessId = PsGetProcessId(IdleProcess);
     //ASSERT(0 == IdleProcessId);
@@ -232,25 +232,25 @@ void CreateSystemThreadInIdleProcess()
     IdleProcess = *(PEPROCESS *)IdleProcess;
     //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcess);
     
-    //status = ObOpenObjectByPointer(IdleProcess,
+    //Status = ObOpenObjectByPointer(IdleProcess,
     //                               OBJ_KERNEL_HANDLE,
     //                               NULL,
     //                               GENERIC_READ,
     //                               *PsProcessType,
     //                               KernelMode,
     //                               &ProcessHandle);
-    //ASSERT(NT_SUCCESS(status));//即使填写正确的Idle进程，也会返回STATUS_OBJECT_TYPE_MISMATCH。
+    //ASSERT(NT_SUCCESS(Status));//即使填写正确的Idle进程，也会返回STATUS_OBJECT_TYPE_MISMATCH。
 
-    status = PsCreateSystemThread(&threadHandle,
+    Status = PsCreateSystemThread(&threadHandle,
                                   THREAD_ALL_ACCESS,
                                   NULL,
                                   NULL, //ProcessHandle,
                                   NULL, 
                                   SystemThreadInIdleProcess, 
                                   NULL);
-    ASSERT(NT_SUCCESS(status));
-    status = ObReferenceObjectByHandle(threadHandle, 0, NULL, KernelMode, &gLogThreadObj, NULL);
-    ASSERT(NT_SUCCESS(status));
+    ASSERT(NT_SUCCESS(Status));
+    Status = ObReferenceObjectByHandle(threadHandle, 0, NULL, KernelMode, &gLogThreadObj, NULL);
+    ASSERT(NT_SUCCESS(Status));
     ZwClose(threadHandle);
     
     //ZwClose(ProcessHandle);

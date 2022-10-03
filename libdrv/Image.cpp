@@ -385,23 +385,23 @@ PVOID GetNtBase()
 运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     ULONG  modulesSize = 0;
     PAUX_MODULE_EXTENDED_INFO modules;
     ULONG  numberOfModules;
     ULONG i;
     PVOID ImageBase = 0;
 
-    status = AuxKlibInitialize();
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibInitialize();
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
 
     // Get the required array size.
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
-    if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
+    if (!NT_SUCCESS(Status) || modulesSize == 0) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
 
@@ -411,16 +411,16 @@ PVOID GetNtBase()
     // Allocate memory to receive data.
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
-        status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
 
     // Obtain the module information.
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(modules, TAG);
         return ImageBase;
     }
@@ -449,23 +449,23 @@ PVOID GetImageBase(__in PCSTR Name)
 运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     ULONG  modulesSize = 0;
     PAUX_MODULE_EXTENDED_INFO modules;
     ULONG  numberOfModules;
     ULONG i;
     PVOID ImageBase = 0;
 
-    status = AuxKlibInitialize();
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+    Status = AuxKlibInitialize();
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ImageBase;
     }
 
     // Get the required array size.
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
-    if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
+    if (!NT_SUCCESS(Status) || modulesSize == 0) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
 
@@ -475,16 +475,16 @@ PVOID GetImageBase(__in PCSTR Name)
     // Allocate memory to receive data.
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
-        status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
 
     // Obtain the module information.
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(modules, TAG);
         return ImageBase;
     }
@@ -520,21 +520,21 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 其实只要包含Aux_klib.lib，在XP和2003上也可以用，因为这个是静态连接的。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PAUX_MODULE_EXTENDED_INFO modules;
 
-    status = AuxKlibInitialize();
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
-        return status;
+    Status = AuxKlibInitialize();
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        return Status;
     }
 
     // Get the required array size.
     ULONG  modulesSize = 0;
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
-    if (!NT_SUCCESS(status) || modulesSize == 0) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
-        return status;
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), NULL);
+    if (!NT_SUCCESS(Status) || modulesSize == 0) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        return Status;
     }
 
     ULONG numberOfModules = modulesSize / sizeof(AUX_MODULE_EXTENDED_INFO);// Calculate the number of modules.
@@ -542,18 +542,18 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
     // Allocate memory to receive data.
     modules = (PAUX_MODULE_EXTENDED_INFO)ExAllocatePoolWithTag(PagedPool, modulesSize, TAG);
     if (modules == NULL) {
-        status = STATUS_INSUFFICIENT_RESOURCES;
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
-        return status;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        return Status;
     }
     RtlZeroMemory(modules, modulesSize);
 
     // Obtain the module information.
-    status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", status);
+    Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(modules, TAG);
-        return status;
+        return Status;
     }
 
     if (CallBack) {
@@ -562,7 +562,7 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 
     ExFreePoolWithTag(modules, TAG);
 
-    return status;
+    return Status;
 }
 #endif
 
@@ -857,7 +857,7 @@ VOID ImageLoadedThreadEx(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    ctx->info.status = GetFileObjectDosName(ctx->info.ImageInfoEx->FileObject, &ctx->info.ImageLoaded);
+    ctx->info.Status = GetFileObjectDosName(ctx->info.ImageInfoEx->FileObject, &ctx->info.ImageLoaded);
 
     KeSetEvent(ctx->Event, IO_NO_INCREMENT, FALSE);
 }
@@ -875,12 +875,12 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
     PAGED_CODE();
 
     InitializeObjectAttributes(&ObjectAttributes, ctx->info.FullImageName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
-    ctx->info.status = ZwOpenFile(&File, SYNCHRONIZE | FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
-    if (NT_SUCCESS(ctx->info.status)) {
-        ctx->info.status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
-        if (NT_SUCCESS(ctx->info.status)) {
-            ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
-            ASSERT(NT_SUCCESS(ctx->info.status));
+    ctx->info.Status = ZwOpenFile(&File, SYNCHRONIZE | FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
+    if (NT_SUCCESS(ctx->info.Status)) {
+        ctx->info.Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
+        if (NT_SUCCESS(ctx->info.Status)) {
+            ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
+            ASSERT(NT_SUCCESS(ctx->info.Status));
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
             ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
@@ -895,7 +895,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
             }
             ObDereferenceObject(FileObject);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
         }
 
         ZwClose(File);
@@ -903,8 +903,8 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         FileObject = CONTAINING_RECORD(ctx->info.FullImageName, FILE_OBJECT, FileName);
         ASSERT(FileObject);
 
-        ctx->info.status = GetFileObjectDosName(FileObject, &FullName);
-        if (NT_SUCCESS(ctx->info.status)) {
+        ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
+        if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
             ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
             ASSERT(ctx->info.ImageLoaded.Buffer);
@@ -912,7 +912,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
             RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
         }
 
         if (FullName.Buffer) {
@@ -953,7 +953,7 @@ RtlGetLoadImageFullName(&LoadImageFullName, FullImageName, ProcessId, ImageInfo)
 FreeUnicodeString(&LoadImageFullName);
 */
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     KEVENT event;
     PLOAD_IMAGE_CONTEXT ctx = NULL;
 
@@ -983,8 +983,8 @@ FreeUnicodeString(&LoadImageFullName);
     }
 
     ExQueueWorkItem(&ctx->hdr, DelayedWorkQueue);
-    status = KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
-    if (NT_SUCCESS(status) && NT_SUCCESS(ctx->info.status)) {
+    Status = KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
+    if (NT_SUCCESS(Status) && NT_SUCCESS(ctx->info.Status)) {
         if (ctx->info.ImageLoaded.Buffer != NULL) {
             LoadImageFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
             LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG);//由调用者释放。
@@ -998,7 +998,7 @@ FreeUnicodeString(&LoadImageFullName);
             KdPrint(("FILE:%s, LINE:%d.\r\n", __FILE__, __LINE__));
         }
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x", Status);
     }
 
     ExFreePoolWithTag(ctx, TAG);

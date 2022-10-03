@@ -168,18 +168,18 @@ NTSTATUS EnumUnicastIpAddressTable()
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552594(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_UNICASTIPADDRESS_TABLE Table = NULL;
 
-    status = GetUnicastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetUnicastIpAddressTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
 
-        status = GetUnicastIpAddressEntry(pTable);
-        //status = SetUnicastIpAddressEntry(pTable);        
+        Status = GetUnicastIpAddressEntry(pTable);
+        //Status = SetUnicastIpAddressEntry(pTable);        
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -206,7 +206,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -216,17 +216,17 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552556(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IPPATH_TABLE Table = NULL;
 
-    status = GetIpPathTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIpPathTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPPATH_ROW pTable = &Table->Table[i];
 
-        status = GetIpPathEntry(pTable);
+        Status = GetIpPathEntry(pTable);
 
         switch (pTable->Source.si_family) {
         case AF_INET:
@@ -275,7 +275,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -285,17 +285,17 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552504(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_ANYCASTIPADDRESS_TABLE Table = NULL;
 
-    status = GetAnycastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetAnycastIpAddressTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_ANYCASTIPADDRESS_ROW pTable = &Table->Table[i];
 
-        status = GetAnycastIpAddressEntry(pTable);
+        Status = GetAnycastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -322,7 +322,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -335,17 +335,17 @@ to specify the level of interfaces to return.
 A call to the GetIfTable2Ex function with the Level parameter set to MibIfTableNormal retrieves the same results as calling the GetIfTable2 function.
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IF_TABLE2 Table = NULL;
 
-    status = GetIfTable2(&Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIfTable2(&Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IF_ROW2 pTable = &Table->Table[i];
 
-        status = GetIfEntry2(pTable);
+        Status = GetIfEntry2(pTable);
 
         KdPrint(("Alias:%ls.\r\n", pTable->Alias));
         KdPrint(("Description:%ls.\r\n", pTable->Description));
@@ -353,7 +353,7 @@ A call to the GetIfTable2Ex function with the Level parameter set to MibIfTableN
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -363,17 +363,17 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552517(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IF_TABLE2 Table = NULL;
 
-    status = GetIfTable2Ex(MibIfTableRaw, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIfTable2Ex(MibIfTableRaw, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IF_ROW2 pTable = &Table->Table[i];
 
-        status = GetIfEntry2(pTable);
+        Status = GetIfEntry2(pTable);
 
         KdPrint(("Alias:%ls.\r\n", pTable->Alias));
         KdPrint(("Description:%ls.\r\n", pTable->Description));
@@ -381,7 +381,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -391,24 +391,24 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552540(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IPINTERFACE_TABLE  Table = NULL;
 
-    status = GetIpInterfaceTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIpInterfaceTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPINTERFACE_ROW pTable = &Table->Table[i];
 
-        status = GetIpInterfaceEntry(pTable);
+        Status = GetIpInterfaceEntry(pTable);
 
         KdPrint(("Family:%d.\r\n", pTable->Family));
     }
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -418,24 +418,24 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552535(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IPFORWARD_TABLE2   Table = NULL;
 
-    status = GetIpForwardTable2(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIpForwardTable2(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPFORWARD_ROW2 pTable = &Table->Table[i];
 
-        status = GetIpForwardEntry2(pTable);
+        Status = GetIpForwardEntry2(pTable);
 
         KdPrint(("Loopback:%d.\r\n", pTable->Loopback));
     }
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -444,11 +444,11 @@ NTSTATUS EnumIfStackTable()
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552521(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IFSTACK_TABLE    Table = NULL;
 
-    status = GetIfStackTable(&Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIfStackTable(&Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
@@ -464,7 +464,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -474,17 +474,17 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552546(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_IPNET_TABLE2 Table = NULL;
 
-    status = GetIpNetTable2(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetIpNetTable2(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPNET_ROW2 pTable = &Table->Table[i];
 
-        status = GetIpNetEntry2(pTable);
+        Status = GetIpNetEntry2(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -511,7 +511,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 
@@ -521,17 +521,17 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552565(v=vs.85)
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PMIB_MULTICASTIPADDRESS_TABLE  Table = NULL;
 
-    status = GetMulticastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetMulticastIpAddressTable(AF_UNSPEC, &Table);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(Table);
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_MULTICASTIPADDRESS_ROW pTable = &Table->Table[i];
 
-        status = GetMulticastIpAddressEntry(pTable);
+        Status = GetMulticastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
         case AF_INET:
@@ -558,7 +558,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 
     FreeMibTable(Table);
 
-    return status;
+    return Status;
 }
 
 

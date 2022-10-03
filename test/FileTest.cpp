@@ -21,7 +21,7 @@ homepage:http://correy.webs.com
 ¶ÁÈ¡MBRµÄ²âÊÔÀý×Ó¡£
 */
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     wchar_t deviceNameBuffer[128];
     UNICODE_STRING deviceNameUnicodeString;
     PDEVICE_OBJECT deviceObject;
@@ -34,7 +34,7 @@ homepage:http://correy.webs.com
 
     _swprintf(deviceNameBuffer, L"\\Device\\Harddisk%d\\Partition0", 0);
     RtlInitUnicodeString(&deviceNameUnicodeString, deviceNameBuffer);
-    status = IoGetDeviceObjectPointer(&deviceNameUnicodeString,
+    Status = IoGetDeviceObjectPointer(&deviceNameUnicodeString,
                                       FILE_READ_ATTRIBUTES,
                                       &fileObject,
                                       &deviceObject);
@@ -54,12 +54,12 @@ homepage:http://correy.webs.com
     }
 
     KeInitializeEvent(&event, NotificationEvent, FALSE);
-    status = IoCallDriver(deviceObject, irp);
-    if (status == STATUS_PENDING) {
+    Status = IoCallDriver(deviceObject, irp);
+    if (Status == STATUS_PENDING) {
         KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
-        status = ioStatusBlock.Status;
+        Status = ioStatusBlock.Status;
     }
-    ASSERT(NT_SUCCESS(status));
+    ASSERT(NT_SUCCESS(Status));
 
     if (diskGeometry.BytesPerSector < 512) {// Make sure sector size is at least 512 bytes.
         diskGeometry.BytesPerSector = 512;
@@ -73,19 +73,19 @@ homepage:http://correy.webs.com
 
     ObDereferenceObject(fileObject);
 
-    return status;
+    return Status;
 }
 
 
 VOID TestHardLink()
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING HardLinkFileName = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\HardLink.txt");
     UNICODE_STRING ExistingFileName = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\test.txt");
 
-    status = ZwCreateHardLink(&HardLinkFileName, &ExistingFileName);
-    if (!NT_SUCCESS(status)) {
-        KdPrint(("ZwCreateHardLink fail %d\n", status));
+    Status = ZwCreateHardLink(&HardLinkFileName, &ExistingFileName);
+    if (!NT_SUCCESS(Status)) {
+        KdPrint(("ZwCreateHardLink fail %d\n", Status));
     }
 }
 

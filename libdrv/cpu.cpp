@@ -63,7 +63,7 @@ made by correy
 made at 2014.08.20
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     char CPUString[0x20];
     char CPUBrandString[0x40];
@@ -472,7 +472,7 @@ made at 2014.08.20
         printf_s("   Number of Sets = %d\n", nNumberSets + 1);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -1109,7 +1109,7 @@ Specifies an offset in degrees C to adjust the throttling and
 PROCHOT# activation temperature from the default target specified in TEMPERATURE_TARGET (bits 23:16).
 */
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     unsigned __int64 tt = 0;
     unsigned __int64 ts = 0;
     int x = 0;
@@ -1144,7 +1144,7 @@ PROCHOT# activation temperature from the default target specified in TEMPERATURE
     //这个数字和别的软件有1-2度的差别。
     //不过Core-Temp和hwmonitor也是相差1-2度。
 
-    return status;
+    return Status;
 }
 
 
@@ -1195,7 +1195,7 @@ C++ 位域 https://msdn.microsoft.com/zh-cn/library/ewwyfdbe.aspx
 https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsituseccom/27
 */
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     unsigned __int64 VMX_BASIC_MSR = 0;
     PMSR_IA32_VMX_BASIC vmx_basic;
 
@@ -1230,7 +1230,7 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
     KdPrint(("Bit 55 is read as 1 if any VMX controls that default to 1 may be cleared to 0. 同时还表示支持那几个（4个）：IA32_VMX_TRUE_XXX:0x%x.\r\n", vmx_basic->IA32_VMX_TRUE));
     KdPrint(("The values of bits 47:45 and bits 63:56 are reserved and are read as 0.:0x%x.\r\n", vmx_basic->reserved3));
 
-    return status;
+    return Status;
 }
 
 

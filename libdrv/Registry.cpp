@@ -12,10 +12,10 @@ NTSTATUS ZwEnumerateKeyEx(IN UNICODE_STRING * Name)
 
 用法示例：
     UNICODE_STRING test = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control");//\\Session Manager
-    status = ZwEnumerateKeyEx(&test);
-    if( !NT_SUCCESS( status ) )
+    Status = ZwEnumerateKeyEx(&test);
+    if( !NT_SUCCESS( Status ) )
     {
-        DbgPrint("ZwEnumerateKeyEx fail with 0x%x\n", status);
+        DbgPrint("ZwEnumerateKeyEx fail with 0x%x\n", Status);
     }
 
 Zw层次的注册表操作很简单。
@@ -207,13 +207,13 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 5.更多的缺陷，请你补充纠正。更多的功能等待你的发挥。
 
 用法：
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING test = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager");
     UNICODE_STRING test2 = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager2");
-    status = ZwCopyKey(&test, &test2);
-    if( !NT_SUCCESS( status ) )
+    Status = ZwCopyKey(&test, &test2);
+    if( !NT_SUCCESS( Status ) )
     {
-        DbgPrint("ZwEnumerateKeyEx fail with 0x%x\n", status);
+        DbgPrint("ZwEnumerateKeyEx fail with 0x%x\n", Status);
     }
 */
 {
@@ -482,20 +482,20 @@ HiveFile：形如\\DosDevices\\c:\\correy.DAT，但必须是适合本机的且合法的HIVE文件。
 记得：如果不用了，不要忘了调用ZwUnloadKey。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     HANDLE hRegister;
     ULONG i = 0, ulSize = 0;
     UNICODE_STRING us;
 
-    status = ZwLoadKey(RegisterKey, HiveFile);
-    if (!NT_SUCCESS(status)) {
-        DbgPrint("LoadKey failed Error: [%x] \n", status);
-        return status;
+    Status = ZwLoadKey(RegisterKey, HiveFile);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("LoadKey failed Error: [%x] \n", Status);
+        return Status;
     }
 
     //一下是列举其子键的,也就是验证下.
-    status = ZwOpenKey(&hRegister, KEY_ALL_ACCESS, RegisterKey);
-    if (NT_SUCCESS(status)) {
+    Status = ZwOpenKey(&hRegister, KEY_ALL_ACCESS, RegisterKey);
+    if (NT_SUCCESS(Status)) {
         PKEY_FULL_INFORMATION pfi;
 
         ZwQueryKey(hRegister, KeyFullInformation, NULL, 0, &ulSize);
@@ -525,10 +525,10 @@ HiveFile：形如\\DosDevices\\c:\\correy.DAT，但必须是适合本机的且合法的HIVE文件。
         ExFreePoolWithTag(pfi, TAG);
         ZwClose(hRegister);
     } else {
-        DbgPrint("ZwOpenKey failed unknown cause. Error: [%x] \n", status);
+        DbgPrint("ZwOpenKey failed unknown cause. Error: [%x] \n", Status);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -563,7 +563,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
 {
     ULONG Length = MAXPATHLEN;
     PUNICODE_STRING Temp;
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     UNICODE_STRING  KeyPath = {0};
     PVOID Object = Info->RootObject;
     PUNICODE_STRING CompleteName = Info->CompleteName;
@@ -573,26 +573,26 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
     if (CompleteName->Buffer == NULL) {
         Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
         if (Temp == 0) {
-            status = STATUS_INSUFFICIENT_RESOURCES;
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
-            return status;
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            return Status;
         }
 
-        status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, Length, &Length);
-        if (!NT_SUCCESS(status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+        Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, Length, &Length);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             ExFreePoolWithTag(Temp, TAG);
-            return status;
+            return Status;
         }
 
         RtlInitUnicodeString(&KeyPath, Temp->Buffer);
 
         FullKeyName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, MAXPATHLEN, TAG);
         if (NULL == FullKeyName->Buffer) {
-            status = STATUS_INSUFFICIENT_RESOURCES;
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             ExFreePoolWithTag(Temp, TAG);
-            return status;
+            return Status;
         }
 
         FullKeyName->MaximumLength = MAXPATHLEN;
@@ -602,15 +602,15 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
         FullKeyName->MaximumLength = MAXPATHLEN;
 
         ExFreePoolWithTag(Temp, TAG);
-        return status;
+        return Status;
     }
 
     if (CompleteName->Buffer[0] == L'\\') {
         FullKeyName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CompleteName->MaximumLength, TAG);
         if (NULL == FullKeyName->Buffer) {
-            status = STATUS_INSUFFICIENT_RESOURCES;
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
-            return status;
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            return Status;
         }
 
         FullKeyName->MaximumLength = CompleteName->MaximumLength;
@@ -619,26 +619,26 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
     } else {
         Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
         if (Temp == 0) {
-            status = STATUS_INSUFFICIENT_RESOURCES;
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
-            return status;
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            return Status;
         }
 
-        status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, Length, &Length);
-        if (!NT_SUCCESS(status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+        Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, Length, &Length);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             ExFreePoolWithTag(Temp, TAG);
-            return status;
+            return Status;
         }
 
         RtlInitUnicodeString(&KeyPath, Temp->Buffer);
 
         FullKeyName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, MAXPATHLEN, TAG);
         if(NULL == FullKeyName->Buffer) {
-            status = STATUS_INSUFFICIENT_RESOURCES;
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x", status);
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             ExFreePoolWithTag(Temp, TAG);
-            return status;
+            return Status;
         }
 
         FullKeyName->MaximumLength = MAXPATHLEN;
@@ -659,7 +659,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
         ExFreePoolWithTag(Temp, TAG);
     }
 
-    return status;
+    return Status;
 }
 
 
@@ -795,7 +795,7 @@ homepage:https://correy.webs.com
 不足之处,敬请指出.
 */
 {
-    NTSTATUS status = 0;
+    NTSTATUS Status = 0;
     UNICODE_STRING CurrentUserKeyPath = {0};
     UNICODE_STRING us_RtlFormatCurrentUserKeyPath;
     RtlFormatCurrentUserKeyPath g_p_RtlFormatCurrentUserKeyPath;
@@ -803,21 +803,21 @@ homepage:https://correy.webs.com
     RtlInitUnicodeString(&us_RtlFormatCurrentUserKeyPath, L"RtlFormatCurrentUserKeyPath");
     g_p_RtlFormatCurrentUserKeyPath = (RtlFormatCurrentUserKeyPath)MmGetSystemRoutineAddress(&us_RtlFormatCurrentUserKeyPath);
     ASSERT(g_p_RtlFormatCurrentUserKeyPath);
-    status = g_p_RtlFormatCurrentUserKeyPath(&CurrentUserKeyPath);
-    if (!NT_SUCCESS(status)) {
-        return status;
+    Status = g_p_RtlFormatCurrentUserKeyPath(&CurrentUserKeyPath);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
     }
     KdPrint(("CurrentUserKeyPath:%wZ\n", &CurrentUserKeyPath));//"\REGISTRY\USER\S-1-5-18"
     RtlFreeUnicodeString(&CurrentUserKeyPath);
 
-    status = RtlFormatCurrentUserKeyPath0(&CurrentUserKeyPath);
-    if (!NT_SUCCESS(status)) {
-        return status;
+    Status = RtlFormatCurrentUserKeyPath0(&CurrentUserKeyPath);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
     }
     KdPrint(("CurrentUserKeyPath:%wZ\n", &CurrentUserKeyPath));//"\REGISTRY\USER\S-1-5-18"
     RtlFreeUnicodeString(&CurrentUserKeyPath);
 
-    return status;
+    return Status;
 }
 
 

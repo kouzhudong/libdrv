@@ -10,7 +10,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
 {
     ULONG length = MAXPATHLEN;
     PUNICODE_STRING Temp;
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     UNICODE_STRING  KeyPath = {0};
 
     if (NULL == Object) {
@@ -24,11 +24,11 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, length, &length);
-    if (!NT_SUCCESS(status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);//这个也不少。
+    Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, length, &length);
+    if (!NT_SUCCESS(Status)) {
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//这个也不少。
         ExFreePoolWithTag(Temp, TAG);
-        return status;
+        return Status;
     }
 
     RtlInitUnicodeString(&KeyPath, Temp->Buffer);
@@ -46,13 +46,13 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
 
     ExFreePoolWithTag(Temp, TAG);
 
-    return status;
+    return Status;
 }
 
 
 NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STRING DosName)
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     POBJECT_NAME_INFORMATION FileNameInfo = NULL;
 
     if (NULL == FileObject) {
@@ -60,10 +60,10 @@ NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STR
         return STATUS_UNSUCCESSFUL;
     }
 
-    status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
     }
 
     DosName->MaximumLength = FileNameInfo->Name.MaximumLength + sizeof(wchar_t);
@@ -78,7 +78,7 @@ NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STR
 
     ExFreePool(FileNameInfo);
 
-    return status;
+    return Status;
 }
 
 
@@ -201,7 +201,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
 功能：枚举一个DirectoryObject下的对象。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob;
     HANDLE FileHandle = 0;
     IO_STATUS_BLOCK  IoStatusBlock = {0};
@@ -213,30 +213,30 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
     UNICODE_STRING driver = RTL_CONSTANT_STRING(L"Driver");
 
     InitializeObjectAttributes(&ob, Directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
-    status = ZwOpenDirectoryObject(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = ZwOpenDirectoryObject(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
     }
 
     Length = Length + 520;//为何加这个数字，请看ZwEnumerateFile1的说明。
     FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == NULL) {
-        status = STATUS_UNSUCCESSFUL;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+        Status = STATUS_UNSUCCESSFUL;
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(FileHandle);
-        return status;
+        return Status;
     }
     RtlZeroMemory(FileInformation, Length);
 
     //RestartScan = FALSE;//为TRUE会导致死循环;
-    //status = ZwQueryDirectoryObject( FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength );
-    //if (!NT_SUCCESS (status)) //此时也会得到数据。
+    //Status = ZwQueryDirectoryObject( FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength );
+    //if (!NT_SUCCESS (Status)) //此时也会得到数据。
     //{
-    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);//STATUS_BUFFER_TOO_SMALL == C0000023
+    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
     //    ExFreePoolWithTag(FileInformation, TAG);
     //    ZwClose(FileHandle);
-    //    return status;
+    //    return Status;
     //}
 
     do {
@@ -245,8 +245,8 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         UNICODE_STRING FullName = {0};
 
         RestartScan = FALSE;//为TRUE会导致死循环;
-        status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);
-        if (status != STATUS_NO_MORE_FILES && status != STATUS_SUCCESS) {
+        Status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);
+        if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
             break;//这里好像没有走过。
         }
 
@@ -261,24 +261,24 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         FullName.MaximumLength = (USHORT)Length + Directory->MaximumLength;
         FullName.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, FullName.MaximumLength, TAG);
         if (FullName.Buffer == NULL) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-            status = STATUS_INSUFFICIENT_RESOURCES;
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
         }
         RtlZeroMemory(FullName.Buffer, FullName.MaximumLength);
 
         RtlCopyUnicodeString(&FullName, Directory);
 
-        status = RtlAppendUnicodeToString(&FullName, L"\\");
-        if (!NT_SUCCESS(status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+        Status = RtlAppendUnicodeToString(&FullName, L"\\");
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             ExFreePoolWithTag(FullName.Buffer, TAG);
             break;
         }
 
-        status = RtlAppendUnicodeStringToString(&FullName, &podi->Name);
-        if (!NT_SUCCESS(status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
+        Status = RtlAppendUnicodeStringToString(&FullName, &podi->Name);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             ExFreePoolWithTag(FullName.Buffer, TAG);
             break;
         }
@@ -287,10 +287,10 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         KdPrint(("Name %wZ\n", &FullName));
 
         ExFreePoolWithTag(FullName.Buffer, TAG);
-    } while (status != STATUS_NO_MORE_FILES);
+    } while (Status != STATUS_NO_MORE_FILES);
 
-    if (STATUS_NO_MORE_FILES == status) {
-        status = STATUS_SUCCESS;
+    if (STATUS_NO_MORE_FILES == Status) {
+        Status = STATUS_SUCCESS;
     }
 
     if (FileInformation) {
@@ -300,7 +300,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
 
     ZwClose(FileHandle);
 
-    return status;
+    return Status;
 }
 
 
@@ -319,18 +319,18 @@ made by correy
 made at 2015.05.19
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING directory = RTL_CONSTANT_STRING(L"\\driver");
     UNICODE_STRING FileSystem = RTL_CONSTANT_STRING(L"\\FileSystem");
 
-    status = ZwEnumerateObject(&directory);
-    if (!NT_SUCCESS(status)) {
-        return status;
+    Status = ZwEnumerateObject(&directory);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
     }
 
-    status = ZwEnumerateObject(&FileSystem);
+    Status = ZwEnumerateObject(&FileSystem);
 
-    return status;
+    return Status;
 }
 
 
@@ -388,54 +388,54 @@ void EnumerateTransactionObject()
 
 NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectName)
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PVOID Object;
     KPROCESSOR_MODE PreviousMode = ExGetPreviousMode();
     ULONG  Length = 1024;//取这个数的原因:参看ObQueryNameString函数的第三个参数的说明:A reasonable size for the buffer to accommodate most object names is 1024 bytes. 
     POBJECT_NAME_INFORMATION pu = 0;
 
-    status = ObReferenceObjectByHandle(Handle, 0, NULL, PreviousMode, &Object, 0);
-    if (!NT_SUCCESS(status)) {
-        return(status);
+    Status = ObReferenceObjectByHandle(Handle, 0, NULL, PreviousMode, &Object, 0);
+    if (!NT_SUCCESS(Status)) {
+        return(Status);
     }
 
     Length = 0;
-    status = ObQueryNameString(Object, pu, 0, &Length);
-    if (status != STATUS_INFO_LENGTH_MISMATCH) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+    Status = ObQueryNameString(Object, pu, 0, &Length);
+    if (Status != STATUS_INFO_LENGTH_MISMATCH) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Object);
-        return status;
+        return Status;
     }
 
     Length += 512;
     pu = (POBJECT_NAME_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (pu == 0) {
-        status = STATUS_INSUFFICIENT_RESOURCES;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Object);
-        return status;
+        return Status;
     }
     RtlZeroMemory(pu, Length);
 
-    status = ObQueryNameString(Object, pu, Length, &Length);
-    if (status != STATUS_SUCCESS) {
+    Status = ObQueryNameString(Object, pu, Length, &Length);
+    if (Status != STATUS_SUCCESS) {
         /*
         经查此时的返回值是0xC0000001。
         即连到系统上的设备没有发挥作用。
         此时的句柄的类型是文件。
         而且process explorer也是显示的是没有值的。
         */
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(pu, TAG);
         ObDereferenceObject(Object);
-        return status;
+        return Status;
     }
 
     ObDereferenceObject(Object);
 
     //有的对象是没有名字的。
     if (pu->Name.Length == 0) {
-        status = STATUS_UNSUCCESSFUL;
+        Status = STATUS_UNSUCCESSFUL;
     } else {
         RtlCopyUnicodeString(ObjectName, &pu->Name);
         //ObjectName->Buffer = pu->Name.Buffer;
@@ -445,13 +445,13 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
 
     ExFreePoolWithTag(pu, TAG);
 
-    return status;
+    return Status;
 }
 
 
 NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     DWORD nSize = 4096, nReturn;
     PSYSTEM_HANDLE_INFORMATION pSysHandleInfo;
     CLIENT_ID   ClientId = {0};//不初始化ZwOpenProcess有问题。
@@ -462,7 +462,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 
     pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
     if (pSysHandleInfo == NULL) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(pSysHandleInfo, nSize);
@@ -472,7 +472,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
         nSize += 4096;
         pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
         if (pSysHandleInfo == NULL) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             return STATUS_INSUFFICIENT_RESOURCES;
         }
         RtlZeroMemory(pSysHandleInfo, nSize);
@@ -480,11 +480,11 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 
     ClientId.UniqueProcess = Pid;
     InitializeObjectAttributes(&ob, 0, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
-    status = ZwOpenProcess(&ProcessHandle, GENERIC_ALL, &ob, &ClientId);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+    Status = ZwOpenProcess(&ProcessHandle, GENERIC_ALL, &ob, &ClientId);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(pSysHandleInfo, TAG);
-        return status;
+        return Status;
     }
 
     for (; i < pSysHandleInfo->NumberOfHandles; i++) {
@@ -512,20 +512,20 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             pchunter没有显示句柄为进程和线程的信息。但是process explorer能。
             process explorer默认的情况下是不显示没有名字的句柄的MAPPINGS的。但是可以设置和修改。
             */
-            status = ZwDuplicateObject(ProcessHandle,
+            Status = ZwDuplicateObject(ProcessHandle,
                                        (HANDLE)pHandle->HandleValue,
                                        NtCurrentProcess(),
                                        &hCopy,
                                        PROCESS_ALL_ACCESS,
                                        FALSE,
                                        DUPLICATE_SAME_ACCESS);
-            if (!NT_SUCCESS(status)) {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+            if (!NT_SUCCESS(Status)) {
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 continue;
             }
 
-            //status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
-            //if (status == STATUS_BUFFER_OVERFLOW || status == STATUS_BUFFER_TOO_SMALL)
+            //Status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
+            //if (Status == STATUS_BUFFER_OVERFLOW || Status == STATUS_BUFFER_TOO_SMALL)
             //{
             //    ObjectInformationLength = ReturnLength;
             //}
@@ -539,29 +539,29 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             ObjectInformationLength = sizeof(PUBLIC_OBJECT_TYPE_INFORMATION) * 2;//这个应该再增加点。加个512应该合适点。             
             ObjectInformation = ExAllocatePoolWithTag(NonPagedPool, ObjectInformationLength, TAG);
             if (ObjectInformation == NULL) {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ZwClose(hCopy);
                 return STATUS_INSUFFICIENT_RESOURCES;
             }
             RtlZeroMemory(ObjectInformation, ObjectInformationLength);
-            status = ZwQueryObject(hCopy,
+            Status = ZwQueryObject(hCopy,
                                    ObjectTypeInformation,
                                    ObjectInformation,
                                    ObjectInformationLength,
                                    &ReturnLength);
-            if (!NT_SUCCESS(status)) {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+            if (!NT_SUCCESS(Status)) {
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ExFreePoolWithTag(ObjectInformation, TAG);
                 ZwClose(hCopy);
-                return status;
+                return Status;
             }
 
             object_name.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
             if (object_name.Buffer == 0) {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ExFreePoolWithTag(ObjectInformation, TAG);
                 ZwClose(hCopy);
-                return status;
+                return Status;
             }
             RtlZeroMemory(object_name.Buffer, MAX_PATH);
             RtlInitEmptyUnicodeString(&object_name, object_name.Buffer, MAX_PATH);
@@ -573,8 +573,8 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             1.用ZwQueryObject的未公开的ObjectNameInformation。其实这是使用ObReferenceObjectByHandle+ObpQueryNameString实现的。
             2.ObReferenceObjectByHandle+ObQueryNameString。
             */
-            status = ZwQueryObjectNameByHandle(hCopy, &object_name);
-            if (NT_SUCCESS(status)) {
+            Status = ZwQueryObjectNameByHandle(hCopy, &object_name);
+            if (NT_SUCCESS(Status)) {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ, NAME:%wZ\n", pHandle->HandleValue, &ppoti->TypeName, &object_name));
                 RtlFreeUnicodeString(&object_name);
                 //ExFreePoolWithTag(object_name.Buffer, tag );
@@ -582,31 +582,31 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ\n", pHandle->HandleValue, &ppoti->TypeName));
             }
 
-            status = ZwClose(hCopy);
-            //if (!NT_SUCCESS(status))
+            Status = ZwClose(hCopy);
+            //if (!NT_SUCCESS(Status))
             //{//有的句柄保护起来，是不准关闭的。
-            //    Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+            //    Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             //    ExFreePoolWithTag( pSysHandleInfo, tag );
             //    ExFreePoolWithTag( ObjectInformation, tag );
-            //    return status;
+            //    return Status;
             //}
 
             ExFreePoolWithTag(ObjectInformation, TAG);
         }
     }
 
-    status = ZwClose(ProcessHandle);
-    /*if (!NT_SUCCESS(status)) {//可能有的句柄已经释放了。
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+    Status = ZwClose(ProcessHandle);
+    /*if (!NT_SUCCESS(Status)) {//可能有的句柄已经释放了。
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag( pSysHandleInfo, tag );
-        return status;
+        return Status;
     } */
 
     ExFreePoolWithTag(pSysHandleInfo, TAG);
 
     *ProcessHandles = dwhandles;
 
-    return status;
+    return Status;
 }
 
 
@@ -618,23 +618,23 @@ made by correy
 made at 2014.06.26
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     DWORD process_handle = 0;
     HANDLE test_handle = PsGetProcessId(PsInitialSystemProcess);
 
-    status = AdjustPrivilege(SE_DEBUG_PRIVILEGE, TRUE);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = AdjustPrivilege(SE_DEBUG_PRIVILEGE, TRUE);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
     }
 
-    status = EnumerateProcessHandles(test_handle, &process_handle);
-    if (!NT_SUCCESS(status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", status);
-        return status;
+    Status = EnumerateProcessHandles(test_handle, &process_handle);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
     }
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 

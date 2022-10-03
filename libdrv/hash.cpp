@@ -23,7 +23,7 @@ lpFileHash的值由调用者释放。
 {
     IO_STATUS_BLOCK  IoStatusBlock = {0};
     OBJECT_ATTRIBUTES ObjectAttributes = {0};
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     BOOL bResult = FALSE;
     PVOID buffer = NULL;
     HANDLE hFile = NULL;
@@ -39,7 +39,7 @@ lpFileHash的值由调用者释放。
     InitializeObjectAttributes(&ObjectAttributes, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
 
     do {
-        status = FltCreateFile(Filter,
+        Status = FltCreateFile(Filter,
                                Instance,
                                &hFile,
                                FILE_GENERIC_READ | SYNCHRONIZE,
@@ -53,56 +53,56 @@ lpFileHash的值由调用者释放。
                                NULL,
                                0,
                                IO_IGNORE_SHARE_ACCESS_CHECK);
-        if (!NT_SUCCESS(status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
 
         //整个上下文都应该优化成一块自描述的完整的大结构, 然后以后备列表管理, 而不是分散到各处进行分配释放
         buffer = ExAllocatePoolWithTag(PagedPool, nread, TAG);
         if (buffer == NULL) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
 
-        status = BCryptOpenAlgorithmProvider(&hAlg, algorithm, NULL, 0);
-        if (!NT_SUCCESS(status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);            
+        Status = BCryptOpenAlgorithmProvider(&hAlg, algorithm, NULL, 0);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);            
             break;
         }
 
-        status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PUCHAR)&cbHash, sizeof(cbHash), &nouse, 0);
-        if (!NT_SUCCESS(status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);            
+        Status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PUCHAR)&cbHash, sizeof(cbHash), &nouse, 0);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);            
             break;
         }
 
         ASSERT(nouse == 4);
 
-        status = BCryptCreateHash(hAlg, &hHash, hashObj, sizeof(hashObj), NULL, 0, 0);
-        ASSERT(NT_SUCCESS(status));
+        Status = BCryptCreateHash(hAlg, &hHash, hashObj, sizeof(hashObj), NULL, 0, 0);
+        ASSERT(NT_SUCCESS(Status));
 
-        status = ObReferenceObjectByHandle(hFile, 
+        Status = ObReferenceObjectByHandle(hFile, 
                                            FILE_LIST_DIRECTORY | SYNCHRONIZE, 
                                            *IoFileObjectType, 
                                            KernelMode,
                                            (PVOID *)&FileObject,
                                            NULL);
-        ASSERT(NT_SUCCESS(status));
+        ASSERT(NT_SUCCESS(Status));
 
         for (;;) {
             ULONG  BytesRead = 0;
 
             if (NULL == Instance) {
-                status = ZwReadFile(hFile, NULL, NULL, NULL, &IoStatusBlock, buffer, nread, NULL, NULL);
+                Status = ZwReadFile(hFile, NULL, NULL, NULL, &IoStatusBlock, buffer, nread, NULL, NULL);
             } else {//第一个参数不准为NULL。
-                status = FltReadFile(Instance, FileObject, NULL, nread, buffer, 0, &BytesRead, NULL, NULL);
+                Status = FltReadFile(Instance, FileObject, NULL, nread, buffer, 0, &BytesRead, NULL, NULL);
             }
-            if (!NT_SUCCESS(status)) {
-                if (status == STATUS_END_OF_FILE) {
-                    status = STATUS_SUCCESS;
+            if (!NT_SUCCESS(Status)) {
+                if (Status == STATUS_END_OF_FILE) {
+                    Status = STATUS_SUCCESS;
                 } else {
-                    PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);                    
+                    PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);                    
                 }
 
                 break;
@@ -116,15 +116,15 @@ lpFileHash的值由调用者释放。
                 break;
             }
 
-            status = BCryptHashData(hHash, (PUCHAR)buffer, BytesRead, 0);
-            if (!NT_SUCCESS(status)) {
-                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "status:%#x, FileName:%wZ", status, FileName);                
+            Status = BCryptHashData(hHash, (PUCHAR)buffer, BytesRead, 0);
+            if (!NT_SUCCESS(Status)) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);                
                 break;
             }
         }
 
-        status = BCryptFinishHash(hHash, Digest, cbHash, 0);
-        if (!NT_SUCCESS(status)) {
+        Status = BCryptFinishHash(hHash, Digest, cbHash, 0);
+        if (!NT_SUCCESS(Status)) {
             break;
         }
 

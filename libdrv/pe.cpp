@@ -419,14 +419,14 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
 注意：双方的DLL路径是全路径且格式一致。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     if (NULL == Context || NULL == DllBase) {
-        return status;
+        return Status;
     }
 
     if (NULL == FullDllName || NULL == FullDllName->Buffer) {
-        return status;
+        return Status;
     }
 
     PGetUserFunctionAddressInfo UserFunctionAddress = (PGetUserFunctionAddressInfo)Context;
@@ -435,7 +435,7 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
     RtlInitUnicodeString(&DllFullName, UserFunctionAddress->DllFullName);
 
     if (0 != RtlCompareUnicodeString(FullDllName, &DllFullName, TRUE)) {
-        return status;
+        return Status;
     }
 
     ANSI_STRING FunctionName = {0};
@@ -443,10 +443,10 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
 
     UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(DllBase, &FunctionName);
     if (UserFunctionAddress->UserFunctionAddress) {
-        status = STATUS_SUCCESS;
+        Status = STATUS_SUCCESS;
     } 
 
-    return status;
+    return Status;
 }
 
 
@@ -802,7 +802,7 @@ Id：资源的标识。
 NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS\\system32\\config\\SAM。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob;
     HANDLE DestinationFileHandle = 0;
     IO_STATUS_BLOCK  IoStatusBlock = {0};
@@ -819,7 +819,7 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS
     //新建文件.
     CreateDisposition = FILE_OPEN_IF;// FILE_OPEN_IF FILE_OVERWRITE_IF FILE_SUPERSEDE;
     InitializeObjectAttributes(&ob, NewFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
-    status = ZwCreateFile(&DestinationFileHandle,
+    Status = ZwCreateFile(&DestinationFileHandle,
                           FILE_ALL_ACCESS | SYNCHRONIZE,
                           &ob,
                           &IoStatusBlock,
@@ -830,20 +830,20 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS
                           FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
                           NULL,
                           0);
-    ASSERT(NT_SUCCESS(status));
+    ASSERT(NT_SUCCESS(Status));
 
     BaseAddress = GetImageBase(FileName);//上面的ZwMapViewOfSection等几个函数是没有用的。
 
     ResourceIdPath[0] = Type;
     ResourceIdPath[1] = Id;
     ResourceIdPath[2] = 0;
-    status = LdrFindResource_U(BaseAddress, ResourceIdPath, 3, &ResourceDataEntry);//用ZwMapViewOfSection返回c000008a
-    ASSERT(NT_SUCCESS(status));
-    status = LdrAccessResource(BaseAddress, ResourceDataEntry, &MessageData, &Size);
-    ASSERT(NT_SUCCESS(status));
+    Status = LdrFindResource_U(BaseAddress, ResourceIdPath, 3, &ResourceDataEntry);//用ZwMapViewOfSection返回c000008a
+    ASSERT(NT_SUCCESS(Status));
+    Status = LdrAccessResource(BaseAddress, ResourceDataEntry, &MessageData, &Size);
+    ASSERT(NT_SUCCESS(Status));
 
     //如果要处理大于4G的数据请加个循环。不过大于4G的数据也很难映射成功。
-    status = ZwWriteFile(DestinationFileHandle,
+    Status = ZwWriteFile(DestinationFileHandle,
                          NULL,
                          NULL,
                          NULL,
@@ -852,7 +852,7 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS
                          Size,
                          &ByteOffset,
                          NULL);
-    ASSERT(NT_SUCCESS(status));
+    ASSERT(NT_SUCCESS(Status));
 
     ZwClose(DestinationFileHandle);
     return TRUE;

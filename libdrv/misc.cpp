@@ -35,7 +35,7 @@ Name是被搜索的字符串。
 注意：不用再把Name转换成大写，因为FsRtlIsNameInExpression支持不区分大小写。
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING  DestinationString;
     BOOLEAN B;
 
@@ -45,9 +45,9 @@ Name是被搜索的字符串。
         return FALSE;
     }
 
-    status = RtlUpcaseUnicodeString(&DestinationString, Expression, TRUE);
-    if (!NT_SUCCESS(status)) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "status:%#x", status);
+    Status = RtlUpcaseUnicodeString(&DestinationString, Expression, TRUE);
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return FALSE;
     }
 
@@ -109,7 +109,7 @@ Exception filter to catch errors touching user buffers.
 
 Arguments:
 ExceptionPointer - The exception record.
-AccessingUserBuffer - If TRUE, overrides FsRtlIsNtStatusExpected to allow the caller to munge the error to a desired status.
+AccessingUserBuffer - If TRUE, overrides FsRtlIsNtStatusExpected to allow the caller to munge the error to a desired Status.
 
 Return Value:
 EXCEPTION_EXECUTE_HANDLER - If the exception handler should be run.
@@ -168,11 +168,11 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 */
 {
     TIME_FIELDS tf = {0};
-    NTSTATUS status;
+    NTSTATUS Status;
 
     RtlTimeToTimeFields(st, &tf);
 
-    status = RtlStringCbPrintfW(TimeString->Buffer,
+    Status = RtlStringCbPrintfW(TimeString->Buffer,
                                 TimeString->MaximumLength,
                                 L"%04d-%02d-%02d %02d:%02d:%02d",
                                 tf.Year,
@@ -181,7 +181,7 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
                                 tf.Hour,
                                 tf.Minute,
                                 tf.Second);
-    ASSERT(NT_SUCCESS(status));
+    ASSERT(NT_SUCCESS(Status));
 
     TimeString->Length = (USHORT)wcsnlen(TimeString->Buffer, TimeString->MaximumLength);
 }
@@ -189,13 +189,13 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 
 void StringToInteger(wchar_t * rule_text, PULONG y)
 {
-    NTSTATUS status;
+    NTSTATUS Status;
     UNICODE_STRING rule = {0};
 
     RtlInitUnicodeString(&rule, rule_text);
 
-    status = RtlUnicodeStringToInteger(&rule, 0, y);
-    ASSERT(NT_SUCCESS(status));
+    Status = RtlUnicodeStringToInteger(&rule, 0, y);
+    ASSERT(NT_SUCCESS(Status));
 }
 
 

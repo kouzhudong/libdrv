@@ -30,18 +30,18 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 {
     HANDLE ProcessId = NULL;
     PEPROCESS    Process;
-    NTSTATUS     status = STATUS_SUCCESS;
+    NTSTATUS     Status = STATUS_SUCCESS;
     KAPC_STATE   ApcState;
     PVOID DllBase = 0;
     PVOID FunctionAddress;
     int index = 0;
 
-    status = GetPidFromProcessName(L"smss.exe", &ProcessId);
-    ASSERT(NT_SUCCESS(status));
+    Status = GetPidFromProcessName(L"smss.exe", &ProcessId);
+    ASSERT(NT_SUCCESS(Status));
     ASSERT(ProcessId);
 
-    status = PsLookupProcessByProcessId(ProcessId, &Process);//得到指定进程ID的进程环境块
-    ASSERT(NT_SUCCESS(status));
+    Status = PsLookupProcessByProcessId(ProcessId, &Process);//得到指定进程ID的进程环境块
+    ASSERT(NT_SUCCESS(Status));
 
     KeStackAttachProcess(Process, &ApcState); //附加当前线程到目标进程空间内   
 

@@ -172,7 +172,7 @@ void ApcCallback(PKAPC Apc,
 
 NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS Status = STATUS_SUCCESS;
     PKAPC Apc;
 
     Apc = (PKAPC)ExAllocatePoolWithTag(NonPagedPool, sizeof(KAPC), TAG);
@@ -192,7 +192,7 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
 
     KeInsertQueueApc(Apc, (PVOID)(ULONG)2, (PVOID)(ULONG)3, 0);
 
-    return status;
+    return Status;
 }
 
 
@@ -352,8 +352,8 @@ ProcessId
     }
 
     INT ThreadNumbers = 0;
-    NTSTATUS status = GetThreadNumbers(ProcessId, &ThreadNumbers);
-    if (!NT_SUCCESS(status)) {
+    NTSTATUS Status = GetThreadNumbers(ProcessId, &ThreadNumbers);
+    if (!NT_SUCCESS(Status)) {
         return ret;
     }
 
@@ -459,7 +459,7 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
             __leave;
         }
 
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
                 ThreadHandleReturn, ClientId.UniqueThread, ClientId.UniqueProcess);
     } __finally {
         if (KernelHandle) {

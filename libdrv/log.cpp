@@ -43,7 +43,7 @@ http://www.osronline.com/showThread.cfm?link=28746
 http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
 */
 {
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PVOID p = 0;
     PIO_ERROR_LOG_PACKET pioelp;
 
@@ -58,7 +58,7 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
     //Drivers must not treat IoAllocateErrorLogEntry returning NULL as a fatal error. 
     //The driver must continue to function normally, whether or not it can log errors. 
     if (p == NULL) {
-        return status;
+        return Status;
     }
 
     pioelp = (PIO_ERROR_LOG_PACKET)p;
@@ -74,7 +74,7 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
 
     p = IoAllocateErrorLogEntry(DriverObject, sizeof(IO_ERROR_LOG_PACKET) + sizeof(ULONG));
     if (p == NULL) {
-        return status;
+        return Status;
     }
 
     pioelp = (PIO_ERROR_LOG_PACKET)p;
@@ -156,7 +156,7 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    return status;//STATUS_SUCCESS
+    return Status;//STATUS_SUCCESS
 }
 
 
