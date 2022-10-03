@@ -388,8 +388,31 @@ NTSTATUS
     );
 
 
+//Win2K3\NT\public\sdk\inc\ntrtl.h
+typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
+
+
+//此函数已经导出，但是编译环境（二进制和文本）没有这个定义。
+//只需用MmGetSystemRoutineAddress获取即可。
+typedef
+NTSTATUS(NTAPI *
+         RtlCreateUserThreadFn)(
+             IN HANDLE Process,
+             IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
+             IN BOOLEAN CreateSuspended,
+             IN ULONG ZeroBits OPTIONAL,
+             IN SIZE_T MaximumStackSize OPTIONAL,
+             IN SIZE_T CommittedStackSize OPTIONAL,
+             IN PUSER_THREAD_START_ROUTINE StartAddress,
+             IN PVOID Parameter OPTIONAL,
+             OUT PHANDLE Thread OPTIONAL,
+             OUT PCLIENT_ID ClientId OPTIONAL
+             );
+
+
 void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
+void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress);
 
 SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 
