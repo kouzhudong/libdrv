@@ -401,7 +401,12 @@ RtlpStartThread(
 }
 
 
-NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID Parameter)
+NTSTATUS CreateUserThread(_In_ HANDLE Pid, 
+                          _In_ PUSER_THREAD_START_ROUTINE Function, 
+                          _In_ PVOID Parameter,
+                          _Inout_ PHANDLE ThreadHandleReturn,
+                          _Inout_ PCLIENT_ID ClientId
+)
 /*
 功能：RtlCreateUserThread的简单封装。
 
@@ -414,14 +419,20 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    HANDLE ThreadHandleReturn = nullptr;
-    CLIENT_ID ClientId{};
     PEPROCESS  Process = nullptr;
     HANDLE  KernelHandle = nullptr;
+
+    if (nullptr == ThreadHandleReturn || nullptr == ClientId) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     if (nullptr == RtlCreateUserThread) {
         return STATUS_UNSUCCESSFUL;
     }
+
+    *ThreadHandleReturn = NULL;
+    ClientId->UniqueProcess = NULL;
+    ClientId->UniqueThread = NULL;
 
     __try {
         Status = PsLookupProcessByProcessId(Pid, &Process);
@@ -451,8 +462,8 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
             0L,                     // Committed stack size: default
             Function,               // Function to start in
             Parameter,              // Parameter to start with
-            &ThreadHandleReturn,    // Thread handle return
-            &ClientId               // Thread id
+            ThreadHandleReturn,    // Thread handle return
+            ClientId               // Thread id
         );
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
@@ -460,7 +471,7 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
         }
 
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
-                ThreadHandleReturn, ClientId.UniqueThread, ClientId.UniqueProcess);
+                *ThreadHandleReturn, ClientId->UniqueThread, ClientId->UniqueProcess);
     } __finally {
         if (KernelHandle) {
             ZwClose(KernelHandle);
@@ -475,34 +486,34 @@ NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID
 }
 
 
-NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
-/*
-
-注意：WOW64的处理。
-"\\SystemRoot\\System32\\kernel32.dll"
-"\\SystemRoot\\SysWOW64\\kernel32.dll"
-
-感叹！
-多么的巧合。
-PUSER_THREAD_START_ROUTINE和LoadLibraryW的原型竟然一致。
-所以，这省去了在应用层申请可执行内存的操作。
-当然更多的是复制代码（可以不是shellcode，当然要支持WOW64）到应用层的操作。
-更不用说shellcode了。
-
-注意：WOW64的参数的大小，如：指针和size_t等。
-
-DllPullPath所在的内存是应用层的。
-*/
-{
-    NTSTATUS Status = STATUS_SUCCESS;
-    PUSER_THREAD_START_ROUTINE LoadLibraryW = nullptr;//LoadLibraryW的地址。
-
-    ASSERT(LoadLibraryW);
-
-    Status = CreateUserThread(Process, LoadLibraryW, (PVOID)DllPullPath);
-
-    return Status;
-}
+//NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
+///*
+//
+//注意：WOW64的处理。
+//"\\SystemRoot\\System32\\kernel32.dll"
+//"\\SystemRoot\\SysWOW64\\kernel32.dll"
+//
+//感叹！
+//多么的巧合。
+//PUSER_THREAD_START_ROUTINE和LoadLibraryW的原型竟然一致。
+//所以，这省去了在应用层申请可执行内存的操作。
+//当然更多的是复制代码（可以不是shellcode，当然要支持WOW64）到应用层的操作。
+//更不用说shellcode了。
+//
+//注意：WOW64的参数的大小，如：指针和size_t等。
+//
+//DllPullPath所在的内存是应用层的。
+//*/
+//{
+//    NTSTATUS Status = STATUS_SUCCESS;
+//    PUSER_THREAD_START_ROUTINE LoadLibraryW = nullptr;//LoadLibraryW的地址。
+//
+//    ASSERT(LoadLibraryW);
+//
+//    //Status = CreateUserThread(Process, LoadLibraryW, (PVOID)DllPullPath);
+//
+//    return Status;
+//}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

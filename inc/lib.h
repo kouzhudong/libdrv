@@ -430,7 +430,12 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 //Win2K3\NT\public\sdk\inc\ntrtl.h
 typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
 
-NTSTATUS CreateUserThread(HANDLE Pid, PUSER_THREAD_START_ROUTINE Function, PVOID Parameter);
+NTSTATUS CreateUserThread(_In_ HANDLE Pid,
+                          _In_ PUSER_THREAD_START_ROUTINE Function,
+                          _In_ PVOID Parameter,
+                          _Inout_ PHANDLE ThreadHandleReturn,
+                          _Inout_ PCLIENT_ID ClientId
+);
 
 DWORD WINAPI QueueUserAPC(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData);
 
