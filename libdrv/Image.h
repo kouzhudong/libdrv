@@ -287,7 +287,7 @@ PVOID GetImageBase(__in PCSTR name);
 NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Context);
 #endif
 
-BOOLEAN ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName);
+NTSTATUS ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName);
 
 PVOID GetNtdllImageBase(PEPROCESS Process);
 

@@ -299,7 +299,7 @@ PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName,
 PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName);
 BOOL IsPe64(_In_ PVOID ImageBase);
 VOID ModifyPeEntry(_In_ PVOID ImageBase);
-BOOLEAN ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName);
+NTSTATUS ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName);
 BOOL IsFilePe64(_In_ PUNICODE_STRING ImageFileName);
 BOOL IsProcessPe64(_In_ HANDLE UniqueProcess);
 

@@ -68,7 +68,7 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
                                     MemoryInformationLength,
                                     &ReturnLength);
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
     } else {
         //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
     }

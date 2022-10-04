@@ -791,7 +791,7 @@ VOID ModifyPeEntry(_In_ PVOID ImageBase)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-BOOLEAN ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName)
+NTSTATUS ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName)
 /*
 功能：在驱动层释放资源信息到文件。
 
@@ -825,12 +825,15 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS
                           &IoStatusBlock,
                           &AllocationSize,
                           FILE_ATTRIBUTE_NORMAL,
-                          FILE_SHARE_WRITE,
+                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                           CreateDisposition,
                           FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
                           NULL,
                           0);
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return Status;
+    }
 
     BaseAddress = GetImageBase(FileName);//上面的ZwMapViewOfSection等几个函数是没有用的。
 
@@ -855,7 +858,7 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS
     ASSERT(NT_SUCCESS(Status));
 
     ZwClose(DestinationFileHandle);
-    return TRUE;
+    return Status;
 }
 
 
