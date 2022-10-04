@@ -1,9 +1,74 @@
 #include "pch.h"
 #include "object.h"
 #include "Process.h"
+#include "misc.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
+/*
+功能：获取各种对象的名字（只要对象有名字），经常用于获取注册表的键对象的名字。
+
+名字的内存由调用者释放。
+
+注释：文件和注册表获取的都是内核路径。
+*/
+{
+    POBJECT_NAME_INFORMATION ObjectNameInfo = NULL;
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    if (NULL == Object || NULL == ObjectName) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    RtlInitEmptyUnicodeString(ObjectName, NULL, 0);
+
+    do {
+        ULONG Length = 0;
+        Status = ObQueryNameString(Object, NULL, Length, &Length);
+        ASSERT(!NT_SUCCESS(Status));
+
+        if (0 == Length) {
+            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
+            break;
+        }
+
+        Length += sizeof(WCHAR);
+        ObjectNameInfo = (POBJECT_NAME_INFORMATION)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+        if (NULL == ObjectNameInfo) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        RtlZeroMemory(ObjectNameInfo, Length);
+
+        Status = ObQueryNameString(Object, ObjectNameInfo, Length, &Length);
+        if (!NT_SUCCESS(Status)) {
+            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
+            break;
+        }
+
+        ObjectName->MaximumLength = ObjectNameInfo->Name.MaximumLength + sizeof(wchar_t);
+        ObjectName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ObjectName->MaximumLength, TAG);
+        if (NULL == ObjectName->Buffer) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
+            break;;
+        }
+
+        RtlZeroMemory(ObjectName->Buffer, ObjectName->MaximumLength);
+        RtlCopyUnicodeString(ObjectName, &ObjectNameInfo->Name);
+    } while (FALSE);
+
+    if (ObjectNameInfo) {
+        ExFreePoolWithTag(ObjectNameInfo, TAG);
+    }
+
+    return Status;
+}
 
 
 NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
@@ -190,6 +255,94 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
 
     ObDereferenceObject(FileObject);
     ZwClose(File);
+}
+
+
+NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, 
+                           _Inout_ PUNICODE_STRING NtPathName, 
+                           _Inout_ PUNICODE_STRING DosPathName
+)
+/*
+功能：主要是获取L"\\SystemRoot"的NT和DOS路径，但是也可以获取以L"\\SystemRoot"开头的任何合法且存在的路径。
+
+例如：你可直接获取下面文件的（NT和DOS的）路径，而无需硬编码了。
+1.L"\\SystemRoot"
+2.L"\\SystemRoot\\System32\\ntdll.dll"
+3.L"\\SystemRoot\\System32\\smss.exe"
+4.L"\\SystemRoot\\System32\\csrss.exe"
+5.等等。
+*/
+{
+    HANDLE File = NULL;
+    NTSTATUS Status;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    IO_STATUS_BLOCK IoStatus;
+    PFILE_OBJECT FileObject = NULL;
+    POBJECT_NAME_INFORMATION FileNameInfo = NULL;
+
+    PAGED_CODE();
+
+    if (NULL == SymbolicLinkName || NULL == NtPathName || NULL == DosPathName) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    do {
+        InitializeObjectAttributes(&ObjectAttributes, SymbolicLinkName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+        Status = ZwOpenFile(&File, SYNCHRONIZE | FILE_READ_DATA, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        Status = GetObjectName(FileObject, NtPathName);
+        if (!NT_SUCCESS(Status) || NULL == NtPathName->Buffer) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        //KdPrint(("NT name:%wZ.\r\n", &NtPathName));
+
+        Status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        DosPathName->MaximumLength = FileNameInfo->Name.Length;
+        Status = AllocateUnicodeString(DosPathName);
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+            break;
+        }
+
+        //KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
+        RtlCopyUnicodeString(DosPathName, &FileNameInfo->Name);
+    } while (FALSE);
+
+    if (FileNameInfo) {
+        ExFreePool(FileNameInfo);
+    }
+
+    if (FileObject) {
+        ObDereferenceObject(FileObject);
+    }
+
+    if (File) {
+        ZwClose(File);
+    }
+
+    if (!NT_SUCCESS(Status)) {
+        FreeUnicodeString(NtPathName);
+        FreeUnicodeString(DosPathName);
+    }
+
+    return Status;
 }
 
 

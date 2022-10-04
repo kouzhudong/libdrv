@@ -93,11 +93,17 @@ EXTERN_C_START
 
 
 NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName);
+NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName);
 NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STRING DosName);
 
 void GetKnownDllPath();
 void GetKnownDllPathEx();
 void GetSystemRootPathName(PUNICODE_STRING PathName, PUNICODE_STRING NtPathName, PUNICODE_STRING DosPathName);
+
+NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
+                           _Inout_ PUNICODE_STRING NtPathName,
+                           _Inout_ PUNICODE_STRING DosPathName
+);
 
 NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory);
 NTSTATUS ZwEnumerateDriverObject();
