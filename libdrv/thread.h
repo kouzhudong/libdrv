@@ -218,7 +218,7 @@ RtlCreateUserThreadFn)(
 因为RtlCreateUserThread->RtlpCreateUserThreadEx->ZwCreateThreadEx->NtCreateThreadEx。
 除非ZwCreateThreadEx比RtlCreateUserThread有额外的功能，或者说RtlCreateUserThread删减ZwCreateThreadEx的功能。
 其实RtlCreateUserThread封装了ZwCreateThreadEx，比ZwCreateThreadEx更好用更友好。
-一个使用ZwCreateThreadEx的原因是RtlCreateUserThread没有导出。
+一个使用ZwCreateThreadEx的原因是RtlCreateUserThread没有导出(win7上此函数没有导出)。
 */
 
 
