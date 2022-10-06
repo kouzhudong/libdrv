@@ -10,6 +10,7 @@
 
 volatile ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn;
 volatile ZwTerminateThread_pfn ZwTerminateThreadFn;
+volatile ZwCreateThreadExFn ZwCreateThreadEx;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -409,4 +410,10 @@ void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAdd
 void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress)
 {
     InterlockedExchangePointer((PVOID volatile *)&RtlCreateUserThread, RtlCreateUserThreadAddress);
+}
+
+
+void SetZwCreateThreadExAddress(_In_ RtlCreateUserThreadFn ZwCreateThreadExAddress)
+{
+    InterlockedExchangePointer((PVOID volatile *)&ZwCreateThreadEx, ZwCreateThreadExAddress);
 }

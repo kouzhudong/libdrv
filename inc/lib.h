@@ -419,6 +419,7 @@ NTSTATUS(NTAPI *
 void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
 void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress);
+void SetZwCreateThreadExAddress(_In_ RtlCreateUserThreadFn ZwCreateThreadExAddress);
 
 SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 

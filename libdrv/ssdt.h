@@ -48,6 +48,7 @@ extern "C" {
 
 extern volatile ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryFn;
 extern volatile ZwTerminateThread_pfn ZwTerminateThreadFn;
+extern volatile ZwCreateThreadExFn ZwCreateThreadEx;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +62,7 @@ EXTERN_C SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
 void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress);
-
+void SetZwCreateThreadExAddress(_In_ RtlCreateUserThreadFn ZwCreateThreadExAddress);
 
 
 EXTERN_C_END
