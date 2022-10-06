@@ -552,7 +552,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         //    ThreadHandleReturn,    // Thread handle return
         //    ClientId               // Thread id
         //);
-        Status = ZwCreateThreadEx(ThreadHandleReturn,
+        Status = ZwCreateThreadEx(ThreadHandleReturn, //经测试发现：这个是tid。应用层的，非内核态的句柄。
                                   THREAD_ALL_ACCESS,
                                   NULL,
                                   KernelHandle,
@@ -569,23 +569,22 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         }
 
         ClientId->UniqueProcess = Pid;
+        ClientId->UniqueProcess = *ThreadHandleReturn;
 
-        PETHREAD Thread = nullptr;
-        Status = ObReferenceObjectByHandle(*ThreadHandleReturn, 
-                                           THREAD_ALL_ACCESS, 
-                                           *PsThreadType, 
-                                           KernelMode, 
-                                           (PVOID *)&Thread,
-                                           NULL);
-        if (!NT_SUCCESS(Status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
-            __leave;
-        }
-
-        ClientId->UniqueThread = PsGetThreadId(Thread);
-
-        ObDereferenceObject(Thread);
-        //ZwClose(*ThreadHandleReturn);
+        //PETHREAD Thread = nullptr;
+        //Status = ObReferenceObjectByHandle(*ThreadHandleReturn,  
+        //                                   THREAD_ALL_ACCESS, 
+        //                                   *PsThreadType, 
+        //                                   UserMode,
+        //                                   (PVOID *)&Thread,
+        //                                   NULL);
+        //if (!NT_SUCCESS(Status)) {
+        //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        //    __leave;
+        //}
+        //ClientId->UniqueThread = PsGetThreadId(Thread);
+        //ObDereferenceObject(Thread);
+        ////ZwClose(*ThreadHandleReturn);
 
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
                 *ThreadHandleReturn, ClientId->UniqueThread, Pid);
