@@ -416,6 +416,46 @@ NTSTATUS(NTAPI *
              );
 
 
+//\systeminformer\phnt\include\ntpsapi.h
+typedef struct _PS_ATTRIBUTE
+{
+    ULONG_PTR Attribute;
+    SIZE_T Size;
+    union
+    {
+        ULONG_PTR Value;
+        PVOID ValuePtr;
+    };
+    PSIZE_T ReturnLength;
+} PS_ATTRIBUTE, * PPS_ATTRIBUTE;
+
+
+//\systeminformer\phnt\include\ntpsapi.h
+typedef struct _PS_ATTRIBUTE_LIST
+{
+    SIZE_T TotalLength;
+    PS_ATTRIBUTE Attributes[1];
+} PS_ATTRIBUTE_LIST, * PPS_ATTRIBUTE_LIST;
+
+
+typedef
+NTSTATUS
+(NTAPI *
+ ZwCreateThreadExFn)(
+     _Out_ PHANDLE ThreadHandle,
+     _In_ ACCESS_MASK DesiredAccess,
+     _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
+     _In_ HANDLE ProcessHandle,
+     _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
+     _In_opt_ PVOID Argument,
+     _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+     _In_ SIZE_T ZeroBits,
+     _In_ SIZE_T StackSize,
+     _In_ SIZE_T MaximumStackSize,
+     _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
+     );
+
+
 void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
 void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress);
@@ -442,6 +482,13 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
                           _In_ PVOID Parameter,
                           _Inout_ PHANDLE ThreadHandleReturn,
                           _Inout_ PCLIENT_ID ClientId
+);
+
+NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
+                            _In_ PUSER_THREAD_START_ROUTINE Function,
+                            _In_ PVOID Parameter,
+                            _Inout_ PHANDLE ThreadHandleReturn,
+                            _Inout_ PCLIENT_ID ClientId
 );
 
 DWORD WINAPI QueueUserAPC(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData);

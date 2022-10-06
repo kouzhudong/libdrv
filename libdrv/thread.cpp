@@ -486,6 +486,123 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
 }
 
 
+NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
+                            _In_ PUSER_THREAD_START_ROUTINE Function,
+                            _In_ PVOID Parameter,
+                            _Inout_ PHANDLE ThreadHandleReturn,
+                            _Inout_ PCLIENT_ID ClientId
+)
+/*
+功能：ZwCreateThreadEx的简单封装。
+
+参数：
+1.Pid，其实是一个整数。
+2.Function，应用层的代码的地址。
+3.Parameter，应用层的内存地址。
+
+注意：调用此函数之前应该先调用SetZwCreateThreadExAddress。
+
+函数原型保存与CreateUserThread高度兼容，感觉PCLIENT_ID参数是多余的。
+*/
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    PEPROCESS Process = nullptr;
+    HANDLE  KernelHandle = nullptr;
+
+    if (nullptr == ThreadHandleReturn || nullptr == ClientId) {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    if (nullptr == ZwCreateThreadEx) {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    *ThreadHandleReturn = NULL;
+    ClientId->UniqueProcess = NULL;
+    ClientId->UniqueThread = NULL;
+
+    __try {
+        Status = PsLookupProcessByProcessId(Pid, &Process);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        Status = ObOpenObjectByPointer(Process,
+                                       OBJ_KERNEL_HANDLE,
+                                       NULL,
+                                       GENERIC_ALL,
+                                       *PsProcessType,
+                                       KernelMode,
+                                       &KernelHandle);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        //Status = RtlCreateUserThread(
+        //    KernelHandle,           // process handle 内核句柄还是应用层的pid?有待实验。
+        //    NULL,                   // security descriptor
+        //    FALSE,                  // Create suspended?
+        //    0L,                     // ZeroBits: default
+        //    0L,                     // Max stack size: default
+        //    0L,                     // Committed stack size: default
+        //    Function,               // Function to start in
+        //    Parameter,              // Parameter to start with
+        //    ThreadHandleReturn,    // Thread handle return
+        //    ClientId               // Thread id
+        //);
+        Status = ZwCreateThreadEx(ThreadHandleReturn,
+                                  THREAD_ALL_ACCESS,
+                                  NULL,
+                                  KernelHandle,
+                                  Function,
+                                  Parameter,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  NULL);
+        if (!NT_SUCCESS(Status) || nullptr == *ThreadHandleReturn) {
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            __leave;
+        }
+
+        ClientId->UniqueProcess = Pid;
+
+        PETHREAD Thread = nullptr;
+        Status = ObReferenceObjectByHandle(*ThreadHandleReturn, 
+                                           THREAD_ALL_ACCESS, 
+                                           *PsThreadType, 
+                                           KernelMode, 
+                                           (PVOID *)&Thread,
+                                           NULL);
+        if (!NT_SUCCESS(Status)) {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+            __leave;
+        }
+
+        ClientId->UniqueThread = PsGetThreadId(Thread);
+
+        ObDereferenceObject(Thread);
+        //ZwClose(*ThreadHandleReturn);
+
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
+                *ThreadHandleReturn, ClientId->UniqueThread, Pid);
+    } __finally {
+        if (KernelHandle) {
+            ZwClose(KernelHandle);
+        }
+
+        if (Process) {
+            ObDereferenceObject(Process);
+        }
+    }
+
+    return Status;
+}
+
+
 //NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
 ///*
 //

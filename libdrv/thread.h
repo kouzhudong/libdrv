@@ -320,6 +320,13 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
                           _Inout_ PCLIENT_ID ClientId
 );
 
+NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
+                            _In_ PUSER_THREAD_START_ROUTINE Function,
+                            _In_ PVOID Parameter,
+                            _Inout_ PHANDLE ThreadHandleReturn,
+                            _Inout_ PCLIENT_ID ClientId
+);
+
 
 EXTERN_C_END
 
