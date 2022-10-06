@@ -45,7 +45,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
     SIZE_T HighestUserAddress = (SIZE_T)MmHighestUserAddress;
 #if defined(_WIN64)
     if (PsGetProcessWow64Process(Process)) {
-        HighestUserAddress = 0x7ffeffff;
+        HighestUserAddress = 0x7ffeffff;//32位的系统有3GB的配置，PE文件有大内存的配置，WOW64是否有3GB支持？
     } 
 #endif
 
