@@ -219,7 +219,76 @@ RtlCreateUserThreadFn)(
 除非ZwCreateThreadEx比RtlCreateUserThread有额外的功能，或者说RtlCreateUserThread删减ZwCreateThreadEx的功能。
 其实RtlCreateUserThread封装了ZwCreateThreadEx，比ZwCreateThreadEx更好用更友好。
 一个使用ZwCreateThreadEx的原因是RtlCreateUserThread没有导出(win7上此函数没有导出)。
+RtlCreateUserThread在XP已经有了，估计没有导出。
 */
+
+
+//\systeminformer\phnt\include\ntpsapi.h
+typedef struct _PS_ATTRIBUTE
+{
+    ULONG_PTR Attribute;
+    SIZE_T Size;
+    union
+    {
+        ULONG_PTR Value;
+        PVOID ValuePtr;
+    };
+    PSIZE_T ReturnLength;
+} PS_ATTRIBUTE, * PPS_ATTRIBUTE;
+
+
+//\systeminformer\phnt\include\ntpsapi.h
+typedef struct _PS_ATTRIBUTE_LIST
+{
+    SIZE_T TotalLength;
+    PS_ATTRIBUTE Attributes[1];
+} PS_ATTRIBUTE_LIST, * PPS_ATTRIBUTE_LIST;
+
+
+//https://processhacker.sourceforge.io/doc/ntpsapi_8h_source.html
+#define THREAD_CREATE_FLAGS_CREATE_SUSPENDED 0x00000001
+#define THREAD_CREATE_FLAGS_SKIP_THREAD_ATTACH 0x00000002 // ?
+#define THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER 0x00000004
+#define THREAD_CREATE_FLAGS_HAS_SECURITY_DESCRIPTOR 0x00000010 // ?
+#define THREAD_CREATE_FLAGS_ACCESS_CHECK_IN_TARGET 0x00000020 // ?
+#define THREAD_CREATE_FLAGS_INITIAL_THREAD 0x00000080
+
+
+//\systeminformer\phnt\include\ntzwapi.h
+NTSYSCALLAPI
+NTSTATUS
+NTAPI
+ZwCreateThreadEx(
+    _Out_ PHANDLE ThreadHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ HANDLE ProcessHandle,
+    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
+    _In_opt_ PVOID Argument,
+    _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+    _In_ SIZE_T ZeroBits,
+    _In_ SIZE_T StackSize,
+    _In_ SIZE_T MaximumStackSize,
+    _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
+);
+
+
+typedef
+NTSTATUS
+(NTAPI * 
+ZwCreateThreadExFn)(
+    _Out_ PHANDLE ThreadHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ HANDLE ProcessHandle,
+    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
+    _In_opt_ PVOID Argument,
+    _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+    _In_ SIZE_T ZeroBits,
+    _In_ SIZE_T StackSize,
+    _In_ SIZE_T MaximumStackSize,
+    _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
+);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
