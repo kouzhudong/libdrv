@@ -62,7 +62,7 @@ EXTERN_C SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 void SetZwQueryVirtualMemoryAddress(_In_ ZwQueryVirtualMemory_PFN ZwQueryVirtualMemoryAddress);
 void SetZwTerminateThreadAddress(_In_ ZwTerminateThread_pfn ZwTerminateThreadAddress);
 void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThreadAddress);
-void SetZwCreateThreadExAddress(_In_ RtlCreateUserThreadFn ZwCreateThreadExAddress);
+void SetZwCreateThreadExAddress(_In_ ZwCreateThreadExFn ZwCreateThreadExAddress);
 
 
 EXTERN_C_END

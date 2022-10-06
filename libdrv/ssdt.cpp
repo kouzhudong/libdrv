@@ -413,7 +413,7 @@ void SetRtlCreateUserThreadAddress(_In_ RtlCreateUserThreadFn RtlCreateUserThrea
 }
 
 
-void SetZwCreateThreadExAddress(_In_ RtlCreateUserThreadFn ZwCreateThreadExAddress)
+void SetZwCreateThreadExAddress(_In_ ZwCreateThreadExFn ZwCreateThreadExAddress)
 {
     InterlockedExchangePointer((PVOID volatile *)&ZwCreateThreadEx, ZwCreateThreadExAddress);
 }
