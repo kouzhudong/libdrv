@@ -6,6 +6,125 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+KLDR_DATA_TABLE_ENTRY的定义。
+摘自：\nt5src\Source\Win2K3\NT\public\sdk\inc\ntldr.h
+
+0: kd> vertarget
+Windows 8 Kernel Version 9200 MP (8 procs) Free x64
+Product: WinNt, suite: TerminalServer SingleUserTS
+Built by: 19041.1.amd64fre.vb_release.191206-1406
+Machine Name:
+Kernel base = 0xfffff804`31400000 PsLoadedModuleList = 0xfffff804`3202a270
+Debug session time: Sun Oct  9 20:20:53.225 2022 (UTC + 8:00)
+System Uptime: 2 days 2:43:19.305
+0: kd> dt _KLDR_DATA_TABLE_ENTRY
+nt!_KLDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY
+   +0x010 ExceptionTable   : Ptr64 Void
+   +0x018 ExceptionTableSize : Uint4B
+   +0x020 GpValue          : Ptr64 Void
+   +0x028 NonPagedDebugInfo : Ptr64 _NON_PAGED_DEBUG_INFO
+   +0x030 DllBase          : Ptr64 Void
+   +0x038 EntryPoint       : Ptr64 Void
+   +0x040 SizeOfImage      : Uint4B
+   +0x048 FullDllName      : _UNICODE_STRING
+   +0x058 BaseDllName      : _UNICODE_STRING
+   +0x068 Flags            : Uint4B
+   +0x06c LoadCount        : Uint2B
+   +0x06e u1               : <anonymous-tag>
+   +0x070 SectionPointer   : Ptr64 Void
+   +0x078 CheckSum         : Uint4B
+   +0x07c CoverageSectionSize : Uint4B
+   +0x080 CoverageSection  : Ptr64 Void
+   +0x088 LoadedImports    : Ptr64 Void
+   +0x090 Spare            : Ptr64 Void
+   +0x098 SizeOfImageNotRounded : Uint4B
+   +0x09c TimeDateStamp    : Uint4B
+*/
+
+
+typedef struct _KLDR_DATA_TABLE_ENTRY//对比发现，和_LDR_DATA_TABLE_ENTRY在很多偏移上的成员的名字和类型都一样。
+{
+    LIST_ENTRY InLoadOrderLinks;
+    PVOID ExceptionTable;
+    ULONG ExceptionTableSize;
+    // ULONG padding on IA64
+    PVOID GpValue;
+    PNON_PAGED_DEBUG_INFO NonPagedDebugInfo;
+    PVOID DllBase;
+    PVOID EntryPoint;
+    ULONG SizeOfImage;
+    UNICODE_STRING FullDllName;
+    UNICODE_STRING BaseDllName;
+    ULONG Flags;
+    USHORT LoadCount;
+    USHORT __Unused5;//名字不一样而已。
+    PVOID SectionPointer;
+    ULONG CheckSum;//从下面开始有变动。
+    // ULONG padding on IA64
+    PVOID LoadedImports;
+    PVOID PatchInformation;
+} KLDR_DATA_TABLE_ENTRY, * PKLDR_DATA_TABLE_ENTRY;
+
+
+typedef struct _KLDR_DATA_TABLE_ENTRY32
+{
+    LIST_ENTRY32 InLoadOrderLinks;
+    ULONG __Undefined1;
+    ULONG __Undefined2;
+    ULONG __Undefined3;
+    ULONG NonPagedDebugInfo;
+    ULONG DllBase;
+    ULONG EntryPoint;
+    ULONG SizeOfImage;
+    UNICODE_STRING32 FullDllName;
+    UNICODE_STRING32 BaseDllName;
+    ULONG Flags;
+    USHORT LoadCount;
+    USHORT __Undefined5;
+    ULONG  __Undefined6;
+    ULONG  CheckSum;
+    ULONG  TimeDateStamp;
+
+    //
+    // NOTE : Do not grow this structure at the dump files used a packed
+    // array of these structures.
+    //
+
+} KLDR_DATA_TABLE_ENTRY32, * PKLDR_DATA_TABLE_ENTRY32;
+
+
+typedef struct _KLDR_DATA_TABLE_ENTRY64
+{
+    LIST_ENTRY64 InLoadOrderLinks;
+    ULONG64 __Undefined1;
+    ULONG64 __Undefined2;
+    ULONG64 __Undefined3;
+    ULONG64 NonPagedDebugInfo;
+    ULONG64 DllBase;
+    ULONG64 EntryPoint;
+    ULONG SizeOfImage;
+    UNICODE_STRING64 FullDllName;
+    UNICODE_STRING64 BaseDllName;
+    ULONG   Flags;
+    USHORT  LoadCount;
+    USHORT  __Undefined5;
+    ULONG64 __Undefined6;
+    ULONG   CheckSum;
+    ULONG   __padding1;
+    ULONG   TimeDateStamp;
+    ULONG   __padding2;
+
+    //
+    // NOTE : Do not grow this structure at the dump files used a packed
+    // array of these structures.
+    //
+
+} KLDR_DATA_TABLE_ENTRY64, * PKLDR_DATA_TABLE_ENTRY64;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 //这些数据都是系统定义的，而不是自己定义的。
 
 
@@ -306,6 +425,8 @@ VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in_opt PUNICODE_STRING  FullImageName,
                                    __in HANDLE  ProcessId,
                                    __in PIMAGE_INFO  ImageInfo);
+
+VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject);
 
 EXTERN_C_END
 

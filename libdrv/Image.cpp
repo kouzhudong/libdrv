@@ -1006,3 +1006,39 @@ FreeUnicodeString(&LoadImageFullName);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
+/*
+
+没想到这个函数写于2012年。
+*/
+{
+    KIRQL Irql = KeRaiseIrqlToDpcLevel(); 
+
+    PKLDR_DATA_TABLE_ENTRY DriverSection = (PKLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
+    if (NULL != DriverSection) {  //从驱动链表中摘除，隐藏驱动。
+        //RemoveHeadList(&DriverSection->InLoadOrderLinks);
+
+        *((SIZE_T *)DriverSection->InLoadOrderLinks.Blink) = (SIZE_T)DriverSection->InLoadOrderLinks.Flink;
+        DriverSection->InLoadOrderLinks.Flink->Blink = DriverSection->InLoadOrderLinks.Blink;
+
+        //这两句防止蓝屏。
+        DriverSection->InLoadOrderLinks.Flink = (PLIST_ENTRY)&(DriverSection->InLoadOrderLinks.Flink);
+        DriverSection->InLoadOrderLinks.Blink = (PLIST_ENTRY)&(DriverSection->InLoadOrderLinks.Flink);
+
+        ////隐藏驱动的全路径。隐藏这两项重新加载可能有点问题。
+        //DriverSection->FullDllName.Length = 0;
+        //DriverSection->FullDllName.MaximumLength = 0;
+        //DriverSection->FullDllName.Buffer = 0;
+
+        ////隐藏驱动的文件名。
+        //DriverSection->BaseDllName.Length = 0;
+        //DriverSection->BaseDllName.MaximumLength = 0;
+        //DriverSection->BaseDllName.Buffer = 0;
+
+        //别的项在这里隐藏会蓝屏哟！
+    }
+
+    KeLowerIrql(Irql);
+}

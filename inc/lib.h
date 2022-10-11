@@ -217,6 +217,8 @@ VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in HANDLE  ProcessId,
                                    __in PIMAGE_INFO  ImageInfo);
 
+VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject);
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //ÄÚ´æÏà¹Ø¡£
