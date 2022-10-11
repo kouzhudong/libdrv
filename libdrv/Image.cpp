@@ -1010,6 +1010,9 @@ FreeUnicodeString(&LoadImageFullName);
 
 VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
 /*
+功能：隐藏驱动模块。
+
+注释：只是在系统进程里隐藏了，但是命名空间（\Driver\XXX）里还存在的，估计内存地址空间也能遍历到。
 
 没想到这个函数写于2012年，且是由汇编语言改编的。
 */
