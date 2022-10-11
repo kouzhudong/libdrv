@@ -265,6 +265,8 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
 /*
 功能：主要是获取L"\\SystemRoot"的NT和DOS路径，但是也可以获取以L"\\SystemRoot"开头的任何合法且存在的路径。
 
+注意：SymbolicLinkName必须是已经存在路径或文件。
+
 例如：你可直接获取下面文件的（NT和DOS的）路径，而无需硬编码了。
 1.L"\\SystemRoot"
 2.L"\\SystemRoot\\System32\\ntdll.dll"
