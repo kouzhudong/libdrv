@@ -1011,7 +1011,7 @@ FreeUnicodeString(&LoadImageFullName);
 VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
 /*
 
-没想到这个函数写于2012年。
+没想到这个函数写于2012年，且是由汇编语言改编的。
 */
 {
     KIRQL Irql = KeRaiseIrqlToDpcLevel(); 

@@ -217,6 +217,32 @@ NTSTATUS ZwAdjustPrivilegesToken(IN HANDLE TokenHandle,
                                  OUT PULONG ReturnLength);
 
 
+#if defined(_WIN64)
+
+
+//估计这个函数在XP-64上导出了。
+EXTERN_C
+//NTKERNELAPI
+PVOID PsGetProcessWow64Process(__in PEPROCESS Process);
+
+EXTERN_C
+//NTKERNELAPI
+PVOID PsGetCurrentProcessWow64Process(VOID);
+
+
+#endif
+
+
+/*
+摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
+此函数在XP 32上就已经导出，应该可以放心使用。
+或者ZwQueryInformationProcess 的 ProcessBasicInformation.
+*/
+EXTERN_C
+//NTKERNELAPI
+PPEB PsGetProcessPeb(__in PEPROCESS Process);
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 

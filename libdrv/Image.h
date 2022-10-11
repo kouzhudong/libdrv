@@ -254,48 +254,6 @@ typedef struct _LDR_DATA_TABLE_ENTRY
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#define DEVL TRUE 
-
-
-//\WRK-v1.2\public\sdk\inc\ntmmapi.h
-//typedef enum _MEMORY_INFORMATION_CLASS {
-//    MemoryBasicInformation
-//#if DEVL
-//    , MemoryWorkingSetInformation
-//#endif
-//    , MemoryMappedFilenameInformation
-//    , MemoryRegionInformation
-//    , MemoryWorkingSetExInformation
-//} MEMORY_INFORMATION_CLASS;
-#define MemoryMappedFilenameInformation ((MEMORY_INFORMATION_CLASS)2)
-
-
-#define _MAX_OBJECT_NAME 1024/sizeof(WCHAR)  
-typedef struct _MEMORY_MAPPED_FILE_NAME_INFORMATION {
-    UNICODE_STRING Name;
-    WCHAR     Buffer[_MAX_OBJECT_NAME];
-} MEMORY_MAPPED_FILE_NAME_INFORMATION, * PMEMORY_MAPPED_FILE_NAME_INFORMATION;
-
-
-//原型摘自：\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
-//尽管\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h加了(NTDDI_VERSION >= NTDDI_WIN2K)。
-//但是早期的系统（XP）并没有导出这个函数。
-//所以有此定义。
-typedef
-NTSTATUS
-(NTAPI * ZwQueryVirtualMemory_PFN) (
-    _In_ HANDLE ProcessHandle,
-    _In_opt_ PVOID BaseAddress,
-    _In_ MEMORY_INFORMATION_CLASS MemoryInformationClass,
-    _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
-    _In_ SIZE_T MemoryInformationLength,
-    _Out_opt_ PSIZE_T ReturnLength
-    );
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 //\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntldr.h
 typedef struct _RTL_PROCESS_MODULE_INFORMATION {
     HANDLE Section;                 // Not filled in
@@ -316,42 +274,6 @@ typedef struct _RTL_PROCESS_MODULES {
     ULONG NumberOfModules;
     RTL_PROCESS_MODULE_INFORMATION Modules[1];
 } RTL_PROCESS_MODULES, * PRTL_PROCESS_MODULES;
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-#if defined(_WIN64)
-
-//估计这个函数在XP-64上导出了。
-EXTERN_C
-//NTKERNELAPI
-PVOID
-PsGetProcessWow64Process(
-    __in PEPROCESS Process
-);
-
-EXTERN_C
-//NTKERNELAPI
-PVOID
-PsGetCurrentProcessWow64Process(
-    VOID
-);
-
-#endif
-
-
-/*
-摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
-此函数在XP 32上就已经导出，应该可以放心使用。
-或者ZwQueryInformationProcess 的 ProcessBasicInformation.
-*/
-EXTERN_C
-//NTKERNELAPI
-PPEB
-PsGetProcessPeb(
-    __in PEPROCESS Process
-);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
