@@ -516,6 +516,7 @@ VOID GetApcStateOffset(PSIZE_T ApcStateOffset);
 
 VOID DisSmep();
 struct _KPRCB * KeGetPrcb(PKPCR pkpcr);
+PKPCR KeGetPcr(VOID);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

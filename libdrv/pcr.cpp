@@ -34,11 +34,8 @@
 自己写一个X86的。
 */
 #ifdef _X86_
-__forceinline
-PKPCR
-KeGetPcr(
-    VOID
-)
+//__forceinline
+PKPCR KeGetPcr(VOID)
 {
     return (PKPCR)__readfsdword(FIELD_OFFSET(KPCR, SelfPcr));
 }

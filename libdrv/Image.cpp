@@ -1014,21 +1014,28 @@ VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
 
 注释：只是在系统进程里隐藏了，但是命名空间（\Driver\XXX）里还存在的，估计内存地址空间也能遍历到。
 
+目前仅支持自身驱动的隐藏，不支持指定的驱动隐藏。
+
 没想到这个函数写于2012年，且是由汇编语言改编的。
 */
 {
     KIRQL Irql = KeRaiseIrqlToDpcLevel(); 
 
+#pragma warning(push)
+#pragma warning(disable:28175) 
     PKLDR_DATA_TABLE_ENTRY DriverSection = (PKLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
+#pragma warning(pop)  
+
     if (NULL != DriverSection) {  //从驱动链表中摘除，隐藏驱动。
+        PLIST_ENTRY InLoadOrderLinks = &DriverSection->InLoadOrderLinks;
         //RemoveHeadList(&DriverSection->InLoadOrderLinks);
 
-        *((SIZE_T *)DriverSection->InLoadOrderLinks.Blink) = (SIZE_T)DriverSection->InLoadOrderLinks.Flink;
-        DriverSection->InLoadOrderLinks.Flink->Blink = DriverSection->InLoadOrderLinks.Blink;
+        *((SIZE_T *)InLoadOrderLinks->Blink) = (SIZE_T)InLoadOrderLinks->Flink;
+        InLoadOrderLinks->Flink->Blink = InLoadOrderLinks->Blink;
 
         //这两句防止蓝屏。
-        DriverSection->InLoadOrderLinks.Flink = (PLIST_ENTRY)&(DriverSection->InLoadOrderLinks.Flink);
-        DriverSection->InLoadOrderLinks.Blink = (PLIST_ENTRY)&(DriverSection->InLoadOrderLinks.Flink);
+        InLoadOrderLinks->Flink = (PLIST_ENTRY)&(InLoadOrderLinks->Flink);
+        InLoadOrderLinks->Blink = (PLIST_ENTRY)&(InLoadOrderLinks->Flink);
 
         ////隐藏驱动的全路径。隐藏这两项重新加载可能有点问题。
         //DriverSection->FullDllName.Length = 0;

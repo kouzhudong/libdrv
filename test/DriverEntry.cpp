@@ -50,7 +50,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
     HideDriver(DriverObject);
 
     //GetKernel32FullPath();
-    //GetSomeSystemRoutineAddress();
+    GetSomeSystemRoutineAddress();
 
     //HANDLE UniqueProcess = NULL;
     //ASSERTMSG("ÇëÌîÐ´ÆÚÍûµÄPID", UniqueProcess);

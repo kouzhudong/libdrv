@@ -1,4 +1,5 @@
 #include "gdt.h"
+#include "pcr.h"
 
 
 #pragma warning(disable:6066)
@@ -34,12 +35,13 @@ char SegmentTypes[][256] = {
 };
 
 
-#ifdef _X86_
-__forceinline PKPCR KeGetPcr(VOID)
-{
-    return (PKPCR)__readfsdword(FIELD_OFFSET(KPCR, SelfPcr));
-}
-#endif
+//#ifdef _X86_
+////__forceinline 
+//PKPCR KeGetPcr(VOID)
+//{
+//    return (PKPCR)__readfsdword(FIELD_OFFSET(KPCR, SelfPcr));
+//}
+//#endif
 
 
 USHORT NTAPI GetGdtLimit();//»ã±àº¯Êý¡£

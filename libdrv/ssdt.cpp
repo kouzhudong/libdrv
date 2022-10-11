@@ -62,9 +62,6 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 }
 
 
-#if defined(_AMD64_) || defined(_IA64_) 
-
-
 int GetIndexByName(PANSI_STRING NtRoutineName)
 /*
 功能：在ntdll.dll中获取Zw函数的索引号。
@@ -204,7 +201,12 @@ IDA中的信息：
     __try {
         PVOID FunctionAddress = MiFindExportedRoutineByNameEx(ViewBase, NtRoutineName);
         ASSERT(FunctionAddress);
+
+    #ifdef _WIN64
         index = (*(PULONG)((PUCHAR)FunctionAddress + 4));
+    #else
+        index = (*(PULONG)((PUCHAR)FunctionAddress + 1));
+    #endif 
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
@@ -279,7 +281,8 @@ SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
 }
 
 
-#else
+#ifdef _X86_
+//#ifndef _WIN64
 
 
 ULONG GetIndexOfSsdtFunction(PCSTR function_name)
@@ -382,11 +385,13 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 
     RtlInitAnsiString(&ZwRoutineName, RoutineName);
 
-#if defined(_AMD64_) || defined(_IA64_) 
+//#if defined(_AMD64_) || defined(_IA64_) 
+//    RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
+//#else
+//    RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
+//#endif 
+
     RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
-#else
-    RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
-#endif 
 
     return RoutineAddress;
 }

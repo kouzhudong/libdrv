@@ -41,8 +41,11 @@ bool GetAndSetZwQueryVirtualMemoryAddress()
 
 VOID GetSomeSystemRoutineAddress()
 {
-    //ZwTestAlert = (ZwTestAlertT)GetZwRoutineAddress("ZwTestAlert");
-    //g_ZwQueueApcThread = (ZwQueueApcThreadT)GetZwRoutineAddress("ZwQueueApcThread");
+    SIZE_T ZwTestAlert = GetZwRoutineAddress("ZwTestAlert");
+    SIZE_T ZwQueueApcThread = GetZwRoutineAddress("ZwQueueApcThread");
+
+    DBG_UNREFERENCED_LOCAL_VARIABLE(ZwTestAlert);
+    DBG_UNREFERENCED_LOCAL_VARIABLE(ZwQueueApcThread);
     
     GetAndSetZwQueryVirtualMemoryAddress();
 }

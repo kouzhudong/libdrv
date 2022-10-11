@@ -603,6 +603,7 @@ class pcr
 EXTERN_C_START
 
 
+PKPCR KeGetPcr(VOID);
 struct _KPRCB * KeGetPrcb(PKPCR pkpcr);
 
 
