@@ -96,6 +96,13 @@ void UseNoExecuteMemory()
 建议：优先调用此函数。
 
 用途：开启驱动程序校验器的断言处理。
+
+为POOL_NX_OPTIN选择加入的所有源文件定义值 = 1。 为此，在驱动程序项目的适当属性页中包括以下预处理器定义：
+C_DEFINES=$(C_DEFINES) -DPOOL_NX_OPTIN=1
+
+心得：有的工程（非静态库）必须在预处理器里定义：POOL_NX_OPTIN=1 方可生效。
+
+https://learn.microsoft.com/zh-cn/windows-hardware/drivers/kernel/single-binary-opt-in-pool-nx-optin
 */
 {
 #define POOL_NX_OPTIN 1
