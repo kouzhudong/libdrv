@@ -225,6 +225,7 @@ VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject);
 
 
 NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBack CallBack, _In_opt_ PVOID Context);
+void UseNoExecuteMemory();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

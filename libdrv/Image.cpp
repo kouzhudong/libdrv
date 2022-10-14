@@ -724,7 +724,7 @@ http://correy.webs.com
                                    NULL,
                                    NULL);
         Status = ZwOpenFile(&ImageFileHandle,
-                            FILE_EXECUTE,
+                            FILE_ALL_ACCESS,//FILE_EXECUTE
                             &ObjectAttributes,
                             &IoStatus,
                             FILE_SHARE_READ | FILE_SHARE_DELETE,
@@ -736,10 +736,10 @@ http://correy.webs.com
 
         InitializeObjectAttributes(&ObjectAttributes, NULL, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
         Status = ZwCreateSection(&Section,
-                                 SECTION_MAP_EXECUTE,//SECTION_MAP_READ
+                                 SECTION_MAP_READ,// SECTION_MAP_EXECUTE
                                  &ObjectAttributes,
                                  NULL,
-                                 PAGE_EXECUTE,//PAGE_READONLY
+                                 PAGE_READONLY,// PAGE_EXECUTE
                                  SEC_COMMIT,
                                  ImageFileHandle);
         if (!NT_SUCCESS(Status)) {
@@ -759,7 +759,16 @@ http://correy.webs.com
             __leave;
         }
 
-        Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
+        Status = ZwMapViewOfSection(Section, 
+                                    Handle, 
+                                    &ViewBase,
+                                    0L, 
+                                    0L,
+                                    NULL, 
+                                    &ViewSize,
+                                    ViewShare,
+                                    0L, 
+                                    PAGE_READONLY);//PAGE_EXECUTE
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;;
@@ -874,8 +883,17 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    InitializeObjectAttributes(&ObjectAttributes, ctx->info.FullImageName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
-    ctx->info.Status = ZwOpenFile(&File, SYNCHRONIZE | FILE_EXECUTE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
+    InitializeObjectAttributes(&ObjectAttributes, 
+                               ctx->info.FullImageName, 
+                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 
+                               NULL, 
+                               NULL);
+    ctx->info.Status = ZwOpenFile(&File, 
+                                  SYNCHRONIZE | FILE_GENERIC_READ,//FILE_EXECUTE
+                                  &ObjectAttributes,
+                                  &IoStatus, 
+                                  FILE_SHARE_READ, 
+                                  0);
     if (NT_SUCCESS(ctx->info.Status)) {
         ctx->info.Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
         if (NT_SUCCESS(ctx->info.Status)) {

@@ -93,3 +93,23 @@ NTSTATUS GetPcrTest()
 
     return Status;
 }
+
+
+void TestUseNoExecuteMemory()
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    UseNoExecuteMemory();
+
+    UNICODE_STRING DosPathName{};
+    DosPathName.MaximumLength = MAX_PATH;
+    Status = AllocateUnicodeString(&DosPathName);
+    if (NT_SUCCESS(Status)) {
+        FreeUnicodeString(&DosPathName);
+    }
+
+    PVOID p = ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
+    if (p) {
+        ExFreePoolWithTag(p, TAG);
+    }
+}

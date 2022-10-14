@@ -83,3 +83,22 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void UseNoExecuteMemory()
+/*
+功能：禁止默认情况下使用可执行的内存。
+
+有效范围：ExDefaultNonPagedPoolType和ExDefaultMdlProtection。对于别的可执行属性无效。
+
+注释：不但对（静态）库有效，对使用的程序本身也有效。
+
+建议：优先调用此函数。
+
+用途：开启驱动程序校验器的断言处理。
+*/
+{
+#if (NTDDI_VERSION >= NTDDI_VISTA)
+    ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
+#endif    
+}

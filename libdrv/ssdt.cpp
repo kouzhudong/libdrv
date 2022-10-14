@@ -147,7 +147,7 @@ IDA中的信息：
                                NULL,
                                NULL);
     Status = ZwOpenFile(&ImageFileHandle,
-                        FILE_EXECUTE,//FILE_READ_DATA
+                        FILE_READ_DATA,// FILE_EXECUTE
                         &ObjectAttributes,
                         &IoStatus,
                         FILE_SHARE_READ | FILE_SHARE_DELETE,
@@ -162,10 +162,10 @@ IDA中的信息：
                                NULL,
                                NULL);
     Status = ZwCreateSection(&Section,
-                             SECTION_MAP_EXECUTE,//SECTION_MAP_READ
+                             SECTION_MAP_READ,// SECTION_MAP_EXECUTE
                              &ObjectAttributes,
                              NULL,
-                             PAGE_EXECUTE,//PAGE_READONLY
+                             PAGE_READONLY,// PAGE_EXECUTE
                              SEC_COMMIT,
                              ImageFileHandle);
     if (!NT_SUCCESS(Status)) {
@@ -189,7 +189,7 @@ IDA中的信息：
                                    &Handle);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
+    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_READONLY);//PAGE_EXECUTE
     if (!NT_SUCCESS(Status)) {
         ZwClose(Handle);
         KeUnstackDetachProcess(&ApcState);
