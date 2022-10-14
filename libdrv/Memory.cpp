@@ -98,6 +98,10 @@ void UseNoExecuteMemory()
 用途：开启驱动程序校验器的断言处理。
 */
 {
+#define POOL_NX_OPTIN 1
+#define POOL_NX_OPTOUT 0
+    //上面两个定义确保ExInitializeDriverRuntime可以执行。
+
 #if (NTDDI_VERSION >= NTDDI_VISTA)
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
 #endif    
