@@ -532,23 +532,6 @@ HiveFile：形如\\DosDevices\\c:\\correy.DAT，但必须是适合本机的且合法的HIVE文件。
 }
 
 
-void RegisterLoadTest()
-{
-    UNICODE_STRING uRegistryPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\correy");
-
-    //此文件必须是本计算机的,系统的或者自己生成的.
-    UNICODE_STRING uRegDatPath = RTL_CONSTANT_STRING(L"\\DosDevices\\c:\\correy.DAT");
-
-    OBJECT_ATTRIBUTES obj;
-    OBJECT_ATTRIBUTES HiveFile;
-
-    InitializeObjectAttributes(&obj, &uRegistryPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
-    InitializeObjectAttributes(&HiveFile, &uRegDatPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
-
-    ZwCreateRootKey(&obj, &HiveFile);
-}
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -682,12 +665,19 @@ PVOID ExpAllocateStringRoutine(IN SIZE_T NumberOfBytes)
 {
     return ExAllocatePoolWithTag(PagedPool, NumberOfBytes, 'grtS');
 }
+
+
 //上下的定义摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ex\pool.c
 #ifdef ALLOC_DATA_PRAGMA
 #pragma const_seg("PAGECONST")
 #endif
+
+
+//warning LNK4210: 存在 .CRT 节；可能有未处理的静态初始值设定项或结束符
 const PRTL_ALLOCATE_STRING_ROUTINE RtlAllocateStringRoutine = ExpAllocateStringRoutine;
 const PRTL_FREE_STRING_ROUTINE RtlFreeStringRoutine = (PRTL_FREE_STRING_ROUTINE)ExFreePool;
+
+
 #ifdef ALLOC_DATA_PRAGMA
 #pragma const_seg()
 #endif
@@ -698,6 +688,8 @@ const PRTL_FREE_STRING_ROUTINE RtlFreeStringRoutine = (PRTL_FREE_STRING_ROUTINE)
     sizeof( TOKEN_USER )                            \
     + sizeof( SID )                                 \
     + sizeof( ULONG ) * SID_MAX_SUB_AUTHORITIES
+
+
 //这个函数及上面的定义摘自WRK-v1.2/base/ntos/rtl/regutil.c，但是有修改，可以在驱动中使用或者利用。
 NTSTATUS RtlFormatCurrentUserKeyPath0(OUT PUNICODE_STRING CurrentUserKeyPath)
 /*++
