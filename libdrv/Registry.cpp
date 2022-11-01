@@ -630,8 +630,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
 
         FullKeyName->MaximumLength = MAXPATHLEN;
 
-        //判断结尾是否带斜杠。
-        if (1) {
+        if (L'\\' != FullKeyName->Buffer[FullKeyName->Length / sizeof(PWCH) - 1]) {//判断结尾是否带斜杠。
             RtlAppendUnicodeToString(FullKeyName, L"\\");
         }
 
@@ -640,6 +639,133 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
         RtlAppendUnicodeStringToString(FullKeyName, CompleteName);
 
         ExFreePoolWithTag(Temp, TAG);
+    }
+
+    return Status;
+}
+
+
+NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, _Inout_ PUNICODE_STRING KeyFullName)
+/*
+功能：用于注册表回调中获取KEY的全路径。
+
+调用时机：Open/Create的前操作。后操作建议用CmCallbackGetKeyObjectID。
+
+注释：
+1.参数KeyFullName由调用者（用FreeUnicodeString）释放。
+2.CompleteName，这个参数名不副实，有不少的相对路径。
+3.
+*/
+{
+    ULONG Length = 0;
+    PUNICODE_STRING ObjectNameInfo = NULL;
+    NTSTATUS Status = STATUS_SUCCESS;
+    UNICODE_STRING  KeyPath = {0};
+
+    do {
+        if (CompleteName->Buffer == NULL) {
+            Status = ObQueryNameString(Object, NULL, Length, &Length);
+            ASSERT(!NT_SUCCESS(Status));
+            if (0 == Length) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+
+            Length += sizeof(WCHAR);
+            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            if (NULL == ObjectNameInfo) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+
+            RtlZeroMemory(ObjectNameInfo, Length);
+
+            Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)ObjectNameInfo, Length, &Length);
+            if (!NT_SUCCESS(Status)) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+
+            RtlInitUnicodeString(&KeyPath, ObjectNameInfo->Buffer);
+
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            if (NULL == KeyFullName->Buffer) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
+                break;
+            }
+
+            KeyFullName->MaximumLength = (USHORT)Length;
+            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
+            RtlCopyUnicodeString(KeyFullName, &KeyPath);
+            break;
+        }
+
+        if (CompleteName->Buffer[0] == L'\\') {
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CompleteName->MaximumLength, TAG);
+            if (NULL == KeyFullName->Buffer) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
+                break;
+            }
+
+            KeyFullName->MaximumLength = CompleteName->MaximumLength;
+            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
+            RtlCopyUnicodeString(KeyFullName, CompleteName);
+        } else {
+            Status = ObQueryNameString(Object, NULL, Length, &Length);
+            ASSERT(!NT_SUCCESS(Status));
+            if (0 == Length) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+
+            Length += sizeof(WCHAR);//保险期间给个空余。
+            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            if (NULL == ObjectNameInfo) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
+                break;
+            }
+
+            RtlZeroMemory(ObjectNameInfo, Length);
+
+            Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)ObjectNameInfo, Length, &Length);
+            if (!NT_SUCCESS(Status)) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+
+            RtlInitUnicodeString(&KeyPath, ObjectNameInfo->Buffer);
+
+            Length += sizeof(WCHAR);//添加一个斜杠的长度。
+            Length += CompleteName->Length;
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            if (NULL == KeyFullName->Buffer) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
+                break;
+            }
+
+            KeyFullName->MaximumLength = (USHORT)Length;
+            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
+            RtlCopyUnicodeString(KeyFullName, &KeyPath);
+
+            if (L'\\' != KeyFullName->Buffer[KeyFullName->Length / sizeof(PWCH) - 1]) {//判断结尾是否带斜杠。
+                RtlAppendUnicodeToString(KeyFullName, L"\\");
+            }
+
+            Status = RtlAppendUnicodeStringToString(KeyFullName, CompleteName);
+            if (!NT_SUCCESS(Status)) {
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
+                break;
+            }
+        }
+    } while (FALSE);
+
+    if (ObjectNameInfo) {
+        ExFreePoolWithTag(ObjectNameInfo, TAG);
     }
 
     return Status;
