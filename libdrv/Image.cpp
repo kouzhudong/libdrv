@@ -6,6 +6,7 @@
 #include "ssdt.h"
 
 
+#pragma warning(disable:4996)
 #pragma warning(disable:4366) //一元“&”运算符的结果可能是未对齐的
 
 
@@ -902,11 +903,14 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
             ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
-            ASSERT(ctx->info.ImageLoaded.Buffer);
-            RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
+            if (ctx->info.ImageLoaded.Buffer) {
+                RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
 
-            //KdPrint(("DOS name:%wZ.\r\n", &FullName));
-            RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+                //KdPrint(("DOS name:%wZ.\r\n", &FullName));
+                RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+            } else {
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+            }
 
             if (FullName.Buffer) {
                 ExFreePoolWithTag(FullName.Buffer, TAG);
@@ -925,10 +929,12 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
             ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
-            ASSERT(ctx->info.ImageLoaded.Buffer);
-            RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
-
-            RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+            if (ctx->info.ImageLoaded.Buffer) {
+                RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
+                RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+            } else {
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+            }
         } else {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
         }
@@ -976,7 +982,11 @@ FreeUnicodeString(&LoadImageFullName);
     PLOAD_IMAGE_CONTEXT ctx = NULL;
 
     ctx = (PLOAD_IMAGE_CONTEXT)ExAllocatePoolWithTag(NonPagedPool, sizeof(LOAD_IMAGE_CONTEXT), TAG);
-    ASSERT(ctx);
+    if (nullptr == ctx) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+        return;
+    }
+
     RtlZeroMemory(ctx, sizeof(LOAD_IMAGE_CONTEXT));
     ctx->Event = &event;
     KeInitializeEvent(&event, NotificationEvent, FALSE);
@@ -1006,10 +1016,12 @@ FreeUnicodeString(&LoadImageFullName);
         if (ctx->info.ImageLoaded.Buffer != NULL) {
             LoadImageFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
             LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG);//由调用者释放。
-            ASSERT(LoadImageFullName->Buffer);
-            RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
-
-            RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
+            if (LoadImageFullName->Buffer) {
+                RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
+                RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
+            } else {
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+            }
 
             ExFreePoolWithTag(ctx->info.ImageLoaded.Buffer, TAG);
         } else {
