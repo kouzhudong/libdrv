@@ -10,15 +10,15 @@ UNICODE_STRING gSystem = RTL_CONSTANT_STRING(L"System");
 
 BOOL GetCommandLine(_In_ HANDLE PId, _Inout_ PUNICODE_STRING CommandLine)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌµÄÃüÁîĞĞ¡£
-°ì·¨£º´ÓPEBÖĞÈ¡¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹çš„å‘½ä»¤è¡Œã€‚
+åŠæ³•ï¼šä»PEBä¸­å–ã€‚
 
-×¢Òâ£º
-1.¶ÔÓÚÃ»ÓĞÓÃ»§¿Õ¼äµÄ½ø³Ì£¬Èç£ºIDLE£¬system£¬registry£¬interrupts£¬memory compressionµÈÊÇ»ñÈ¡²»µ½µÄ¡£
-2.´Ëº¯ÊıÓÃÔÚ½ø³Ì»Øµ÷ÖĞ»ñÈ¡²»µ½ÄÚÈİ£¬Ïß³Ì»Øµ÷µÄ¾Í²»ËµÁË¡£
-3.Ìí¼Ó¶ÔÀàËÆ½ø³Ì»Øµ÷µÈÀàËÆµÄÇé¿ö£¬Õı³£Çé¿öÏÂÃ»ÓĞÊÔÑé¡£
+æ³¨æ„ï¼š
+1.å¯¹äºæ²¡æœ‰ç”¨æˆ·ç©ºé—´çš„è¿›ç¨‹ï¼Œå¦‚ï¼šIDLEï¼Œsystemï¼Œregistryï¼Œinterruptsï¼Œmemory compressionç­‰æ˜¯è·å–ä¸åˆ°çš„ã€‚
+2.æ­¤å‡½æ•°ç”¨åœ¨è¿›ç¨‹å›è°ƒä¸­è·å–ä¸åˆ°å†…å®¹ï¼Œçº¿ç¨‹å›è°ƒçš„å°±ä¸è¯´äº†ã€‚
+3.æ·»åŠ å¯¹ç±»ä¼¼è¿›ç¨‹å›è°ƒç­‰ç±»ä¼¼çš„æƒ…å†µï¼Œæ­£å¸¸æƒ…å†µä¸‹æ²¡æœ‰è¯•éªŒã€‚
 
-PCLÓÉµ÷ÓÃÕßÊÍ·Å¡£
+PCLç”±è°ƒç”¨è€…é‡Šæ”¾ã€‚
 */
 {
     PEPROCESS    Process;
@@ -41,7 +41,7 @@ PCLÓÉµ÷ÓÃÕßÊÍ·Å¡£
     Status = PsLookupProcessByProcessId(PId, &Process);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "pid:%d", HandleToULong(PId));
-        return FALSE;//ÎŞĞ§½ø³Ì¡£
+        return FALSE;//æ— æ•ˆè¿›ç¨‹ã€‚
     }
 
     KeStackAttachProcess(Process, &ApcState);
@@ -55,7 +55,7 @@ PCLÓÉµ÷ÓÃÕßÊÍ·Å¡£
                 CommandLine->MaximumLength = ProcessParameters->CommandLine.MaximumLength + sizeof(WCHAR);
                 CommandLine->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CommandLine->MaximumLength, TAG);
                 if (NULL == CommandLine->Buffer) {
-                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
                 } else {
                     RtlZeroMemory(CommandLine->Buffer, CommandLine->MaximumLength);
 
@@ -67,10 +67,10 @@ PCLÓÉµ÷ÓÃÕßÊÍ·Å¡£
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "pid:%d", HandleToULong(PId));
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
-            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Pid:%d", HandleToULong(Pid));//XPÏÂÓĞÒ»²¿·Ö»á×ßÕâÀï¡£
+            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Pid:%d", HandleToULong(Pid));//XPä¸‹æœ‰ä¸€éƒ¨åˆ†ä¼šèµ°è¿™é‡Œã€‚
         }
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Õâ¸ö½ø³ÌÃ»ÓĞPEB, pid:%d", HandleToULong(PId));
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "è¿™ä¸ªè¿›ç¨‹æ²¡æœ‰PEB, pid:%d", HandleToULong(PId));
     }
 
     KeUnstackDetachProcess(&ApcState);
@@ -83,23 +83,23 @@ PCLÓÉµ÷ÓÃÕßÊÍ·Å¡£
 
 BOOL GetCurrentDirectory(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING CurrentDirectory)
 /*
-¹¦ÄÜ£º¸ù¾İPEB»ñÈ¡CurrentDirectory¡£
-ÆğÒò£ºProcmon.exeºÍSysmon.exe»òprocexp.exe¶¼ÓĞ»ñÈ¡CurrentDirectoryµÄ¹¦ÄÜ£¬´Ë¹¦ÄÜ²»´ó¡£
-      µ«ÊÇÒÔ´ËÀ©Õ¹»¹ÄÜ»ñÈ¡²»ÉÙ¶«Î÷¡£
-ËµÃ÷£ºÕâÀïÑİÊ¾µÄÊÇ¸ù¾İPEB»ñÈ¡Ïà¹ØĞÅÏ¢µÄË¼Ïë¡£
-      ÒÔ´ËÀàÍÆ¡£
-Ä¿µÄ£º¼æÈİ¸÷¸ö°æ±¾µÄWindowsÏµÍ³¡£
+åŠŸèƒ½ï¼šæ ¹æ®PEBè·å–CurrentDirectoryã€‚
+èµ·å› ï¼šProcmon.exeå’ŒSysmon.exeæˆ–procexp.exeéƒ½æœ‰è·å–CurrentDirectoryçš„åŠŸèƒ½ï¼Œæ­¤åŠŸèƒ½ä¸å¤§ã€‚
+      ä½†æ˜¯ä»¥æ­¤æ‰©å±•è¿˜èƒ½è·å–ä¸å°‘ä¸œè¥¿ã€‚
+è¯´æ˜ï¼šè¿™é‡Œæ¼”ç¤ºçš„æ˜¯æ ¹æ®PEBè·å–ç›¸å…³ä¿¡æ¯çš„æ€æƒ³ã€‚
+      ä»¥æ­¤ç±»æ¨ã€‚
+ç›®çš„ï¼šå…¼å®¹å„ä¸ªç‰ˆæœ¬çš„Windowsç³»ç»Ÿã€‚
 
-²Î¿¼£ºhttps://blogs.msdn.microsoft.com/mithuns/2006/02/18/easiest-and-laziest-way-to-view-a-processs-command-line/
+å‚è€ƒï¼šhttps://blogs.msdn.microsoft.com/mithuns/2006/02/18/easiest-and-laziest-way-to-view-a-processs-command-line/
 
 made by correy
 made at 2017.02.15
 homepage:http://correy.webs.com
 
-×¢Òâ£º
-1.ÓÃÕâ¸ö°ì·¨È¡ImagePathName£¬IDLEºÍsystemÕâÁ½¸öÓ¦¸Ã»ñÈ¡²»µ½¡£
-2.´Ëº¯ÊıÓÃÔÚ½ø³Ì»Øµ÷ÖĞ»ñÈ¡²»µ½ÄÚÈİ£¬Ïß³Ì»Øµ÷µÄ¾Í²»ËµÁË¡£
-3.Ìí¼Ó¶ÔÀàËÆ½ø³Ì»Øµ÷µÈÀàËÆµÄÇé¿ö£¬Õı³£Çé¿öÏÂÃ»ÓĞÊÔÑé¡£
+æ³¨æ„ï¼š
+1.ç”¨è¿™ä¸ªåŠæ³•å–ImagePathNameï¼ŒIDLEå’Œsystemè¿™ä¸¤ä¸ªåº”è¯¥è·å–ä¸åˆ°ã€‚
+2.æ­¤å‡½æ•°ç”¨åœ¨è¿›ç¨‹å›è°ƒä¸­è·å–ä¸åˆ°å†…å®¹ï¼Œçº¿ç¨‹å›è°ƒçš„å°±ä¸è¯´äº†ã€‚
+3.æ·»åŠ å¯¹ç±»ä¼¼è¿›ç¨‹å›è°ƒç­‰ç±»ä¼¼çš„æƒ…å†µï¼Œæ­£å¸¸æƒ…å†µä¸‹æ²¡æœ‰è¯•éªŒã€‚
 */
 {
     BOOL ret = FALSE;
@@ -120,12 +120,12 @@ homepage:http://correy.webs.com
 
     Status = PsLookupProcessByProcessId(Pid, &Process);
     if (!NT_SUCCESS(Status)) {
-        return FALSE;//ÎŞĞ§½ø³Ì¡£
+        return FALSE;//æ— æ•ˆè¿›ç¨‹ã€‚
     }
 
     KeStackAttachProcess(Process, &ApcState);
 
-    peb = PsGetProcessPeb(Process);//×¢Òâ£ºIDLEºÍsystemÕâÁ½¸öÓ¦¸Ã»ñÈ¡²»µ½¡£
+    peb = PsGetProcessPeb(Process);//æ³¨æ„ï¼šIDLEå’Œsystemè¿™ä¸¤ä¸ªåº”è¯¥è·å–ä¸åˆ°ã€‚
     if (peb) {
         ProcessParameters = (PRTL_USER_PROCESS_PARAMETERS_WRK)peb->ProcessParameters;
 
@@ -134,14 +134,14 @@ homepage:http://correy.webs.com
         CurrentDirectory->MaximumLength = ProcessParameters->CurrentDirectory.DosPath.MaximumLength;
         CurrentDirectory->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CurrentDirectory->MaximumLength, TAG);
         if (NULL == CurrentDirectory->Buffer) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         } else {
             RtlZeroMemory(CurrentDirectory->Buffer, CurrentDirectory->MaximumLength);
             RtlCopyUnicodeString(CurrentDirectory, &ProcessParameters->CurrentDirectory.DosPath);
             ret = TRUE;
         }
-    } else {//SYSTEMºÍMemCompression£¬IDLEµÈ¶¼Ã»ÓĞPEB¡£
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Õâ¸ö½ø³ÌÃ»ÓĞPEB, pid:%d", HandleToULong(Pid));
+    } else {//SYSTEMå’ŒMemCompressionï¼ŒIDLEç­‰éƒ½æ²¡æœ‰PEBã€‚
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "è¿™ä¸ªè¿›ç¨‹æ²¡æœ‰PEB, pid:%d", HandleToULong(Pid));
     }
 
     KeUnstackDetachProcess(&ApcState);
@@ -154,11 +154,11 @@ homepage:http://correy.webs.com
 
 NTSTATUS GetUserOfProcess(_In_ HANDLE Pid, _Out_ PUNICODE_STRING User)
 /*
-´òÓ¡µ±Ç°²Ù×÷µÄµ±Ç°½ø³ÌµÄÓÃ»§ÃûµÈ.
+æ‰“å°å½“å‰æ“ä½œçš„å½“å‰è¿›ç¨‹çš„ç”¨æˆ·åç­‰.
 
-¹¦ÄÜ:»ñÈ¡µ±Ç°²Ù×÷×¢²á±íµÄ½ø³ÌµÄÓÃ»§.
+åŠŸèƒ½:è·å–å½“å‰æ“ä½œæ³¨å†Œè¡¨çš„è¿›ç¨‹çš„ç”¨æˆ·.
 
-SOURCEÎÄ¼şÄÚÈİÈçÏÂ:
+SOURCEæ–‡ä»¶å†…å®¹å¦‚ä¸‹:
 TARGETNAME=test
 
 TARGETTYPE=DRIVER
@@ -193,7 +193,7 @@ made at 2013.11.15
     Status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
     if (!NT_SUCCESS(Status)) {
     #pragma warning(push)
-    #pragma warning(disable:6387)//¡°User->Buffer¡±¿ÉÄÜÊÇ¡°0¡±: Õâ²»·ûºÏº¯Êı¡°ExFreePoolWithTag¡±µÄ¹æ·¶
+    #pragma warning(disable:6387)//â€œUser->Bufferâ€å¯èƒ½æ˜¯â€œ0â€: è¿™ä¸ç¬¦åˆå‡½æ•°â€œExFreePoolWithTagâ€çš„è§„èŒƒ
         ExFreePoolWithTag(User->Buffer, TAG);
     #pragma warning(pop)        
         RtlInitEmptyUnicodeString(User, NULL, 0);
@@ -202,8 +202,8 @@ made at 2013.11.15
         return Status;
     }
 
-    //»¹ÓĞÒ»ÖÖÇé¿öÒ²»á·¢ÉúÈçÏÂÇé¿ö,¾ÍÊÇÔÚWindows server 2008 X64ÉÏ,¾ßÌåµÄÓĞ´ı¼ì²éºÍÌí¼Ó.
-    if (pts->AuthenticationId.HighPart == 0 && pts->AuthenticationId.LowPart == 999) //´ËÊı×Ö¼´logon ID¡£
+    //è¿˜æœ‰ä¸€ç§æƒ…å†µä¹Ÿä¼šå‘ç”Ÿå¦‚ä¸‹æƒ…å†µ,å°±æ˜¯åœ¨Windows server 2008 X64ä¸Š,å…·ä½“çš„æœ‰å¾…æ£€æŸ¥å’Œæ·»åŠ .
+    if (pts->AuthenticationId.HighPart == 0 && pts->AuthenticationId.LowPart == 999) //æ­¤æ•°å­—å³logon IDã€‚
     {
         /*
         https://msdn.microsoft.com/zh-cn/library/aa378290(v=vs.85).aspx
@@ -214,8 +214,8 @@ made at 2013.11.15
         Rather, the LocalSystem account is active after the system starts.
         */
 
-        //»ñÈ¡µ½ÁËÏµÍ³ÕÊ»§,¾ÍÊÇsystem,±¾µØÏµÍ³ÕÊ»§.
-        //´òÓ¡µÄÏûÏ¢Ò»°ãÈçÏÂ:
+        //è·å–åˆ°äº†ç³»ç»Ÿå¸æˆ·,å°±æ˜¯system,æœ¬åœ°ç³»ç»Ÿå¸æˆ·.
+        //æ‰“å°çš„æ¶ˆæ¯ä¸€èˆ¬å¦‚ä¸‹:
         //UserName :KOUDAQIANG-2008$
         //LogonServer :
         //LogonDomainName :WORKGROUP
@@ -230,9 +230,9 @@ made at 2013.11.15
         return Status;
     }
 
-    //¿ÉÒÔ¿¼ÂÇ°ÑÏÂÃæµÄ´úÂëĞ´³É¹¤×÷Ïß³Ì.
+    //å¯ä»¥è€ƒè™‘æŠŠä¸‹é¢çš„ä»£ç å†™æˆå·¥ä½œçº¿ç¨‹.
 
-    //ÏÂÃæµÄº¯ÊıĞèÒªÁ¬½ÓKsecdd.lib,Èç:TARGETLIBS=$(DDK_LIB_PATH)\ksecdd.lib
+    //ä¸‹é¢çš„å‡½æ•°éœ€è¦è¿æ¥Ksecdd.lib,å¦‚:TARGETLIBS=$(DDK_LIB_PATH)\ksecdd.lib
     Status = GetSecurityUserInfo(&pts->AuthenticationId, 0, &UserInformation);
     if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(User->Buffer, TAG);
@@ -243,7 +243,7 @@ made at 2013.11.15
     }
 
     //Status = RtlConvertSidToUnicodeString(&SidString, UserInformation->pSid,TRUE);
-    //if( !NT_SUCCESS( Status ) )//³É¹¦.#define STATUS_INVALID_SID ((NTSTATUS)0xC0000078L)   -1073741704
+    //if( !NT_SUCCESS( Status ) )//æˆåŠŸ.#define STATUS_INVALID_SID ((NTSTATUS)0xC0000078L)   -1073741704
     //{
     //    return Status;
     //}        
@@ -274,12 +274,12 @@ BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter,
                                     _Inout_ PUNICODE_STRING FileName
 )
 /*
-¶ÔÓÚIDLE£¬system£¬registry£¬interrupts£¬memory compressionµÈÊÇ»ñÈ¡²»µ½½ø³ÌµÄÂ·¾¶µÄ¡£
-Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
+å¯¹äºIDLEï¼Œsystemï¼Œregistryï¼Œinterruptsï¼Œmemory compressionç­‰æ˜¯è·å–ä¸åˆ°è¿›ç¨‹çš„è·¯å¾„çš„ã€‚
+Registryè¿›ç¨‹çš„è·¯å¾„ç«Ÿç„¶èƒ½è·å–åˆ°ï¼šRegistryï¼Œå› ä¸ºå­˜åœ¨\Registryå¯¹è±¡ã€‚
 
-×¢Òâ£º
-1.´Ëº¯Êı²»¿ÉÓÃÓÚOBh»Øµ÷Àï£¬ÒòÎªÓĞObOpenObjectByPointer¡£
-2.Ò²²»¿ÉÓÃÓÚÎÄ¼ş¹ıÂË»Øµ÷ÖĞ£¬ÒòÎªÓĞIoQueryFileDosDeviceName¡£
+æ³¨æ„ï¼š
+1.æ­¤å‡½æ•°ä¸å¯ç”¨äºOBhå›è°ƒé‡Œï¼Œå› ä¸ºæœ‰ObOpenObjectByPointerã€‚
+2.ä¹Ÿä¸å¯ç”¨äºæ–‡ä»¶è¿‡æ»¤å›è°ƒä¸­ï¼Œå› ä¸ºæœ‰IoQueryFileDosDeviceNameã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -313,22 +313,22 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
     }
 
     /*
-    ±ØĞë×ª»»Ò»ÏÂ£¬²»È»ÊÇÎŞĞ§µÄ¾ä±ú¡£
-    ¾ä±úµÄÀàĞÍ×ª»»ÎªÄÚºËµÄ¡£
+    å¿…é¡»è½¬æ¢ä¸€ä¸‹ï¼Œä¸ç„¶æ˜¯æ— æ•ˆçš„å¥æŸ„ã€‚
+    å¥æŸ„çš„ç±»å‹è½¬æ¢ä¸ºå†…æ ¸çš„ã€‚
     */
     Status = PsLookupProcessByProcessId(Pid, &EProcess);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
-    ObDereferenceObject(EProcess); //Î¢Èí½¨Òé¼ÓÉÏ¡£
+    ObDereferenceObject(EProcess); //å¾®è½¯å»ºè®®åŠ ä¸Šã€‚
     Status = ObOpenObjectByPointer(EProcess, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
@@ -362,8 +362,8 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         return FALSE;
     }
 
-    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//×¢Òâ£ºÖĞ¼äÓĞºº×ÖÊÇ²»»áÏÔÊ¾µÄ¡£
-    //ĞÎÈç£ºProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvview.exe
+    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//æ³¨æ„ï¼šä¸­é—´æœ‰æ±‰å­—æ˜¯ä¸ä¼šæ˜¾ç¤ºçš„ã€‚
+    //å½¢å¦‚ï¼šProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvview.exe
     p = (PUNICODE_STRING)us_ProcessImageFileName;
     if (0 == p->Length) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, pid:%d", Status, HandleToULong(Pid));
@@ -372,7 +372,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         return FALSE;
     }
 
-    //»ñÈ¡DOSÃû.
+    //è·å–DOSå.
     InitializeObjectAttributes(&ObjectAttributes, p, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
     Status = FltCreateFile(Filter,
                            Instance,
@@ -390,7 +390,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
                            IO_IGNORE_SHARE_ACCESS_CHECK);
     if (!NT_SUCCESS(Status)) {
         //STATUS_OBJECT_NAME_INVALID                0xC0000033L
-        //STATUS_INVALID_DEVICE_OBJECT_PARAMETER    0xC0000369L Æô¶¯Ê±»á·µ»ØÕâ¸öÖµ£¬Éè±¸ÒÑ¾­¹ÒÔØÁË¡£
+        //STATUS_INVALID_DEVICE_OBJECT_PARAMETER    0xC0000369L å¯åŠ¨æ—¶ä¼šè¿”å›è¿™ä¸ªå€¼ï¼Œè®¾å¤‡å·²ç»æŒ‚è½½äº†ã€‚
         //STATUS_OBJECT_PATH_SYNTAX_BAD             0xC000003BL
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%X, pid:%d, FileName:%wZ",
               Status, HandleToULong(Pid), p);
@@ -408,7 +408,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         return FALSE;
     }
 
-    //´Ëº¯Êı²»Ö§³ÖXP£¬µ«Ö§³Ö2003.
+    //æ­¤å‡½æ•°ä¸æ”¯æŒXPï¼Œä½†æ”¯æŒ2003.
     //if (KeAreAllApcsDisabled())
     //{
     //    ExFreePoolWithTag(ProcessFileName, TAG);
@@ -453,14 +453,14 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
 //#pragma alloc_text(PAGE, GetFullNtProcessImageFileName)
 BOOL GetFullNtProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING * ProcessFileName)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌÍêÈ«µÄNTÃû¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹å®Œå…¨çš„NTåã€‚
 
-¶ÔÓÚIDLE£¬system£¬registry£¬interrupts£¬memory compressionµÈÊÇ»ñÈ¡²»µ½½ø³ÌµÄÂ·¾¶µÄ¡£
-Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
+å¯¹äºIDLEï¼Œsystemï¼Œregistryï¼Œinterruptsï¼Œmemory compressionç­‰æ˜¯è·å–ä¸åˆ°è¿›ç¨‹çš„è·¯å¾„çš„ã€‚
+Registryè¿›ç¨‹çš„è·¯å¾„ç«Ÿç„¶èƒ½è·å–åˆ°ï¼šRegistryï¼Œå› ä¸ºå­˜åœ¨\Registryå¯¹è±¡ã€‚
 
-×¢Òâ£º
-1.´Ëº¯Êı²»¿ÉÓÃÓÚOBh»Øµ÷Àï¡£
-2.ProcessFileNameµÄÄÚ´æÓÉµ÷ÓÃÕßÊÍ·Å¡£
+æ³¨æ„ï¼š
+1.æ­¤å‡½æ•°ä¸å¯ç”¨äºOBhå›è°ƒé‡Œã€‚
+2.ProcessFileNameçš„å†…å­˜ç”±è°ƒç”¨è€…é‡Šæ”¾ã€‚
 */
 {
     PAGED_CODE();
@@ -480,8 +480,8 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
     }
 
     /*
-    ±ØĞë×ª»»Ò»ÏÂ£¬²»È»ÊÇÎŞĞ§µÄ¾ä±ú¡£
-    ¾ä±úµÄÀàĞÍ×ª»»ÎªÄÚºËµÄ¡£
+    å¿…é¡»è½¬æ¢ä¸€ä¸‹ï¼Œä¸ç„¶æ˜¯æ— æ•ˆçš„å¥æŸ„ã€‚
+    å¥æŸ„çš„ç±»å‹è½¬æ¢ä¸ºå†…æ ¸çš„ã€‚
     */
     PEPROCESS  Process = 0;
     NTSTATUS Status = PsLookupProcessByProcessId(Pid, &Process);
@@ -489,7 +489,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return FALSE;
     }
-    ObDereferenceObject(Process); //Î¢Èí½¨Òé¼ÓÉÏ¡£
+    ObDereferenceObject(Process); //å¾®è½¯å»ºè®®åŠ ä¸Šã€‚
     HANDLE  Handle = 0;
     Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, NULL, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     if (!NT_SUCCESS(Status)) {
@@ -497,7 +497,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         return FALSE;
     }
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     ULONG ProcessInformationLength = 0;
     ULONG ReturnLength = 0;
     Status = ZwQueryInformationProcess(Handle,
@@ -520,7 +520,7 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
     }
     RtlZeroMemory(*ProcessFileName, ReturnLength);
 
-    //ÕæÕıµÄ²Ù×÷¡£
+    //çœŸæ­£çš„æ“ä½œã€‚
     BOOL ret = TRUE;
     Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
@@ -533,8 +533,8 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
         ret = FALSE;
     }
 
-    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//×¢Òâ£ºÖĞ¼äÓĞºº×ÖÊÇ²»»áÏÔÊ¾µÄ¡£
-    //ĞÎÈç£ºProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvview.exe
+    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//æ³¨æ„ï¼šä¸­é—´æœ‰æ±‰å­—æ˜¯ä¸ä¼šæ˜¾ç¤ºçš„ã€‚
+    //å½¢å¦‚ï¼šProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvview.exe
 
     ZwClose(Handle);
     return ret;
@@ -543,12 +543,12 @@ Registry½ø³ÌµÄÂ·¾¶¾¹È»ÄÜ»ñÈ¡µ½£ºRegistry£¬ÒòÎª´æÔÚ\Registry¶ÔÏó¡£
 
 BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌµÄÈ«Â·¾¶¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹çš„å…¨è·¯å¾„ã€‚
 
-×¢Òâ£º
-1.ÊÊÓÃÓÚObRegisterCallbacksÖĞ¡£
-2.»ñÈ¡µÄÊÇNTÂ·¾¶¡£
-3.¿ÉÓÃÓÚÎÄ¼ş¹ıÂËµÄ»Øµ÷ÖĞ¡£
+æ³¨æ„ï¼š
+1.é€‚ç”¨äºObRegisterCallbacksä¸­ã€‚
+2.è·å–çš„æ˜¯NTè·¯å¾„ã€‚
+3.å¯ç”¨äºæ–‡ä»¶è¿‡æ»¤çš„å›è°ƒä¸­ã€‚
 */
 {
     PEPROCESS    eprocess;
@@ -568,7 +568,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
         ImagePathName->MaximumLength = gSystem.MaximumLength;
         ImagePathName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ImagePathName->MaximumLength, TAG);
         if (NULL == ImagePathName->Buffer) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             return FALSE;
         } else {
             RtlZeroMemory(ImagePathName->Buffer, ImagePathName->MaximumLength);
@@ -580,7 +580,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
     Status = PsLookupProcessByProcessId(pid, &eprocess);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-        return FALSE;//ÎŞĞ§½ø³Ì¡£
+        return FALSE;//æ— æ•ˆè¿›ç¨‹ã€‚
     }
 
     KeStackAttachProcess(eprocess, &ApcState);
@@ -590,7 +590,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
         ImagePathName->MaximumLength = temp->MaximumLength;
         ImagePathName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ImagePathName->MaximumLength, TAG);
         if (NULL == ImagePathName->Buffer) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         } else {
             RtlZeroMemory(ImagePathName->Buffer, ImagePathName->MaximumLength);
             RtlCopyUnicodeString(ImagePathName, temp);
@@ -604,7 +604,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
         if (ImagePathName->Buffer) {
             ExFreePoolWithTag(ImagePathName->Buffer, TAG);
 
-            //Õâ¸öºÜÖØÒª¡£
+            //è¿™ä¸ªå¾ˆé‡è¦ã€‚
             ImagePathName->Buffer = NULL;
             ImagePathName->MaximumLength = 0;
             ImagePathName->Length = 0;
@@ -621,7 +621,7 @@ BOOL GetProcessImageName(_In_ HANDLE pid, _Inout_ PUNICODE_STRING ImagePathName)
 
 NTSTATUS GetLogonId(_Inout_ PLUID LogonId)
 /*
-´òÓ¡µ±Ç°²Ù×÷µÄµ±Ç°½ø³ÌµÄÓÃ»§ÃûµÈ.
+æ‰“å°å½“å‰æ“ä½œçš„å½“å‰è¿›ç¨‹çš„ç”¨æˆ·åç­‰.
 */
 {
     NTSTATUS Status = 0;
@@ -650,7 +650,7 @@ DWORD GetProcessIntegrityLevelFromDword(_In_ DWORD Integrity)
     if (/*Integrity >= SECURITY_MANDATORY_UNTRUSTED_RID && */ Integrity < SECURITY_MANDATORY_LOW_RID) {
         return SECURITY_MANDATORY_UNTRUSTED_RID;
     } else if (Integrity >= SECURITY_MANDATORY_LOW_RID && Integrity < SECURITY_MANDATORY_MEDIUM_RID) {
-        return SECURITY_MANDATORY_LOW_RID;//Process ExplorerÏÔÊ¾ÎªAppContainer¡£
+        return SECURITY_MANDATORY_LOW_RID;//Process Exploreræ˜¾ç¤ºä¸ºAppContainerã€‚
     } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_RID && Integrity < SECURITY_MANDATORY_HIGH_RID /*SECURITY_MANDATORY_MEDIUM_PLUS_RID*/) {
         return SECURITY_MANDATORY_MEDIUM_RID;
     }
@@ -675,7 +675,7 @@ DWORD GetProcessIntegrityLevelFromString(_In_ PWCHAR Integrity)
     if (_wcsicmp(Integrity, L"Untrusted") == 0) {
         return SECURITY_MANDATORY_UNTRUSTED_RID;
     } else if (_wcsicmp(Integrity, L"Low") == 0) {
-        return SECURITY_MANDATORY_LOW_RID;//Process ExplorerÏÔÊ¾ÎªAppContainer¡£
+        return SECURITY_MANDATORY_LOW_RID;//Process Exploreræ˜¾ç¤ºä¸ºAppContainerã€‚
     } else if (_wcsicmp(Integrity, L"Medium") == 0) {
         return SECURITY_MANDATORY_MEDIUM_RID;
     }
@@ -707,7 +707,7 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
     PTOKEN_MANDATORY_LABEL pTIL = NULL;
     DWORD SubAuthority = 0;
 
-    if (0 == UniqueProcess) //IDLE½ø³Ì·Å¹ı¡£
+    if (0 == UniqueProcess) //IDLEè¿›ç¨‹æ”¾è¿‡ã€‚
     {
         return 0;
     }
@@ -727,7 +727,7 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
 
     pTIL = (PTOKEN_MANDATORY_LABEL)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (NULL == pTIL) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
     } else {
         RtlZeroMemory(pTIL, ReturnLength);
         Status = ZwQueryInformationToken(TokenHandle, TokenIntegrityLevel, pTIL, ReturnLength, &ReturnLength);
@@ -747,11 +747,11 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
 
 void ShowProcessIntegrityLevel(HANDLE UniqueProcess)
 /*
-¹¦ÄÜ£ºShowProcessIntegrityLevel¡£
+åŠŸèƒ½ï¼šShowProcessIntegrityLevelã€‚
 
-²Î¿¼£ºhttps://msdn.microsoft.com/en-us/library/bb625966.aspx
+å‚è€ƒï¼šhttps://msdn.microsoft.com/en-us/library/bb625966.aspx
 
-×¢Òâ£ºÕâ¸öÊôĞÔÔÚVista¼°ÒÔºóµÄ°æ±¾ÉÏ²ÅÓĞ¡£
+æ³¨æ„ï¼šè¿™ä¸ªå±æ€§åœ¨VistaåŠä»¥åçš„ç‰ˆæœ¬ä¸Šæ‰æœ‰ã€‚
 
 made by correy
 made at 2017.04.05
@@ -763,7 +763,7 @@ homepage:http://correy.webs.com
     if (/*Integrity >= SECURITY_MANDATORY_UNTRUSTED_RID && */ Integrity < SECURITY_MANDATORY_LOW_RID) {
         KdPrint(("PID:%d, Integrity:Untrusted.\r\n", HandleToULong(UniqueProcess)));
     } else if (Integrity >= SECURITY_MANDATORY_LOW_RID && Integrity < SECURITY_MANDATORY_MEDIUM_RID) {
-        KdPrint(("PID:%d, Integrity:Low.\r\n", HandleToULong(UniqueProcess)));//Process ExplorerÏÔÊ¾ÎªAppContainer¡£
+        KdPrint(("PID:%d, Integrity:Low.\r\n", HandleToULong(UniqueProcess)));//Process Exploreræ˜¾ç¤ºä¸ºAppContainerã€‚
     } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_RID && Integrity < SECURITY_MANDATORY_MEDIUM_PLUS_RID) {
         KdPrint(("PID:%d, Integrity:Medium.\r\n", HandleToULong(UniqueProcess)));
     } else if (Integrity >= SECURITY_MANDATORY_MEDIUM_PLUS_RID && Integrity < SECURITY_MANDATORY_HIGH_RID) {
@@ -780,9 +780,9 @@ homepage:http://correy.webs.com
 
 DWORD GetSessionId(_In_ PEPROCESS Process)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌµÄ»á»°ID¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹çš„ä¼šè¯IDã€‚
 
-ÁíÒ»¸öÊµÏÖ°ì·¨ÊÇÓÃ¸ß°æ±¾µÄPsGetProcessSessionId¡£
+å¦ä¸€ä¸ªå®ç°åŠæ³•æ˜¯ç”¨é«˜ç‰ˆæœ¬çš„PsGetProcessSessionIdã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -800,7 +800,7 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
     PVOID  TokenInformation = NULL;
     Status = SeQueryInformationToken(AccessToken, TokenSessionId, &TokenInformation);
     if (NT_SUCCESS(Status)) {
-        //SessionId = *(DWORD *)TokenInformation;//TokenInformationÓĞ¿ÏÄÜÎª0.
+        //SessionId = *(DWORD *)TokenInformation;//TokenInformationæœ‰è‚¯èƒ½ä¸º0.
 
     #pragma warning(push)
     #pragma warning(disable:4311)
@@ -821,7 +821,7 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
 
 BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessName)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌÃû£¬Ö»ÊÇ½ø³ÌÃû£¬²»ÊÇÈ«Â·¾¶£¬³£ÓÃÓÚÁÙÊ±ĞÔµÄ²âÊÔ¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹åï¼Œåªæ˜¯è¿›ç¨‹åï¼Œä¸æ˜¯å…¨è·¯å¾„ï¼Œå¸¸ç”¨äºä¸´æ—¶æ€§çš„æµ‹è¯•ã€‚
 */
 {
     NTSTATUS Status = 0;
@@ -835,28 +835,28 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
     USHORT i = 0;
 
     /*
-    ±ØĞë×ª»»Ò»ÏÂ£¬²»È»ÊÇÎŞĞ§µÄ¾ä±ú¡£
-    ´ó¸ÅÊÇ¾ä±úµÄÀàĞÍ×ª»»ÎªÄÚºËµÄ¡£
+    å¿…é¡»è½¬æ¢ä¸€ä¸‹ï¼Œä¸ç„¶æ˜¯æ— æ•ˆçš„å¥æŸ„ã€‚
+    å¤§æ¦‚æ˜¯å¥æŸ„çš„ç±»å‹è½¬æ¢ä¸ºå†…æ ¸çš„ã€‚
     */
     Status = PsLookupProcessByProcessId(Pid, &EProcess);
     if (!NT_SUCCESS(Status)) {
         //KdPrint(("PsLookupProcessByProcessId fail with 0x%x in line %d\n",Status, __LINE__));
         return FALSE;
     }
-    ObDereferenceObject(EProcess); //Î¢Èí½¨Òé¼ÓÉÏ¡£
+    ObDereferenceObject(EProcess); //å¾®è½¯å»ºè®®åŠ ä¸Šã€‚
     Status = ObOpenObjectByPointer(EProcess,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_READ,
                                    *PsProcessType,
                                    KernelMode,
-                                   &Handle);//×¢ÒâÒª¹Ø±Õ¾ä±ú¡£  
+                                   &Handle);//æ³¨æ„è¦å…³é—­å¥æŸ„ã€‚  
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return FALSE;
     }
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQueryInformationProcess(Handle,
                                        ProcessImageFileName,
                                        us_ProcessImageFileName,
@@ -889,8 +889,8 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
         return FALSE;
     }
 
-    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//×¢Òâ£ºÖĞ¼äÓĞºº×ÖÊÇ²»»áÏÔÊ¾µÄ¡£
-    //ĞÎÈç£ºProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvview.exe
+    //KdPrint(("ProcessImageFileName:%wZ\n",ProcessFileName));//æ³¨æ„ï¼šä¸­é—´æœ‰æ±‰å­—æ˜¯ä¸ä¼šæ˜¾ç¤ºçš„ã€‚
+    //å½¢å¦‚ï¼šProcessImageFileName:\Device\HarddiskVolume1\aa\Dbgvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvview.exe
     p = (UNICODE_STRING *)us_ProcessImageFileName;
 
     if (p->Length == 0) {
@@ -900,21 +900,21 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
         return FALSE;
     }
 
-    //´ÓÄ©Î²¿ªÊ¼ËÑË÷Ğ±¸Ü¡£
+    //ä»æœ«å°¾å¼€å§‹æœç´¢æ–œæ ã€‚
     for (i = p->Length / 2 - 1; ; i--) {
         if (p->Buffer[i] == L'\\') {
             break;
         }
     }
 
-    i++;//Ìø¹ıĞ±¸Ü¡£
+    i++;//è·³è¿‡æ–œæ ã€‚
 
-    //¹¹ÔìÎÄ¼şÃû½á¹¹£¬¸´ÖÆÓÃµÄ¡£
+    //æ„é€ æ–‡ä»¶åç»“æ„ï¼Œå¤åˆ¶ç”¨çš„ã€‚
     temp.Length = p->Length - i * 2;
     temp.MaximumLength = p->MaximumLength - i * 2;
     temp.Buffer = &p->Buffer[i];
 
-    //Õâ¸öÄÚ´æÓÉµ÷ÓÃÕßÊÍ·Å¡£
+    //è¿™ä¸ªå†…å­˜ç”±è°ƒç”¨è€…é‡Šæ”¾ã€‚
     ProcessName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, MAX_PATH, TAG);
     if (ProcessName->Buffer == NULL) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "");
@@ -936,14 +936,14 @@ BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessNam
 
 NTSTATUS GetPidFromProcessName(_In_ PWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId)
 /*
-¹¦ÄÜ£º¸ù¾İ½ø³ÌÃû»ñÈ¡PID¡£
-×÷ÓÃ£º1.²âÊÔ³£ÓÃ¡£
-      2.¶ÔÓÚ¸ù¾İ½ø³ÌµÄÃû²Ù×÷£¬Èç£º¸ù¾İ½ø³ÌÃû½áÊø½ø³ÌµÈ¡£
-ËµÃ÷£º1.Èç¹ûÖ¸¶¨µÄ½ø³ÌÃûÓĞ¶à¸öÖ»·µ»ØÒ»¸ö¡£
-      2.Èç¹ûÖ¸¶¨µÄ½ø³ÌÃû²»´æÔÚ£¬·µ»ØSTATUS_INVALID_HANDLE;//STATUS_UNSUCCESSFUL¡£
-»°ÍâÌâ£ºÕâ¸öÄ¿µÄ»¹ÓĞ±ğµÄºÃ°ì·¨Âğ£¿
-        1.ZwOpenProcessºÃÏñÊÇ×îÖ±½ÓµÄº¯Êı£¬µ«ÊÇ×ÜÊÇÊ§°Ü¡£
-        2.±©Á¦Ã¶¾Ù½ø³Ì»¹²»Èç±¾°ì·¨µÄZwQuerySystemInformation + SystemProcessInformation£¬±ğµÄÃ¶¾Ù½ø³Ì·½·¨ÀàËÆ¡£
+åŠŸèƒ½ï¼šæ ¹æ®è¿›ç¨‹åè·å–PIDã€‚
+ä½œç”¨ï¼š1.æµ‹è¯•å¸¸ç”¨ã€‚
+      2.å¯¹äºæ ¹æ®è¿›ç¨‹çš„åæ“ä½œï¼Œå¦‚ï¼šæ ¹æ®è¿›ç¨‹åç»“æŸè¿›ç¨‹ç­‰ã€‚
+è¯´æ˜ï¼š1.å¦‚æœæŒ‡å®šçš„è¿›ç¨‹åæœ‰å¤šä¸ªåªè¿”å›ä¸€ä¸ªã€‚
+      2.å¦‚æœæŒ‡å®šçš„è¿›ç¨‹åä¸å­˜åœ¨ï¼Œè¿”å›STATUS_INVALID_HANDLE;//STATUS_UNSUCCESSFULã€‚
+è¯å¤–é¢˜ï¼šè¿™ä¸ªç›®çš„è¿˜æœ‰åˆ«çš„å¥½åŠæ³•å—ï¼Ÿ
+        1.ZwOpenProcesså¥½åƒæ˜¯æœ€ç›´æ¥çš„å‡½æ•°ï¼Œä½†æ˜¯æ€»æ˜¯å¤±è´¥ã€‚
+        2.æš´åŠ›æšä¸¾è¿›ç¨‹è¿˜ä¸å¦‚æœ¬åŠæ³•çš„ZwQuerySystemInformation + SystemProcessInformationï¼Œåˆ«çš„æšä¸¾è¿›ç¨‹æ–¹æ³•ç±»ä¼¼ã€‚
 
 made by correy
 made at 2015.07.08.
@@ -957,19 +957,19 @@ made at 2015.07.08.
     ULONG ReturnLength = 0;
     UNICODE_STRING temp = {0};
 
-    //²ÎÊı¼ì²é¾Í²»×öÁË¡£
+    //å‚æ•°æ£€æŸ¥å°±ä¸åšäº†ã€‚
 
-    *UniqueProcessId = ULongToHandle((const unsigned long)STATUS_INVALID_HANDLE);//Ä¬ÈÏÉèÖÃ¡£ÓĞ¿ÉÄÜÕÒ²»µ½£¬Ò²¾ÍÊÇ²»´æÔÚ¡£
+    *UniqueProcessId = ULongToHandle((const unsigned long)STATUS_INVALID_HANDLE);//é»˜è®¤è®¾ç½®ã€‚æœ‰å¯èƒ½æ‰¾ä¸åˆ°ï¼Œä¹Ÿå°±æ˜¯ä¸å­˜åœ¨ã€‚
 
     RtlInitUnicodeString(&temp, ProcessName);
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//µÚÒ»´ÎĞèÇó0x9700£¬µÚ¶ş´ÎĞèÇó0x9750,ËùÒÔ³ËÒÔ2.
+    ReturnLength *= 2;//ç¬¬ä¸€æ¬¡éœ€æ±‚0x9700ï¼Œç¬¬äºŒæ¬¡éœ€æ±‚0x9750,æ‰€ä»¥ä¹˜ä»¥2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
@@ -985,7 +985,7 @@ made at 2015.07.08.
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //×¢ÊÍµÄ¶¼ÊÇÓĞÎÊÌâµÄ£¬ÈçÉÙÏÔÊ¾Ò»¸öµÈ¡£
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //æ³¨é‡Šçš„éƒ½æ˜¯æœ‰é—®é¢˜çš„ï¼Œå¦‚å°‘æ˜¾ç¤ºä¸€ä¸ªç­‰ã€‚
     {
         UNICODE_STRING FileName = {0};
         BOOL B = GetProcessImageFileName(it->UniqueProcessId, &FileName);
@@ -1005,8 +1005,8 @@ made at 2015.07.08.
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
         For the last item in the array, NextEntryOffset is 0.
-        Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-        ËµÃ÷£ºNextEntryOffsetµÄÖµÊÇ²»¹Ì¶¨µÄ£¬¸ü²»ÊÇSYSTEM_PROCESS_INFORMATION½á¹¹µÄ´óĞ¡¡£ËùÒÔ²»ÄÜ¼ÓÒ»¸ö½á¹¹µÄ´óĞ¡À´±éÀú¡£
+        æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+        è¯´æ˜ï¼šNextEntryOffsetçš„å€¼æ˜¯ä¸å›ºå®šçš„ï¼Œæ›´ä¸æ˜¯SYSTEM_PROCESS_INFORMATIONç»“æ„çš„å¤§å°ã€‚æ‰€ä»¥ä¸èƒ½åŠ ä¸€ä¸ªç»“æ„çš„å¤§å°æ¥éå†ã€‚
         */
 
         if (it->NextEntryOffset == 0) {
@@ -1016,7 +1016,7 @@ made at 2015.07.08.
         it = (PSYSTEM_PROCESS_INFORMATION)((char *)it + it->NextEntryOffset);
     }
 
-    if (*UniqueProcessId == ULongToHandle((const unsigned long)STATUS_INVALID_HANDLE)) {//½ø³ÌÃû²»´æÔÚ£¬Ã»ÓĞÕÒµ½¡£
+    if (*UniqueProcessId == ULongToHandle((const unsigned long)STATUS_INVALID_HANDLE)) {//è¿›ç¨‹åä¸å­˜åœ¨ï¼Œæ²¡æœ‰æ‰¾åˆ°ã€‚
         Status = STATUS_INVALID_HANDLE;//STATUS_UNSUCCESSFUL
     }
 
@@ -1028,18 +1028,18 @@ made at 2015.07.08.
 
 NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
 /*
-¹¦ÄÜ£ºÍ¨ÓÃµÄ´¦ÀíËùÓĞ½ø³ÌµÄº¯Êı¡£
+åŠŸèƒ½ï¼šé€šç”¨çš„å¤„ç†æ‰€æœ‰è¿›ç¨‹çš„å‡½æ•°ã€‚
 
-»Øµ÷º¯ÊıµÄ²ÎÊı×îºÃÊÇPSYSTEM_PROCESS_INFORMATION£¬ÒòÎªÕâÑù°üº¬µÄĞÅÏ¢¶à£¬Ê£µÄÔÙÈ¥»ñÈ¡ÁË¡£
-µ«ÊÇÕâÑùÓĞÈ±µã£¬Ò»ÊÇ´øµÄĞÅÏ¢¶à£¬¶şÊÇ¶¨Òå³åÍ»µÈ¡£
-ËùÒÔ»Øµ÷º¯ÊıµÄ²ÎÊı»¹ÊÇHANDLE UniqueProcessId°É£¡
-ÕâÑù£¬ÄãÏëÒªµÄĞÅÏ¢£¬ÄãÔÙ»ñÈ¡¡£
+å›è°ƒå‡½æ•°çš„å‚æ•°æœ€å¥½æ˜¯PSYSTEM_PROCESS_INFORMATIONï¼Œå› ä¸ºè¿™æ ·åŒ…å«çš„ä¿¡æ¯å¤šï¼Œå‰©çš„å†å»è·å–äº†ã€‚
+ä½†æ˜¯è¿™æ ·æœ‰ç¼ºç‚¹ï¼Œä¸€æ˜¯å¸¦çš„ä¿¡æ¯å¤šï¼ŒäºŒæ˜¯å®šä¹‰å†²çªç­‰ã€‚
+æ‰€ä»¥å›è°ƒå‡½æ•°çš„å‚æ•°è¿˜æ˜¯HANDLE UniqueProcessIdå§ï¼
+è¿™æ ·ï¼Œä½ æƒ³è¦çš„ä¿¡æ¯ï¼Œä½ å†è·å–ã€‚
 
-»Øµ÷º¯ÊıµÄµÚ¶ş¸ö²ÎÊıÊÇÉÏÏÂÎÄ£¬ÓÃÓÚÊä³öºÍÊäÈëĞÅÏ¢£¬¾ßÌåµÄÀàĞÍ×Ô¼º¶¨Òå£¬Ò²¿ÉÒÔÃ»ÓĞ¡£
+å›è°ƒå‡½æ•°çš„ç¬¬äºŒä¸ªå‚æ•°æ˜¯ä¸Šä¸‹æ–‡ï¼Œç”¨äºè¾“å‡ºå’Œè¾“å…¥ä¿¡æ¯ï¼Œå…·ä½“çš„ç±»å‹è‡ªå·±å®šä¹‰ï¼Œä¹Ÿå¯ä»¥æ²¡æœ‰ã€‚
 
-³ÏÈç´úÂëËùÊ¾£º
-1.»Øµ÷º¯Êı×¢²áÒ»´Î£¬»á±»µ÷ÓÃ¶à´Î¡£
-2.¿ÉÒÔ¿¼ÂÇ¸ù¾İ»Øµ÷º¯ÊıµÄ·µ»ØÖµ£¬ÅĞ¶ÏÊÇ·ñ¼ÌĞø/ÍË³ö¡£
+è¯šå¦‚ä»£ç æ‰€ç¤ºï¼š
+1.å›è°ƒå‡½æ•°æ³¨å†Œä¸€æ¬¡ï¼Œä¼šè¢«è°ƒç”¨å¤šæ¬¡ã€‚
+2.å¯ä»¥è€ƒè™‘æ ¹æ®å›è°ƒå‡½æ•°çš„è¿”å›å€¼ï¼Œåˆ¤æ–­æ˜¯å¦ç»§ç»­/é€€å‡ºã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -1049,13 +1049,13 @@ NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
     ULONG SystemInformationLength = 0;
     ULONG ReturnLength = 0;
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//µÚÒ»´ÎĞèÇó0x9700£¬µÚ¶ş´ÎĞèÇó0x9750,ËùÒÔ³ËÒÔ2.
+    ReturnLength *= 2;//ç¬¬ä¸€æ¬¡éœ€æ±‚0x9700ï¼Œç¬¬äºŒæ¬¡éœ€æ±‚0x9750,æ‰€ä»¥ä¹˜ä»¥2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
@@ -1073,7 +1073,7 @@ NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
         return Status;
     }
 
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //×¢ÊÍµÄ¶¼ÊÇÓĞÎÊÌâµÄ£¬ÈçÉÙÏÔÊ¾Ò»¸öµÈ¡£
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //æ³¨é‡Šçš„éƒ½æ˜¯æœ‰é—®é¢˜çš„ï¼Œå¦‚å°‘æ˜¾ç¤ºä¸€ä¸ªç­‰ã€‚
     {
         if (CallBack) {
             Status = CallBack(it->UniqueProcessId, Context);
@@ -1085,8 +1085,8 @@ NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
         For the last item in the array, NextEntryOffset is 0.
-        Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-        ËµÃ÷£ºNextEntryOffsetµÄÖµÊÇ²»¹Ì¶¨µÄ£¬¸ü²»ÊÇSYSTEM_PROCESS_INFORMATION½á¹¹µÄ´óĞ¡¡£ËùÒÔ²»ÄÜ¼ÓÒ»¸ö½á¹¹µÄ´óĞ¡À´±éÀú¡£
+        æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+        è¯´æ˜ï¼šNextEntryOffsetçš„å€¼æ˜¯ä¸å›ºå®šçš„ï¼Œæ›´ä¸æ˜¯SYSTEM_PROCESS_INFORMATIONç»“æ„çš„å¤§å°ã€‚æ‰€ä»¥ä¸èƒ½åŠ ä¸€ä¸ªç»“æ„çš„å¤§å°æ¥éå†ã€‚
         */
 
         if (it->NextEntryOffset == 0) {
@@ -1104,7 +1104,7 @@ NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
 
 HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
 /*
-¹¦ÄÜ£º»ñÈ¡Ò»¸ö½ø³ÌµÄ¸¸½ø³Ì¡£
+åŠŸèƒ½ï¼šè·å–ä¸€ä¸ªè¿›ç¨‹çš„çˆ¶è¿›ç¨‹ã€‚
 */
 {
     NTSTATUS Status = 0;
@@ -1115,8 +1115,8 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
     HANDLE ParentsPID = nullptr;
 
     /*
-    ±ØĞë×ª»»Ò»ÏÂ£¬²»È»ÊÇÎŞĞ§µÄ¾ä±ú¡£
-    ´ó¸ÅÊÇ¾ä±úµÄÀàĞÍ×ª»»ÎªÄÚºËµÄ¡£
+    å¿…é¡»è½¬æ¢ä¸€ä¸‹ï¼Œä¸ç„¶æ˜¯æ— æ•ˆçš„å¥æŸ„ã€‚
+    å¤§æ¦‚æ˜¯å¥æŸ„çš„ç±»å‹è½¬æ¢ä¸ºå†…æ ¸çš„ã€‚
     */
     Status = PsLookupProcessByProcessId(UniqueProcessId, &Process);
     if (!NT_SUCCESS(Status)) {
@@ -1124,7 +1124,7 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
         return ParentsPID;
     }
 
-    ObDereferenceObject(Process); //Î¢Èí½¨Òé¼ÓÉÏ¡£
+    ObDereferenceObject(Process); //å¾®è½¯å»ºè®®åŠ ä¸Šã€‚
 
     Status = ObOpenObjectByPointer(Process,
                                    OBJ_KERNEL_HANDLE,
@@ -1132,7 +1132,7 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
                                    GENERIC_READ,
                                    *PsProcessType,
                                    KernelMode,
-                                   &KernelHandle);//×¢ÒâÒª¹Ø±Õ¾ä±ú¡£  
+                                   &KernelHandle);//æ³¨æ„è¦å…³é—­å¥æŸ„ã€‚  
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ParentsPID;
@@ -1162,9 +1162,9 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
 
 NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
 /*
-¹¦ÄÜ£º»ñÈ¡Ò»¸ö½ø³ÌµÄËùÓĞµÄ×Ó½ø³Ì(ÉõÖÁÊÇËï½ø³Ì£¬×Ó×ÓËïËïÎŞÇî¾¡µÄ½ø³Ì£¬µ«²»ÊÇJOBÄÇÖÖ)¡£
+åŠŸèƒ½ï¼šè·å–ä¸€ä¸ªè¿›ç¨‹çš„æ‰€æœ‰çš„å­è¿›ç¨‹(ç”šè‡³æ˜¯å­™è¿›ç¨‹ï¼Œå­å­å­™å­™æ— ç©·å°½çš„è¿›ç¨‹ï¼Œä½†ä¸æ˜¯JOBé‚£ç§)ã€‚
 
-×ö·¨£º±éÀú¡£
+åšæ³•ï¼šéå†ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -1174,19 +1174,19 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
     ULONG SystemInformationLength = 0;
     ULONG ReturnLength = 0;
 
-    //²ÎÊı¼ì²é¾Í²»×öÁË¡£
+    //å‚æ•°æ£€æŸ¥å°±ä¸åšäº†ã€‚
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//µÚÒ»´ÎĞèÇó0x9700£¬µÚ¶ş´ÎĞèÇó0x9750,ËùÒÔ³ËÒÔ2.
+    ReturnLength *= 2;//ç¬¬ä¸€æ¬¡éœ€æ±‚0x9700ï¼Œç¬¬äºŒæ¬¡éœ€æ±‚0x9750,æ‰€ä»¥ä¹˜ä»¥2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
@@ -1198,13 +1198,13 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    for (iter = ProcessInfo; /* iter->NextEntryOffset != 0 */; /*iter++*/) //×¢ÊÍµÄ¶¼ÊÇÓĞÎÊÌâµÄ£¬ÈçÉÙÏÔÊ¾Ò»¸öµÈ¡£
+    for (iter = ProcessInfo; /* iter->NextEntryOffset != 0 */; /*iter++*/) //æ³¨é‡Šçš„éƒ½æ˜¯æœ‰é—®é¢˜çš„ï¼Œå¦‚å°‘æ˜¾ç¤ºä¸€ä¸ªç­‰ã€‚
     {
         HANDLE ParentsPID = GetParentsPID(iter->UniqueProcessId);
         if (UniqueProcessId == ParentsPID) {
-            DbgPrint("%dµÄ×Ó½ø³Ì£º%d.\n", HandleToULong(UniqueProcessId), HandleToULong(iter->UniqueProcessId));
+            DbgPrint("%dçš„å­è¿›ç¨‹ï¼š%d.\n", HandleToULong(UniqueProcessId), HandleToULong(iter->UniqueProcessId));
 
-            //GetAllChildProcess(iter->UniqueProcessId);//¿ÉÒÔ¿¼ÂÇµİ¹é¡£×¢Òâ¶ÏÁ´¡£
+            //GetAllChildProcess(iter->UniqueProcessId);//å¯ä»¥è€ƒè™‘é€’å½’ã€‚æ³¨æ„æ–­é“¾ã€‚
         }
 
         //KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n",
@@ -1213,8 +1213,8 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
         For the last item in the array, NextEntryOffset is 0.
-        Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-        ËµÃ÷£ºNextEntryOffsetµÄÖµÊÇ²»¹Ì¶¨µÄ£¬¸ü²»ÊÇSYSTEM_PROCESS_INFORMATION½á¹¹µÄ´óĞ¡¡£ËùÒÔ²»ÄÜ¼ÓÒ»¸ö½á¹¹µÄ´óĞ¡À´±éÀú¡£
+        æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+        è¯´æ˜ï¼šNextEntryOffsetçš„å€¼æ˜¯ä¸å›ºå®šçš„ï¼Œæ›´ä¸æ˜¯SYSTEM_PROCESS_INFORMATIONç»“æ„çš„å¤§å°ã€‚æ‰€ä»¥ä¸èƒ½åŠ ä¸€ä¸ªç»“æ„çš„å¤§å°æ¥éå†ã€‚
         */
 
         if (iter->NextEntryOffset == 0) {
@@ -1232,18 +1232,18 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
 
 NTSTATUS GetJobNameOfProcess(_In_ HANDLE Pid)
 /*
-¹¦ÄÜ£º»ñÈ¡½ø³ÌµÄJOBµÄÃû×Ö¡£
-Ô­Àí»òÕß°ì·¨ÊÇ£ºPsGetProcessJob + ObQueryNameString¡£
-ÆäÊµ¿ÉÒÔĞ´Ò»¸öº¯Êı£¬º¯ÊıµÄÃû×ÖÎª£ºZwGetProcessJobName¡£
+åŠŸèƒ½ï¼šè·å–è¿›ç¨‹çš„JOBçš„åå­—ã€‚
+åŸç†æˆ–è€…åŠæ³•æ˜¯ï¼šPsGetProcessJob + ObQueryNameStringã€‚
+å…¶å®å¯ä»¥å†™ä¸€ä¸ªå‡½æ•°ï¼Œå‡½æ•°çš„åå­—ä¸ºï¼šZwGetProcessJobNameã€‚
 
-XPÖĞµ½´¦µÄ°üº¬JOBµÄº¯Êı      | Ó¦ÓÃ²ãµÄº¯Êı¼°×Ô¼ºµÄ×¢ÊÍ¡£
+XPä¸­åˆ°å¤„çš„åŒ…å«JOBçš„å‡½æ•°      | åº”ç”¨å±‚çš„å‡½æ•°åŠè‡ªå·±çš„æ³¨é‡Šã€‚
 -------------------------------------------------------------------------
-PsGetJobLock                 | JOBµÄËø£¿
-PsGetJobSessionId            | »ñÈ¡JOBµÄ»á»°ID¡£ÓĞ½ø³Ì»á»°IDÁË»¹ÒªÕâ¸ö£¿
-PsGetJobUIRestrictionsClass  | ²»½â¡£UIRestrictionsClass£¿
-PsGetProcessJob              | ±¾ÎÄÓĞÓÃ·¨Ê¾Àı¡£
-PsJobType                    | Ò»¸ö±äÁ¿£ºJOBÄÚºË¶ÔÏó
-PsSetJobUIRestrictionsClass  | ²»½â¡£UIRestrictionsClass£¿
+PsGetJobLock                 | JOBçš„é”ï¼Ÿ
+PsGetJobSessionId            | è·å–JOBçš„ä¼šè¯IDã€‚æœ‰è¿›ç¨‹ä¼šè¯IDäº†è¿˜è¦è¿™ä¸ªï¼Ÿ
+PsGetJobUIRestrictionsClass  | ä¸è§£ã€‚UIRestrictionsClassï¼Ÿ
+PsGetProcessJob              | æœ¬æ–‡æœ‰ç”¨æ³•ç¤ºä¾‹ã€‚
+PsJobType                    | ä¸€ä¸ªå˜é‡ï¼šJOBå†…æ ¸å¯¹è±¡
+PsSetJobUIRestrictionsClass  | ä¸è§£ã€‚UIRestrictionsClassï¼Ÿ
 ZwAssignProcessToJobObject   | AssignProcessToJobObject
 ZwCreateJobObject            | CreateJobObject
 ZwIsProcessInJob             | IsProcessInJob
@@ -1251,7 +1251,7 @@ ZwOpenJobObject              | OpenJobObject
 ZwQueryInformationJobObject  | QueryInformationJobObject
 ZwSetInformationJobObject    | SetInformationJobObject
 ZwTerminateJobObject         | TerminateJobObject
-Ã»ÓĞÕÒµ½¶ÔÓ¦µÄº¯Êı           | UserHandleGrantAccess
+æ²¡æœ‰æ‰¾åˆ°å¯¹åº”çš„å‡½æ•°           | UserHandleGrantAccess
 
 made by correy
 made at 2015.07.13.
@@ -1269,14 +1269,14 @@ made at 2015.07.13.
                 if (!NT_SUCCESS(Status)) {
                     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
                 } else {
-                    KdPrint(("JobName:%wZ\n", JobName));//ĞÎÈç£º\BaseNamedObjects\XXXXX
+                    KdPrint(("JobName:%wZ\n", JobName));//å½¢å¦‚ï¼š\BaseNamedObjects\XXXXX
                 }
 
                 ExFreePoolWithTag(JobName, TAG);
             }
         }
 
-        ObDereferenceObject(EProcess); //Î¢Èí½¨Òé¼ÓÉÏ¡£
+        ObDereferenceObject(EProcess); //å¾®è½¯å»ºè®®åŠ ä¸Šã€‚
     } else {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
     }
@@ -1287,16 +1287,16 @@ made at 2015.07.13.
 
 NTSTATUS ZwAllocateHeap()
 /*
-ÎÄ¼şÃû£ºRtlCreateHeap.c
-ÆäÊµ×îÖ÷ÒªµÄ»¹ÊÇRtlCreateHeapµÄËµÃ÷£¬×¢ÒâÕâ¸ö¿ÉÒÔÓĞ»Øµ÷º¯Êı¡£
-RtlAllocateHeapÕâ¸öº¯ÊıÒ²²»ÄÜÔÚÖ¸¶¨µÄµØÖ·ÉÏÉêÇëÄÚ´æ¡£
+æ–‡ä»¶åï¼šRtlCreateHeap.c
+å…¶å®æœ€ä¸»è¦çš„è¿˜æ˜¯RtlCreateHeapçš„è¯´æ˜ï¼Œæ³¨æ„è¿™ä¸ªå¯ä»¥æœ‰å›è°ƒå‡½æ•°ã€‚
+RtlAllocateHeapè¿™ä¸ªå‡½æ•°ä¹Ÿä¸èƒ½åœ¨æŒ‡å®šçš„åœ°å€ä¸Šç”³è¯·å†…å­˜ã€‚
 
-ÔËĞĞ½á¹ûÈçÏÂ£º
+è¿è¡Œç»“æœå¦‚ä¸‹ï¼š
 HeapHandle == 00180000!
 p == 00180688!
 
-ÕâĞ©ÄÚ´æÔÚÄÄ¸ö½ø³ÌÄØ£¿ÏµÍ³½ø³Ì£¨SYSTEM£©
-º¯ÊıÃ»ÓĞÖ¸Ã÷£¬µ«ÊÇº¯ÊıµÄËµÃ÷Ö¸Ã÷ÁË¡£
+è¿™äº›å†…å­˜åœ¨å“ªä¸ªè¿›ç¨‹å‘¢ï¼Ÿç³»ç»Ÿè¿›ç¨‹ï¼ˆSYSTEMï¼‰
+å‡½æ•°æ²¡æœ‰æŒ‡æ˜ï¼Œä½†æ˜¯å‡½æ•°çš„è¯´æ˜æŒ‡æ˜äº†ã€‚
 
 made by correy
 made at 2014.09.04
@@ -1398,10 +1398,10 @@ Use the sample code below to prevent calling any functions which attempt to atta
 This includes kernel drivers that queue APCs for execution of code in a trustlet.
 
 If the return Status of IsSecureProcess is success, examine the SecureProcess _Out_ parameter to determine if the process is an IUM process.
-IUM processes are marked by the system to be ¡°Secure Processes¡±.
+IUM processes are marked by the system to be â€œSecure Processesâ€.
 A Boolean result of TRUE means the target process is of type IUM.
 
-The WDK for Windows 10, ¡°Windows Driver Kit - Windows 10.0.15063.0¡±,
+The WDK for Windows 10, â€œWindows Driver Kit - Windows 10.0.15063.0â€,
 contains the required definition of the PROCESS_EXTENDED_BASIC_INFORMATION structure.
 The updated version of the structure is defined in ntddk.h with the new IsSecureProcess field.
 
@@ -1431,11 +1431,11 @@ https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--iu
 
 NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * ProtectedProcess)
 /*
-¹¦ÄÜ£º¼ì²â½ø³ÌÊÇ²»ÊÇProtectedProcess¡£
+åŠŸèƒ½ï¼šæ£€æµ‹è¿›ç¨‹æ˜¯ä¸æ˜¯ProtectedProcessã€‚
 
-·ÂÕÕIsSecureProcess¶ø½¨¡£
+ä»¿ç…§IsSecureProcessè€Œå»ºã€‚
 
-×¢ÒâÊÊÓÃµÄ·¶Î§¡£
+æ³¨æ„é€‚ç”¨çš„èŒƒå›´ã€‚
 */
 {
     NTSTATUS Status;
@@ -1461,19 +1461,19 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
 
 NTSTATUS IsWow64Process(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Wow64Process)
 /*
-¹¦ÄÜ£º¼ì²â½ø³ÌÊÇ²»ÊÇWow64Process¡£
+åŠŸèƒ½ï¼šæ£€æµ‹è¿›ç¨‹æ˜¯ä¸æ˜¯Wow64Processã€‚
 
-·ÂÕÕIsSecureProcess¶ø½¨¡£
+ä»¿ç…§IsSecureProcessè€Œå»ºã€‚
 
-²ÎÊı£º
-ProcessHandleÊÇÄÚºËÌ¬µÄ¾ä±ú£¬²»ÊÇÓÃ»§²ãµÄpid.
+å‚æ•°ï¼š
+ProcessHandleæ˜¯å†…æ ¸æ€çš„å¥æŸ„ï¼Œä¸æ˜¯ç”¨æˆ·å±‚çš„pid.
 
-×¢Òâ:
-1.ÊÊÓÃµÄ·¶Î§¡£
+æ³¨æ„:
+1.é€‚ç”¨çš„èŒƒå›´ã€‚
 
-ÁíÍâµÄË¼Â·£º
-1.ZwQueryInformationProcess +¡¡ProcessWow64Information
-2.X64ÏÂ½öÓĞµÄPsGetProcessWow64Process(Process);
+å¦å¤–çš„æ€è·¯ï¼š
+1.ZwQueryInformationProcess +ã€€ProcessWow64Information
+2.X64ä¸‹ä»…æœ‰çš„PsGetProcessWow64Process(Process);
 3.
 */
 {
@@ -1548,11 +1548,11 @@ BOOLEAN IsWow64Process(_In_ HANDLE ProcessHandle)
 
 NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable)
 /*
-¹¦ÄÜ£º¸øµ±Ç°½ø³Ì£¨ÉÏÏÂÎÄËùÔÚµÄ½ø³Ì£©ÌáÈ¨¡£
+åŠŸèƒ½ï¼šç»™å½“å‰è¿›ç¨‹ï¼ˆä¸Šä¸‹æ–‡æ‰€åœ¨çš„è¿›ç¨‹ï¼‰ææƒã€‚
 
-ÓÃ·¨Ê¾Àı£ºAdjustPrivilege(SE_DEBUG_PRIVILEGE, TRUE);
+ç”¨æ³•ç¤ºä¾‹ï¼šAdjustPrivilege(SE_DEBUG_PRIVILEGE, TRUE);
 
-Õª×Ô£ºhttp://www.osronline.com/article.cfm?article=23
+æ‘˜è‡ªï¼šhttp://www.osronline.com/article.cfm?article=23
 */
 {
     NTSTATUS Status;

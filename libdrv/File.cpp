@@ -16,9 +16,9 @@
 
 
 /*
-¹¦ÄÜ£ºÔÚÇı¶¯ÖĞ±éÀú/Ã¶¾ÙÎÄ¼ş¡£
+åŠŸèƒ½ï¼šåœ¨é©±åŠ¨ä¸­éå†/æšä¸¾æ–‡ä»¶ã€‚
 
-¿´ËÆÒ»¸ö¼òµ¥²»ÖµÒ»¿´µÄ¹¦ÄÜ£¬»¨·ÑÁËÎÒÒ»ÌìµÄÊ±¼ä£¬Ò²ĞíÎÒÌ«±¿£¬ËùÒÔÓĞ´Ë¼ÇÂ¼¡£
+çœ‹ä¼¼ä¸€ä¸ªç®€å•ä¸å€¼ä¸€çœ‹çš„åŠŸèƒ½ï¼ŒèŠ±è´¹äº†æˆ‘ä¸€å¤©çš„æ—¶é—´ï¼Œä¹Ÿè®¸æˆ‘å¤ªç¬¨ï¼Œæ‰€ä»¥æœ‰æ­¤è®°å½•ã€‚
 
 made by correy
 made at 2014.06.04
@@ -27,16 +27,16 @@ made at 2014.06.04
 
 NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
 /*
-¹¦ÄÜ£ºÃ¶¾ÙÄ¿Â¼ÏÂµÄÎÄ¼ş¡£Ã»ÓĞµİ¹é¡£
+åŠŸèƒ½ï¼šæšä¸¾ç›®å½•ä¸‹çš„æ–‡ä»¶ã€‚æ²¡æœ‰é€’å½’ã€‚
 
-ÊäÈë²ÎÊı£º¿ÉÒÔÊÇÂ·¾¶£¬¾ä±ú£¬ÎÄ¼ş¶ÔÏó£¬Õâ¸ö¿ÉÒÔĞŞ¸Ä,µ«²»ÄÜÊÇÎÄ¼şÂ·¾¶¡£
+è¾“å…¥å‚æ•°ï¼šå¯ä»¥æ˜¯è·¯å¾„ï¼Œå¥æŸ„ï¼Œæ–‡ä»¶å¯¹è±¡ï¼Œè¿™ä¸ªå¯ä»¥ä¿®æ”¹,ä½†ä¸èƒ½æ˜¯æ–‡ä»¶è·¯å¾„ã€‚
 
-Â·¾¶µÄ¸ñÊ½×îºÃÊÇ£ºL"\\??\\C:\\Windows");
-»òÕß"\Device\HarddiskVolume1\XXX  \\DosDevices\\C:\\£¬²»È»»¹µÃ×ª»»£¬½á¹¹×îºÃÓÃµÄUNICODE_STRING£¬ÕâÑù°²È«¡£
+è·¯å¾„çš„æ ¼å¼æœ€å¥½æ˜¯ï¼šL"\\??\\C:\\Windows");
+æˆ–è€…"\Device\HarddiskVolume1\XXX  \\DosDevices\\C:\\ï¼Œä¸ç„¶è¿˜å¾—è½¬æ¢ï¼Œç»“æ„æœ€å¥½ç”¨çš„UNICODE_STRINGï¼Œè¿™æ ·å®‰å…¨ã€‚
 
-Õâ¸ö·½·¨µÄË¼Â·ÊÇÒ»ÏÂ¶ÁÈ¡ÁËÒ»¸öÄ¿Â¼ÏÂµÄËùÓĞĞÅÏ¢¡£ÓÅÈ±µãÊÇ²»ÑÔ¶øÓ÷µÄ£¬¾ÍÊÇËùĞèµÄÄÚ´æµÄ´óĞ¡£¬ÄãÖªµÀÂğ£¿
+è¿™ä¸ªæ–¹æ³•çš„æ€è·¯æ˜¯ä¸€ä¸‹è¯»å–äº†ä¸€ä¸ªç›®å½•ä¸‹çš„æ‰€æœ‰ä¿¡æ¯ã€‚ä¼˜ç¼ºç‚¹æ˜¯ä¸è¨€è€Œå–»çš„ï¼Œå°±æ˜¯æ‰€éœ€çš„å†…å­˜çš„å¤§å°ï¼Œä½ çŸ¥é“å—ï¼Ÿ
 
-ÆäÊµ£¬ZwEnumerateFileÕâ¸öº¯ÊıÃ»ÓĞ»ñÈ¡ËùĞèµÄÄÚ´æµÄ´óĞ¡µÄ¹¦ÄÜ£¬Ò»¸öË¼Â·ÊÇ½á¹¹µÄ´óĞ¡¼ÓÂ·¾¶µÄ´óĞ¡¡£
+å…¶å®ï¼ŒZwEnumerateFileè¿™ä¸ªå‡½æ•°æ²¡æœ‰è·å–æ‰€éœ€çš„å†…å­˜çš„å¤§å°çš„åŠŸèƒ½ï¼Œä¸€ä¸ªæ€è·¯æ˜¯ç»“æ„çš„å¤§å°åŠ è·¯å¾„çš„å¤§å°ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -44,7 +44,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     HANDLE FileHandle = 0;
     IO_STATUS_BLOCK  IoStatusBlock = {0};
     PVOID FileInformation = 0;
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//Õâ¸öÊıÉèÖÃµÄÌ«Ğ¡»áµ¼ÖÂZwQueryDirectoryFileÀ¶ÆÁ¡£
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//è¿™ä¸ªæ•°è®¾ç½®çš„å¤ªå°ä¼šå¯¼è‡´ZwQueryDirectoryFileè“å±ã€‚
     FILE_DIRECTORY_INFORMATION * fibdi = 0;
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
@@ -71,7 +71,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
         FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
         if (FileInformation == NULL) {
             Status = STATUS_UNSUCCESSFUL;
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             ZwClose(FileHandle);
             return Status;
         }
@@ -102,7 +102,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
         UNICODE_STRING FileName = {0};
 
         if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
-            //ÕâÀï¿ÉÒÔ¿¼ÂÇµİ¹é¡£ÕâÀï·ÅÆúÁËÎÄ¼ş¼ĞµÄÏÔÊ¾¡£
+            //è¿™é‡Œå¯ä»¥è€ƒè™‘é€’å½’ã€‚è¿™é‡Œæ”¾å¼ƒäº†æ–‡ä»¶å¤¹çš„æ˜¾ç¤ºã€‚
             continue;
         }
 
@@ -130,16 +130,16 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
 
 NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 /*
-¹¦ÄÜ£ºÃ¶¾ÙÄ¿Â¼ÏÂµÄÎÄ¼ş¡£Ã»ÓĞµİ¹é¡£
+åŠŸèƒ½ï¼šæšä¸¾ç›®å½•ä¸‹çš„æ–‡ä»¶ã€‚æ²¡æœ‰é€’å½’ã€‚
 
-ÊäÈë²ÎÊı£º¿ÉÒÔÊÇÂ·¾¶£¬¾ä±ú£¬ÎÄ¼ş¶ÔÏó£¬Õâ¸ö¿ÉÒÔĞŞ¸Ä,µ«²»ÄÜÊÇÎÄ¼şÂ·¾¶¡£
+è¾“å…¥å‚æ•°ï¼šå¯ä»¥æ˜¯è·¯å¾„ï¼Œå¥æŸ„ï¼Œæ–‡ä»¶å¯¹è±¡ï¼Œè¿™ä¸ªå¯ä»¥ä¿®æ”¹,ä½†ä¸èƒ½æ˜¯æ–‡ä»¶è·¯å¾„ã€‚
 
-Â·¾¶µÄ¸ñÊ½×îºÃÊÇ£ºL"\\??\\C:\\Windows");
-»òÕß"\Device\HarddiskVolume1\XXX  \\DosDevices\\C:\\£¬²»È»»¹µÃ×ª»»£¬½á¹¹×îºÃÓÃµÄUNICODE_STRING£¬ÕâÑù°²È«¡£
+è·¯å¾„çš„æ ¼å¼æœ€å¥½æ˜¯ï¼šL"\\??\\C:\\Windows");
+æˆ–è€…"\Device\HarddiskVolume1\XXX  \\DosDevices\\C:\\ï¼Œä¸ç„¶è¿˜å¾—è½¬æ¢ï¼Œç»“æ„æœ€å¥½ç”¨çš„UNICODE_STRINGï¼Œè¿™æ ·å®‰å…¨ã€‚
 
-Õâ¸öÊÇ¸Ä½ø°æ¡£
-ÒòÎªÉÏÃæµÄº¯Êı£¬²»¿ÉÄÜÈ·¶¨Ä¿Â¼ÏÂÓĞ¶àÉÙÄ¿Â¼£¬ÈçÏµÍ³Ä¿Â¼ÏÂÓĞ¼¸Ç§¸öÎÄ¼ş¡£
-Õâ¸ö°ì·¨ÊÇÒ»¸öÒ»¸öÀ´µÄ£¬²Î¿¼ÁËKMDKITµÄµÚÊ®Ò»ÕÂ½Ì³Ì¡£
+è¿™ä¸ªæ˜¯æ”¹è¿›ç‰ˆã€‚
+å› ä¸ºä¸Šé¢çš„å‡½æ•°ï¼Œä¸å¯èƒ½ç¡®å®šç›®å½•ä¸‹æœ‰å¤šå°‘ç›®å½•ï¼Œå¦‚ç³»ç»Ÿç›®å½•ä¸‹æœ‰å‡ åƒä¸ªæ–‡ä»¶ã€‚
+è¿™ä¸ªåŠæ³•æ˜¯ä¸€ä¸ªä¸€ä¸ªæ¥çš„ï¼Œå‚è€ƒäº†KMDKITçš„ç¬¬åä¸€ç« æ•™ç¨‹ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -147,7 +147,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     HANDLE FileHandle = 0;
     IO_STATUS_BLOCK  IoStatusBlock = {0};
     PVOID FileInformation = 0;
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//Õâ¸öÊıÉèÖÃµÄÌ«Ğ¡»áµ¼ÖÂZwQueryDirectoryFileÀ¶ÆÁ¡£
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//è¿™ä¸ªæ•°è®¾ç½®çš„å¤ªå°ä¼šå¯¼è‡´ZwQueryDirectoryFileè“å±ã€‚
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwOpenFile(&FileHandle,
@@ -164,11 +164,11 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
         return Status;
     }
 
-    Length = Length + 520;//ÎªºÎ¼ÓÕâ¸öÊı×Ö£¬Çë¿´ZwEnumerateFile1µÄËµÃ÷¡£
+    Length = Length + 520;//ä¸ºä½•åŠ è¿™ä¸ªæ•°å­—ï¼Œè¯·çœ‹ZwEnumerateFile1çš„è¯´æ˜ã€‚
     FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == NULL) {
         Status = STATUS_UNSUCCESSFUL;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         ZwClose(FileHandle);
         return Status;
     }
@@ -208,13 +208,13 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
                                       NULL,
                                       FALSE);
         if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
-            break;//ÕâÀïºÃÏñÃ»ÓĞ×ß¹ı¡£
+            break;//è¿™é‡Œå¥½åƒæ²¡æœ‰èµ°è¿‡ã€‚
         }
 
         fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;
 
         if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
-            //ÕâÀï¿ÉÒÔ¿¼ÂÇµİ¹é¡£ÕâÀï·ÅÆúÁËÎÄ¼ş¼ĞµÄÏÔÊ¾¡£
+            //è¿™é‡Œå¯ä»¥è€ƒè™‘é€’å½’ã€‚è¿™é‡Œæ”¾å¼ƒäº†æ–‡ä»¶å¤¹çš„æ˜¾ç¤ºã€‚
             continue;
         }
 
@@ -238,14 +238,14 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 
 
 /*
-    //¾­²âÊÔ£¬ÕâÈıÖÖÀàĞÍµÄÂ·¾¶¶¼ÊÇ¿ÉÒÔµÄ¡£
+    //ç»æµ‹è¯•ï¼Œè¿™ä¸‰ç§ç±»å‹çš„è·¯å¾„éƒ½æ˜¯å¯ä»¥çš„ã€‚
     UNICODE_STRING directory  = RTL_CONSTANT_STRING(L"\\??\\C:\\test");
     //UNICODE_STRING directory  = RTL_CONSTANT_STRING(L"\\DosDevices\\C:\\test");
     //UNICODE_STRING directory  = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\test");
 
-    ×¢Òâ£º
-    \\Device\\HarddiskVolume1\\ÊÇ¿ÉÒÔµÄ£»
-    \\Device\\HarddiskVolume1ÊÇ²»¿ÉÒÔµÄ¡£
+    æ³¨æ„ï¼š
+    \\Device\\HarddiskVolume1\\æ˜¯å¯ä»¥çš„ï¼›
+    \\Device\\HarddiskVolume1æ˜¯ä¸å¯ä»¥çš„ã€‚
 
     ZwEnumerateFileEx(&directory);//, FileIdBothDirectoryInformation
 */
@@ -256,18 +256,18 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 
 VOID NTAPI WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer, ULONG Length)
 /*
-¹¦ÄÜ£ºĞ´´ÅÅÌµÄÉÈÇø¡£
+åŠŸèƒ½ï¼šå†™ç£ç›˜çš„æ‰‡åŒºã€‚
 
-²ÎÊı£º
-DiskIndex:´ÅÅÌË÷Òı¡£
-StartingOffset£ºĞ´ÈëÎ»ÖÃ£¬ÒÔ×Ö½ÚÎªµ¥Î»£¬ÒÔÉÈÇø±ß½ç¶ÔÆë¡£
-Buffer£ºÉÈÇøµÄ±¶Êı¡£
-Length£ºÉÈÇøµÄ±¶Êı¡£
+å‚æ•°ï¼š
+DiskIndex:ç£ç›˜ç´¢å¼•ã€‚
+StartingOffsetï¼šå†™å…¥ä½ç½®ï¼Œä»¥å­—èŠ‚ä¸ºå•ä½ï¼Œä»¥æ‰‡åŒºè¾¹ç•Œå¯¹é½ã€‚
+Bufferï¼šæ‰‡åŒºçš„å€æ•°ã€‚
+Lengthï¼šæ‰‡åŒºçš„å€æ•°ã€‚
 
-×¢Òâ£º
-1.Èç¹ûÃ»ÓĞÉèÖÃFileObject£¬ÔÚWindows 10ÉÏ£¬»áÀ¶ÆÁ£¬·¢ÉúÔÚfileinfo!FIPreReadWriteCallbackÔÚµ÷ÓÃnt!FsRtlIsPagingFileÊ±¡£
-2.´Ëº¯ÊıÔÚWindows 10ÉÏ»áÊ§°Ü¡£
-3.Ğ´µÚÒ»¸öÉÈÇøÖ®ÍâµÄÉÈÇø»áÊ§°Ü¡£
+æ³¨æ„ï¼š
+1.å¦‚æœæ²¡æœ‰è®¾ç½®FileObjectï¼Œåœ¨Windows 10ä¸Šï¼Œä¼šè“å±ï¼Œå‘ç”Ÿåœ¨fileinfo!FIPreReadWriteCallbackåœ¨è°ƒç”¨nt!FsRtlIsPagingFileæ—¶ã€‚
+2.æ­¤å‡½æ•°åœ¨Windows 10ä¸Šä¼šå¤±è´¥ã€‚
+3.å†™ç¬¬ä¸€ä¸ªæ‰‡åŒºä¹‹å¤–çš„æ‰‡åŒºä¼šå¤±è´¥ã€‚
 */
 {
     LARGE_INTEGER partitionTableOffset = {0};
@@ -277,7 +277,7 @@ Length£ºÉÈÇøµÄ±¶Êı¡£
     NTSTATUS Status = STATUS_SUCCESS;
     wchar_t deviceNameBuffer[128];
     UNICODE_STRING ObjectName;
-    PDEVICE_OBJECT DeviceObject;//Éè±¸L"\\Device\\Harddisk%d\\DR%d" »òÕß ·ûºÅÁ¬½ÓL"\\Device\\Harddisk%d\\Partition0" Ëù´ú±íµÄ¶ÔÏó¡£
+    PDEVICE_OBJECT DeviceObject;//è®¾å¤‡L"\\Device\\Harddisk%d\\DR%d" æˆ–è€… ç¬¦å·è¿æ¥L"\\Device\\Harddisk%d\\Partition0" æ‰€ä»£è¡¨çš„å¯¹è±¡ã€‚
     PFILE_OBJECT FileObject;
 
     _swprintf(deviceNameBuffer, L"\\Device\\Harddisk%d\\Partition0", DiskIndex);
@@ -341,7 +341,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
     }
 
 #pragma warning(push)
-#pragma warning(disable:4996)//±»ÉùÃ÷ÎªÒÑ·ñ¾ö
+#pragma warning(disable:4996)//è¢«å£°æ˜ä¸ºå·²å¦å†³
     partitionTableOffset = RtlConvertUlongToLargeInteger(0);// Start at sector 0 of the device.    
 #pragma warning(pop)    
     readBuffer = (PUCHAR)ExAllocatePoolWithTag(NonPagedPoolCacheAligned,
@@ -391,21 +391,21 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
                                      OUT PUNICODE_STRING usFullPath
 )
 /*
-Ğ´Õâ¸öº¯ÊıµÄÔ­ÒòÊÇ£ºFltGetFileNameInformation¶ÔÓÚ²»´æÔÚµÄÂ·¾¶»á·µ»ØÊ§°Ü¡£
-Ò²Ğí²»Ó¦¸ÃÕâÑù×ö£¬ÊµÔÚÊÇÕÒ²»µ½°ì·¨ÁË¡£
-ÕâÀïµÄÊµÏÖ°ì·¨ÊÇ£ºÈç¹ûÉÏÃæµÄÊ§°Ü£¬¾Í»ñÈ¡ÎÄ¼ş¶ÔÏóµÄÄÚÈİ¡£
+å†™è¿™ä¸ªå‡½æ•°çš„åŸå› æ˜¯ï¼šFltGetFileNameInformationå¯¹äºä¸å­˜åœ¨çš„è·¯å¾„ä¼šè¿”å›å¤±è´¥ã€‚
+ä¹Ÿè®¸ä¸åº”è¯¥è¿™æ ·åšï¼Œå®åœ¨æ˜¯æ‰¾ä¸åˆ°åŠæ³•äº†ã€‚
+è¿™é‡Œçš„å®ç°åŠæ³•æ˜¯ï¼šå¦‚æœä¸Šé¢çš„å¤±è´¥ï¼Œå°±è·å–æ–‡ä»¶å¯¹è±¡çš„å†…å®¹ã€‚
 */
 {
     PFLT_FILE_NAME_INFORMATION pfni;
     NTSTATUS Status = STATUS_SUCCESS;
 
-    //º¯Êı³É¹¦ÁË£¬º¯ÊıÍâÊÍ·Å¡£
+    //å‡½æ•°æˆåŠŸäº†ï¼Œå‡½æ•°å¤–é‡Šæ”¾ã€‚
     usFullPath->Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, MAXPATHLEN, TAG);
     if (usFullPath->Buffer == NULL) {
         return STATUS_UNSUCCESSFUL;
     }
     RtlZeroMemory(usFullPath->Buffer, MAXPATHLEN);
-    RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, MAXPATHLEN);//Ğ§¹ûÊÇÖ»ÊÇ¸Ä±ä×î´óÖµ,Õâ¸ö½á¹¹³ÉÔ±.
+    RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, MAXPATHLEN);//æ•ˆæœæ˜¯åªæ˜¯æ”¹å˜æœ€å¤§å€¼,è¿™ä¸ªç»“æ„æˆå‘˜.
 
     /*
     FltGetFileNameInformation cannot get file name information if the TopLevelIrp field of the current thread is not NULL,
@@ -428,13 +428,13 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
         ClearFlag(Cbd->Iopb->OperationFlags, SL_OPEN_TARGET_DIRECTORY);
         Status = FltGetFileNameInformation(Cbd, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_FILESYSTEM_ONLY, &pfni);
         if (!NT_SUCCESS(Status)) {
-            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÎÄ¼ş/Ä¿Â¼:%wZ£¬status:0x%#x", &FltObjects->FileObject->FileName, Status);          
+            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "æ–‡ä»¶/ç›®å½•:%wZï¼Œstatus:0x%#x", &FltObjects->FileObject->FileName, Status);          
         }
         SetFlag(Cbd->Iopb->OperationFlags, SL_OPEN_TARGET_DIRECTORY);
     } else {
         Status = FltGetFileNameInformation(Cbd, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pfni);
         if (!NT_SUCCESS(Status)) {
-            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÎÄ¼ş/Ä¿Â¼:%wZ£¬status:0x%#x", &FltObjects->FileObject->FileName, Status);
+            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "æ–‡ä»¶/ç›®å½•:%wZï¼Œstatus:0x%#x", &FltObjects->FileObject->FileName, Status);
         }
     }
 
@@ -486,11 +486,11 @@ NTSTATUS FltQueryDirectoryFile(_In_ PFLT_INSTANCE Instance,
 )
 /*++
 Routine Description:
-    ÎªXPÁ¿Éí´òÔìµÄFltQueryDirectoryFile
-    Èç¹ûÒªÔÚXPÏÂÔËĞĞ£¬ÇëÔÚXPÏÂ±àÒë£¬·ñÔòÇı¶¯¼ÓÔØÊ§°Ü¡£
+    ä¸ºXPé‡èº«æ‰“é€ çš„FltQueryDirectoryFile
+    å¦‚æœè¦åœ¨XPä¸‹è¿è¡Œï¼Œè¯·åœ¨XPä¸‹ç¼–è¯‘ï¼Œå¦åˆ™é©±åŠ¨åŠ è½½å¤±è´¥ã€‚
     This function is like ZwQueryDirectoryFile for filters
-    ¸ÄÃûÎª£ºZwQueryDirectoryFile_LongNameÉ¶µÄ½ÏºÃ¡£
-    ×¢Òâ£ºFltQueryDirectoryFileÔÚVistaÉÏÓĞ£¬ZwQueryDirectoryFileÔÚXpÉÏÓĞ¡£
+    æ”¹åä¸ºï¼šZwQueryDirectoryFile_LongNameå•¥çš„è¾ƒå¥½ã€‚
+    æ³¨æ„ï¼šFltQueryDirectoryFileåœ¨Vistaä¸Šæœ‰ï¼ŒZwQueryDirectoryFileåœ¨Xpä¸Šæœ‰ã€‚
 Arguments:
     Instance - Supplies the Instance initiating this IO.
     FileObject - Supplies the file object about which the requested information should be changed.
@@ -607,9 +607,9 @@ CopyAndReturn:
 
 VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
 /*
-¹¦ÄÜ£º´òÓ¡¹ÒÔØµÄ¶ÔÏóµÄĞÅÏ¢¡£
+åŠŸèƒ½ï¼šæ‰“å°æŒ‚è½½çš„å¯¹è±¡çš„ä¿¡æ¯ã€‚
 
-´Ëº¯ÊıÒ»°ã½¨ÒéÓÃÔÚInstanceSetupÖĞ¡£
+æ­¤å‡½æ•°ä¸€èˆ¬å»ºè®®ç”¨åœ¨InstanceSetupä¸­ã€‚
 */
 {
     NTSTATUS Status;
@@ -625,7 +625,7 @@ VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
 
     Buffer = ExAllocatePoolWithTag(PagedPool, (SIZE_T)BufferSizeNeeded + 2, TAG);
     if (Buffer == NULL) {
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "%s", "ÉêÇëÄÚ´æÊ§°Ü");
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "%s", "ç”³è¯·å†…å­˜å¤±è´¥");
         return;
     }
     RtlZeroMemory(Buffer, (size_t)BufferSizeNeeded + 2);
@@ -637,7 +637,7 @@ VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     } else {
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ĞÅÏ¢£ºattached device:%wZ", &Volume);
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ä¿¡æ¯ï¼šattached device:%wZ", &Volume);
     }
 
     ExFreePoolWithTag(Buffer, TAG);
@@ -649,15 +649,15 @@ NTSTATUS ZwGetDosFileName(_Inout_ PFLT_CALLBACK_DATA Data,
                           OUT PUNICODE_STRING DosFileName
 )
 /*
-¹¦ÄÜ£º»ñÈ¡ÎÄ¼şµÄDOSÃû¡£
-Ö÷ÒªÓÃÓÚCreateµÄÇ°ºó²Ù×÷£¬ÒòÎªºóÃæµÄ²Ù×÷¿Ï¶¨ÊÇ´Ó×Ô¼º±£³ÖµÄÉÏÏÂÎÄÖĞ»ñÈ¡µÄ¡£
+åŠŸèƒ½ï¼šè·å–æ–‡ä»¶çš„DOSåã€‚
+ä¸»è¦ç”¨äºCreateçš„å‰åæ“ä½œï¼Œå› ä¸ºåé¢çš„æ“ä½œè‚¯å®šæ˜¯ä»è‡ªå·±ä¿æŒçš„ä¸Šä¸‹æ–‡ä¸­è·å–çš„ã€‚
 
-ÕâÀïÓĞºÃ¶àÃ»ÓĞ¾íµÄÌØÊâµÄÉè±¸µÄ²Ù×÷¡£
+è¿™é‡Œæœ‰å¥½å¤šæ²¡æœ‰å·çš„ç‰¹æ®Šçš„è®¾å¤‡çš„æ“ä½œã€‚
 
-Õâ¸öº¯ÊıµÄĞÔÄÜºÍ¹¦ÄÜ¶¼²»ÈçFltGetDosFileNameºÃ¡£
-FltGetDosFileName£¬Õâ¸öº¯ÊıÊÇ×Ô¼ºĞ´µÄ£¬ÓÃµ½ÁË¾íÉÏÏÂÎÄ£¬´úÂëÕâÀï²»¹«²¼ÁË¡£
+è¿™ä¸ªå‡½æ•°çš„æ€§èƒ½å’ŒåŠŸèƒ½éƒ½ä¸å¦‚FltGetDosFileNameå¥½ã€‚
+FltGetDosFileNameï¼Œè¿™ä¸ªå‡½æ•°æ˜¯è‡ªå·±å†™çš„ï¼Œç”¨åˆ°äº†å·ä¸Šä¸‹æ–‡ï¼Œä»£ç è¿™é‡Œä¸å…¬å¸ƒäº†ã€‚
 
-IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼şÈ´²»Ò»¶¨±»´ò¿ª¡£
+IoVolumeDeviceToDosNameæ¯”IoQueryFileDosDeviceNameå®‰å…¨ï¼Œå› ä¸ºå·å·²ç»æŒ‚è½½äº†ï¼Œä½†æ˜¯æ–‡ä»¶å´ä¸ä¸€å®šè¢«æ‰“å¼€ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -667,8 +667,8 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
 
     Status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &nameInfo);
     if (!NT_SUCCESS(Status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÎÄ¼ş/Ä¿Â¼:%wZ£¬status:0x%#x", &FltObjects->FileObject->FileName, Status);//ĞÅÏ¢Ì«¶à¡£
-        return Status;//ÕâÀïÓĞ·µ»ØSTATUS_OBJECT_PATH_NOT_FOUND
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "æ–‡ä»¶/ç›®å½•:%wZï¼Œstatus:0x%#x", &FltObjects->FileObject->FileName, Status);//ä¿¡æ¯å¤ªå¤šã€‚
+        return Status;//è¿™é‡Œæœ‰è¿”å›STATUS_OBJECT_PATH_NOT_FOUND
     }
 
     Status = FltParseFileNameInformation(nameInfo);
@@ -676,7 +676,7 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
 
     Status = FltGetDiskDeviceObject(FltObjects->Volume, &DiskDeviceObject);
     if (NT_SUCCESS(Status)) {
-        Status = IoVolumeDeviceToDosName(DiskDeviceObject, &VolumeName);//ºóÃæÓĞÃ°ºÅ¡£
+        Status = IoVolumeDeviceToDosName(DiskDeviceObject, &VolumeName);//åé¢æœ‰å†’å·ã€‚
         if (NT_SUCCESS(Status)) {
             DosFileName->MaximumLength = VolumeName.MaximumLength + nameInfo->Name.MaximumLength;
             DosFileName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, DosFileName->MaximumLength, TAG);
@@ -687,7 +687,7 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
             RtlCopyUnicodeString(DosFileName, &VolumeName);
             //Status = RtlAppendUnicodeToString(DosFileName, L":");
             //ASSERT(NT_SUCCESS(Status));
-            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); //Ç°ºó¶¼ÓĞ\. 
+            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); //å‰åéƒ½æœ‰\. 
             ASSERT(NT_SUCCESS(Status));
             Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
             ASSERT(NT_SUCCESS(Status));
@@ -695,7 +695,7 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
                     Status, &FltObjects->FileObject->FileName);
         }
-    } else {//×ßÕâÀïµÄ²»ÉÙ¡£
+    } else {//èµ°è¿™é‡Œçš„ä¸å°‘ã€‚
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
                 Status, &FltObjects->FileObject->FileName);//STATUS_FLT_NO_DEVICE_OBJECT
     }
@@ -708,11 +708,11 @@ IoVolumeDeviceToDosName±ÈIoQueryFileDosDeviceName°²È«£¬ÒòÎª¾íÒÑ¾­¹ÒÔØÁË£¬µ«ÊÇÎÄ¼
 
 NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_STRING  ExistingFileName)
 /*
-¹¦ÄÜ£º´´½¨Ó²Á´½Ó¡£
-×¢Òâ£º1.ÔÚÍ¬Ò»¸ö¾í£¬
-      2.ExistingFileNameÒª´æÔÚ
-      3.ExistingFileNameÊÇÎÄ¼ş
-      4.ExistingFileNameµÄÁ´½Ó¸öÊı²»ÄÜ³¬¹ı1023.
+åŠŸèƒ½ï¼šåˆ›å»ºç¡¬é“¾æ¥ã€‚
+æ³¨æ„ï¼š1.åœ¨åŒä¸€ä¸ªå·ï¼Œ
+      2.ExistingFileNameè¦å­˜åœ¨
+      3.ExistingFileNameæ˜¯æ–‡ä»¶
+      4.ExistingFileNameçš„é“¾æ¥ä¸ªæ•°ä¸èƒ½è¶…è¿‡1023.
       5.
 
 made by correy
@@ -728,7 +728,7 @@ homepage:https://correy.webs.com
     ULONG  Length = 0;
 
     /*
-    Ò»Ğ©²ÎÊıµÄ¼ì²é¡£
+    ä¸€äº›å‚æ•°çš„æ£€æŸ¥ã€‚
     */
 
     InitializeObjectAttributes(&ob, ExistingFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
@@ -743,7 +743,7 @@ homepage:https://correy.webs.com
         return Status;
     }
 
-    //½¨ÒéÉêÇëÄÚ´æ£¬ÒòÎªFILELINKINFORMATION->FileNameµÄºóÃæÊÇÃØÃÜµÄÄÚ´æ¡£
+    //å»ºè®®ç”³è¯·å†…å­˜ï¼Œå› ä¸ºFILELINKINFORMATION->FileNameçš„åé¢æ˜¯ç§˜å¯†çš„å†…å­˜ã€‚
     Length = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + HardLinkFileName->Length;//sizeof(FILE_RENAME_INFORMATION)        
     FILELINKINFORMATION = (PFILE_LINK_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FILELINKINFORMATION == NULL) {
@@ -776,8 +776,8 @@ IoEnumerateRegisteredFiltersList enumerates only file system filter drivers (als
 It does not enumerate minifilters.
 To enumerate both minifilters and legacy filters, or only minifilters, call FltEnumerateFilterInformation.
 
-´Ë´úÂëÔÚWindows 7ÉÏ²âÊÔ³É¹¦¡£
-²»µ±Ö®´¦£¬ÇëÖ¸Õı¡£
+æ­¤ä»£ç åœ¨Windows 7ä¸Šæµ‹è¯•æˆåŠŸã€‚
+ä¸å½“ä¹‹å¤„ï¼Œè¯·æŒ‡æ­£ã€‚
 
 made by correy
 made at 2014.07.01
@@ -790,7 +790,7 @@ homepage:http://correy.webs.com
     ULONG ActualNumberDriverObjects = 0;
     ULONG i = 0;
 
-    //XPÏÂµ÷ÓÃ´Ëº¯ÊıÃ»ÓĞ·´Ó¦¡£¾ÍÊÇ¸÷¸ö²ÎÊı¼°·µ»ØÖµÒÀ¾ÉÊÇÔ­À´µÄÑù×Ó¡£
+    //XPä¸‹è°ƒç”¨æ­¤å‡½æ•°æ²¡æœ‰ååº”ã€‚å°±æ˜¯å„ä¸ªå‚æ•°åŠè¿”å›å€¼ä¾æ—§æ˜¯åŸæ¥çš„æ ·å­ã€‚
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -798,7 +798,7 @@ homepage:http://correy.webs.com
         }
     }
 
-    //XPÏÂÉêÇë´óĞ¡Îª0µÄÄÚ´æ¾¹È»³É¹¦£¬¶øÇÒ»¹¿ÉÒÔ¶ÁĞ´¡£
+    //XPä¸‹ç”³è¯·å¤§å°ä¸º0çš„å†…å­˜ç«Ÿç„¶æˆåŠŸï¼Œè€Œä¸”è¿˜å¯ä»¥è¯»å†™ã€‚
     DriverObjectListSize = ActualNumberDriverObjects * sizeof(DRIVER_OBJECT);
     DriverObjectList = (PDRIVER_OBJECT *)ExAllocatePoolWithTag(NonPagedPool, DriverObjectListSize, TAG);
     if (DriverObjectList == NULL) {
@@ -806,7 +806,7 @@ homepage:http://correy.webs.com
     }
     RtlZeroMemory(DriverObjectList, DriverObjectListSize);
 
-    //XPÏÂµ÷ÓÃ´Ëº¯ÊıÈÔÈ»Ã»ÓĞ·´Ó¦¡£¾ÍÊÇ¸÷¸ö²ÎÊı¼°·µ»ØÖµÒÀ¾ÉÊÇÔ­À´µÄÑù×Ó¡£
+    //XPä¸‹è°ƒç”¨æ­¤å‡½æ•°ä»ç„¶æ²¡æœ‰ååº”ã€‚å°±æ˜¯å„ä¸ªå‚æ•°åŠè¿”å›å€¼ä¾æ—§æ˜¯åŸæ¥çš„æ ·å­ã€‚
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
         return Status;
@@ -827,48 +827,48 @@ homepage:http://correy.webs.com
 
 
 /*
-ÎÄ¼şÃû:EnumerateFilters.C
+æ–‡ä»¶å:EnumerateFilters.C
 
-Î¢Èí²»½¨ÒéÊ¹ÓÃ:IoEnumerateRegisteredFiltersList.
+å¾®è½¯ä¸å»ºè®®ä½¿ç”¨:IoEnumerateRegisteredFiltersList.
 
-¹¦ÄÜ:enumerates all registered minifilter drivers in the system¼°ÆäÒ»Ğ©ĞÅÏ¢µÄÏÔÊ¾.
-Ä¿µÄ:Ê¾ÀıÒ»Ğ©minifilterµÄÒ»Ğ©Ã¶¾Ùº¯ÊıµÄÓÃ·¨,Àí½â,Çø±ğ.
+åŠŸèƒ½:enumerates all registered minifilter drivers in the systemåŠå…¶ä¸€äº›ä¿¡æ¯çš„æ˜¾ç¤º.
+ç›®çš„:ç¤ºä¾‹ä¸€äº›minifilterçš„ä¸€äº›æšä¸¾å‡½æ•°çš„ç”¨æ³•,ç†è§£,åŒºåˆ«.
 
-¿ÉÄÜÒªÁ¬½ÓfltMgr.lib.
-¼ÓÔØµÄ·½Ê½¿ÉÓÃÒ»°ãµÄÇı¶¯(nt·şÎñ).
+å¯èƒ½è¦è¿æ¥fltMgr.lib.
+åŠ è½½çš„æ–¹å¼å¯ç”¨ä¸€èˆ¬çš„é©±åŠ¨(ntæœåŠ¡).
 
-²Î¿¼×ÊÁÏ:
+å‚è€ƒèµ„æ–™:
 http://hi.baidu.com/kernelkit/item/95dab957bf115711aaf6d743
 http://www.inreverse.net/?p=1334
 http://blogs.msdn.com/b/alexcarp/archive/2009/08/11/issuing-io-in-minifilters-part-1-fltcreatefile.aspx
 http://blogs.msdn.com/b/alexcarp/archive/2009/09/01/issuing-io-in-minifilters-part-2-flt-vs-zw.aspx
 http://blogs.msdn.com/b/alexcarp/archive/2009/06/16/filter-manager-concepts-part-3-flt-filter.aspx
 http://blogs.msdn.com/b/alexcarp/archive/2009/06/24/filter-manager-concepts-part-4-flt-instance.aspx
-µÈ.
+ç­‰.
 
-²»×ãÖ®´¦,¾´ÇëÖ¸³ö.
+ä¸è¶³ä¹‹å¤„,æ•¬è¯·æŒ‡å‡º.
 made by correy
 made at 2013.10.23
 
-¸öÈË¸Ğ¾õFltEnumerateInstancesºÍFltEnumerateVolumes²î²»¶à.
-Çø±ğÊÇÇ°ÕßÄÜ»ñÈ¡ËùÓĞµÄminifilterµÄËùÓĞµÄÊµÀıµÄĞÅÏ¢,ºóÕßÖ»»ñÈ¡Ä³¸öminifilterµÄËùÓĞµÄ¾íÉè±¸µÄĞÅÏ¢.
-ÏàĞÅÓĞ×ª»»ºÍÁªÏµµÄº¯Êı.
+ä¸ªäººæ„Ÿè§‰FltEnumerateInstanceså’ŒFltEnumerateVolumeså·®ä¸å¤š.
+åŒºåˆ«æ˜¯å‰è€…èƒ½è·å–æ‰€æœ‰çš„minifilterçš„æ‰€æœ‰çš„å®ä¾‹çš„ä¿¡æ¯,åè€…åªè·å–æŸä¸ªminifilterçš„æ‰€æœ‰çš„å·è®¾å¤‡çš„ä¿¡æ¯.
+ç›¸ä¿¡æœ‰è½¬æ¢å’Œè”ç³»çš„å‡½æ•°.
 
-¿ªÊ¼ÒÔÎª:FltEnumerateVolumesÊÇ»ñÈ¡µÄÒ»¸öPFLT_FILTER¹ıÂËµÄ¾íÉè±¸µÄ¶ÔÏó,²»ÊÇÈ«²¿µÄ´ÅÅÌÉÏµÄ¾í.
-¾­²âÊÔÊÇ:»ñÈ¡±¾µØ¼ÆËã»úÉÏµÄ¿ÉÓÃµÄ¾í.Ò»ÏÂÊÇ»ñÈ¡²»µ½µÄ:
-1.¹âÇıÀïÃæÃ»ÓĞ¹âÅÌ.
-2.ĞéÄâ´ÅÅÌÈí¼şĞéÄâ³öÀ´µÄ¾íÉè±¸.
-3.ÍøÂçÓ³ÉäµÄÅÌ·û.
-4.substÃüÁî¸ã³öµÄÇı¶¯Æ÷ºÅ.
-5.ÈíÅÌÃ»ÓĞ²âÊÔ.
-Õâ¸öº¯ÊıµÄÈ±µãÊÇµÚÒ»¸ö²ÎÊı,¶øÇÒ»¹²»ÄÜÊÇ0,¸öÈË½¨ÒéÊÇÈ¥µôÕâ¸ö²ÎÊı.
-²»¹ıÔÚminifilterÇı¶¯ÀïÃæÊÇÓĞÕâ¸ö²ÎÊıµÄ.
+å¼€å§‹ä»¥ä¸º:FltEnumerateVolumesæ˜¯è·å–çš„ä¸€ä¸ªPFLT_FILTERè¿‡æ»¤çš„å·è®¾å¤‡çš„å¯¹è±¡,ä¸æ˜¯å…¨éƒ¨çš„ç£ç›˜ä¸Šçš„å·.
+ç»æµ‹è¯•æ˜¯:è·å–æœ¬åœ°è®¡ç®—æœºä¸Šçš„å¯ç”¨çš„å·.ä¸€ä¸‹æ˜¯è·å–ä¸åˆ°çš„:
+1.å…‰é©±é‡Œé¢æ²¡æœ‰å…‰ç›˜.
+2.è™šæ‹Ÿç£ç›˜è½¯ä»¶è™šæ‹Ÿå‡ºæ¥çš„å·è®¾å¤‡.
+3.ç½‘ç»œæ˜ å°„çš„ç›˜ç¬¦.
+4.substå‘½ä»¤æå‡ºçš„é©±åŠ¨å™¨å·.
+5.è½¯ç›˜æ²¡æœ‰æµ‹è¯•.
+è¿™ä¸ªå‡½æ•°çš„ç¼ºç‚¹æ˜¯ç¬¬ä¸€ä¸ªå‚æ•°,è€Œä¸”è¿˜ä¸èƒ½æ˜¯0,ä¸ªäººå»ºè®®æ˜¯å»æ‰è¿™ä¸ªå‚æ•°.
+ä¸è¿‡åœ¨minifilteré©±åŠ¨é‡Œé¢æ˜¯æœ‰è¿™ä¸ªå‚æ•°çš„.
 */
 
 
 void PrintFilterFullInformation(PFLT_FILTER pf)
 {
-    //ÁíÒ»¸öË¼Â·ÊÇÊ¹ÓÃ:FltEnumerateFilterInformation
+    //å¦ä¸€ä¸ªæ€è·¯æ˜¯ä½¿ç”¨:FltEnumerateFilterInformation
 
     NTSTATUS Status = STATUS_SUCCESS;
     PVOID  Buffer = 0;
@@ -884,7 +884,7 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//¶àÉêÇëÒ»±¶.
+    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//å¤šç”³è¯·ä¸€å€.
     Buffer = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (Buffer == NULL) {
         return;
@@ -901,14 +901,14 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
 
     FilterName.Buffer = pfi->FilterNameBuffer;
     FilterName.Length = pfi->FilterNameLength;
-    FilterName.MaximumLength = pfi->FilterNameLength;//²»ÔÙ¼Ó2.
+    FilterName.MaximumLength = pfi->FilterNameLength;//ä¸å†åŠ 2.
 
     //DbgPrint("FrameID:%d\n", pfi->FrameID);
     //DbgPrint("NumberOfInstances:%d\n", pfi->NumberOfInstances);
     DbgPrint("FilterName:%wZ\n", &FilterName);
 
     /*
-    ´òÓ¡µÄÄÚÈİÈçÏÂ:
+    æ‰“å°çš„å†…å®¹å¦‚ä¸‹:
     FrameID:0
     NumberOfInstances:5
     FilterName:TFsFlt
@@ -917,7 +917,7 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
     FilterName:QQSysMonX64
     FrameID:0
     NumberOfInstances:1
-    FilterName:luafv ×¢ÊÍ:Î¢ÈíµÄLUAÎÄ¼şĞéÄâ»¯É¸Ñ¡Æ÷Çı¶¯³ÌĞò.
+    FilterName:luafv æ³¨é‡Š:å¾®è½¯çš„LUAæ–‡ä»¶è™šæ‹ŸåŒ–ç­›é€‰å™¨é©±åŠ¨ç¨‹åº.
     */
 
     ExFreePoolWithTag(Buffer, TAG);
@@ -940,7 +940,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//¶àÉêÇëÒ»±¶.
+    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//å¤šç”³è¯·ä¸€å€.
     Buffer = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (Buffer == NULL) {
         return;
@@ -957,7 +957,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
 
     VolumeName.Buffer = pvsi->FilterVolumeName;
     VolumeName.Length = pvsi->FilterVolumeNameLength;
-    VolumeName.MaximumLength = pvsi->FilterVolumeNameLength;//²»ÔÙ¼Ó2.
+    VolumeName.MaximumLength = pvsi->FilterVolumeNameLength;//ä¸å†åŠ 2.
 
     //DbgPrint("Flags:%d\n", pvsi->Flags);
     //DbgPrint("FrameID:%d\n", pvsi->FrameID);
@@ -1055,11 +1055,11 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
         DbgPrint("FileSystemType :%ls\n", L"\\FileSystem\\AFSRedirector.");
         break;
     default:
-        DbgPrint("FileSystemType :%ls\n", L"·¢Éú´íÎó!");
+        DbgPrint("FileSystemType :%ls\n", L"å‘ç”Ÿé”™è¯¯!");
         break;
     }
 
-    //ÕâÀïÒ²ÒªÓÃFltObjectDereferenceÔÙÊÍ·ÅÒ»ÏÂ?
+    //è¿™é‡Œä¹Ÿè¦ç”¨FltObjectDereferenceå†é‡Šæ”¾ä¸€ä¸‹?
     FltObjectDereference(pv);
 
     ExFreePoolWithTag(Buffer, TAG);
@@ -1069,9 +1069,9 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
 void EnumerateInstances(PFLT_FILTER pf)
 {
     //FltEnumerateInstances
-    //FltGetInstanceInformation Õâ¸ö»ñÈ¡µÄÈ«ÊÇÊı×Ö,ËùÒÔ·ÅÆúÊ¹ÓÃ.
-    //FltEnumerateInstanceInformationByFilter Õâ¸ö»ñÈ¡µÄÈ«ÊÇÊı×Ö,ËùÒÔ·ÅÆúÊ¹ÓÃ.
-    //FltEnumerateInstanceInformationByVolume Õâ¸ö»ñÈ¡µÄÈ«ÊÇÊı×Ö,ËùÒÔ·ÅÆúÊ¹ÓÃ.
+    //FltGetInstanceInformation è¿™ä¸ªè·å–çš„å…¨æ˜¯æ•°å­—,æ‰€ä»¥æ”¾å¼ƒä½¿ç”¨.
+    //FltEnumerateInstanceInformationByFilter è¿™ä¸ªè·å–çš„å…¨æ˜¯æ•°å­—,æ‰€ä»¥æ”¾å¼ƒä½¿ç”¨.
+    //FltEnumerateInstanceInformationByVolume è¿™ä¸ªè·å–çš„å…¨æ˜¯æ•°å­—,æ‰€ä»¥æ”¾å¼ƒä½¿ç”¨.
 
     NTSTATUS Status = STATUS_SUCCESS;
     PFLT_INSTANCE * InstanceList = 0;
@@ -1086,7 +1086,7 @@ void EnumerateInstances(PFLT_FILTER pf)
         }
     }
 
-    InstanceListSize = sizeof(PFLT_INSTANCE) * NumberInstancesReturned * 2;//¶àÉêÇëÒ»±¶.
+    InstanceListSize = sizeof(PFLT_INSTANCE) * NumberInstancesReturned * 2;//å¤šç”³è¯·ä¸€å€.
     InstanceList = (PFLT_INSTANCE *)ExAllocatePoolWithTag(NonPagedPool, InstanceListSize, TAG);
     if (InstanceList == NULL) {
         return;
@@ -1100,14 +1100,14 @@ void EnumerateInstances(PFLT_FILTER pf)
     }
 
     for (i = 0; i < NumberInstancesReturned; i++) {
-        //´òÓ¡Ã¿¸öÊµÀıµÄĞÅÏ¢.
-        //ÏàĞÅºÍ¾íÉè±¸ÊÇÒ»ÑùµÄ,×ª»»Îª¾íÉè±¸ÔÙ´òÓ¡,ÕâÀï¾Í²»´òÓ¡ÏêÏ¸ĞÅÏ¢µÄ,Ö»´òÓ¡ÊµÀıµÄµØÖ·.
+        //æ‰“å°æ¯ä¸ªå®ä¾‹çš„ä¿¡æ¯.
+        //ç›¸ä¿¡å’Œå·è®¾å¤‡æ˜¯ä¸€æ ·çš„,è½¬æ¢ä¸ºå·è®¾å¤‡å†æ‰“å°,è¿™é‡Œå°±ä¸æ‰“å°è¯¦ç»†ä¿¡æ¯çš„,åªæ‰“å°å®ä¾‹çš„åœ°å€.
         DbgPrint("PFLT_FILTER:%p\tInstances:%p\n", pf, InstanceList[i]);
 
         FltObjectDereference(InstanceList[i]);
     }
 
-    //ÕâÀïÒ²ÒªÓÃFltObjectDereferenceÔÙÊÍ·ÅÒ»ÏÂ?
+    //è¿™é‡Œä¹Ÿè¦ç”¨FltObjectDereferenceå†é‡Šæ”¾ä¸€ä¸‹?
     FltObjectDereference(pf);
 
     ExFreePoolWithTag(InstanceList, TAG);
@@ -1116,9 +1116,9 @@ void EnumerateInstances(PFLT_FILTER pf)
 
 void EnumerateVolumes(PFLT_FILTER pf)
 {
-    //FltEnumerateVolumesÕâ¸ö»ñÈ¡È«ÁË,ÒªÃ¶¾Ù.
+    //FltEnumerateVolumesè¿™ä¸ªè·å–å…¨äº†,è¦æšä¸¾.
     //FltGetVolumeInformation
-    //FltEnumerateVolumeInformationÕâ¸ö²»ÓÃ,ÊÇ»ñÈ¡µ¥¸öµÄ,ÒªÑ­»·.
+    //FltEnumerateVolumeInformationè¿™ä¸ªä¸ç”¨,æ˜¯è·å–å•ä¸ªçš„,è¦å¾ªç¯.
 
     NTSTATUS Status = STATUS_SUCCESS;
     PFLT_VOLUME * VolumeList = 0;
@@ -1133,7 +1133,7 @@ void EnumerateVolumes(PFLT_FILTER pf)
         }
     }
 
-    VolumeListSize = sizeof(PFLT_VOLUME) * NumberVolumesReturned * 2;//¶àÉêÇëÒ»±¶.
+    VolumeListSize = sizeof(PFLT_VOLUME) * NumberVolumesReturned * 2;//å¤šç”³è¯·ä¸€å€.
 
     VolumeList = (PFLT_VOLUME *)ExAllocatePoolWithTag(NonPagedPool, VolumeListSize, TAG);
     if (VolumeList == NULL) {
@@ -1148,13 +1148,13 @@ void EnumerateVolumes(PFLT_FILTER pf)
     }
 
     for (i = 0; i < NumberVolumesReturned; i++) {
-        //´òÓ¡Ã¿¸ö¾íÉè±¸µÄĞÅÏ¢.
+        //æ‰“å°æ¯ä¸ªå·è®¾å¤‡çš„ä¿¡æ¯.
         PrintVolumeStandardInformation(VolumeList[i]);
 
         FltObjectDereference(VolumeList[i]);
     }
 
-    //ÕâÀïÒ²ÒªÓÃFltObjectDereferenceÔÙÊÍ·ÅÒ»ÏÂ?
+    //è¿™é‡Œä¹Ÿè¦ç”¨FltObjectDereferenceå†é‡Šæ”¾ä¸€ä¸‹?
     FltObjectDereference(pf);
 
     ExFreePoolWithTag(VolumeList, TAG);
@@ -1170,7 +1170,7 @@ NTSTATUS EnumerateFilters()
     ULONG i;
 
     //Because filters can register at any time, two calls to FltEnumerateFilters are not guaranteed to return the same result.
-    //È·±£Á½´Îµ÷ÓÃFltEnumerateFiltersÆÚ¼ä²»Òª¼ÓÔØ»òÕßĞ¶ÔØminifilter.½¨ÒéÊ¹ÓÃrundown»úÖÆ.
+    //ç¡®ä¿ä¸¤æ¬¡è°ƒç”¨FltEnumerateFiltersæœŸé—´ä¸è¦åŠ è½½æˆ–è€…å¸è½½minifilter.å»ºè®®ä½¿ç”¨rundownæœºåˆ¶.
     Status = FltEnumerateFilters(0, FilterListSize, &NumberFiltersReturned);
     if (!NT_SUCCESS(Status)) //#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
     {
@@ -1179,9 +1179,9 @@ NTSTATUS EnumerateFilters()
         }
     }
 
-    //½¨ÒéÃ¿´Î³É¹¦µÄµ÷ÓÃÖ®ºó¶¼µ÷ÓÃ:VOID FltObjectDereference(_Inout_  PVOID FltObject);
+    //å»ºè®®æ¯æ¬¡æˆåŠŸçš„è°ƒç”¨ä¹‹åéƒ½è°ƒç”¨:VOID FltObjectDereference(_Inout_  PVOID FltObject);
 
-    FilterListSize = sizeof(PFLT_FILTER) * NumberFiltersReturned * 2;//¶àÉêÇëÒ»±¶.
+    FilterListSize = sizeof(PFLT_FILTER) * NumberFiltersReturned * 2;//å¤šç”³è¯·ä¸€å€.
     FilterList = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, FilterListSize, TAG);
     if (FilterList == NULL) {
         return Status;
@@ -1194,17 +1194,17 @@ NTSTATUS EnumerateFilters()
         return Status;
     }
 
-    //Ğ¶ÔØËùÓĞÒÑ¾­×¢²áµÄminifilter.ÀíÂÛÉÏ±ÈÄ¨È¥Î´¹«¿ªµÄ½á¹¹ºÃ.ÕâÀïÔİÊ±×¢ÊÍµô.
+    //å¸è½½æ‰€æœ‰å·²ç»æ³¨å†Œçš„minifilter.ç†è®ºä¸Šæ¯”æŠ¹å»æœªå…¬å¼€çš„ç»“æ„å¥½.è¿™é‡Œæš‚æ—¶æ³¨é‡Šæ‰.
     //for (i = 0;i < NumberFiltersReturned;i++)
     //{
-    //    FltUnregisterFilter(FilterList[i]);//ÓĞµÄÇı¶¯»áÓÀÔ¶Í£Ö¹ÔÚÕâÀï.
+    //    FltUnregisterFilter(FilterList[i]);//æœ‰çš„é©±åŠ¨ä¼šæ°¸è¿œåœæ­¢åœ¨è¿™é‡Œ.
     //}
 
     /*
-    ÔÚÕâÀï¿ÉÒÔÁĞ¾ÙÒ»Ğ©minifilterµÄĞÅÏ¢
-    ÉõÖÁÃ¿¸öminifilter¹ıÂËµÄÃ¿¸ö¾íÉè±¸µÄĞÅÏ¢.
+    åœ¨è¿™é‡Œå¯ä»¥åˆ—ä¸¾ä¸€äº›minifilterçš„ä¿¡æ¯
+    ç”šè‡³æ¯ä¸ªminifilterè¿‡æ»¤çš„æ¯ä¸ªå·è®¾å¤‡çš„ä¿¡æ¯.
 
-    PFLT_FILTERÊÇ¸öÎª¹«¿ªµÄÊı¾İ½á¹¹,¸÷¸ö°æ±¾µÄ½á¹¹²»Ò».
+    PFLT_FILTERæ˜¯ä¸ªä¸ºå…¬å¼€çš„æ•°æ®ç»“æ„,å„ä¸ªç‰ˆæœ¬çš„ç»“æ„ä¸ä¸€.
 
     0: kd> vertarget
     Windows 7 Kernel Version 7601 (Service Pack 1) MP (2 procs) Free x64
@@ -1245,7 +1245,7 @@ NTSTATUS EnumerateFilters()
     +0x238 PortList         : _FLT_MUTEX_LIST_HEAD
     +0x288 PortLock         : _EX_PUSH_LOCK
 
-    ÔÙ¸½¼ÓÁ½¸ö½á¹¹:
+    å†é™„åŠ ä¸¤ä¸ªç»“æ„:
     1: kd> dt _FLT_INSTANCE
     fltmgr!_FLT_INSTANCE
     +0x000 Base             : _FLT_OBJECT
@@ -1287,14 +1287,14 @@ NTSTATUS EnumerateFilters()
     +0x728 TxVolContextListLock : _EX_PUSH_LOCK
     +0x730 TxVolContexts    : _TREE_ROOT
 
-    ²»¹ı½¨ÒéÊ¹ÓÃ:FltEnumerateFilterInformation»òÕßFltGetFilterInformation»ñÈ¡¸÷ÖÖĞÅÏ¢.
+    ä¸è¿‡å»ºè®®ä½¿ç”¨:FltEnumerateFilterInformationæˆ–è€…FltGetFilterInformationè·å–å„ç§ä¿¡æ¯.
     */
 
-    //´òÓ¡Ã¿¸öÇı¶¯µÄĞÅÏ¢,ÕâÀïÑ¡ÔñFilterFullInformationÀàĞÍ.
+    //æ‰“å°æ¯ä¸ªé©±åŠ¨çš„ä¿¡æ¯,è¿™é‡Œé€‰æ‹©FilterFullInformationç±»å‹.
     for (i = 0; i < NumberFiltersReturned; i++) {
-        PrintFilterFullInformation(FilterList[i]);//´òÓ¡ÏµÍ³µÄËùÓĞµÄminifilter Çı¶¯.
-        EnumerateInstances(FilterList[i]);//Ã¶¾ÙÃ¿¸öminifilterÇı¶¯µÄÃ¿¸ö¹ıÂËÉè±¸µÄÊµÀı,ÀïÃæ¿ÉÒÔ»ñÈ¡¸ü¶àµÄĞÅÏ¢.
-        EnumerateVolumes(FilterList[i]);//Ã¶¾ÙÃ¿¸öminifilterÇı¶¯µÄÃ¿¸ö¾íÉè±¸µÄĞÅÏ¢,ÀïÃæ¿ÉÒÔ»ñÈ¡¸ü¶àµÄĞÅÏ¢,ÆäÊµºÍÉÏÃæµÄ²î²»¶à.
+        PrintFilterFullInformation(FilterList[i]);//æ‰“å°ç³»ç»Ÿçš„æ‰€æœ‰çš„minifilter é©±åŠ¨.
+        EnumerateInstances(FilterList[i]);//æšä¸¾æ¯ä¸ªminifilteré©±åŠ¨çš„æ¯ä¸ªè¿‡æ»¤è®¾å¤‡çš„å®ä¾‹,é‡Œé¢å¯ä»¥è·å–æ›´å¤šçš„ä¿¡æ¯.
+        EnumerateVolumes(FilterList[i]);//æšä¸¾æ¯ä¸ªminifilteré©±åŠ¨çš„æ¯ä¸ªå·è®¾å¤‡çš„ä¿¡æ¯,é‡Œé¢å¯ä»¥è·å–æ›´å¤šçš„ä¿¡æ¯,å…¶å®å’Œä¸Šé¢çš„å·®ä¸å¤š.
 
         DbgPrint("\n\n");
     }
@@ -1315,7 +1315,7 @@ NTSTATUS EnumerateFilters()
 
 
 /*
-Ğ§¹ûÈçÏÂ:
+æ•ˆæœå¦‚ä¸‹:
 0: kd> g
 FilterName:TFsFlt
 PFLT_FILTER:FFFFFA800433E010	Instances:FFFFFA8004432C60
@@ -1373,7 +1373,7 @@ FileSystemType :\FileSystem\Ntfs.
 VolumeName:\Device\HarddiskVolume4
 FileSystemType :\FileSystem\Ntfs.
 
-ÑéÖ¤Ò»ÏÂ:
+éªŒè¯ä¸€ä¸‹:
 0: kd> !fltkd.filters
 
 Filter List: fffffa8003e690c0 "Frame 0"
@@ -1422,7 +1422,7 @@ Could not read field "Number" of fltmgr!_EX_RUNDOWN_REF_CACHE_AWARE from address
 
 
 /*
-Õâ¸öÕª×Ô£ºfilemon¡£
+è¿™ä¸ªæ‘˜è‡ªï¼šfilemonã€‚
 */
 CHAR * NtfsMetadataFileNames[] = {
     "$Mft",
@@ -1442,28 +1442,28 @@ CHAR * NtfsMetadataFileNames[] = {
 
 void PrintNtfsMetadataFileName(_In_ PFLT_INSTANCE Instance, _In_ PFILE_OBJECT FileObject)
 /*
-¹¦ÄÜ£ºÊ¶±ğNTFS/REFSµÈÎÄ¼şÏµÍ³µÄÔªÊı¾İ¡£
+åŠŸèƒ½ï¼šè¯†åˆ«NTFS/REFSç­‰æ–‡ä»¶ç³»ç»Ÿçš„å…ƒæ•°æ®ã€‚
 
-ÕâÀïÊÇ£ºftlµÄÊµÏÖ£¬»¹ÓĞzwµÄÊµÏÖ¡£
+è¿™é‡Œæ˜¯ï¼šftlçš„å®ç°ï¼Œè¿˜æœ‰zwçš„å®ç°ã€‚
 
-²Î¿¼£º
+å‚è€ƒï¼š
 1.filemon.c
 2.Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver
 3.passThrough
 
-×¢ÒâÔÚ¾íµÄÊµÀı»¯/¹ÒÔØµÄÊ±ºò¿ÉÒÔÑ¡Ôñ£º
+æ³¨æ„åœ¨å·çš„å®ä¾‹åŒ–/æŒ‚è½½çš„æ—¶å€™å¯ä»¥é€‰æ‹©ï¼š
 if (VolumeFilesystemType != FLT_FSTYPE_NTFS && VolumeFilesystemType != FLT_FSTYPE_FAT && VolumeFilesystemType != FLT_FSTYPE_REFS)
 {
     Status = STATUS_NOT_SUPPORTED;
     ......
 }
 
-ÆäÊµ:
-1.filemonºÜ¾Ã£¬µ«ÊÇºÜÓĞ²Î¿¼µÄ¼ÛÖµ¡£
-2.Windows 8 Driver Samples\Metadata Manager File System Minifilter DriverºÜÀÛ×¸£¬ÔÚwin 10ÉÏºÃ¶àÏûÏ¢¶¼Ã»ÓĞÀ¹½Øµ½£¬¿ÉÒÔÓÃProcmon.exe¹ıÂË":\$"×ö±È½Ï.
-3.ËùÒÔÕıÈ·µÄºÍÂú×ã×Ô¼ºĞèÇóµÄ»¹ÊÇ×Ô¼ºÀ´¡£
+å…¶å®:
+1.filemonå¾ˆä¹…ï¼Œä½†æ˜¯å¾ˆæœ‰å‚è€ƒçš„ä»·å€¼ã€‚
+2.Windows 8 Driver Samples\Metadata Manager File System Minifilter Driverå¾ˆç´¯èµ˜ï¼Œåœ¨win 10ä¸Šå¥½å¤šæ¶ˆæ¯éƒ½æ²¡æœ‰æ‹¦æˆªåˆ°ï¼Œå¯ä»¥ç”¨Procmon.exeè¿‡æ»¤":\$"åšæ¯”è¾ƒ.
+3.æ‰€ä»¥æ­£ç¡®çš„å’Œæ»¡è¶³è‡ªå·±éœ€æ±‚çš„è¿˜æ˜¯è‡ªå·±æ¥ã€‚
 
-//ÆäÊµÕâ¸ö¿ÉÒÔÎª¹ıÂËµÄÌõ¼ş¡£Õª×Ô£º\Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver
+//å…¶å®è¿™ä¸ªå¯ä»¥ä¸ºè¿‡æ»¤çš„æ¡ä»¶ã€‚æ‘˜è‡ªï¼š\Windows 8 Driver Samples\Metadata Manager File System Minifilter Driver
 FLT_ASSERT((!(Data->Iopb->TargetFileObject->FileName.Length == 0 && Data->Iopb->TargetFileObject->RelatedFileObject == NULL)) ||
             FlagOn(Data->Iopb->TargetFileObject->Flags, FO_VOLUME_OPEN));
 
@@ -1494,8 +1494,8 @@ http://correy.webs.com
 
 BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
 /*
-¹¦ÄÜ:ÅĞ¶ÏÎÄ¼ş´æÔÚ²»£¿
-×¢Òâ£ºÕâÀïÃ»ÓĞ¿¼ÂÇ±ğµÄ´ò¿ªÊ§°ÜµÄÇé¿ö¡£
+åŠŸèƒ½:åˆ¤æ–­æ–‡ä»¶å­˜åœ¨ä¸ï¼Ÿ
+æ³¨æ„ï¼šè¿™é‡Œæ²¡æœ‰è€ƒè™‘åˆ«çš„æ‰“å¼€å¤±è´¥çš„æƒ…å†µã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -1506,7 +1506,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
     PFLT_FILE_NAME_INFORMATION NameInfo = NULL;
 
     if (IRP_MJ_CREATE != Data->Iopb->MajorFunction) {
-        return B;//Ö»Ö§³ÖÕâ¸ö²Ù×÷¡£
+        return B;//åªæ”¯æŒè¿™ä¸ªæ“ä½œã€‚
     }
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
@@ -1550,7 +1550,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
     } while (FALSE);
 
     if (FileHandle) {
-        Status = FltClose(FileHandle);//ÑÏ½ûÊ¹ÓÃZwClose£¬·ñÕß×ÊÔ´Ğ¹Â¶£¬Çı¶¯³ÌĞòÑéÖ¤Æ÷ÏÂ»á¼ì²âµ½¡£
+        Status = FltClose(FileHandle);//ä¸¥ç¦ä½¿ç”¨ZwCloseï¼Œå¦è€…èµ„æºæ³„éœ²ï¼Œé©±åŠ¨ç¨‹åºéªŒè¯å™¨ä¸‹ä¼šæ£€æµ‹åˆ°ã€‚
     }
 
     if (NameInfo) {
@@ -1563,14 +1563,14 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
 
 void GetResultOfCreateDisposition(_Inout_ PFLT_CALLBACK_DATA Data)
 /*
-¹¦ÄÜ£º¸ù¾İCreateDispositionµÄÖµÅĞ¶Ï³ö½á¹û(OPEN,CREATE,DELETEDÖ»ÓĞÕâÈıÖÖ£¬ÕâÊÇ±¾º¯ÊıÖ¸¶¨µÄ£¬¹æÔò¿ÉÉÌÌÖ)¡£
-      ½ö½öÊÊÓÃÓÚPreCreateFile¡£
+åŠŸèƒ½ï¼šæ ¹æ®CreateDispositionçš„å€¼åˆ¤æ–­å‡ºç»“æœ(OPEN,CREATE,DELETEDåªæœ‰è¿™ä¸‰ç§ï¼Œè¿™æ˜¯æœ¬å‡½æ•°æŒ‡å®šçš„ï¼Œè§„åˆ™å¯å•†è®¨)ã€‚
+      ä»…ä»…é€‚ç”¨äºPreCreateFileã€‚
 
-ÁíÒ»×ö·¨ºÍË¼Â·£ºÖ»ÒªÓĞ´´½¨µÄÒâÍ¼µÄ£¬¶¼Îª´´½¨£¬ÎŞÂÛÊÇ·ñ´æÔÚ£¬ÒÔ¼°È¨ÏŞÖ®ÀàµÄÏŞÖÆ¡£
+å¦ä¸€åšæ³•å’Œæ€è·¯ï¼šåªè¦æœ‰åˆ›å»ºçš„æ„å›¾çš„ï¼Œéƒ½ä¸ºåˆ›å»ºï¼Œæ— è®ºæ˜¯å¦å­˜åœ¨ï¼Œä»¥åŠæƒé™ä¹‹ç±»çš„é™åˆ¶ã€‚
 
-×¢Òâ£º´Ëº¯Êı¶ÔpipeÓĞ¶ñÁÓÓ°Ïì£¬½¨Òé²»Ê¹ÓÃ£¬ÆäºËĞÄÓ¦¸ÃÊÇIsFileExistº¯Êı¡£
+æ³¨æ„ï¼šæ­¤å‡½æ•°å¯¹pipeæœ‰æ¶åŠ£å½±å“ï¼Œå»ºè®®ä¸ä½¿ç”¨ï¼Œå…¶æ ¸å¿ƒåº”è¯¥æ˜¯IsFileExistå‡½æ•°ã€‚
 
-¼ì²é¹æÔò£º
+æ£€æŸ¥è§„åˆ™ï¼š
 Value              Meaning
 FILE_SUPERSEDE     If the file already exists, replace it with the given file. If it does not, create the given file.
 FILE_CREATE        If the file already exists, fail the request and do not create or open the given file. If it does not, create the given file.
@@ -1578,7 +1578,7 @@ FILE_OPEN          If the file already exists, open it instead of creating a new
 FILE_OPEN_IF       If the file already exists, open it. If it does not, create the given file.
 FILE_OVERWRITE     If the file already exists, open it and overwrite it. If it does not, fail the request.
 FILE_OVERWRITE_IF  If the file already exists, open it and overwrite it. If it does not, create the given file.
-ÒÔÉÏĞÅÏ¢Õª×Ô£º
+ä»¥ä¸Šä¿¡æ¯æ‘˜è‡ªï¼š
 https://docs.microsoft.com/zh-cn/windows/win32/api/winternl/nf-winternl-ntcreatefile?redirectedfrom=MSDN
 http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
 */
@@ -1586,14 +1586,14 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
     UCHAR CreateDisposition = (UCHAR)(Data->Iopb->Parameters.Create.Options >> 24);
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
-        return;//¶ÔÓÚÄ¿Â¼²»´¦Àí£¬·Å¹ı¡£
+        return;//å¯¹äºç›®å½•ä¸å¤„ç†ï¼Œæ”¾è¿‡ã€‚
     }
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
         return;
     }
 
-    //¶ÔÓÚÎÄ¼ş²»´æÔÚµÄ£¬²»´¦Àí£¬Ö»´¦ÀíÎÄ¼şÒÑ¾­´æÔÚµÄ¡£
+    //å¯¹äºæ–‡ä»¶ä¸å­˜åœ¨çš„ï¼Œä¸å¤„ç†ï¼Œåªå¤„ç†æ–‡ä»¶å·²ç»å­˜åœ¨çš„ã€‚
     if (IsFileExist(Data)) {
         switch (CreateDisposition) {
         case FILE_SUPERSEDE:
@@ -1644,7 +1644,7 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
         }
     }
 
-    //ÔÙÀ´¸ö°²È«¼ì²é¡£
+    //å†æ¥ä¸ªå®‰å…¨æ£€æŸ¥ã€‚
 
     return;//ret
 }

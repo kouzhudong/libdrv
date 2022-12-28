@@ -7,10 +7,10 @@
 
 NTSTATUS ZwEnumerateKeyEx(IN UNICODE_STRING * Name)
 /*
-ÏÔÊ¾Ò»¸ö×¢²á±íµÄ¼üÏÂµÄ£º×Ó¼ü£¬Ãû×Ö£¬ÀàĞÍ£¬Êı¾İ¡£
-×¢Òâ£ºÃ»ÓĞµİ¹éÏÔÊ¾¡£
+æ˜¾ç¤ºä¸€ä¸ªæ³¨å†Œè¡¨çš„é”®ä¸‹çš„ï¼šå­é”®ï¼Œåå­—ï¼Œç±»å‹ï¼Œæ•°æ®ã€‚
+æ³¨æ„ï¼šæ²¡æœ‰é€’å½’æ˜¾ç¤ºã€‚
 
-ÓÃ·¨Ê¾Àı£º
+ç”¨æ³•ç¤ºä¾‹ï¼š
     UNICODE_STRING test = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control");//\\Session Manager
     Status = ZwEnumerateKeyEx(&test);
     if( !NT_SUCCESS( Status ) )
@@ -18,8 +18,8 @@ NTSTATUS ZwEnumerateKeyEx(IN UNICODE_STRING * Name)
         DbgPrint("ZwEnumerateKeyEx fail with 0x%x\n", Status);
     }
 
-Zw²ã´ÎµÄ×¢²á±í²Ù×÷ºÜ¼òµ¥¡£
-µ«ÊÇ×öÓë²»×ö»¹ÊÇÓĞµãÇø±ğµÄ¡£
+Zwå±‚æ¬¡çš„æ³¨å†Œè¡¨æ“ä½œå¾ˆç®€å•ã€‚
+ä½†æ˜¯åšä¸ä¸åšè¿˜æ˜¯æœ‰ç‚¹åŒºåˆ«çš„ã€‚
 
 made by correy
 made at 2014.07.24
@@ -39,18 +39,18 @@ made at 2014.07.24
     }
 
     /*
-    ×¢ÒâZwQueryKeyµÄµÚÒ»¸ö²ÎÊı¡£
+    æ³¨æ„ZwQueryKeyçš„ç¬¬ä¸€ä¸ªå‚æ•°ã€‚
     The KeyHandle passed to ZwQueryKey must have been opened with KEY_QUERY_VALUE access.
-    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ, 
+    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ,
     or KEY_ALL_ACCESS as the DesiredAccess parameter to ZwCreateKey or ZwOpenKey.
     */
 
-    // µÚÒ»´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡ĞèÒªµÄ³¤¶È
+    // ç¬¬ä¸€æ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–éœ€è¦çš„é•¿åº¦
     Status = ZwQueryKey(KeyHandle, KeyFullInformation, NULL, 0, &ResultLength);
     if (!NT_SUCCESS(Status)) {
-        if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+        if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
         {
-            //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+            //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
         } else {
             ZwClose(KeyHandle);
             return Status;
@@ -58,7 +58,7 @@ made at 2014.07.24
     }
 
     //ResultLength += MAX_PATH ;
-    //ResultLength *= 2;//¶àÉêÇëÒ»°ë¡£
+    //ResultLength *= 2;//å¤šç”³è¯·ä¸€åŠã€‚
     pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
     if (pfi == NULL) {
         //If ExAllocatePool returns NULL, the caller should return the NTSTATUS value STATUS_INSUFFICIENT_RESOURCES or should delay processing to another point in time.
@@ -67,25 +67,25 @@ made at 2014.07.24
         return Status;
     }
 
-    // µÚ¶ş´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡Êı¾İ
-    Status = ZwQueryKey(KeyHandle, KeyFullInformation, pfi, ResultLength, &ResultLength);//ÉÙÁË¸³Öµ¡£ÕâµÈµÍ¼¶µÄ´íÎó¡£
+    // ç¬¬äºŒæ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–æ•°æ®
+    Status = ZwQueryKey(KeyHandle, KeyFullInformation, pfi, ResultLength, &ResultLength);//å°‘äº†èµ‹å€¼ã€‚è¿™ç­‰ä½çº§çš„é”™è¯¯ã€‚
     if (!NT_SUCCESS(Status)) {
         ExFreePool(pfi);
         ZwClose(KeyHandle);
         return Status;
     }
 
-    //Ã¶¾Ù×Ó¼ü¡£
+    //æšä¸¾å­é”®ã€‚
     for (i = 0; i < pfi->SubKeys; i++) {
         PKEY_BASIC_INFORMATION pbi;
         UNICODE_STRING us;
 
-        // »ñÈ¡µÚi¸ö×ÓÏîµÄ³¤¶È
+        // è·å–ç¬¬iä¸ªå­é¡¹çš„é•¿åº¦
         Status = ZwEnumerateKey(KeyHandle, i, KeyBasicInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 break;
             }
@@ -97,7 +97,7 @@ made at 2014.07.24
             break;
         }
 
-        // »ñÈ¡µÚi¸ö×ÓÏîµÄÊı¾İ
+        // è·å–ç¬¬iä¸ªå­é¡¹çš„æ•°æ®
         Status = ZwEnumerateKey(KeyHandle, i, KeyBasicInformation, pbi, ResultLength, &ResultLength);
         if (!NT_SUCCESS(Status)) {
             ExFreePool(pbi);
@@ -111,14 +111,14 @@ made at 2014.07.24
         DbgPrint("subkey:%wZ\n", &us);
 
         /*
-        ÔÚÕâÀï×éºÏ×Ö·û´®£¬¿ÉÒÔ¿¼ÂÇµİ¹éÃ¶¾Ù¡£
+        åœ¨è¿™é‡Œç»„åˆå­—ç¬¦ä¸²ï¼Œå¯ä»¥è€ƒè™‘é€’å½’æšä¸¾ã€‚
         */
 
-        ExFreePool(pbi);// ÊÍ·ÅÄÚ´æ
+        ExFreePool(pbi);// é‡Šæ”¾å†…å­˜
     }
 
-    //Ã¶¾ÙÃû×Ö£¬ÀàĞÍ£¬Êı¾İ¡£
-    for (i = 0; i < pfi->Values; i++) //¿ÉÒÔ¿¼ÂÇÓÃZwQueryValueKey»ñÈ¡ÊıÁ¿¡£MSDN¹ØÓÚÕâ¸ö³ÉÔ±µÄ½âÊÍÊÇ£ºThe number of value entries for this key.
+    //æšä¸¾åå­—ï¼Œç±»å‹ï¼Œæ•°æ®ã€‚
+    for (i = 0; i < pfi->Values; i++) //å¯ä»¥è€ƒè™‘ç”¨ZwQueryValueKeyè·å–æ•°é‡ã€‚MSDNå…³äºè¿™ä¸ªæˆå‘˜çš„è§£é‡Šæ˜¯ï¼šThe number of value entries for this key.
     {
         PKEY_VALUE_BASIC_INFORMATION pkvbi;
         UNICODE_STRING us;
@@ -127,12 +127,12 @@ made at 2014.07.24
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        // »ñÈ¡Ãû×Ö¼°ÀàĞÍ¡£
+        // è·å–åå­—åŠç±»å‹ã€‚
         Status = ZwEnumerateValueKey(KeyHandle, i, KeyValueBasicInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 break;
             }
@@ -153,12 +153,12 @@ made at 2014.07.24
         us.MaximumLength = us.Length;
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        // »ñÈ¡Êı¾İ
+        // è·å–æ•°æ®
         Status = ZwEnumerateValueKey(KeyHandle, i, KeyValuePartialInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 ExFreePool(pkvbi);
                 break;
@@ -177,7 +177,7 @@ made at 2014.07.24
             break;
         }
 
-        data.Buffer = (PWCH)pkvpi->Data;//ÓĞµÄÊı¾İ¿ÉÄÜÎŞ·¨ÏÔÊ¾¡£
+        data.Buffer = (PWCH)pkvpi->Data;//æœ‰çš„æ•°æ®å¯èƒ½æ— æ³•æ˜¾ç¤ºã€‚
         data.Length = (USHORT)pkvpi->DataLength;
         data.MaximumLength = data.Length;
 
@@ -185,7 +185,7 @@ made at 2014.07.24
 
         DbgPrint("name:%wZ,type:%d,data:%wZ\n", &us, pkvbi->Type, &data);
 
-        ExFreePool(pkvbi);// ÊÍ·ÅÄÚ´æ
+        ExFreePool(pkvbi);// é‡Šæ”¾å†…å­˜
         ExFreePool(pkvpi);
     }
 
@@ -198,15 +198,15 @@ made at 2014.07.24
 
 NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 /*
-¸´ÖÆÒ»¸ö×¢²á±íµÄ¼üÏÂµÄ£º×Ó¼ü£¬Ãû×Ö£¬ÀàĞÍ£¬Êı¾İ¡£
-×¢Òâ£º
-1.Ã»ÓĞµİ¹é¸´ÖÆ¡£
-2.Ã»ÓĞ¸´ÖÆ£¨°²È«£©ÊôĞÔ¡£
-3.Ã»ÓĞ¶Ô²ÎÊıµÄÓĞĞ§ĞÔ½øĞĞ¼ì²é¡£×Ö·û´®µÄÄ©Î²²»Òª´øL'\\'.
-4.È·ÈÏÊ¹ÓÃÇ°ÕâÁ½¸öÂ·¾¶ÊÇ´æÔÚµÄ¡£
-5.¸ü¶àµÄÈ±Ïİ£¬ÇëÄã²¹³ä¾ÀÕı¡£¸ü¶àµÄ¹¦ÄÜµÈ´ıÄãµÄ·¢»Ó¡£
+å¤åˆ¶ä¸€ä¸ªæ³¨å†Œè¡¨çš„é”®ä¸‹çš„ï¼šå­é”®ï¼Œåå­—ï¼Œç±»å‹ï¼Œæ•°æ®ã€‚
+æ³¨æ„ï¼š
+1.æ²¡æœ‰é€’å½’å¤åˆ¶ã€‚
+2.æ²¡æœ‰å¤åˆ¶ï¼ˆå®‰å…¨ï¼‰å±æ€§ã€‚
+3.æ²¡æœ‰å¯¹å‚æ•°çš„æœ‰æ•ˆæ€§è¿›è¡Œæ£€æŸ¥ã€‚å­—ç¬¦ä¸²çš„æœ«å°¾ä¸è¦å¸¦L'\\'.
+4.ç¡®è®¤ä½¿ç”¨å‰è¿™ä¸¤ä¸ªè·¯å¾„æ˜¯å­˜åœ¨çš„ã€‚
+5.æ›´å¤šçš„ç¼ºé™·ï¼Œè¯·ä½ è¡¥å……çº æ­£ã€‚æ›´å¤šçš„åŠŸèƒ½ç­‰å¾…ä½ çš„å‘æŒ¥ã€‚
 
-ÓÃ·¨£º
+ç”¨æ³•ï¼š
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING test = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager");
     UNICODE_STRING test2 = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager2");
@@ -232,18 +232,18 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
     }
 
     /*
-    ×¢ÒâZwQueryKeyµÄµÚÒ»¸ö²ÎÊı¡£
+    æ³¨æ„ZwQueryKeyçš„ç¬¬ä¸€ä¸ªå‚æ•°ã€‚
     The KeyHandle passed to ZwQueryKey must have been opened with KEY_QUERY_VALUE access.
-    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ, 
+    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ,
     or KEY_ALL_ACCESS as the DesiredAccess parameter to ZwCreateKey or ZwOpenKey.
     */
 
-    // µÚÒ»´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡ĞèÒªµÄ³¤¶È
+    // ç¬¬ä¸€æ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–éœ€è¦çš„é•¿åº¦
     Status = ZwQueryKey(KeyHandle, KeyFullInformation, NULL, 0, &ResultLength);
     if (!NT_SUCCESS(Status)) {
-        if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+        if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
         {
-            //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+            //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
         } else {
             ZwClose(KeyHandle);
             return Status;
@@ -251,7 +251,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
     }
 
     //ResultLength += MAX_PATH ;
-    //ResultLength *= 2;//¶àÉêÇëÒ»°ë¡£
+    //ResultLength *= 2;//å¤šç”³è¯·ä¸€åŠã€‚
     pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
     if (pfi == NULL) {
         //If ExAllocatePool returns NULL, 
@@ -261,15 +261,15 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         return Status;
     }
 
-    // µÚ¶ş´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡Êı¾İ
-    Status = ZwQueryKey(KeyHandle, KeyFullInformation, pfi, ResultLength, &ResultLength);//ÉÙÁË¸³Öµ¡£ÕâµÈµÍ¼¶µÄ´íÎó¡£
+    // ç¬¬äºŒæ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–æ•°æ®
+    Status = ZwQueryKey(KeyHandle, KeyFullInformation, pfi, ResultLength, &ResultLength);//å°‘äº†èµ‹å€¼ã€‚è¿™ç­‰ä½çº§çš„é”™è¯¯ã€‚
     if (!NT_SUCCESS(Status)) {
         ExFreePool(pfi);
         ZwClose(KeyHandle);
         return Status;
     }
 
-    //Ã¶¾Ù×Ó¼ü¡£
+    //æšä¸¾å­é”®ã€‚
     for (i = 0; i < pfi->SubKeys; i++) {
         PKEY_BASIC_INFORMATION pbi;
         UNICODE_STRING us;
@@ -279,12 +279,12 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         PUNICODE_STRING Class = NULL;
         ULONG  Disposition;
 
-        // »ñÈ¡µÚi¸ö×ÓÏîµÄ³¤¶È
+        // è·å–ç¬¬iä¸ªå­é¡¹çš„é•¿åº¦
         Status = ZwEnumerateKey(KeyHandle, i, KeyBasicInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 break;
             }
@@ -296,7 +296,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
             break;
         }
 
-        // »ñÈ¡µÚi¸ö×ÓÏîµÄÊı¾İ
+        // è·å–ç¬¬iä¸ªå­é¡¹çš„æ•°æ®
         Status = ZwEnumerateKey(KeyHandle, i, KeyBasicInformation, pbi, ResultLength, &ResultLength);
         if (!NT_SUCCESS(Status)) {
             ExFreePool(pbi);
@@ -309,7 +309,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
         DbgPrint("subkey:%wZ\n", &us);
 
-        //¿ªÊ¼ĞÂ½¨¡£
+        //å¼€å§‹æ–°å»ºã€‚
 
         new_key.Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
         if (new_key.Buffer == NULL) {
@@ -341,13 +341,13 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         InitializeObjectAttributes(&ob, &new_key, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
         Status = ZwCreateKey(&KeyHandle2, KEY_WRITE, &ob, 0, Class, REG_OPTION_NON_VOLATILE, &Disposition);//KEY_ALL_ACCESS KEY_READ
         if (!NT_SUCCESS(Status)) {
-            //Èç¹û×Ó¼üÒÑ¾­´æÔÚ£¬·µ»ØÕıÈ·¡£
+            //å¦‚æœå­é”®å·²ç»å­˜åœ¨ï¼Œè¿”å›æ­£ç¡®ã€‚
             ExFreePool(new_key.Buffer);
             ExFreePool(pbi);
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
         } else {
-            if (KeyHandle2)//¶ÏÑÔFileHandle²»µÈÓÚ0Ò²²»ÊÇÎŞĞ§µÄ¾ä±ú¡£
+            if (KeyHandle2)//æ–­è¨€FileHandleä¸ç­‰äº0ä¹Ÿä¸æ˜¯æ— æ•ˆçš„å¥æŸ„ã€‚
             {
                 Status = ZwClose(KeyHandle2);
                 if (!NT_SUCCESS(Status)) {
@@ -357,14 +357,14 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         }
 
         /*
-        ÔÚÕâÀï×éºÏ×Ö·û´®£¬¿ÉÒÔ¿¼ÂÇµİ¹é¡£
+        åœ¨è¿™é‡Œç»„åˆå­—ç¬¦ä¸²ï¼Œå¯ä»¥è€ƒè™‘é€’å½’ã€‚
         */
 
-        ExFreePool(pbi);// ÊÍ·ÅÄÚ´æ
+        ExFreePool(pbi);// é‡Šæ”¾å†…å­˜
         ExFreePool(new_key.Buffer);
     }
 
-    //´¦ÀíÉÏÃæÊ§°ÜµÄÇé¿ö¡£Ö÷ÒªÊÇfor Ñ­»·¡£
+    //å¤„ç†ä¸Šé¢å¤±è´¥çš„æƒ…å†µã€‚ä¸»è¦æ˜¯for å¾ªç¯ã€‚
     if (!NT_SUCCESS(Status)) {
         ExFreePool(pfi);
         ZwClose(KeyHandle);
@@ -379,8 +379,8 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         return Status;
     }
 
-    //Ã¶¾ÙÃû×Ö£¬ÀàĞÍ£¬Êı¾İ¡£
-    for (i = 0; i < pfi->Values; i++) //¿ÉÒÔ¿¼ÂÇÓÃZwQueryValueKey»ñÈ¡ÊıÁ¿¡£MSDN¹ØÓÚÕâ¸ö³ÉÔ±µÄ½âÊÍÊÇ£ºThe number of value entries for this key.
+    //æšä¸¾åå­—ï¼Œç±»å‹ï¼Œæ•°æ®ã€‚
+    for (i = 0; i < pfi->Values; i++) //å¯ä»¥è€ƒè™‘ç”¨ZwQueryValueKeyè·å–æ•°é‡ã€‚MSDNå…³äºè¿™ä¸ªæˆå‘˜çš„è§£é‡Šæ˜¯ï¼šThe number of value entries for this key.
     {
         PKEY_VALUE_BASIC_INFORMATION pkvbi;
         UNICODE_STRING us;
@@ -389,12 +389,12 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        // »ñÈ¡Ãû×Ö¼°ÀàĞÍ¡£
+        // è·å–åå­—åŠç±»å‹ã€‚
         Status = ZwEnumerateValueKey(KeyHandle, i, KeyValueBasicInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 break;
             }
@@ -415,12 +415,12 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
         us.MaximumLength = us.Length;
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        // »ñÈ¡Êı¾İ
+        // è·å–æ•°æ®
         Status = ZwEnumerateValueKey(KeyHandle, i, KeyValuePartialInformation, NULL, 0, &ResultLength);
         if (!NT_SUCCESS(Status)) {
-            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWÕâ¸öÇé¿öÓ¦¸Ã²»»á·¢ÉúÔÚÕâÖÖÇé¿öÏÂ¡£
+            if (Status == STATUS_BUFFER_TOO_SMALL || Status == STATUS_BUFFER_OVERFLOW) //STATUS_BUFFER_OVERFLOWè¿™ä¸ªæƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿåœ¨è¿™ç§æƒ…å†µä¸‹ã€‚
             {
-                //ÔÚÏÂÃæÉêÇëÄÚ´æ¡£
+                //åœ¨ä¸‹é¢ç”³è¯·å†…å­˜ã€‚
             } else {
                 ExFreePool(pkvbi);
                 break;
@@ -439,14 +439,14 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
             break;
         }
 
-        data.Buffer = (PWCH)pkvpi->Data;//ÓĞµÄÊı¾İ¿ÉÄÜÎŞ·¨ÏÔÊ¾¡£
+        data.Buffer = (PWCH)pkvpi->Data;//æœ‰çš„æ•°æ®å¯èƒ½æ— æ³•æ˜¾ç¤ºã€‚
         data.Length = (USHORT)pkvpi->DataLength;
         data.MaximumLength = data.Length;
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
         Status = ZwSetValueKey(KeyHandle3, &us, 0, pkvbi->Type, data.Buffer, data.Length);
-        if (!NT_SUCCESS(Status)) //Èç¹û¾ä±úµÄÈ¨ÏŞÊÇKEY_READÕâÀï³É¹¦£¬µ«ÊÇÊµ¼ÊÊÇÃ»ÓĞ³É¹¦µÄ¡£
+        if (!NT_SUCCESS(Status)) //å¦‚æœå¥æŸ„çš„æƒé™æ˜¯KEY_READè¿™é‡ŒæˆåŠŸï¼Œä½†æ˜¯å®é™…æ˜¯æ²¡æœ‰æˆåŠŸçš„ã€‚
         {
             ExFreePool(pkvpi);
             ExFreePool(pkvbi);
@@ -455,7 +455,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
         DbgPrint("name:%wZ,type:%d,data:%wZ\n", &us, pkvbi->Type, &data);
 
-        ExFreePool(pkvbi);// ÊÍ·ÅÄÚ´æ
+        ExFreePool(pkvbi);// é‡Šæ”¾å†…å­˜
         ExFreePool(pkvpi);
     }
 
@@ -469,17 +469,17 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
 NTSTATUS ZwCreateRootKey(_In_ POBJECT_ATTRIBUTES RegisterKey, _In_ POBJECT_ATTRIBUTES HiveFile)
 /*
-¹¦ÄÜ£º´´½¨×¢²á±í¸ù¼ü£¬Í¬Ê±Ò²ÊÇZwLoadKeyµÄÊ¾ÀıÓÃ·¨¡£
+åŠŸèƒ½ï¼šåˆ›å»ºæ³¨å†Œè¡¨æ ¹é”®ï¼ŒåŒæ—¶ä¹Ÿæ˜¯ZwLoadKeyçš„ç¤ºä¾‹ç”¨æ³•ã€‚
 
-²ÎÊı£º
-RegisterKey£º×¢²á±íµÄÄÚºËÂ·¾¶£¬ÒÔ\\REGISTRY\\¿ªÍ·¼´¿É£¬µ«²»ÒªºÍÏÖÓĞµÄÂ·¾¶³åÍ»¡£
-HiveFile£ºĞÎÈç\\DosDevices\\c:\\correy.DAT£¬µ«±ØĞëÊÇÊÊºÏ±¾»úµÄÇÒºÏ·¨µÄHIVEÎÄ¼ş¡£
+å‚æ•°ï¼š
+RegisterKeyï¼šæ³¨å†Œè¡¨çš„å†…æ ¸è·¯å¾„ï¼Œä»¥\\REGISTRY\\å¼€å¤´å³å¯ï¼Œä½†ä¸è¦å’Œç°æœ‰çš„è·¯å¾„å†²çªã€‚
+HiveFileï¼šå½¢å¦‚\\DosDevices\\c:\\correy.DATï¼Œä½†å¿…é¡»æ˜¯é€‚åˆæœ¬æœºçš„ä¸”åˆæ³•çš„HIVEæ–‡ä»¶ã€‚
 
-¹ØÓÚÈçºÎÊÖ¶¯ºÍ±à³ÌÖÆ×÷£ºÊÊºÏ±¾»úµÄÇÒºÏ·¨µÄHIVEÎÄ¼ş¡£
-ÕâÀï²»Ïê£¬¼ûÎÒµÄÁíÍâµÄ×ÊÁÏ¡£
-ÏàĞÅÄã»áµÄ¡£
+å…³äºå¦‚ä½•æ‰‹åŠ¨å’Œç¼–ç¨‹åˆ¶ä½œï¼šé€‚åˆæœ¬æœºçš„ä¸”åˆæ³•çš„HIVEæ–‡ä»¶ã€‚
+è¿™é‡Œä¸è¯¦ï¼Œè§æˆ‘çš„å¦å¤–çš„èµ„æ–™ã€‚
+ç›¸ä¿¡ä½ ä¼šçš„ã€‚
 
-¼ÇµÃ£ºÈç¹û²»ÓÃÁË£¬²»ÒªÍüÁËµ÷ÓÃZwUnloadKey¡£
+è®°å¾—ï¼šå¦‚æœä¸ç”¨äº†ï¼Œä¸è¦å¿˜äº†è°ƒç”¨ZwUnloadKeyã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -493,22 +493,22 @@ HiveFile£ºĞÎÈç\\DosDevices\\c:\\correy.DAT£¬µ«±ØĞëÊÇÊÊºÏ±¾»úµÄÇÒºÏ·¨µÄHIVEÎÄ¼ş¡£
         return Status;
     }
 
-    //Ò»ÏÂÊÇÁĞ¾ÙÆä×Ó¼üµÄ,Ò²¾ÍÊÇÑéÖ¤ÏÂ.
+    //ä¸€ä¸‹æ˜¯åˆ—ä¸¾å…¶å­é”®çš„,ä¹Ÿå°±æ˜¯éªŒè¯ä¸‹.
     Status = ZwOpenKey(&hRegister, KEY_ALL_ACCESS, RegisterKey);
     if (NT_SUCCESS(Status)) {
         PKEY_FULL_INFORMATION pfi;
 
         ZwQueryKey(hRegister, KeyFullInformation, NULL, 0, &ulSize);
-        pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ulSize, TAG);// µÚÒ»´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡ĞèÒªµÄ³¤¶È
+        pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ulSize, TAG);// ç¬¬ä¸€æ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–éœ€è¦çš„é•¿åº¦
 
-        ZwQueryKey(hRegister, KeyFullInformation, pfi, ulSize, &ulSize);// µÚ¶ş´Îµ÷ÓÃÊÇÎªÁË»ñÈ¡Êı¾İ
+        ZwQueryKey(hRegister, KeyFullInformation, pfi, ulSize, &ulSize);// ç¬¬äºŒæ¬¡è°ƒç”¨æ˜¯ä¸ºäº†è·å–æ•°æ®
         for (i = 0; i < pfi->SubKeys; i++) {
             PKEY_BASIC_INFORMATION pbi;
 
-            ZwEnumerateKey(hRegister, i, KeyBasicInformation, NULL, 0, &ulSize);// »ñÈ¡µÚi¸ö×ÓÏîµÄ³¤¶È
+            ZwEnumerateKey(hRegister, i, KeyBasicInformation, NULL, 0, &ulSize);// è·å–ç¬¬iä¸ªå­é¡¹çš„é•¿åº¦
             pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ulSize, TAG);
             if (pbi) {
-                ZwEnumerateKey(hRegister, i, KeyBasicInformation, pbi, ulSize, &ulSize);// »ñÈ¡µÚi¸ö×ÓÏîµÄÊı¾İ
+                ZwEnumerateKey(hRegister, i, KeyBasicInformation, pbi, ulSize, &ulSize);// è·å–ç¬¬iä¸ªå­é¡¹çš„æ•°æ®
 
                 us.Buffer = pbi->Name;
                 us.Length = (USHORT)pbi->NameLength;
@@ -516,9 +516,9 @@ HiveFile£ºĞÎÈç\\DosDevices\\c:\\correy.DAT£¬µ«±ØĞëÊÇÊÊºÏ±¾»úµÄÇÒºÏ·¨µÄHIVEÎÄ¼ş¡£
 
                 DbgPrint("The %d SubItem Name : %wZ\n", i, &us);
 
-                ExFreePoolWithTag(pbi, TAG);// ÊÍ·ÅÄÚ´æ
+                ExFreePoolWithTag(pbi, TAG);// é‡Šæ”¾å†…å­˜
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             }
         }
 
@@ -562,11 +562,11 @@ NTSTATUS SetValueKeyDword(_In_ PUNICODE_STRING KeyPath, _In_ PUNICODE_STRING Val
 
 NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_STRING FullKeyName)
 /*
-¹¦ÄÜ£ºÓÃÓÚ×¢²á±í»Øµ÷ÖĞ»ñÈ¡KEYµÄÈ«Â·¾¶¡£
+åŠŸèƒ½ï¼šç”¨äºæ³¨å†Œè¡¨å›è°ƒä¸­è·å–KEYçš„å…¨è·¯å¾„ã€‚
 
-×¢Òâ£ºPREG_CREATE_KEY_INFORMATION == PREG_OPEN_KEY_INFORMATION
+æ³¨æ„ï¼šPREG_CREATE_KEY_INFORMATION == PREG_OPEN_KEY_INFORMATION
 
-Ö®ËùÒÔÓĞÕâ¸öº¯Êı£¬ÊÇÒòÎª×¢²á»Øµ÷µÄCreateºÍOpen²Ù×÷ÀïµÄÄÇ¸ö½á¹¹ÀïµÄCompleteName²»ÊÇÈ«Ãû×Ö£¬Ãû²»·ûÊµ¡£
+ä¹‹æ‰€ä»¥æœ‰è¿™ä¸ªå‡½æ•°ï¼Œæ˜¯å› ä¸ºæ³¨å†Œå›è°ƒçš„Createå’ŒOpenæ“ä½œé‡Œçš„é‚£ä¸ªç»“æ„é‡Œçš„CompleteNameä¸æ˜¯å…¨åå­—ï¼Œåä¸ç¬¦å®ã€‚
 */
 {
     ULONG Length = MAXPATHLEN;
@@ -576,7 +576,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
     PVOID Object = Info->RootObject;
     PUNICODE_STRING CompleteName = Info->CompleteName;
 
-    //²ÎÊı¼ì²éÂÔ¡£
+    //å‚æ•°æ£€æŸ¥ç•¥ã€‚
 
     if (CompleteName->Buffer == NULL) {
         Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
@@ -642,7 +642,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
         RtlInitUnicodeString(&KeyPath, Temp->Buffer);
 
         FullKeyName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, MAXPATHLEN, TAG);
-        if(NULL == FullKeyName->Buffer) {
+        if (NULL == FullKeyName->Buffer) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             ExFreePoolWithTag(Temp, TAG);
@@ -655,7 +655,7 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
 
         FullKeyName->MaximumLength = MAXPATHLEN;
 
-        if (L'\\' != FullKeyName->Buffer[FullKeyName->Length / sizeof(PWCH) - 1]) {//ÅĞ¶Ï½áÎ²ÊÇ·ñ´øĞ±¸Ü¡£
+        if (L'\\' != FullKeyName->Buffer[FullKeyName->Length / sizeof(PWCH) - 1]) {//åˆ¤æ–­ç»“å°¾æ˜¯å¦å¸¦æ–œæ ã€‚
             RtlAppendUnicodeToString(FullKeyName, L"\\");
         }
 
@@ -672,13 +672,13 @@ NTSTATUS GetKeyFullName(_In_ PREG_CREATE_KEY_INFORMATION Info, _Inout_ PUNICODE_
 
 NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, _Inout_ PUNICODE_STRING KeyFullName)
 /*
-¹¦ÄÜ£ºÓÃÓÚ×¢²á±í»Øµ÷ÖĞ»ñÈ¡KEYµÄÈ«Â·¾¶¡£
+åŠŸèƒ½ï¼šç”¨äºæ³¨å†Œè¡¨å›è°ƒä¸­è·å–KEYçš„å…¨è·¯å¾„ã€‚
 
-µ÷ÓÃÊ±»ú£ºOpen/CreateµÄÇ°²Ù×÷¡£ºó²Ù×÷½¨ÒéÓÃCmCallbackGetKeyObjectID¡£
+è°ƒç”¨æ—¶æœºï¼šOpen/Createçš„å‰æ“ä½œã€‚åæ“ä½œå»ºè®®ç”¨CmCallbackGetKeyObjectIDã€‚
 
-×¢ÊÍ£º
-1.²ÎÊıKeyFullNameÓÉµ÷ÓÃÕß£¨ÓÃFreeUnicodeString£©ÊÍ·Å¡£
-2.CompleteName£¬Õâ¸ö²ÎÊıÃû²»¸±Êµ£¬ÓĞ²»ÉÙµÄÏà¶ÔÂ·¾¶¡£
+æ³¨é‡Šï¼š
+1.å‚æ•°KeyFullNameç”±è°ƒç”¨è€…ï¼ˆç”¨FreeUnicodeStringï¼‰é‡Šæ”¾ã€‚
+2.CompleteNameï¼Œè¿™ä¸ªå‚æ•°åä¸å‰¯å®ï¼Œæœ‰ä¸å°‘çš„ç›¸å¯¹è·¯å¾„ã€‚
 3.
 */
 {
@@ -746,7 +746,7 @@ NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, 
                 break;
             }
 
-            Length += sizeof(WCHAR);//±£ÏÕÆÚ¼ä¸ø¸ö¿ÕÓà¡£
+            Length += sizeof(WCHAR);//ä¿é™©æœŸé—´ç»™ä¸ªç©ºä½™ã€‚
             ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
             if (NULL == ObjectNameInfo) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -764,7 +764,7 @@ NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, 
 
             RtlInitUnicodeString(&KeyPath, ObjectNameInfo->Buffer);
 
-            Length += sizeof(WCHAR);//Ìí¼ÓÒ»¸öĞ±¸ÜµÄ³¤¶È¡£
+            Length += sizeof(WCHAR);//æ·»åŠ ä¸€ä¸ªæ–œæ çš„é•¿åº¦ã€‚
             Length += CompleteName->Length;
             KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, Length, TAG);
             if (NULL == KeyFullName->Buffer) {
@@ -777,7 +777,7 @@ NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, 
             RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
             RtlCopyUnicodeString(KeyFullName, &KeyPath);
 
-            if (L'\\' != KeyFullName->Buffer[KeyFullName->Length / sizeof(PWCH) - 1]) {//ÅĞ¶Ï½áÎ²ÊÇ·ñ´øĞ±¸Ü¡£
+            if (L'\\' != KeyFullName->Buffer[KeyFullName->Length / sizeof(PWCH) - 1]) {//åˆ¤æ–­ç»“å°¾æ˜¯å¦å¸¦æ–œæ ã€‚
                 RtlAppendUnicodeToString(KeyFullName, L"\\");
             }
 
@@ -802,13 +802,13 @@ NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, 
 
 //http://msdn.microsoft.com/en-us/library/ff899322(v=vs.85).aspx 
 //Initializes the supplied buffer with a string representation of the SID for the current user.
-//extern NTSTATUS /*WINAPI*/ RtlFormatCurrentUserKeyPath(_Out_  UNICODE_STRING CurrentUserKeyPath);  //´Ëº¯ÊıÔÚXP¾ÍÒÑ¾­µ¼³ö£¬µ«Ö±½ÓÒıÓÃ»á³öÏÖÁ´½Ó´íÎó¡£
-typedef NTSTATUS(WINAPI * RtlFormatCurrentUserKeyPath)(_Out_  UNICODE_STRING * CurrentUserKeyPath); //ÄÇÔÛ¾Í¶¯Ì¬»ñÈ¡°É£¡
+//extern NTSTATUS /*WINAPI*/ RtlFormatCurrentUserKeyPath(_Out_  UNICODE_STRING CurrentUserKeyPath);  //æ­¤å‡½æ•°åœ¨XPå°±å·²ç»å¯¼å‡ºï¼Œä½†ç›´æ¥å¼•ç”¨ä¼šå‡ºç°é“¾æ¥é”™è¯¯ã€‚
+typedef NTSTATUS(WINAPI * RtlFormatCurrentUserKeyPath)(_Out_  UNICODE_STRING * CurrentUserKeyPath); //é‚£å’±å°±åŠ¨æ€è·å–å§ï¼
 //CurrentUserKeyPath [out]
 //String that represents the current user's root key in the Registry. Caller must call RtlFreeUnicodeString to free the buffer when done with it.
 /*
-×¢Òâ£ºÎ¢ÈíµÄ¹Ù·½µÄÁ´½ÓÀïÃæÊÇ´íÎóµÄ¡£
-¿ªÊ¼ÎÒ»¹ÒÔÎªÕâÊÇÎÒµÚÒ»¸ö·¢ÏÖ²ÎÊı´«µİ½á¹¹£¬¶ø²»ÊÇÖ¸ÕëµÄ¡£
+æ³¨æ„ï¼šå¾®è½¯çš„å®˜æ–¹çš„é“¾æ¥é‡Œé¢æ˜¯é”™è¯¯çš„ã€‚
+å¼€å§‹æˆ‘è¿˜ä»¥ä¸ºè¿™æ˜¯æˆ‘ç¬¬ä¸€ä¸ªå‘ç°å‚æ•°ä¼ é€’ç»“æ„ï¼Œè€Œä¸æ˜¯æŒ‡é’ˆçš„ã€‚
 */
 
 
@@ -818,13 +818,13 @@ PVOID ExpAllocateStringRoutine(IN SIZE_T NumberOfBytes)
 }
 
 
-//ÉÏÏÂµÄ¶¨ÒåÕª×Ô£º\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ex\pool.c
+//ä¸Šä¸‹çš„å®šä¹‰æ‘˜è‡ªï¼š\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ex\pool.c
 #ifdef ALLOC_DATA_PRAGMA
 #pragma const_seg("PAGECONST")
 #endif
 
 
-//warning LNK4210: ´æÔÚ .CRT ½Ú£»¿ÉÄÜÓĞÎ´´¦ÀíµÄ¾²Ì¬³õÊ¼ÖµÉè¶¨Ïî»ò½áÊø·û
+//warning LNK4210: å­˜åœ¨ .CRT èŠ‚ï¼›å¯èƒ½æœ‰æœªå¤„ç†çš„é™æ€åˆå§‹å€¼è®¾å®šé¡¹æˆ–ç»“æŸç¬¦
 const PRTL_ALLOCATE_STRING_ROUTINE RtlAllocateStringRoutine = ExpAllocateStringRoutine;
 const PRTL_FREE_STRING_ROUTINE RtlFreeStringRoutine = (PRTL_FREE_STRING_ROUTINE)ExFreePool;
 
@@ -841,18 +841,18 @@ const PRTL_FREE_STRING_ROUTINE RtlFreeStringRoutine = (PRTL_FREE_STRING_ROUTINE)
     + sizeof( ULONG ) * SID_MAX_SUB_AUTHORITIES
 
 
-//Õâ¸öº¯Êı¼°ÉÏÃæµÄ¶¨ÒåÕª×ÔWRK-v1.2/base/ntos/rtl/regutil.c£¬µ«ÊÇÓĞĞŞ¸Ä£¬¿ÉÒÔÔÚÇı¶¯ÖĞÊ¹ÓÃ»òÕßÀûÓÃ¡£
+//è¿™ä¸ªå‡½æ•°åŠä¸Šé¢çš„å®šä¹‰æ‘˜è‡ªWRK-v1.2/base/ntos/rtl/regutil.cï¼Œä½†æ˜¯æœ‰ä¿®æ”¹ï¼Œå¯ä»¥åœ¨é©±åŠ¨ä¸­ä½¿ç”¨æˆ–è€…åˆ©ç”¨ã€‚
 NTSTATUS RtlFormatCurrentUserKeyPath0(OUT PUNICODE_STRING CurrentUserKeyPath)
 /*++
 Routine Description:
     Initialize the supplied buffer with a string representation of the current user's SID.
-    Õâ¸öº¯Êı»¹ÊÇÓĞ±ØÒªËµÃ÷¼¸µã£º
-    1.Òª»ñÈ¡µ±Ç°ÓÃ»§µÄSID£¬Ê×ÏÈµÄ²»ÊÇÅĞ¶ÏSID¶øÊÇµ±Ç°ÓÃ»§£¬ÔÙ»ñÈ¡SIDÕâºÜÈİÒ×¡£
-      Ò»Ì¨¼ÆËã»úÍ¬Ê±µÇÂ½¼¸¸ö²»Í¬µÄÓÃ»§ÊÇÕı³£µÄ¡£
-      Í¨³£Ò»¸öÆÕÍ¨µÄÓÃ»§Ò»¸ö»á»°£¬°üÀ¨Ô¶³ÌµÇÂ¼µÄ¡£
-      ËùÒÔÁíÒ»¸ö½İ¾¶ÊÇÅĞ¶Ï»á»°£¬ÕâÓĞ¹«¿ª/µ¼³öµÄº¯Êı¡£ÈçÄ³¸ö½ø³Ì»òÕßÏß³ÌÊôÓÚÄÄ¸ö»á»°¡£
-    2.´Ëº¯ÊıÓĞ·¢¾òÀûÓÃµÄ¼ÛÖµ£¬¿´ÄãÔõÃ´ÓÃÁË¡£
-    3.´Ëº¯Êı»ñÈ¡µÄ²»ÊÇµ±Ç°µÇÂ¼ÓÃ»§µÄSID£¬¶øÊÇµ±Ç°µÄ²Ù×÷µÄ½ø³ÌµÄÓÃ»§µÄSID£¬ÈçÏµÍ³ÕÊ»§£¬ÍøÂçÕÊ»§£¬·şÎñÕÊ»§µÈ¡£
+    è¿™ä¸ªå‡½æ•°è¿˜æ˜¯æœ‰å¿…è¦è¯´æ˜å‡ ç‚¹ï¼š
+    1.è¦è·å–å½“å‰ç”¨æˆ·çš„SIDï¼Œé¦–å…ˆçš„ä¸æ˜¯åˆ¤æ–­SIDè€Œæ˜¯å½“å‰ç”¨æˆ·ï¼Œå†è·å–SIDè¿™å¾ˆå®¹æ˜“ã€‚
+      ä¸€å°è®¡ç®—æœºåŒæ—¶ç™»é™†å‡ ä¸ªä¸åŒçš„ç”¨æˆ·æ˜¯æ­£å¸¸çš„ã€‚
+      é€šå¸¸ä¸€ä¸ªæ™®é€šçš„ç”¨æˆ·ä¸€ä¸ªä¼šè¯ï¼ŒåŒ…æ‹¬è¿œç¨‹ç™»å½•çš„ã€‚
+      æ‰€ä»¥å¦ä¸€ä¸ªæ·å¾„æ˜¯åˆ¤æ–­ä¼šè¯ï¼Œè¿™æœ‰å…¬å¼€/å¯¼å‡ºçš„å‡½æ•°ã€‚å¦‚æŸä¸ªè¿›ç¨‹æˆ–è€…çº¿ç¨‹å±äºå“ªä¸ªä¼šè¯ã€‚
+    2.æ­¤å‡½æ•°æœ‰å‘æ˜åˆ©ç”¨çš„ä»·å€¼ï¼Œçœ‹ä½ æ€ä¹ˆç”¨äº†ã€‚
+    3.æ­¤å‡½æ•°è·å–çš„ä¸æ˜¯å½“å‰ç™»å½•ç”¨æˆ·çš„SIDï¼Œè€Œæ˜¯å½“å‰çš„æ“ä½œçš„è¿›ç¨‹çš„ç”¨æˆ·çš„SIDï¼Œå¦‚ç³»ç»Ÿå¸æˆ·ï¼Œç½‘ç»œå¸æˆ·ï¼ŒæœåŠ¡å¸æˆ·ç­‰ã€‚
 
 Arguments:
     CurrentUserKeyPath - Returns a string that represents the current user's root key in the Registry.
@@ -865,13 +865,13 @@ Return Value:
     HANDLE TokenHandle = 0;
     UCHAR TokenInformation[SIZE_OF_TOKEN_INFORMATION];
     ULONG ReturnLength;
-    ULONG SidStringLength = 0;//Ìí¼Ó³õÊ¼»¯Îª0.
+    ULONG SidStringLength = 0;//æ·»åŠ åˆå§‹åŒ–ä¸º0.
     UNICODE_STRING SidString;
     NTSTATUS Status;
 
     // Inside the kernel we can tell rapidly if we are impersonating.
     Status = STATUS_NO_TOKEN;
-    if (PsIsThreadTerminating(PsGetCurrentThread())) {//Ô­À´ÊÇPS_IS_THREAD_IMPERSONATING¡£
+    if (PsIsThreadTerminating(PsGetCurrentThread())) {//åŸæ¥æ˜¯PS_IS_THREAD_IMPERSONATINGã€‚
         Status = ZwOpenThreadTokenEx(NtCurrentThread(), TOKEN_READ, TRUE, OBJ_KERNEL_HANDLE, &TokenHandle);
         if (!NT_SUCCESS(Status) && (Status != STATUS_NO_TOKEN)) {
             return Status;
@@ -895,7 +895,7 @@ Return Value:
     //if ( !NT_SUCCESS( Status ) ) {
     //    return Status ;
     //}
-    //ÒòÎªRtlLengthSidAsUnicodeStringÔÚXPÉÏÃ»ÓĞµ¼³ö£¬ËùÒÔÓÃÏÂÃæµÄÁ½¸öº¯ÊıÌæ»»¡£
+    //å› ä¸ºRtlLengthSidAsUnicodeStringåœ¨XPä¸Šæ²¡æœ‰å¯¼å‡ºï¼Œæ‰€ä»¥ç”¨ä¸‹é¢çš„ä¸¤ä¸ªå‡½æ•°æ›¿æ¢ã€‚
     if (!RtlValidSid(((PTOKEN_USER)TokenInformation)->User.Sid)) {
         return Status;
     }
@@ -912,7 +912,7 @@ Return Value:
     }
 
     RtlAppendUnicodeToString(CurrentUserKeyPath, L"\\REGISTRY\\USER\\");// Copy "\REGISTRY\USER" to the current user string.
-    SidString.MaximumLength = CurrentUserKeyPath->MaximumLength;//(USHORT)SidStringLength ;ÕâÀïÓĞĞŞ¸Ä Ô­Êı³ËÒÔ2Ó¦¸ÃÒ²¿ÉÒÔµÄ£¬²»È»RtlConvertSidToUnicodeStringÊ§°Ü¡£
+    SidString.MaximumLength = CurrentUserKeyPath->MaximumLength;//(USHORT)SidStringLength ;è¿™é‡Œæœ‰ä¿®æ”¹ åŸæ•°ä¹˜ä»¥2åº”è¯¥ä¹Ÿå¯ä»¥çš„ï¼Œä¸ç„¶RtlConvertSidToUnicodeStringå¤±è´¥ã€‚
     SidString.Length = 0;
     SidString.Buffer = CurrentUserKeyPath->Buffer + (CurrentUserKeyPath->Length / sizeof(WCHAR));
     Status = RtlConvertSidToUnicodeString(&SidString, ((PTOKEN_USER)TokenInformation)->User.Sid, FALSE);
@@ -928,14 +928,14 @@ Return Value:
 
 NTSTATUS print_current_user()
 /*
-¹¦ÄÜ:»ñÈ¡µ±Ç°²Ù×÷µÄ½ø³ÌµÄÓÃ»§µÄSID.
+åŠŸèƒ½:è·å–å½“å‰æ“ä½œçš„è¿›ç¨‹çš„ç”¨æˆ·çš„SID.
 
-´òÓ¡µ±Ç°²Ù×÷µÄµ±Ç°½ø³ÌµÄÓÃ»§ÃûµÈ.
+æ‰“å°å½“å‰æ“ä½œçš„å½“å‰è¿›ç¨‹çš„ç”¨æˆ·åç­‰.
 
 made by correy
 made at 2014.06.14
 homepage:https://correy.webs.com
-²»×ãÖ®´¦,¾´ÇëÖ¸³ö.
+ä¸è¶³ä¹‹å¤„,æ•¬è¯·æŒ‡å‡º.
 */
 {
     NTSTATUS Status = 0;
@@ -968,8 +968,8 @@ homepage:https://correy.webs.com
 
 
 /*
-ÓĞ´ıÊµÏÖµÄÒ»¸ö¹¦ÄÜ£º
-1.×¢²á±íµÄÁ¬½ÓµÄÉèÖÃ¡£
-2.LastWriteTimeµÄ²é¿´ºÍÉèÖÃ¡£
+æœ‰å¾…å®ç°çš„ä¸€ä¸ªåŠŸèƒ½ï¼š
+1.æ³¨å†Œè¡¨çš„è¿æ¥çš„è®¾ç½®ã€‚
+2.LastWriteTimeçš„æŸ¥çœ‹å’Œè®¾ç½®ã€‚
 3.
 */

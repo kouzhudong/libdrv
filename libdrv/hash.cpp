@@ -13,12 +13,12 @@ BOOL HashFile(_In_ PFLT_FILTER Filter,
 )
 /*
 
-FileName²»Ö§³Ö£º
+FileNameä¸æ”¯æŒï¼š
 "\Device\Mup\vmware-host\Shared Folders\...
 
-algorithmµÄÈ¡ÖµÓÐ£ºBCRYPT_MD5_ALGORITHM£¬BCRYPT_SHA1_ALGORITHM£¬BCRYPT_SHA256_ALGORITHMµÈ¼¸Ê®ÖÖ¡£
+algorithmçš„å–å€¼æœ‰ï¼šBCRYPT_MD5_ALGORITHMï¼ŒBCRYPT_SHA1_ALGORITHMï¼ŒBCRYPT_SHA256_ALGORITHMç­‰å‡ åç§ã€‚
 
-lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
+lpFileHashçš„å€¼ç”±è°ƒç”¨è€…é‡Šæ”¾ã€‚
 */
 {
     IO_STATUS_BLOCK  IoStatusBlock = {0};
@@ -58,7 +58,7 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
             break;
         }
 
-        //Õû¸öÉÏÏÂÎÄ¶¼Ó¦¸ÃÓÅ»¯³ÉÒ»¿é×ÔÃèÊöµÄÍêÕûµÄ´ó½á¹¹, È»ºóÒÔºó±¸ÁÐ±í¹ÜÀí, ¶ø²»ÊÇ·ÖÉ¢µ½¸÷´¦½øÐÐ·ÖÅäÊÍ·Å
+        //æ•´ä¸ªä¸Šä¸‹æ–‡éƒ½åº”è¯¥ä¼˜åŒ–æˆä¸€å—è‡ªæè¿°çš„å®Œæ•´çš„å¤§ç»“æž„, ç„¶åŽä»¥åŽå¤‡åˆ—è¡¨ç®¡ç†, è€Œä¸æ˜¯åˆ†æ•£åˆ°å„å¤„è¿›è¡Œåˆ†é…é‡Šæ”¾
         buffer = ExAllocatePoolWithTag(PagedPool, nread, TAG);
         if (buffer == NULL) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
@@ -67,13 +67,13 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
 
         Status = BCryptOpenAlgorithmProvider(&hAlg, algorithm, NULL, 0);
         if (!NT_SUCCESS(Status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);            
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
 
         Status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PUCHAR)&cbHash, sizeof(cbHash), &nouse, 0);
         if (!NT_SUCCESS(Status)) {
-            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);            
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
 
@@ -82,9 +82,9 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
         Status = BCryptCreateHash(hAlg, &hHash, hashObj, sizeof(hashObj), NULL, 0, 0);
         ASSERT(NT_SUCCESS(Status));
 
-        Status = ObReferenceObjectByHandle(hFile, 
-                                           FILE_LIST_DIRECTORY | SYNCHRONIZE, 
-                                           *IoFileObjectType, 
+        Status = ObReferenceObjectByHandle(hFile,
+                                           FILE_LIST_DIRECTORY | SYNCHRONIZE,
+                                           *IoFileObjectType,
                                            KernelMode,
                                            (PVOID *)&FileObject,
                                            NULL);
@@ -95,14 +95,14 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
 
             if (NULL == Instance) {
                 Status = ZwReadFile(hFile, NULL, NULL, NULL, &IoStatusBlock, buffer, nread, NULL, NULL);
-            } else {//µÚÒ»¸ö²ÎÊý²»×¼ÎªNULL¡£
+            } else {//ç¬¬ä¸€ä¸ªå‚æ•°ä¸å‡†ä¸ºNULLã€‚
                 Status = FltReadFile(Instance, FileObject, NULL, nread, buffer, 0, &BytesRead, NULL, NULL);
             }
             if (!NT_SUCCESS(Status)) {
                 if (Status == STATUS_END_OF_FILE) {
                     Status = STATUS_SUCCESS;
                 } else {
-                    PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);                    
+                    PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
                 }
 
                 break;
@@ -118,7 +118,7 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
 
             Status = BCryptHashData(hHash, (PUCHAR)buffer, BytesRead, 0);
             if (!NT_SUCCESS(Status)) {
-                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);                
+                PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
                 break;
             }
         }
@@ -131,7 +131,7 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
         lpFileHash->MaximumLength = (USHORT)cbHash * 4 + sizeof(wchar_t);
         lpFileHash->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, lpFileHash->MaximumLength, TAG);
         if (NULL == lpFileHash->Buffer) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             break;
         }
         RtlZeroMemory(lpFileHash->Buffer, lpFileHash->MaximumLength);
@@ -140,7 +140,7 @@ lpFileHashµÄÖµÓÉµ÷ÓÃÕßÊÍ·Å¡£
             DWORD i = 0;
             WCHAR * ptr = lpFileHash->Buffer;
             for (; i < cbHash; i++) {
-                //linusµÄ¾­µäÐ´·¨
+                //linusçš„ç»å…¸å†™æ³•
                 *ptr++ = L"0123456789ABCDEF"[(Digest[i] >> 4) & 0x0f];
                 *ptr++ = L"0123456789ABCDEF"[Digest[i] & 0x0f];
             }

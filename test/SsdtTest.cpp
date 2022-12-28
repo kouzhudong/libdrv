@@ -11,28 +11,28 @@ VOID GetZwTerminateThreadAddress()
 {
     ZwTerminateThread_pfn ZwTerminateThread = (ZwTerminateThread_pfn)GetZwRoutineAddress("ZwTerminateThread");
     if (NULL == ZwTerminateThread) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "²âÊÔÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "æµ‹è¯•å¤±è´¥");
     }
 }
 
 
 bool GetAndSetZwQueryVirtualMemoryAddress()
 {
-    if (nullptr != ZwQueryVirtualMemory) {//ÄÜÖ±½Ó»ñÈ¡Âğ£¿£¨¼´£º±àÒëÆ÷»·¾³ÓĞ¶¨Âğ£¿£©
+    if (nullptr != ZwQueryVirtualMemory) {//èƒ½ç›´æ¥è·å–å—ï¼Ÿï¼ˆå³ï¼šç¼–è¯‘å™¨ç¯å¢ƒæœ‰å®šå—ï¼Ÿï¼‰
         ZwQueryVirtualMemoryFn = ZwQueryVirtualMemory;
     }
 
-    if (!ZwQueryVirtualMemoryFn) {//¶¯Ì¬»ñÈ¡£¨µ¼³öµÄº¯Êı£©¡£
+    if (!ZwQueryVirtualMemoryFn) {//åŠ¨æ€è·å–ï¼ˆå¯¼å‡ºçš„å‡½æ•°ï¼‰ã€‚
         UNICODE_STRING Temp = RTL_CONSTANT_STRING(L"ZwQueryVirtualMemory");
         ZwQueryVirtualMemoryFn = (ZwQueryVirtualMemory_PFN)MmGetSystemRoutineAddress(&Temp);
     }
 
-    if (!ZwQueryVirtualMemoryFn) {//ÒÔÉÏ½ÔÊ§°Ü£¬×Ô¼º½âÎöÏà¹ØÊı¾İ£¬×Ô¼º»ñÈ¡¡£
+    if (!ZwQueryVirtualMemoryFn) {//ä»¥ä¸Šçš†å¤±è´¥ï¼Œè‡ªå·±è§£æç›¸å…³æ•°æ®ï¼Œè‡ªå·±è·å–ã€‚
         ZwQueryVirtualMemoryFn = (ZwQueryVirtualMemory_PFN)GetZwRoutineAddress("ZwQueryVirtualMemory");
     }
 
     if (ZwQueryVirtualMemoryFn) {
-        SetZwQueryVirtualMemoryAddress(ZwQueryVirtualMemoryFn);//±ãÓÚµ÷ÓÃ¾²Ì¬¿âµÄÒ»Ğ©º¯Êı¡£
+        SetZwQueryVirtualMemoryAddress(ZwQueryVirtualMemoryFn);//ä¾¿äºè°ƒç”¨é™æ€åº“çš„ä¸€äº›å‡½æ•°ã€‚
     }
 
     return ZwQueryVirtualMemoryFn ? true : false;
@@ -46,7 +46,7 @@ VOID GetSomeSystemRoutineAddress()
 
     DBG_UNREFERENCED_LOCAL_VARIABLE(ZwTestAlert);
     DBG_UNREFERENCED_LOCAL_VARIABLE(ZwQueueApcThread);
-    
+
     GetAndSetZwQueryVirtualMemoryAddress();
 }
 

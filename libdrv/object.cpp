@@ -9,11 +9,11 @@
 
 NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
 /*
-¹¦ÄÜ£º»ñÈ¡¸÷ÖÖ¶ÔÏóµÄÃû×Ö£¨Ö»Òª¶ÔÏóÓĞÃû×Ö£©£¬¾­³£ÓÃÓÚ»ñÈ¡×¢²á±íµÄ¼ü¶ÔÏóµÄÃû×Ö¡£
+åŠŸèƒ½ï¼šè·å–å„ç§å¯¹è±¡çš„åå­—ï¼ˆåªè¦å¯¹è±¡æœ‰åå­—ï¼‰ï¼Œç»å¸¸ç”¨äºè·å–æ³¨å†Œè¡¨çš„é”®å¯¹è±¡çš„åå­—ã€‚
 
-Ãû×ÖµÄÄÚ´æÓÉµ÷ÓÃÕßÊÍ·Å¡£
+åå­—çš„å†…å­˜ç”±è°ƒç”¨è€…é‡Šæ”¾ã€‚
 
-×¢ÊÍ£ºÎÄ¼şºÍ×¢²á±í»ñÈ¡µÄ¶¼ÊÇÄÚºËÂ·¾¶¡£
+æ³¨é‡Šï¼šæ–‡ä»¶å’Œæ³¨å†Œè¡¨è·å–çš„éƒ½æ˜¯å†…æ ¸è·¯å¾„ã€‚
 */
 {
     POBJECT_NAME_INFORMATION ObjectNameInfo = NULL;
@@ -31,7 +31,7 @@ NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
         ASSERT(!NT_SUCCESS(Status));
 
         if (0 == Length) {
-            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//ÓĞºÜ¶à¶ÔÏóÊÇÃ»ÓĞÃû×ÖµÄ¡£
+            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//æœ‰å¾ˆå¤šå¯¹è±¡æ˜¯æ²¡æœ‰åå­—çš„ã€‚
             break;
         }
 
@@ -47,7 +47,7 @@ NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
 
         Status = ObQueryNameString(Object, ObjectNameInfo, Length, &Length);
         if (!NT_SUCCESS(Status)) {
-            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//ÓĞºÜ¶à¶ÔÏóÊÇÃ»ÓĞÃû×ÖµÄ¡£
+            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//æœ‰å¾ˆå¤šå¯¹è±¡æ˜¯æ²¡æœ‰åå­—çš„ã€‚
             break;
         }
 
@@ -83,15 +83,15 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
         return STATUS_UNSUCCESSFUL;
     }
 
-    Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, length, TAG);//º¯ÊıÄÚÊÍ·Å¡£
+    Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, length, TAG);//å‡½æ•°å†…é‡Šæ”¾ã€‚
     if (Temp == 0) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
     Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, length, &length);
     if (!NT_SUCCESS(Status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//Õâ¸öÒ²²»ÉÙ¡£
+        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//è¿™ä¸ªä¹Ÿä¸å°‘ã€‚
         ExFreePoolWithTag(Temp, TAG);
         return Status;
     }
@@ -99,9 +99,9 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
     RtlInitUnicodeString(&KeyPath, Temp->Buffer);
 
     NtName->MaximumLength = KeyPath.MaximumLength + sizeof(wchar_t);
-    NtName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, NtName->MaximumLength, TAG);//WorkItemÍê³ÉºóÊÍ·Å¡£
+    NtName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, NtName->MaximumLength, TAG);//WorkItemå®Œæˆåé‡Šæ”¾ã€‚
     if (0 == NtName->Buffer) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         ExFreePoolWithTag(Temp, TAG);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -134,7 +134,7 @@ NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STR
     DosName->MaximumLength = FileNameInfo->Name.MaximumLength + sizeof(wchar_t);
     DosName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, DosName->MaximumLength, TAG);
     if (0 == DosName->Buffer) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
@@ -152,24 +152,24 @@ NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STR
 
 void GetKnownDllPath()
 /*
-¹¦ÄÜ£º»ñÈ¡\\KnownDlls\\KnownDllPathµÄÖµ¡£
+åŠŸèƒ½ï¼šè·å–\\KnownDlls\\KnownDllPathçš„å€¼ã€‚
 
-×¢Òâ64Î»ÏÂ»¹ÓĞ¸ö\\KnownDlls\\KnownDllPath32£¬ÕâÆäÊµÊÇ¸ö·ûºÅÁ´½Ó¡£
+æ³¨æ„64ä½ä¸‹è¿˜æœ‰ä¸ª\\KnownDlls\\KnownDllPath32ï¼Œè¿™å…¶å®æ˜¯ä¸ªç¬¦å·é“¾æ¥ã€‚
 */
 {
     ULONG ActualLength;
     HANDLE LinkHandle;
-    WCHAR NameBuffer[128] = {0};//Õâ¸ö¿ÉÄÜ¶¨ÒåµÄĞ¡ÁË.
+    WCHAR NameBuffer[128] = {0};//è¿™ä¸ªå¯èƒ½å®šä¹‰çš„å°äº†.
     OBJECT_ATTRIBUTES ObjectAttributes;
     UNICODE_STRING LinkString, NameString;
 
     LinkString.Buffer = NameBuffer;
     LinkString.MaximumLength = sizeof(NameBuffer);
-    RtlInitUnicodeString(&NameString, L"\\KnownDlls\\KnownDllPath");//²»¿ÉÒÔÓÃ//,²»È»»áZwOpenSymbolicLinkObjectµ÷ÓÃÊ§°Ü.¾ÍÊÇµÃµ½µÄ¾ä±úÎª0.
+    RtlInitUnicodeString(&NameString, L"\\KnownDlls\\KnownDllPath");//ä¸å¯ä»¥ç”¨//,ä¸ç„¶ä¼šZwOpenSymbolicLinkObjectè°ƒç”¨å¤±è´¥.å°±æ˜¯å¾—åˆ°çš„å¥æŸ„ä¸º0.
     InitializeObjectAttributes(&ObjectAttributes, &NameString, OBJ_KERNEL_HANDLE, NULL, NULL);
     ZwOpenSymbolicLinkObject(&LinkHandle, SYMBOLIC_LINK_QUERY, &ObjectAttributes);
 
-    ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength);//LinkString¾ÍÊÇÏëÒªµÄÖµ.
+    ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength);//LinkStringå°±æ˜¯æƒ³è¦çš„å€¼.
     KdPrint(("KnownDllPath: %wZ \n", &LinkString));
 
     ZwClose(LinkHandle);
@@ -178,9 +178,9 @@ void GetKnownDllPath()
 
 void GetKnownDllPathEx()
 /*
-¹¦ÄÜ£º»ñÈ¡\\KnownDlls\\KnownDllPathµÄÖµ¡£
+åŠŸèƒ½ï¼šè·å–\\KnownDlls\\KnownDllPathçš„å€¼ã€‚
 
-×¢Òâ64Î»ÏÂ»¹ÓĞ¸ö\\KnownDlls\\KnownDllPath32£¬ÕâÆäÊµÊÇ¸ö·ûºÅÁ´½Ó¡£
+æ³¨æ„64ä½ä¸‹è¿˜æœ‰ä¸ª\\KnownDlls\\KnownDllPath32ï¼Œè¿™å…¶å®æ˜¯ä¸ªç¬¦å·é“¾æ¥ã€‚
 */
 {
     UNICODE_STRING usDirName, usSymbolicName, usSymbolic;
@@ -209,14 +209,14 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
                            PUNICODE_STRING DosPathName
 )
 /*
-¹¦ÄÜ£ºÖ÷ÒªÊÇ»ñÈ¡L"\\SystemRoot"µÄNTºÍDOSÂ·¾¶£¬µ«ÊÇÒ²¿ÉÒÔ»ñÈ¡ÒÔL"\\SystemRoot"¿ªÍ·µÄÈÎºÎºÏ·¨ÇÒ´æÔÚµÄÂ·¾¶¡£
+åŠŸèƒ½ï¼šä¸»è¦æ˜¯è·å–L"\\SystemRoot"çš„NTå’ŒDOSè·¯å¾„ï¼Œä½†æ˜¯ä¹Ÿå¯ä»¥è·å–ä»¥L"\\SystemRoot"å¼€å¤´çš„ä»»ä½•åˆæ³•ä¸”å­˜åœ¨çš„è·¯å¾„ã€‚
 
-ÀıÈç£ºÄã¿ÉÖ±½Ó»ñÈ¡ÏÂÃæÎÄ¼şµÄ£¨NTºÍDOSµÄ£©Â·¾¶£¬¶øÎŞĞèÓ²±àÂëÁË¡£
+ä¾‹å¦‚ï¼šä½ å¯ç›´æ¥è·å–ä¸‹é¢æ–‡ä»¶çš„ï¼ˆNTå’ŒDOSçš„ï¼‰è·¯å¾„ï¼Œè€Œæ— éœ€ç¡¬ç¼–ç äº†ã€‚
 1.L"\\SystemRoot"
 2.L"\\SystemRoot\\System32\\ntdll.dll"
 3.L"\\SystemRoot\\System32\\smss.exe"
 4.L"\\SystemRoot\\System32\\csrss.exe"
-5.µÈµÈ¡£
+5.ç­‰ç­‰ã€‚
 */
 {
     HANDLE File;
@@ -238,7 +238,7 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
     st = GetObjectNtName(FileObject, &FullName);
     ASSERT(NT_SUCCESS(st));
     if (NULL == FullName.Buffer) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
     } else {
         //KdPrint(("NT name:%wZ.\r\n", &FullName));
         RtlCopyUnicodeString(NtPathName, &FullName);
@@ -258,21 +258,21 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
 }
 
 
-NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, 
-                           _Inout_ PUNICODE_STRING NtPathName, 
+NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
+                           _Inout_ PUNICODE_STRING NtPathName,
                            _Inout_ PUNICODE_STRING DosPathName
 )
 /*
-¹¦ÄÜ£ºÖ÷ÒªÊÇ»ñÈ¡L"\\SystemRoot"µÄNTºÍDOSÂ·¾¶£¬µ«ÊÇÒ²¿ÉÒÔ»ñÈ¡ÒÔL"\\SystemRoot"¿ªÍ·µÄÈÎºÎºÏ·¨ÇÒ´æÔÚµÄÂ·¾¶¡£
+åŠŸèƒ½ï¼šä¸»è¦æ˜¯è·å–L"\\SystemRoot"çš„NTå’ŒDOSè·¯å¾„ï¼Œä½†æ˜¯ä¹Ÿå¯ä»¥è·å–ä»¥L"\\SystemRoot"å¼€å¤´çš„ä»»ä½•åˆæ³•ä¸”å­˜åœ¨çš„è·¯å¾„ã€‚
 
-×¢Òâ£ºSymbolicLinkName±ØĞëÊÇÒÑ¾­´æÔÚÂ·¾¶»òÎÄ¼ş¡£
+æ³¨æ„ï¼šSymbolicLinkNameå¿…é¡»æ˜¯å·²ç»å­˜åœ¨è·¯å¾„æˆ–æ–‡ä»¶ã€‚
 
-ÀıÈç£ºÄã¿ÉÖ±½Ó»ñÈ¡ÏÂÃæÎÄ¼şµÄ£¨NTºÍDOSµÄ£©Â·¾¶£¬¶øÎŞĞèÓ²±àÂëÁË¡£
+ä¾‹å¦‚ï¼šä½ å¯ç›´æ¥è·å–ä¸‹é¢æ–‡ä»¶çš„ï¼ˆNTå’ŒDOSçš„ï¼‰è·¯å¾„ï¼Œè€Œæ— éœ€ç¡¬ç¼–ç äº†ã€‚
 1.L"\\SystemRoot"
 2.L"\\SystemRoot\\System32\\ntdll.dll"
 3.L"\\SystemRoot\\System32\\smss.exe"
 4.L"\\SystemRoot\\System32\\csrss.exe"
-5.µÈµÈ¡£
+5.ç­‰ç­‰ã€‚
 */
 {
     HANDLE File = NULL;
@@ -353,7 +353,7 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
 
 NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
 /*
-¹¦ÄÜ£ºÃ¶¾ÙÒ»¸öDirectoryObjectÏÂµÄ¶ÔÏó¡£
+åŠŸèƒ½ï¼šæšä¸¾ä¸€ä¸ªDirectoryObjectä¸‹çš„å¯¹è±¡ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -361,7 +361,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
     HANDLE FileHandle = 0;
     IO_STATUS_BLOCK  IoStatusBlock = {0};
     PVOID FileInformation = 0;
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//Õâ¸öÊıÉèÖÃµÄÌ«Ğ¡»áµ¼ÖÂZwQueryDirectoryFileÀ¶ÆÁ¡£    
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//è¿™ä¸ªæ•°è®¾ç½®çš„å¤ªå°ä¼šå¯¼è‡´ZwQueryDirectoryFileè“å±ã€‚    
     BOOLEAN           RestartScan;
     ULONG             Context = 0;
     ULONG             ReturnedLength;
@@ -374,7 +374,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         return Status;
     }
 
-    Length = Length + 520;//ÎªºÎ¼ÓÕâ¸öÊı×Ö£¬Çë¿´ZwEnumerateFile1µÄËµÃ÷¡£
+    Length = Length + 520;//ä¸ºä½•åŠ è¿™ä¸ªæ•°å­—ï¼Œè¯·çœ‹ZwEnumerateFile1çš„è¯´æ˜ã€‚
     FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == NULL) {
         Status = STATUS_UNSUCCESSFUL;
@@ -384,9 +384,9 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
     }
     RtlZeroMemory(FileInformation, Length);
 
-    //RestartScan = FALSE;//ÎªTRUE»áµ¼ÖÂËÀÑ­»·;
+    //RestartScan = FALSE;//ä¸ºTRUEä¼šå¯¼è‡´æ­»å¾ªç¯;
     //Status = ZwQueryDirectoryObject( FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength );
-    //if (!NT_SUCCESS (Status)) //´ËÊ±Ò²»áµÃµ½Êı¾İ¡£
+    //if (!NT_SUCCESS (Status)) //æ­¤æ—¶ä¹Ÿä¼šå¾—åˆ°æ•°æ®ã€‚
     //{
     //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
     //    ExFreePoolWithTag(FileInformation, TAG);
@@ -399,20 +399,20 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         POBJECT_DIRECTORY_INFORMATION podi = 0;
         UNICODE_STRING FullName = {0};
 
-        RestartScan = FALSE;//ÎªTRUE»áµ¼ÖÂËÀÑ­»·;
+        RestartScan = FALSE;//ä¸ºTRUEä¼šå¯¼è‡´æ­»å¾ªç¯;
         Status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);
         if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
-            break;//ÕâÀïºÃÏñÃ»ÓĞ×ß¹ı¡£
+            break;//è¿™é‡Œå¥½åƒæ²¡æœ‰èµ°è¿‡ã€‚
         }
 
         podi = (POBJECT_DIRECTORY_INFORMATION)FileInformation;
 
-        //²»ÊÇÇı¶¯¶ÔÏó¾Í·Å¹ı¡£
+        //ä¸æ˜¯é©±åŠ¨å¯¹è±¡å°±æ”¾è¿‡ã€‚
         if (RtlCompareUnicodeString(&podi->TypeName, &driver, TRUE) != 0) {
             continue;
         }
 
-        //ÉêÇëÒªÏÔÊ¾µÄÄÚ´æ£¬ÁíÒ»Ë¼Â·ÊÇ¸ñÊ½»¯¡£
+        //ç”³è¯·è¦æ˜¾ç¤ºçš„å†…å­˜ï¼Œå¦ä¸€æ€è·¯æ˜¯æ ¼å¼åŒ–ã€‚
         FullName.MaximumLength = (USHORT)Length + Directory->MaximumLength;
         FullName.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, FullName.MaximumLength, TAG);
         if (FullName.Buffer == NULL) {
@@ -461,14 +461,14 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
 
 NTSTATUS ZwEnumerateDriverObject()
 /*
-¹¦ÄÜ£ºÃ¶¾ÙÏµÍ³µÄÇı¶¯¶ÔÏó¡£
-¼ÇµÃ£ºÓĞÒ»¸öº¯Êı¿ÉÒÔÊµÏÖ´Ë¹¦ÄÜ£¬µ±Ê±ÊÇÈÈÖÔÓÚÃ¶¾ÙÏµÍ³µÄÄ£¿é£¬ËùÒÔµ±Ê±Ã»ÓĞ×¢ÒâÄÇ¸öº¯Êı£¬ÏÖÔÚÓĞÏë²»ÆğÁË£¬Ò»»ÎÓÖ¼¸Äê¹ıÈ¥ÁË¡£
-      ¼ÇµÃdevicetree¾ÍÊÇÍ¨¹ıÃ¶¾ÙdriverºÍFileSystemÏÂµÄ¶ÔÏóÊµÏÖµÄ£¬ÉõÖÁÊÇWINOBJµÈÀàËÆµÄ¶ÔÏóä¯ÀÀÆ÷Ò²ÊÇÍ¨¹ıÕâÊµÏÖµÄ¡£
-      ¿´À´ZwQueryDirectoryObjectµÄ¹¦ÄÜÓ¦¸Ã²»Ğ¡£¬ÏÖÔÚÎ¢ÈíÔÚÓ¦ÓÃ²ãÒÑ¾­¹«¿ª´Ëº¯Êı£¬ÔÚÄÚºËÊ¹ÓÃ´Ëº¯ÊıÓ¦¸ÃÃ»ÓĞÎÊÌâ¡£
-ËµÃ÷£ºFileSystemÏÂËäÈ»»¹ÓĞ×ÓÄ¿Â¼¶ÔÏó£¬µ«ÊÇÏÂÃ»ÓĞÇı¶¯£¬ËùÒÔÃ»ÓĞµİ¹é¡£¿ÉÄÜÔ­ÀíÒ²Ó¦¸ÃÃ»ÓĞ¡£
-      Õâ¸öÓĞÉ¶ºÃ´¦ÄØ£¿ÒòÎª²»°üÀ¨NTÄ£¿é£¨¾ÍÊÇÄÇ¸ö¼¸¸öNTOS*.EXE£©ºÍHAL.DLL(Ò²°üÀ¨¼¸¸öÀàĞÍµÄ)£¬
-      ËùÒÔ¿ÉÒÔ¸ù¾İ´ËÇı¶¯¶ÔÏó½øÒ»²½»ñÈ¡·Ö·¢º¯Êı£¬Éè±¸¶ÔÏóµÈ²Ù×÷¡£
-      ´Ë²Ù×÷Ö»ÅĞ¶Ï´æÔÚ£¬ÓàÏÂµÄ»¹Òª×Ô¼º¶¯ÊÖ¡£
+åŠŸèƒ½ï¼šæšä¸¾ç³»ç»Ÿçš„é©±åŠ¨å¯¹è±¡ã€‚
+è®°å¾—ï¼šæœ‰ä¸€ä¸ªå‡½æ•°å¯ä»¥å®ç°æ­¤åŠŸèƒ½ï¼Œå½“æ—¶æ˜¯çƒ­è¡·äºæšä¸¾ç³»ç»Ÿçš„æ¨¡å—ï¼Œæ‰€ä»¥å½“æ—¶æ²¡æœ‰æ³¨æ„é‚£ä¸ªå‡½æ•°ï¼Œç°åœ¨æœ‰æƒ³ä¸èµ·äº†ï¼Œä¸€æ™ƒåˆå‡ å¹´è¿‡å»äº†ã€‚
+      è®°å¾—devicetreeå°±æ˜¯é€šè¿‡æšä¸¾driverå’ŒFileSystemä¸‹çš„å¯¹è±¡å®ç°çš„ï¼Œç”šè‡³æ˜¯WINOBJç­‰ç±»ä¼¼çš„å¯¹è±¡æµè§ˆå™¨ä¹Ÿæ˜¯é€šè¿‡è¿™å®ç°çš„ã€‚
+      çœ‹æ¥ZwQueryDirectoryObjectçš„åŠŸèƒ½åº”è¯¥ä¸å°ï¼Œç°åœ¨å¾®è½¯åœ¨åº”ç”¨å±‚å·²ç»å…¬å¼€æ­¤å‡½æ•°ï¼Œåœ¨å†…æ ¸ä½¿ç”¨æ­¤å‡½æ•°åº”è¯¥æ²¡æœ‰é—®é¢˜ã€‚
+è¯´æ˜ï¼šFileSystemä¸‹è™½ç„¶è¿˜æœ‰å­ç›®å½•å¯¹è±¡ï¼Œä½†æ˜¯ä¸‹æ²¡æœ‰é©±åŠ¨ï¼Œæ‰€ä»¥æ²¡æœ‰é€’å½’ã€‚å¯èƒ½åŸç†ä¹Ÿåº”è¯¥æ²¡æœ‰ã€‚
+      è¿™ä¸ªæœ‰å•¥å¥½å¤„å‘¢ï¼Ÿå› ä¸ºä¸åŒ…æ‹¬NTæ¨¡å—ï¼ˆå°±æ˜¯é‚£ä¸ªå‡ ä¸ªNTOS*.EXEï¼‰å’ŒHAL.DLL(ä¹ŸåŒ…æ‹¬å‡ ä¸ªç±»å‹çš„)ï¼Œ
+      æ‰€ä»¥å¯ä»¥æ ¹æ®æ­¤é©±åŠ¨å¯¹è±¡è¿›ä¸€æ­¥è·å–åˆ†å‘å‡½æ•°ï¼Œè®¾å¤‡å¯¹è±¡ç­‰æ“ä½œã€‚
+      æ­¤æ“ä½œåªåˆ¤æ–­å­˜åœ¨ï¼Œä½™ä¸‹çš„è¿˜è¦è‡ªå·±åŠ¨æ‰‹ã€‚
 
 made by correy
 made at 2015.05.19
@@ -495,8 +495,8 @@ made at 2015.05.19
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 void EnumerateTransactionObject()
 /*
-±éÀúKTMOBJECT_RESOURCE_MANAGERºÍKTMOBJECT_ENLISTMENTµÄÇé¿öÏÂ£¬ZwEnumerateTransactionObjectµÄµÚÒ»¸ö²ÎÊı²»ÄÜÎªNULL£¬·ñÕß·µ»ØSTATUS_INVALID_HANDLE¡£
-±éÀúKTMOBJECT_TRANSACTION£¬ÔÚÒ»°ãÇå¿ÕÏÂÎª¿Õ£¬¼´µÚÒ»´Îµ÷ÓÃ¶¼·µ»ØSTATUS_NO_MORE_ENTRIES¡£
+éå†KTMOBJECT_RESOURCE_MANAGERå’ŒKTMOBJECT_ENLISTMENTçš„æƒ…å†µä¸‹ï¼ŒZwEnumerateTransactionObjectçš„ç¬¬ä¸€ä¸ªå‚æ•°ä¸èƒ½ä¸ºNULLï¼Œå¦è€…è¿”å›STATUS_INVALID_HANDLEã€‚
+éå†KTMOBJECT_TRANSACTIONï¼Œåœ¨ä¸€èˆ¬æ¸…ç©ºä¸‹ä¸ºç©ºï¼Œå³ç¬¬ä¸€æ¬¡è°ƒç”¨éƒ½è¿”å›STATUS_NO_MORE_ENTRIESã€‚
 17:22 2019/7/30
 */
 {
@@ -546,7 +546,7 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     PVOID Object;
     KPROCESSOR_MODE PreviousMode = ExGetPreviousMode();
-    ULONG  Length = 1024;//È¡Õâ¸öÊıµÄÔ­Òò:²Î¿´ObQueryNameStringº¯ÊıµÄµÚÈı¸ö²ÎÊıµÄËµÃ÷:A reasonable size for the buffer to accommodate most object names is 1024 bytes. 
+    ULONG  Length = 1024;//å–è¿™ä¸ªæ•°çš„åŸå› :å‚çœ‹ObQueryNameStringå‡½æ•°çš„ç¬¬ä¸‰ä¸ªå‚æ•°çš„è¯´æ˜:A reasonable size for the buffer to accommodate most object names is 1024 bytes. 
     POBJECT_NAME_INFORMATION pu = 0;
 
     Status = ObReferenceObjectByHandle(Handle, 0, NULL, PreviousMode, &Object, 0);
@@ -575,10 +575,10 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
     Status = ObQueryNameString(Object, pu, Length, &Length);
     if (Status != STATUS_SUCCESS) {
         /*
-        ¾­²é´ËÊ±µÄ·µ»ØÖµÊÇ0xC0000001¡£
-        ¼´Á¬µ½ÏµÍ³ÉÏµÄÉè±¸Ã»ÓĞ·¢»Ó×÷ÓÃ¡£
-        ´ËÊ±µÄ¾ä±úµÄÀàĞÍÊÇÎÄ¼ş¡£
-        ¶øÇÒprocess explorerÒ²ÊÇÏÔÊ¾µÄÊÇÃ»ÓĞÖµµÄ¡£
+        ç»æŸ¥æ­¤æ—¶çš„è¿”å›å€¼æ˜¯0xC0000001ã€‚
+        å³è¿åˆ°ç³»ç»Ÿä¸Šçš„è®¾å¤‡æ²¡æœ‰å‘æŒ¥ä½œç”¨ã€‚
+        æ­¤æ—¶çš„å¥æŸ„çš„ç±»å‹æ˜¯æ–‡ä»¶ã€‚
+        è€Œä¸”process explorerä¹Ÿæ˜¯æ˜¾ç¤ºçš„æ˜¯æ²¡æœ‰å€¼çš„ã€‚
         */
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(pu, TAG);
@@ -588,7 +588,7 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
 
     ObDereferenceObject(Object);
 
-    //ÓĞµÄ¶ÔÏóÊÇÃ»ÓĞÃû×ÖµÄ¡£
+    //æœ‰çš„å¯¹è±¡æ˜¯æ²¡æœ‰åå­—çš„ã€‚
     if (pu->Name.Length == 0) {
         Status = STATUS_UNSUCCESSFUL;
     } else {
@@ -609,9 +609,9 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     DWORD nSize = 4096, nReturn;
     PSYSTEM_HANDLE_INFORMATION pSysHandleInfo;
-    CLIENT_ID   ClientId = {0};//²»³õÊ¼»¯ZwOpenProcessÓĞÎÊÌâ¡£
+    CLIENT_ID   ClientId = {0};//ä¸åˆå§‹åŒ–ZwOpenProcessæœ‰é—®é¢˜ã€‚
     HANDLE  ProcessHandle;
-    DWORD dwhandles = 0;//Ò»¸ö½ø³ÌµÄËùÓĞµÄ¾ä±úÊıÁ¿¡£
+    DWORD dwhandles = 0;//ä¸€ä¸ªè¿›ç¨‹çš„æ‰€æœ‰çš„å¥æŸ„æ•°é‡ã€‚
     ULONG i = 0;
     OBJECT_ATTRIBUTES ob;
 
@@ -645,10 +645,10 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     for (; i < pSysHandleInfo->NumberOfHandles; i++) {
         PSYSTEM_HANDLE_TABLE_ENTRY_INFO pHandle = &(pSysHandleInfo->Handles[i]);
 
-        //¸ù¾İ½ø³Ì½øĞĞËÑË÷¡£
+        //æ ¹æ®è¿›ç¨‹è¿›è¡Œæœç´¢ã€‚
     #pragma prefast(push)
     #pragma warning(disable:4302)
-    //#pragma prefast(disable:4302, "¡°ÀàĞÍÇ¿ÖÆ×ª»»¡±: ´Ó¡°HANDLE¡±µ½¡°USHORT¡±½Ø¶Ï")
+    //#pragma prefast(disable:4302, "â€œç±»å‹å¼ºåˆ¶è½¬æ¢â€: ä»â€œHANDLEâ€åˆ°â€œUSHORTâ€æˆªæ–­")
         if (pHandle->UniqueProcessId == (USHORT)Pid)
         #pragma prefast(pop)        
         {
@@ -662,10 +662,10 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             dwhandles++;	// Increase the number of handles
 
             /*
-            ·ÃÎÊÏµÍ³½ø³ÌÖĞ¾ä±úÀàĞÍÎª½ø³ÌµÄIDLE¾ä±ú»á·µ»Ø0xc0000022.¼´¾Ü¾ø·ÃÎÊ¡£
-            process explorerÒ²ÊÇÈç´Ë¡£¹À¼ÆÊÇÏÔÊ¾µÄPSYSTEM_HANDLE_TABLE_ENTRY_INFOµÄÄÚÈİ¡£
-            pchunterÃ»ÓĞÏÔÊ¾¾ä±úÎª½ø³ÌºÍÏß³ÌµÄĞÅÏ¢¡£µ«ÊÇprocess explorerÄÜ¡£
-            process explorerÄ¬ÈÏµÄÇé¿öÏÂÊÇ²»ÏÔÊ¾Ã»ÓĞÃû×ÖµÄ¾ä±úµÄMAPPINGSµÄ¡£µ«ÊÇ¿ÉÒÔÉèÖÃºÍĞŞ¸Ä¡£
+            è®¿é—®ç³»ç»Ÿè¿›ç¨‹ä¸­å¥æŸ„ç±»å‹ä¸ºè¿›ç¨‹çš„IDLEå¥æŸ„ä¼šè¿”å›0xc0000022.å³æ‹’ç»è®¿é—®ã€‚
+            process explorerä¹Ÿæ˜¯å¦‚æ­¤ã€‚ä¼°è®¡æ˜¯æ˜¾ç¤ºçš„PSYSTEM_HANDLE_TABLE_ENTRY_INFOçš„å†…å®¹ã€‚
+            pchunteræ²¡æœ‰æ˜¾ç¤ºå¥æŸ„ä¸ºè¿›ç¨‹å’Œçº¿ç¨‹çš„ä¿¡æ¯ã€‚ä½†æ˜¯process explorerèƒ½ã€‚
+            process exploreré»˜è®¤çš„æƒ…å†µä¸‹æ˜¯ä¸æ˜¾ç¤ºæ²¡æœ‰åå­—çš„å¥æŸ„çš„MAPPINGSçš„ã€‚ä½†æ˜¯å¯ä»¥è®¾ç½®å’Œä¿®æ”¹ã€‚
             */
             Status = ZwDuplicateObject(ProcessHandle,
                                        (HANDLE)pHandle->HandleValue,
@@ -687,11 +687,11 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             //else
             //{
             //    //continue;
-            //    break;//³ÌĞò·¢³öÃüÁî£¬µ«ÃüÁî³¤¶È²»ÕıÈ·¡£ C0000004
+            //    break;//ç¨‹åºå‘å‡ºå‘½ä»¤ï¼Œä½†å‘½ä»¤é•¿åº¦ä¸æ­£ç¡®ã€‚ C0000004
             //}
 
-            //²éÑ¯¾ä±úÀàĞÍ£¬ÕâÊÇ×Ö·û´®¡£
-            ObjectInformationLength = sizeof(PUBLIC_OBJECT_TYPE_INFORMATION) * 2;//Õâ¸öÓ¦¸ÃÔÙÔö¼Óµã¡£¼Ó¸ö512Ó¦¸ÃºÏÊÊµã¡£             
+            //æŸ¥è¯¢å¥æŸ„ç±»å‹ï¼Œè¿™æ˜¯å­—ç¬¦ä¸²ã€‚
+            ObjectInformationLength = sizeof(PUBLIC_OBJECT_TYPE_INFORMATION) * 2;//è¿™ä¸ªåº”è¯¥å†å¢åŠ ç‚¹ã€‚åŠ ä¸ª512åº”è¯¥åˆé€‚ç‚¹ã€‚             
             ObjectInformation = ExAllocatePoolWithTag(NonPagedPool, ObjectInformationLength, TAG);
             if (ObjectInformation == NULL) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
@@ -724,9 +724,9 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             ppoti = (PPUBLIC_OBJECT_TYPE_INFORMATION)ObjectInformation;
 
             /*
-            Èç¹ûÒª²éÑ¯¾ä±úµÄÖµµÄÃû×Ö£¬¿ÉÒÔ£º
-            1.ÓÃZwQueryObjectµÄÎ´¹«¿ªµÄObjectNameInformation¡£ÆäÊµÕâÊÇÊ¹ÓÃObReferenceObjectByHandle+ObpQueryNameStringÊµÏÖµÄ¡£
-            2.ObReferenceObjectByHandle+ObQueryNameString¡£
+            å¦‚æœè¦æŸ¥è¯¢å¥æŸ„çš„å€¼çš„åå­—ï¼Œå¯ä»¥ï¼š
+            1.ç”¨ZwQueryObjectçš„æœªå…¬å¼€çš„ObjectNameInformationã€‚å…¶å®è¿™æ˜¯ä½¿ç”¨ObReferenceObjectByHandle+ObpQueryNameStringå®ç°çš„ã€‚
+            2.ObReferenceObjectByHandle+ObQueryNameStringã€‚
             */
             Status = ZwQueryObjectNameByHandle(hCopy, &object_name);
             if (NT_SUCCESS(Status)) {
@@ -739,7 +739,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 
             Status = ZwClose(hCopy);
             //if (!NT_SUCCESS(Status))
-            //{//ÓĞµÄ¾ä±ú±£»¤ÆğÀ´£¬ÊÇ²»×¼¹Ø±ÕµÄ¡£
+            //{//æœ‰çš„å¥æŸ„ä¿æŠ¤èµ·æ¥ï¼Œæ˜¯ä¸å‡†å…³é—­çš„ã€‚
             //    Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             //    ExFreePoolWithTag( pSysHandleInfo, tag );
             //    ExFreePoolWithTag( ObjectInformation, tag );
@@ -751,7 +751,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     }
 
     Status = ZwClose(ProcessHandle);
-    /*if (!NT_SUCCESS(Status)) {//¿ÉÄÜÓĞµÄ¾ä±úÒÑ¾­ÊÍ·ÅÁË¡£
+    /*if (!NT_SUCCESS(Status)) {//å¯èƒ½æœ‰çš„å¥æŸ„å·²ç»é‡Šæ”¾äº†ã€‚
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag( pSysHandleInfo, tag );
         return Status;
@@ -767,7 +767,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 
 NTSTATUS EnumerateSystemProcessHandles()
 /*
-ÄÚºË°æµÄÃ¶¾ÙÏµÍ³/½ø³ÌµÄ¾ä±ú¼°ÆäĞÅÏ¢µÄ´úÂë¡£
+å†…æ ¸ç‰ˆçš„æšä¸¾ç³»ç»Ÿ/è¿›ç¨‹çš„å¥æŸ„åŠå…¶ä¿¡æ¯çš„ä»£ç ã€‚
 
 made by correy
 made at 2014.06.26

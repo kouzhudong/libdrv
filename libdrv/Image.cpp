@@ -7,52 +7,52 @@
 
 
 #pragma warning(disable:4996)
-#pragma warning(disable:4366) //һԪ��&��������Ľ��������δ�����
+#pragma warning(disable:4366) //一元“&”运算符的结果可能是未对齐的
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle,
                                             _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength
 )
 /*
-˵�����˺�����Ҫ���û���ȡӦ�ò����Ӧ��ַ��ӳ���ļ���ȫ·����
+说明：此函数主要是用户获取应用层的相应地址的映射文件的全路径。
 
-��ΪWOW64_PEB��ȡ��ImagePathName���ԣ���Ϊ����system32,���Ǿ��Բ��Եġ�
-����Ӧ�ÿ϶�����Щ�ṹ����ȷ�ġ�
-����ֻ����ΪImagePathName�����ˡ�
+因为WOW64_PEB获取的ImagePathName不对，因为含有system32,这是绝对不对的。
+这里应该肯定：这些结构是正确的。
+所以只有认为ImagePathName不对了。
 
-���Ǵ�ʱ�Ѿ���ȡ�ˣ�DllBase��SizeOfImage��BaseDllName��������Щ����ȷ�ġ�
-ע�⣺NLS�ȷǳ����DLL�ǲ������ġ�
+但是此时已经获取了：DllBase，SizeOfImage，BaseDllName，而且这些是正确的。
+注意：NLS等非常规的DLL是不包含的。
 
-���������и�����Щ��ȡImagePathName������͹��ܡ�
+所以这里有根据这些获取ImagePathName的问题和功能。
 
-MmGetFileNameForAddress����δ������������ʹ�á�
-AuxKlibQueryModuleInformationֻ�ܻ�ȡ�ں˵ģ���RtlQueryModuleInformation�ķ�װ�������Ǳ�ķ�װ��
+MmGetFileNameForAddress函数未导出，不建议使用。
+AuxKlibQueryModuleInformation只能获取内核的，是RtlQueryModuleInformation的封装，这又是别的封装。
 ZwQueryVirtualMemory MemoryMappedFilenameInformation MEMORY_MAPPED_FILE_NAME_INFORMATION
 
-ZwQueryVirtualMemory����ȻWindows���ڲŹ��������������ǲ������ģ�����Ҫ��̬��ȡ��������ĵ�ַ��
-����\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h����(NTDDI_VERSION >= NTDDI_WIN2K)��
+ZwQueryVirtualMemory，虽然Windows近期才公开，但是早期是不导出的，所以要动态获取这个函数的地址。
+尽管\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h加了(NTDDI_VERSION >= NTDDI_WIN2K)。
 
-ZwQueryVirtualMemoryʹ���м���ע�����
-1.�˺��������ڻص���ֱ�����У���WorkItemThread�����гɹ������߷���STATUS_ACCESS_VIOLATION��
-2.��ʱ�ľ���������ں�̬�Ľ��̾����
-3.�˺�������ҪAttachProcess����Ϊ�����н��̵ľ����
-4.NtQueryVirtualMemory���н�ȥ������������������������ˣ���������ڲ�����������
-  ֻ��һ�������̣߳�Ҳ����֣��������Լ��Ĺ����߳��Ŷ�Ҳ������ˡ�
-5.�����һ��������NtCurrentProcess()��������KeStackAttachProcess��
+ZwQueryVirtualMemory使用有几个注意事项：
+1.此函数不能在回调中直接运行，在WorkItemThread中运行成功，否者返回STATUS_ACCESS_VIOLATION。
+2.此时的句柄必须是内核态的进程句柄。
+3.此函数不需要AttachProcess，因为它带有进程的句柄。
+4.NtQueryVirtualMemory会有进去出不来的情况，即卡在那里了，这个函数内部用两个锁。
+  只有一个工作线程，也会出现，所以用自己的工作线程排队也解决不了。
+5.如果第一个参数是NtCurrentProcess()，建议用KeStackAttachProcess。
 
-�ο�������
+参考函数：
 MmGetFileNameForAddress
-0: kd> x nt!RtlPcTo* �⼸������Ӧ�ý���֧���ں�ģ��
+0: kd> x nt!RtlPcTo* 这几个函数应该仅仅支持内核模块
 fffff804`65544fb0 nt!RtlPcToFileHeader (RtlPcToFileHeader)
 fffff804`65b169e0 nt!RtlPcToFilePath (RtlPcToFilePath)
 fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
 
-���ô˺���ǰ���ȵ���SetZwQueryVirtualMemoryAddress������
+调用此函数前需先调用SetZwQueryVirtualMemoryAddress函数。
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -101,9 +101,9 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
 
 void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
 /*
-���ܣ�����һ��WOW64���̵�WOW64ģ�顣
+功能：遍历一个WOW64进程的WOW64模块。
 
-�ο���WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\dbgk\dbgkobj.c��DbgkpPostFakeModuleMessages������
+参考：WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\dbgk\dbgkobj.c的DbgkpPostFakeModuleMessages函数。
 */
 {
     PPEB32 Peb32 = (PPEB32)pwp;
@@ -117,23 +117,23 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
         for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink);
              LdrNext32 != LdrHead32;
              LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {
-            LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//�Ƿ���ַ��
+            LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//非法地址。
 
-            //����ת��һ�²��ܴ�ӡ��%Z�Ƕ�STRING32��ӡ�����ġ�
-            //���·���е���ʾ�Ĳ��ԣ�Ӧ��WOW64��
-            //���˼·������NtQueryVirtualMemory��MmGetFileNameForAddress����RtlPcToFileName�������
+            //必须转换一下才能打印。%Z是对STRING32打印不出的。
+            //这个路径有的显示的不对，应是WOW64。
+            //解决思路：可用NtQueryVirtualMemory或MmGetFileNameForAddress或者RtlPcToFileName来解决。
             //UNICODE_STRING ImagePathName = {0};
             //ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
             //ImagePathName.Length = LdrEntry32->FullDllName.Length;
             //ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;            
-            //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//��Ϊ��32λ�ĵ�ַ���Ͳ���0x%p�ˡ�
+            //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//因为是32位的地址，就不用0x%p了。
             //         LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
 
             //\nt4\private\sdktools\psapi\mapfile.c
             struct
             {
                 OBJECT_NAME_INFORMATION ObjectNameInfo;
-                WCHAR FileName[1024];//MAX_PATH ����Ϊ1024������ʧ�ܣ�ԭ�򿴣�ObQueryNameString��
+                WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {0};
 
             NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
@@ -159,11 +159,11 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
 
 void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
 /*
-���ܣ�����һ��WOW64���̵�WOW64ģ�顣
+功能：遍历一个WOW64进程的WOW64模块。
 
-�ο���WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\dbgk\dbgkobj.c��DbgkpPostFakeModuleMessages������
+参考：WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\dbgk\dbgkobj.c的DbgkpPostFakeModuleMessages函数。
 
-������ʹ�ã�ԭ����2017.02.17�����Գɹ��ģ����죨2022/9/26��ȴ�����ˡ�
+不建议使用：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了。
 */
 {
     PPEB32 Peb32 = (PPEB32)pwp;
@@ -174,32 +174,32 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     UNREFERENCED_PARAMETER(CallBack);
     UNREFERENCED_PARAMETER(Context);
 
-    //��������ԭ����2017.02.17�����Գɹ��ģ����죨2022/9/26��ȴ�����ˡ�
+    //方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了。
     __try {
         Ldr32 = (PPEB_LDR_DATA32)UlongToPtr(Peb32->Ldr);
         LdrHead32 = &Ldr32->InLoadOrderModuleList;
 
-        for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink); 
-             LdrNext32 != LdrHead32; 
-             LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {           
+        for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink);
+             LdrNext32 != LdrHead32;
+             LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {
 
             LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
 
-            //����ת��һ�²��ܴ�ӡ��%Z�Ƕ�STRING32��ӡ�����ġ�
-            //���·���е���ʾ�Ĳ��ԣ�Ӧ��WOW64������NtQueryVirtualMemory��MmGetFileNameForAddress�������
+            //必须转换一下才能打印。%Z是对STRING32打印不出的。
+            //这个路径有的显示的不对，应是WOW64，可用NtQueryVirtualMemory或MmGetFileNameForAddress来解决。
             UNICODE_STRING ImagePathName = {0};
             ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
             ImagePathName.Length = LdrEntry32->FullDllName.Length;
             ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
 
-            //��Ϊ��32λ�ĵ�ַ���Ͳ���0x%p�ˡ�
+            //因为是32位的地址，就不用0x%p了。
             KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n", LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
 
-    //��������
+    //方法二。
     //__try {
     //    PPEB32 peb32 = (PPEB32)pwp;
     //    if (!peb32 || !peb32->Ldr) {
@@ -211,7 +211,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     //        PLDR_DATA_TABLE_ENTRY32 DataTableEntry = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);            
     //        struct{//\nt4\private\sdktools\psapi\mapfile.c
     //            OBJECT_NAME_INFORMATION ObjectNameInfo;
-    //            WCHAR FileName[1024];//MAX_PATH ����Ϊ1024������ʧ�ܣ�ԭ�򿴣�ObQueryNameString��
+    //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
     //        } s = {0};
     //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
     //                                                             ULongToPtr(DataTableEntry->DllBase),
@@ -231,7 +231,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     //}
 
-    //����һ��
+    //方法一。
     //PPEB32 Peb32 = (PPEB32)pwp;
     //PPEB_LDR_DATA32 Ldr32;
     //PLIST_ENTRY32 LdrHead32, LdrNext32;
@@ -243,23 +243,23 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     //    for (LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrHead32->Flink);
     //         LdrNext32 != LdrHead32;
     //         LdrNext32 = (PLIST_ENTRY32)UlongToPtr(LdrNext32->Flink)) {
-    //        LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//�Ƿ���ַ��
+    //        LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);//非法地址。
 
-    //        //����ת��һ�²��ܴ�ӡ��%Z�Ƕ�STRING32��ӡ�����ġ�
-    //        //���·���е���ʾ�Ĳ��ԣ�Ӧ��WOW64��
-    //        //���˼·������NtQueryVirtualMemory��MmGetFileNameForAddress����RtlPcToFileName�������
+    //        //必须转换一下才能打印。%Z是对STRING32打印不出的。
+    //        //这个路径有的显示的不对，应是WOW64。
+    //        //解决思路：可用NtQueryVirtualMemory或MmGetFileNameForAddress或者RtlPcToFileName来解决。
     //        //UNICODE_STRING ImagePathName = {0};
     //        //ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
     //        //ImagePathName.Length = LdrEntry32->FullDllName.Length;
     //        //ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;            
-    //        //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//��Ϊ��32λ�ĵ�ַ���Ͳ���0x%p�ˡ�
+    //        //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//因为是32位的地址，就不用0x%p了。
     //        //         LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
 
     //        //\nt4\private\sdktools\psapi\mapfile.c
     //        struct
     //        {
     //            OBJECT_NAME_INFORMATION ObjectNameInfo;
-    //            WCHAR FileName[1024];//MAX_PATH ����Ϊ1024������ʧ�ܣ�ԭ�򿴣�ObQueryNameString��
+    //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
     //        } s = {0};
 
     //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
@@ -288,17 +288,17 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
 
 VOID EnumUserModule(_In_ HANDLE Pid, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context)
 /*
-���ܣ��оٽ��̵�DLL������32��64��WOW64��
+功能：列举进程的DLL，兼容32和64及WOW64。
 
-ע�⣺
-1.������취ȡImagePathName��IDLE��system������Ӧ�û�ȡ������
-2.�˺������ڽ��̻ص��л�ȡ�������ݣ��̻߳ص��ľͲ�˵�ˡ�
-3.���Ӷ����ƽ��̻ص������Ƶ���������������û�����顣
+注意：
+1.用这个办法取ImagePathName，IDLE和system这两个应该获取不到。
+2.此函数用在进程回调中获取不到内容，线程回调的就不说了。
+3.添加对类似进程回调等类似的情况，正常情况下没有试验。
 
-���ڴˣ�������������չ����
-1.����Ӧ�ò��ģ�飨����32��64��WOW64����
-2.ж��Ӧ�ò��ģ�飨����32��64��WOW64����
-3.��ȡӦ�ò��API�ĵ�ַ������32��64��WOW64����
+基于此，可以做到（扩展）：
+1.隐藏应用层的模块（兼容32和64及WOW64）。
+2.卸载应用层的模块（兼容32和64及WOW64）。
+3.获取应用层的API的地址（兼容32和64及WOW64）。
 
 made by correy
 made at 2017.02.17
@@ -323,12 +323,12 @@ homepage:http://correy.webs.com
 
     Status = PsLookupProcessByProcessId(Pid, &Process);
     if (!NT_SUCCESS(Status)) {
-        return;//��Ч���̡�
+        return;//无效进程。
     }
 
     KeStackAttachProcess(Process, &ApcState);
 
-    peb = PsGetProcessPeb(Process);//ע�⣺IDLE��system������Ӧ�û�ȡ������
+    peb = PsGetProcessPeb(Process);//注意：IDLE和system这两个应该获取不到。
     if (peb) {
         __try {
             if (peb->Ldr) {
@@ -336,7 +336,7 @@ homepage:http://correy.webs.com
                 le2 = le1;
                 do {
                     pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-                    if (pldte->FullDllName.Length) //���˵����һ��������ġ�
+                    if (pldte->FullDllName.Length) //过滤掉最后一个，多余的。
                     {
                         KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
@@ -356,15 +356,15 @@ homepage:http://correy.webs.com
         }
 
     #if defined(_WIN64)
-        //�����WOW64������Ҫִ������Ĵ��룬����Ҫ�����ж�WOW64�Ĵ��롣
-        //ZwQueryInformationProcess +��ProcessWow64Information
+        //如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
+        //ZwQueryInformationProcess +　ProcessWow64Information
         PWOW64_PROCESS pwp = (PWOW64_PROCESS)PsGetProcessWow64Process(Process);
         if (NULL != pwp) {
             EnumWow64Module(pwp, CallBack, Context);
         }
     #endif
-    } else {//win10���в��ٽ�����û���û��ռ�ģ�Ҳû�������С�
-        KdPrint(("����:%dû��PEB(�û���ռ�).\n", HandleToLong(Pid)));
+    } else {//win10上有不少进程是没有用户空间的，也没有命令行。
+        KdPrint(("进程:%d没有PEB(用户层空间).\n", HandleToLong(Pid)));
     }
 
     KeUnstackDetachProcess(&ApcState);
@@ -379,11 +379,11 @@ homepage:http://correy.webs.com
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 PVOID GetNtBase()
 /*
-���ܣ���ȡNT�ں˵Ļ���ַ��
+功能：获取NT内核的基地址。
 
-��ʵ��һ�����򵥵İ취��ֻ��֪��NT���һ����ַ��Ȼ�����һ���������ɻ�ã����API����RtlPcToFileHeader��
+其实有一个更简单的办法，只有知道NT里的一个地址，然后调用一个函数即可获得，这个API便是RtlPcToFileHeader。
 
-���л�����˵��NTDDI_VISTA����ʵ2003�����ˣ������е�WDK�ﲻ������Ӧ��lib��Aux_klib.lib����
+运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
 */
 {
     NTSTATUS Status = 0;
@@ -445,9 +445,9 @@ PVOID GetNtBase()
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 PVOID GetImageBase(__in PCSTR Name)
 /*
-���ܣ���ȡһ���ں�ģ��Ļ���ַ�����������û��NTDLL����
+功能：获取一个内核模块的基地址（你猜你面有没有NTDLL）。
 
-���л�����˵��NTDDI_VISTA����ʵ2003�����ˣ������е�WDK�ﲻ������Ӧ��lib��Aux_klib.lib����
+运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
 */
 {
     NTSTATUS Status = 0;
@@ -492,7 +492,7 @@ PVOID GetImageBase(__in PCSTR Name)
 
     for (i = 0; i < numberOfModules; i++) {
     #pragma prefast(push)
-    #pragma prefast(disable: 6385, "�ӡ�modules���ж�ȡ��������Ч: �ɶ���СΪ��_Old_8`modulesSize�����ֽڣ������ܶ�ȡ�ˡ�536�����ֽڡ�")
+    #pragma prefast(disable: 6385, "从“modules”中读取的数据无效: 可读大小为“_Old_8`modulesSize”个字节，但可能读取了“536”个字节。")
         UCHAR * FileName = modules[i].FullPathName + modules[i].FileNameOffset;
     #pragma prefast(pop)        
 
@@ -512,13 +512,13 @@ PVOID GetImageBase(__in PCSTR Name)
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Context)
 /*
-���ܣ�ͨ�õĴ���ÿ���ں�ģ��ĺ�����
+功能：通用的处理每个内核模块的函数。
 
-��ʵ��һ�����򵥵İ취��ֻ��֪��NT���һ����ַ��Ȼ�����һ���������ɻ�ã����API����RtlPcToFileHeader��
+其实有一个更简单的办法，只有知道NT里的一个地址，然后调用一个函数即可获得，这个API便是RtlPcToFileHeader。
 
-���л�����˵��NTDDI_VISTA����ʵ2003�����ˣ������е�WDK�ﲻ������Ӧ��lib��Aux_klib.lib����
+运行环境，说是NTDDI_VISTA，其实2003都有了，但是有的WDK里不包含相应的lib（Aux_klib.lib）。
 
-��ʵֻҪ����Aux_klib.lib����XP��2003��Ҳ�����ã���Ϊ����Ǿ�̬���ӵġ�
+其实只要包含Aux_klib.lib，在XP和2003上也可以用，因为这个是静态连接的。
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -570,11 +570,11 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
 
 PVOID GetNtdllImageBase(PEPROCESS Process)
 /*
-���ܣ���ȡһ�����̵�ntdll.dll����ַ��
+功能：获取一个进程的ntdll.dll基地址。
 
-ע�⣺�����64λ����ϵͳ�ϣ���ȡ���Ǳ����ģ���WOW64�ġ�
+注意：这个在64位操作系统上，获取的是本机的，非WOW64的。
 
-��֧��IDLE��SYStem���̡�
+不支持IDLE和SYStem进程。
 */
 {
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -637,7 +637,7 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     PLIST_ENTRY le1, le2;
     PVOID ImageBase = 0;
 
-    ppeb = PsGetProcessPeb(Process);//ע�⣺IDLE��system������Ӧ�û�ȡ������
+    ppeb = PsGetProcessPeb(Process);//注意：IDLE和system这两个应该获取不到。
 #if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
 #else
@@ -647,14 +647,14 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 
     do {
         pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-        if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) //���˵����һ��������ġ�
+        if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) //过滤掉最后一个，多余的。
         {
             //KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));  
 
             if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
                 RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
                 RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0
-                //�ں���û�����Ի���������ͷ��·�����磺%systemroot%.
+                //内核里没见过以环境变量开头的路径，如：%systemroot%.
                 ) {
                 ImageBase = pldte->DllBase;
                 break;
@@ -673,9 +673,9 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 
 NTSTATUS NTAPI HandleOneSection(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_opt_ PVOID Context)
 /*
-˵�����ں�ӳ��Ļص�����������������
+说明：内核映射的回调处理函数的样例。
 
-�˻ص�ֻ�ᱻ����һ�Ρ�
+此回调只会被调用一次。
 */
 {
     UNREFERENCED_PARAMETER(ViewBase);
@@ -688,21 +688,21 @@ NTSTATUS NTAPI HandleOneSection(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_o
 
 BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, _In_opt_ HandleSection CallBack, _In_opt_ PVOID Context)
 /*
-���ܣ�ͨ�õ��ں�ӳ�䴦��������
+功能：通用的内核映射处理函数。
 
-�ں��е��ļ�ӳ�䡣
-Ӧ�û���ͦ�㷺�ģ��磺����Ӧ�ò��DLL���磺kernel32.dll��ntdll.dll�ȡ�
-ע�⣺�Լ���ӳ�仹�ǱȽϸɾ��ģ�û�и���HOOK����inline��IAT��EAT�ȡ�
+内核中的文件映射。
+应用还是挺广泛的，如：分析应用层的DLL，如：kernel32.dll，ntdll.dll等。
+注意：自己的映射还是比较干净的，没有各种HOOK，如inline和IAT，EAT等。
 
-��ӳ��ӳ�䵽��PsInitialSystemProcess���̡�
+此映射映射到了PsInitialSystemProcess进程。
 
 made by correy
 made at 2017/05/29
 http://correy.webs.com
 
-�˺����ο���WRK��IopIsNotNativeDriverImage��
+此函数参考：WRK的IopIsNotNativeDriverImage。
 
-�÷�ʾ����MapViewOfSection(&PsNtDllPathName);
+用法示例：MapViewOfSection(&PsNtDllPathName);
 */
 {
     HANDLE ImageFileHandle = nullptr;
@@ -760,15 +760,15 @@ http://correy.webs.com
             __leave;
         }
 
-        Status = ZwMapViewOfSection(Section, 
-                                    Handle, 
+        Status = ZwMapViewOfSection(Section,
+                                    Handle,
                                     &ViewBase,
-                                    0L, 
                                     0L,
-                                    NULL, 
+                                    0L,
+                                    NULL,
                                     &ViewSize,
                                     ViewShare,
-                                    0L, 
+                                    0L,
                                     PAGE_READONLY);//PAGE_EXECUTE
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
@@ -818,7 +818,7 @@ http://correy.webs.com
 
 NTSTATUS ZwGetSystemModuleInformation()
 /*
-�ο���WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c��PerfInfoSysModuleRunDown������
+参考：WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\perf\hooks.c的PerfInfoSysModuleRunDown函数。
 */
 {
     NTSTATUS Status;
@@ -884,16 +884,16 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    InitializeObjectAttributes(&ObjectAttributes, 
-                               ctx->info.FullImageName, 
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 
-                               NULL, 
+    InitializeObjectAttributes(&ObjectAttributes,
+                               ctx->info.FullImageName,
+                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+                               NULL,
                                NULL);
-    ctx->info.Status = ZwOpenFile(&File, 
+    ctx->info.Status = ZwOpenFile(&File,
                                   SYNCHRONIZE | FILE_GENERIC_READ,//FILE_EXECUTE
                                   &ObjectAttributes,
-                                  &IoStatus, 
-                                  FILE_SHARE_READ, 
+                                  &IoStatus,
+                                  FILE_SHARE_READ,
                                   0);
     if (NT_SUCCESS(ctx->info.Status)) {
         ctx->info.Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, 0);
@@ -902,14 +902,14 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
             ASSERT(NT_SUCCESS(ctx->info.Status));
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//�ɵ������ͷš�
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
             if (ctx->info.ImageLoaded.Buffer) {
                 RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
 
                 //KdPrint(("DOS name:%wZ.\r\n", &FullName));
                 RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "�ڴ�����ʧ��");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
             }
 
             if (FullName.Buffer) {
@@ -928,12 +928,12 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
         if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//�ɵ������ͷš�
+            ctx->info.ImageLoaded.Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG);//由调用者释放。
             if (ctx->info.ImageLoaded.Buffer) {
                 RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
                 RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "�ڴ�����ʧ��");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
             }
         } else {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
@@ -954,23 +954,23 @@ VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in PIMAGE_INFO  ImageInfo
 )
 /*
-���ܣ���LoadImageNotifyRoutine�л�ȡLoadImage��ȫ·����
+功能：在LoadImageNotifyRoutine中获取LoadImage的全路径。
 
-������XP��VISTA��windows 7/8/8.1/10���Լ�Windows server 2003/2008/2012/2016/2019�ȡ�
+适用于XP，VISTA，windows 7/8/8.1/10，以及Windows server 2003/2008/2012/2016/2019等。
 
-��Ҫ˵����
-1.XP��FullImageName��FILE_OBJECT��FileName���������Ҳ��һ����������·����
-2.windows 7�´�ʱ����������ֱ�ӻ�ȡ����Ҫһ��WorkItem���������������
-3.windows 8.1֮��ܼ��ˡ�
-4.FullImageName��·���������ģ���Եģ������������ĵȺ��п��ܡ�
+简要说明：
+1.XP下FullImageName是FILE_OBJECT的FileName。所以这个也不一定是完整的路径。
+2.windows 7下此时有锁，不可直接获取，需要一个WorkItem解决，否则蓝屏。
+3.windows 8.1之后很简单了。
+4.FullImageName的路径非完整的，相对的，带环境变量的等后有可能。
 5.
 
-ע�⣺
-1.�˺���ֻ������LoadImageNotifyRoutine�С�
-2.�������سɹ���FullImageName���ڴ��ɵ������ͷš�
+注意：
+1.此函数只适用于LoadImageNotifyRoutine中。
+2.函数返回成功，FullImageName的内存由调用者释放。
 3.
 
-�÷�ʾ����
+用法示例：
 UNICODE_STRING LoadImageFullName = {0};
 RtlGetLoadImageFullName(&LoadImageFullName, FullImageName, ProcessId, ImageInfo);
 ...
@@ -983,7 +983,7 @@ FreeUnicodeString(&LoadImageFullName);
 
     ctx = (PLOAD_IMAGE_CONTEXT)ExAllocatePoolWithTag(NonPagedPool, sizeof(LOAD_IMAGE_CONTEXT), TAG);
     if (nullptr == ctx) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "�ڴ�����ʧ��");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
         return;
     }
 
@@ -1000,7 +1000,7 @@ FreeUnicodeString(&LoadImageFullName);
         ExInitializeWorkItem(&ctx->hdr, ImageLoadedThreadEx, ctx);
     } else {
         /*
-        ��ʱ��FileFullName���м��ֲ�ͬ�ı�����ʽ����Ӧ����VISTA֮ǰ���֡�
+        此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。
         */
 
         ctx->info.ImageInfo = ImageInfo;
@@ -1015,12 +1015,12 @@ FreeUnicodeString(&LoadImageFullName);
     if (NT_SUCCESS(Status) && NT_SUCCESS(ctx->info.Status)) {
         if (ctx->info.ImageLoaded.Buffer != NULL) {
             LoadImageFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
-            LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG);//�ɵ������ͷš�
+            LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG);//由调用者释放。
             if (LoadImageFullName->Buffer) {
                 RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
                 RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "�ڴ�����ʧ��");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
             }
 
             ExFreePoolWithTag(ctx->info.ImageLoaded.Buffer, TAG);
@@ -1040,44 +1040,44 @@ FreeUnicodeString(&LoadImageFullName);
 
 VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
 /*
-���ܣ���������ģ�顣
+功能：隐藏驱动模块。
 
-ע�ͣ�ֻ����ϵͳ�����������ˣ����������ռ䣨\Driver\XXX���ﻹ���ڵģ������ڴ��ַ�ռ�Ҳ�ܱ�������
+注释：只是在系统进程里隐藏了，但是命名空间（\Driver\XXX）里还存在的，估计内存地址空间也能遍历到。
 
-Ŀǰ��֧���������������أ���֧��ָ�����������ء�
+目前仅支持自身驱动的隐藏，不支持指定的驱动隐藏。
 
-û�뵽�������д��2012�꣬�����ɻ�����Ըı�ġ�
+没想到这个函数写于2012年，且是由汇编语言改编的。
 */
 {
-    KIRQL Irql = KeRaiseIrqlToDpcLevel(); 
+    KIRQL Irql = KeRaiseIrqlToDpcLevel();
 
 #pragma warning(push)
 #pragma warning(disable:28175) 
     PKLDR_DATA_TABLE_ENTRY DriverSection = (PKLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
 #pragma warning(pop)  
 
-    if (NULL != DriverSection) {  //������������ժ��������������
+    if (NULL != DriverSection) {  //从驱动链表中摘除，隐藏驱动。
         PLIST_ENTRY InLoadOrderLinks = &DriverSection->InLoadOrderLinks;
         //RemoveHeadList(&DriverSection->InLoadOrderLinks);
 
         *((SIZE_T *)InLoadOrderLinks->Blink) = (SIZE_T)InLoadOrderLinks->Flink;
         InLoadOrderLinks->Flink->Blink = InLoadOrderLinks->Blink;
 
-        //�������ֹ������
-        InLoadOrderLinks->Flink = (PLIST_ENTRY)&(InLoadOrderLinks->Flink);
-        InLoadOrderLinks->Blink = (PLIST_ENTRY)&(InLoadOrderLinks->Flink);
+        //这两句防止蓝屏。
+        InLoadOrderLinks->Flink = (PLIST_ENTRY) & (InLoadOrderLinks->Flink);
+        InLoadOrderLinks->Blink = (PLIST_ENTRY) & (InLoadOrderLinks->Flink);
 
-        ////����������ȫ·�����������������¼��ؿ����е����⡣
+        ////隐藏驱动的全路径。隐藏这两项重新加载可能有点问题。
         //DriverSection->FullDllName.Length = 0;
         //DriverSection->FullDllName.MaximumLength = 0;
         //DriverSection->FullDllName.Buffer = 0;
 
-        ////�����������ļ�����
+        ////隐藏驱动的文件名。
         //DriverSection->BaseDllName.Length = 0;
         //DriverSection->BaseDllName.MaximumLength = 0;
         //DriverSection->BaseDllName.Buffer = 0;
 
-        //��������������ػ�����Ӵ��
+        //别的项在这里隐藏会蓝屏哟！
     }
 
     KeLowerIrql(Irql);

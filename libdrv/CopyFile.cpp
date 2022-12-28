@@ -3,7 +3,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÒÔÏÂ´úÂëÕª×ÔOSR.
+//ä»¥ä¸‹ä»£ç æ‘˜è‡ªOSR.
 
 
 #define KFC_MAX_TRANSFER_SIZE (0x10000)
@@ -305,12 +305,12 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
 
 NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
 /*
-Í¨¹ýIRP·½Ê½¸´ÖÆÎÄ¼þ¡£
+é€šè¿‡IRPæ–¹å¼å¤åˆ¶æ–‡ä»¶ã€‚
 
-×¢Òâ£º
-    1.ÔÚCREATEÏûÏ¢ÖÐ×îºÃ²»ÒªÊ¹ÓÃ´Ëº¯Êý¡£
-    2.Èç¹ûÔ´ÎÄ¼þ±»Ëø¶¨£¬Õâ¸öº¯ÊýÒ²»áÊ§°ÜµÄ¡£½â¾öË¼Â·ÊÇ£ºFsRtlCreateSectionForDataScan¡£
-    3.Ë½ÓÐµÄÁ÷Òª²»Òª¸´ÖÆ¡£
+æ³¨æ„ï¼š
+    1.åœ¨CREATEæ¶ˆæ¯ä¸­æœ€å¥½ä¸è¦ä½¿ç”¨æ­¤å‡½æ•°ã€‚
+    2.å¦‚æžœæºæ–‡ä»¶è¢«é”å®šï¼Œè¿™ä¸ªå‡½æ•°ä¹Ÿä¼šå¤±è´¥çš„ã€‚è§£å†³æ€è·¯æ˜¯ï¼šFsRtlCreateSectionForDataScanã€‚
+    3.ç§æœ‰çš„æµè¦ä¸è¦å¤åˆ¶ã€‚
 */
 {
     OBJECT_ATTRIBUTES ob;
@@ -397,40 +397,40 @@ NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
 
 
 /*
-Ãû×Ö:Çý¶¯¸´ÖÆÎÄ¼þ.
+åå­—:é©±åŠ¨å¤åˆ¶æ–‡ä»¶.
 
-ÎÄ¼þ²Ù×÷ºÜ¼òµ¥.
-NT*ÏµÁÐº¯ÊýµÄ²Ù×÷ÔÚÓÃ»§²ãÒ²¿ÉÒÔ.
+æ–‡ä»¶æ“ä½œå¾ˆç®€å•.
+NT*ç³»åˆ—å‡½æ•°çš„æ“ä½œåœ¨ç”¨æˆ·å±‚ä¹Ÿå¯ä»¥.
 
-ÎªºÎÓÐ½ñÌìµÄÎÄÕÂ?
-ÎÄ¼þ²Ù×÷ÕæµÄ¼òµ¥Âð?¿´Íê±¾Æª¾ÍÖªµÀÁË.
-ÎªºÎÒª×öZW*ÏµÁÐº¯Êý?ÔÚÄÚºËÖÐÃ»ÓÐÈ¨ÏÞµÄÏÞÖÆ,²»ÖªÊÇÄÄ±¾Êé»òÕßÄÇ¸öµØ·½ÕâÑùËµµÄ.
-ËùÒÔÔÚÄÚºË¾Í¿ÉÒÔ×öÒ»Ð©Ó¦ÓÃ²ãÄÑ×öµÄÊÂÇé,ÈçÐèÒªÌØÌØÌØÌØÈ¨ÏÞµÄ.
+ä¸ºä½•æœ‰ä»Šå¤©çš„æ–‡ç« ?
+æ–‡ä»¶æ“ä½œçœŸçš„ç®€å•å—?çœ‹å®Œæœ¬ç¯‡å°±çŸ¥é“äº†.
+ä¸ºä½•è¦åšZW*ç³»åˆ—å‡½æ•°?åœ¨å†…æ ¸ä¸­æ²¡æœ‰æƒé™çš„é™åˆ¶,ä¸çŸ¥æ˜¯å“ªæœ¬ä¹¦æˆ–è€…é‚£ä¸ªåœ°æ–¹è¿™æ ·è¯´çš„.
+æ‰€ä»¥åœ¨å†…æ ¸å°±å¯ä»¥åšä¸€äº›åº”ç”¨å±‚éš¾åšçš„äº‹æƒ…,å¦‚éœ€è¦ç‰¹ç‰¹ç‰¹ç‰¹æƒé™çš„.
 
-ÍøÉÏÃ»ÓÐ¿´µ½Ïà¹ØµÄÊ¾Àý´úÂë.
-Ö»ÓÐWDKÉÏµÄÒ»Ð©¼òµ¥µÄ½éÉÜ:Using Files In A Driver
+ç½‘ä¸Šæ²¡æœ‰çœ‹åˆ°ç›¸å…³çš„ç¤ºä¾‹ä»£ç .
+åªæœ‰WDKä¸Šçš„ä¸€äº›ç®€å•çš„ä»‹ç»:Using Files In A Driver
 http://msdn.microsoft.com/en-us/library/windows/hardware/ff565384(v=vs.85).aspx
 
-Ç°Á½¸öº¯Êý²âÊÔÈçÏÂÓÃÀýÊ§°Ü:
-´ò¿ª:windows\\system32\\config\\sam
-»áµ¼ÖÂ:C0000043 == -1073741757,½âÊÍÊÇ:ÁíÒ»¸ö³ÌÐòÕýÔÚÊ¹ÓÃ´ËÎÄ¼þ£¬½ø³ÌÎÞ·¨·ÃÎÊ¡£
-¿ÉÄÜÊÇ¶ÀÕ¼·½Ê½´ò¿ªµÄ.
+å‰ä¸¤ä¸ªå‡½æ•°æµ‹è¯•å¦‚ä¸‹ç”¨ä¾‹å¤±è´¥:
+æ‰“å¼€:windows\\system32\\config\\sam
+ä¼šå¯¼è‡´:C0000043 == -1073741757,è§£é‡Šæ˜¯:å¦ä¸€ä¸ªç¨‹åºæ­£åœ¨ä½¿ç”¨æ­¤æ–‡ä»¶ï¼Œè¿›ç¨‹æ— æ³•è®¿é—®ã€‚
+å¯èƒ½æ˜¯ç‹¬å æ–¹å¼æ‰“å¼€çš„.
 
 made by correy
 made at 2013.11.23
-²»×ãÖ®´¦,¾´ÇëÖ¸³ö.
+ä¸è¶³ä¹‹å¤„,æ•¬è¯·æŒ‡å‡º.
 */
 
 
 BOOLEAN CopyFile(IN PWCH DestinationFile, IN PWCH SourceFile, IN BOOLEAN bFailIfExists)
 /*
-²ÎÊýµÄÐÎÊ½Îª:C:\WINDOWS\example.txt
+å‚æ•°çš„å½¢å¼ä¸º:C:\WINDOWS\example.txt
 
-bFailIfExists == TRUEÊ±,Èç¹ûDestinationFile´æÔÚ¾Í·µ»ØÊ§°Ü;
-bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
+bFailIfExists == TRUEæ—¶,å¦‚æžœDestinationFileå­˜åœ¨å°±è¿”å›žå¤±è´¥;
+bFailIfExists == FALSEæ—¶,å¦‚æžœDestinationFileå­˜åœ¨å°±æ–°å»ºæˆ–è€…è¦†ç›–;
 
-´æÔÚµÄÈ±µãÓÐ:
-1.Ã»ÓÐ¸´ÖÆÎÄ¼þµÄÊôÐÔ,Èç:ÎÄ¼þµÄËùÓÐÕßµÈÐÅÏ¢.
+å­˜åœ¨çš„ç¼ºç‚¹æœ‰:
+1.æ²¡æœ‰å¤åˆ¶æ–‡ä»¶çš„å±žæ€§,å¦‚:æ–‡ä»¶çš„æ‰€æœ‰è€…ç­‰ä¿¡æ¯.
 */
 {
     BOOLEAN b = FALSE;
@@ -450,12 +450,12 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
     LARGE_INTEGER AllocationSize = {0};
     ULONG CreateDisposition = 0;
 
-    //Èç¹ûSourceFileÊÇÎÄ¼þ¼Ð,ÔÚÏÂÃæ´ò¿ªµÄÊ±ºò·µ»ØÊ§°Ü.
+    //å¦‚æžœSourceFileæ˜¯æ–‡ä»¶å¤¹,åœ¨ä¸‹é¢æ‰“å¼€çš„æ—¶å€™è¿”å›žå¤±è´¥.
 
     __try {
         df.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
         if (df.Buffer == NULL) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             __leave;
         }
         RtlZeroMemory(df.Buffer, MAX_PATH);
@@ -494,7 +494,7 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
         }
         InitializeObjectAttributes(&ob, &df, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
         if (bFailIfExists) {
-            CreateDisposition = FILE_CREATE;//ÐÂ½¨ÎÄ¼þ.
+            CreateDisposition = FILE_CREATE;//æ–°å»ºæ–‡ä»¶.
         } else {
             CreateDisposition = FILE_SUPERSEDE;//FILE_OVERWRITE_IF
         }
@@ -514,7 +514,7 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
             __leave;
         }
 
-        //¿ÉÒÔ¿¼ÂÇÔÚÕâÀï¸øÎÄ¼þ¼ÓËø,±£»¤,²»ÈÃ±ðµÄ²Ù×÷ÔÙÐ´Èë.ZwLockFile,ÔÙÔÚÊÊµ±µÄÊ±ºò½âËø:ZwUnlockFile.
+        //å¯ä»¥è€ƒè™‘åœ¨è¿™é‡Œç»™æ–‡ä»¶åŠ é”,ä¿æŠ¤,ä¸è®©åˆ«çš„æ“ä½œå†å†™å…¥.ZwLockFile,å†åœ¨é€‚å½“çš„æ—¶å€™è§£é”:ZwUnlockFile.
 
         Status = ZwQueryInformationFile(FileHandle,
                                         &IoStatusBlock,
@@ -531,11 +531,11 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
         }
 
         file_size = fsi.EndOfFile;
-        Length = 9;//¿ÉÓÃZwQuerySystemInformation SystemBasicInformationÈ¡Ò³µÄ´óÐ¡¡£
+        Length = 9;//å¯ç”¨ZwQuerySystemInformation SystemBasicInformationå–é¡µçš„å¤§å°ã€‚
         Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
         if (Buffer == NULL) {
             Status = STATUS_UNSUCCESSFUL;
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
             __leave;
         }
 
@@ -557,21 +557,21 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
                                  (ULONG)IoStatusBlock.Information,
                                  &i,
                                  NULL);
-            if (!NT_SUCCESS(Status)) //¿ÉÒÔ¼ì²éÐ´ÈëµÄÊýÁ¿»òÕßÐ´ÈëµÄ×ÜÁ¿¡£
+            if (!NT_SUCCESS(Status)) //å¯ä»¥æ£€æŸ¥å†™å…¥çš„æ•°é‡æˆ–è€…å†™å…¥çš„æ€»é‡ã€‚
             {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
                 __leave;
             }
 
-            i.QuadPart += IoStatusBlock.Information;//±ØÐëÔÚÕâÀï£¬ÔÚZwWriteFileµÄÇ°Ãæ¾Í»á³öÏÖ´óÐ¡µÄÎÊÌâ¡£
+            i.QuadPart += IoStatusBlock.Information;//å¿…é¡»åœ¨è¿™é‡Œï¼Œåœ¨ZwWriteFileçš„å‰é¢å°±ä¼šå‡ºçŽ°å¤§å°çš„é—®é¢˜ã€‚
         }
     } __finally {
-        if (NT_SUCCESS(Status)) //¼ì²éÉÏÃæµÄËùÓÐÇé¿ö.
+        if (NT_SUCCESS(Status)) //æ£€æŸ¥ä¸Šé¢çš„æ‰€æœ‰æƒ…å†µ.
         {
-            b = TRUE;//ÓÐÊ±Ð´ÎÄ¼þ»á·µ»Ø0x103,¼´ÖØµþ I/O ²Ù×÷ÔÚ½øÐÐÖÐ,Ò²»á×ßµ½ÕâÀï.
+            b = TRUE;//æœ‰æ—¶å†™æ–‡ä»¶ä¼šè¿”å›ž0x103,å³é‡å  I/O æ“ä½œåœ¨è¿›è¡Œä¸­,ä¹Ÿä¼šèµ°åˆ°è¿™é‡Œ.
         }
 
-        //¹Ø±Õ¾ä±ú.        
+        //å…³é—­å¥æŸ„.        
         if (FileHandle) {
             Status = ZwClose(FileHandle);
             if (!NT_SUCCESS(Status)) {
@@ -585,7 +585,7 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
             }
         }
 
-        //ÊÍ·ÅÄÚ´æ.
+        //é‡Šæ”¾å†…å­˜.
         if (df.Buffer) {
             ExFreePoolWithTag(df.Buffer, TAG);
         }
@@ -594,16 +594,16 @@ bFailIfExists == FALSEÊ±,Èç¹ûDestinationFile´æÔÚ¾ÍÐÂ½¨»òÕß¸²¸Ç;
         }
     }
 
-    return b;//²»×öÍ¬²½ÊÇÒªÀ¶ÆÁµÄ.
+    return b;//ä¸åšåŒæ­¥æ˜¯è¦è“å±çš„.
 }
 
 
 BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
     /*
-    ²ÎÊýµÄÐÎÊ½ÊÇ£º"\Device\HarddiskVolume1\XXXµÈ¡£
+    å‚æ•°çš„å½¢å¼æ˜¯ï¼š"\Device\HarddiskVolume1\XXXç­‰ã€‚
 
-    ´æÔÚµÄÈ±µãÓÐ:
-    1.Ã»ÓÐ¸´ÖÆÎÄ¼þµÄÊôÐÔ,Èç:ÎÄ¼þµÄËùÓÐÕßµÈÐÅÏ¢.
+    å­˜åœ¨çš„ç¼ºç‚¹æœ‰:
+    1.æ²¡æœ‰å¤åˆ¶æ–‡ä»¶çš„å±žæ€§,å¦‚:æ–‡ä»¶çš„æ‰€æœ‰è€…ç­‰ä¿¡æ¯.
     */
 {
     BOOLEAN b = FALSE;
@@ -638,7 +638,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //¿ÉÒÔ¿¼ÂÇÔÚÕâÀï¸øÎÄ¼þ¼ÓËø,±£»¤,²»ÈÃ±ðµÄ²Ù×÷ÔÙÐ´Èë.ZwLockFile,ÔÙÔÚÊÊµ±µÄÊ±ºò½âËø:ZwUnlockFile.
+    //å¯ä»¥è€ƒè™‘åœ¨è¿™é‡Œç»™æ–‡ä»¶åŠ é”,ä¿æŠ¤,ä¸è®©åˆ«çš„æ“ä½œå†å†™å…¥.ZwLockFile,å†åœ¨é€‚å½“çš„æ—¶å€™è§£é”:ZwUnlockFile.
 
     Status = ZwQueryInformationFile(FileHandle,
                                     &IoStatusBlock,
@@ -651,7 +651,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;;
     }
 
-    //ÐÂ½¨ÎÄ¼þ.
+    //æ–°å»ºæ–‡ä»¶.
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -681,11 +681,11 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;//²âÊÔ×¨ÓÃ¡£
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0Ê±¼ÓÇý¶¯ÑéÖ¤Æ÷£¬ÕâÀï»áÀ¶ÆÁ¡£
+    Length = 9;//æµ‹è¯•ä¸“ç”¨ã€‚
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0æ—¶åŠ é©±åŠ¨éªŒè¯å™¨ï¼Œè¿™é‡Œä¼šè“å±ã€‚
     if (Buffer == NULL) {
         Status = STATUS_UNSUCCESSFUL;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return b;
@@ -733,15 +733,15 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 
 BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
     /*
-    ²ÎÊýµÄÐÎÊ½ÊÇ£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS\\system32\\config\\SAM¡£
+    å‚æ•°çš„å½¢å¼æ˜¯ï¼š"\Device\HarddiskVolume1\XXXæˆ–è€…\\??\\c:\\WINDOWS\\system32\\config\\SAMã€‚
 
-    ¹¦ÄÜ£ºÓÉÓÚ×¨ÃÅ¸´ÖÆ±»¶ÀÕ¼Ê½Ê¹ÓÃµÄÎÄ¼þ£¬Èç·ÖÒ³ÎÄ¼þ£¨ÕýÔÚÊ¹ÓÃµÄpagefile.sys£©ºÍ¸÷ÖÖ±»ÕýÔÚÊ¹ÓÃHIVEÎÄ¼þ.
-    À©Õ¹¹¦ÄÜ£ºÈçÉ¾³ýÎÄ¼þ£¨´ò¿ªµÄÊ±ºò´øÓÐÉ¾³ýµÄÊôÐÔ£ºFILE_DELETE_ON_CLOSE £©¹À¼ÆÒ²¿ÉÒÔµÄ£¬Õâ¸ö²»ÓÃ·¢ËÍIRP£¬ÖÁÉÙÔÚÐÎÊ½ÉÏ¡£
+    åŠŸèƒ½ï¼šç”±äºŽä¸“é—¨å¤åˆ¶è¢«ç‹¬å å¼ä½¿ç”¨çš„æ–‡ä»¶ï¼Œå¦‚åˆ†é¡µæ–‡ä»¶ï¼ˆæ­£åœ¨ä½¿ç”¨çš„pagefile.sysï¼‰å’Œå„ç§è¢«æ­£åœ¨ä½¿ç”¨HIVEæ–‡ä»¶.
+    æ‰©å±•åŠŸèƒ½ï¼šå¦‚åˆ é™¤æ–‡ä»¶ï¼ˆæ‰“å¼€çš„æ—¶å€™å¸¦æœ‰åˆ é™¤çš„å±žæ€§ï¼šFILE_DELETE_ON_CLOSE ï¼‰ä¼°è®¡ä¹Ÿå¯ä»¥çš„ï¼Œè¿™ä¸ªä¸ç”¨å‘é€IRPï¼Œè‡³å°‘åœ¨å½¢å¼ä¸Šã€‚
 
-    ËµÃ÷£ºIoCreateFileExº¯ÊýÓÐIO_IGNORE_SHARE_ACCESS_CHECK¹¦ÄÜ£¬¿ÉÊÇThis routine is available starting with Windows Vista.
+    è¯´æ˜Žï¼šIoCreateFileExå‡½æ•°æœ‰IO_IGNORE_SHARE_ACCESS_CHECKåŠŸèƒ½ï¼Œå¯æ˜¯This routine is available starting with Windows Vista.
 
-    ´æÔÚµÄÈ±µãÓÐ:
-    1.Ã»ÓÐ¸´ÖÆÎÄ¼þµÄÊôÐÔ,Èç:ÎÄ¼þµÄËùÓÐÕßµÈÐÅÏ¢.
+    å­˜åœ¨çš„ç¼ºç‚¹æœ‰:
+    1.æ²¡æœ‰å¤åˆ¶æ–‡ä»¶çš„å±žæ€§,å¦‚:æ–‡ä»¶çš„æ‰€æœ‰è€…ç­‰ä¿¡æ¯.
 
     made by correy
     made at 2014.07.28
@@ -795,7 +795,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
         &ffai,
         sizeof(FILE_FULL_EA_INFORMATION),
-        CreateFileTypeNone,//ÆäÊµÃüÃû¹ÜµÀºÍÓÊ¼þ²ÛÒ²¶¨ÒåÁË¡£
+        CreateFileTypeNone,//å…¶å®žå‘½åç®¡é“å’Œé‚®ä»¶æ§½ä¹Ÿå®šä¹‰äº†ã€‚
         NULL,
         /*
         Indicates that the I/O manager should not perform share-access checks on the file object after it is created.
@@ -819,8 +819,8 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //¿ÉÒÔ¿¼ÂÇÔÚÕâÀï¸øÎÄ¼þ¼ÓËø,±£»¤,²»ÈÃ±ðµÄ²Ù×÷ÔÙÐ´Èë.ZwLockFile,ÔÙÔÚÊÊµ±µÄÊ±ºò½âËø:ZwUnlockFile.
-    //¿ÉÊÇThis routine is available in Windows 7 and later versions of the Windows operating system.
+    //å¯ä»¥è€ƒè™‘åœ¨è¿™é‡Œç»™æ–‡ä»¶åŠ é”,ä¿æŠ¤,ä¸è®©åˆ«çš„æ“ä½œå†å†™å…¥.ZwLockFile,å†åœ¨é€‚å½“çš„æ—¶å€™è§£é”:ZwUnlockFile.
+    //å¯æ˜¯This routine is available in Windows 7 and later versions of the Windows operating system.
 
     Status = ZwQueryInformationFile(FileHandle,
                                     &IoStatusBlock,
@@ -833,7 +833,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;;
     }
 
-    //ÐÂ½¨ÎÄ¼þ.
+    //æ–°å»ºæ–‡ä»¶.
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -863,11 +863,11 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;//²âÊÔ×¨ÓÃ¡£
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0Ê±¼ÓÇý¶¯ÑéÖ¤Æ÷£¬ÕâÀï»áÀ¶ÆÁ¡£
+    Length = 9;//æµ‹è¯•ä¸“ç”¨ã€‚
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0æ—¶åŠ é©±åŠ¨éªŒè¯å™¨ï¼Œè¿™é‡Œä¼šè“å±ã€‚
     if (Buffer == NULL) {
         Status = STATUS_UNSUCCESSFUL;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return b;
@@ -914,7 +914,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 
 
 /*
-* º¯Êýµ÷ÓÃÊ¾Àý£º
+* å‡½æ•°è°ƒç”¨ç¤ºä¾‹ï¼š
 *
     UNICODE_STRING FileName  = RTL_CONSTANT_STRING(L"\\??\\c:\\1.exe");
     UNICODE_STRING newFileName  = RTL_CONSTANT_STRING(L"\\??\\c:\\3.exe");
@@ -947,30 +947,30 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 
 BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
     /*
-    ²ÎÊýµÄÐÎÊ½ÊÇ£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS\\system32\\config\\SAM¡£
+    å‚æ•°çš„å½¢å¼æ˜¯ï¼š"\Device\HarddiskVolume1\XXXæˆ–è€…\\??\\c:\\WINDOWS\\system32\\config\\SAMã€‚
 
-    ¹¦ÄÜ£º¸´ÖÆ¶ÀÕ¼Ê½µÄºÍ±»Ëø¶¨£¨ZwLockFile£©µÄÎÄ¼þ¡£
+    åŠŸèƒ½ï¼šå¤åˆ¶ç‹¬å å¼çš„å’Œè¢«é”å®šï¼ˆZwLockFileï¼‰çš„æ–‡ä»¶ã€‚
 
-    ËµÃ÷£º
-    1.IoCreateFileExº¯ÊýÓÐIO_IGNORE_SHARE_ACCESS_CHECK¹¦ÄÜ£¬¿ÉÊÇThis routine is available starting with Windows Vista.
-    2.ÓÉÓÚ×¨ÃÅ¸´ÖÆ±»¶ÀÕ¼Ê½Ê¹ÓÃµÄÎÄ¼þ£¬Èç·ÖÒ³ÎÄ¼þ£¨ÕýÔÚÊ¹ÓÃµÄpagefile.sys£©ºÍ¸÷ÖÖ±»ÕýÔÚÊ¹ÓÃHIVEÎÄ¼þ.
-    3.À©Õ¹¹¦ÄÜ£ºÈçÉ¾³ýÎÄ¼þ£¨´ò¿ªµÄÊ±ºò´øÓÐÉ¾³ýµÄÊôÐÔ£ºFILE_DELETE_ON_CLOSE £©¹À¼ÆÒ²¿ÉÒÔµÄ£¬Õâ¸ö²»ÓÃ·¢ËÍIRP£¬ÖÁÉÙÔÚÐÎÊ½ÉÏ¡£
+    è¯´æ˜Žï¼š
+    1.IoCreateFileExå‡½æ•°æœ‰IO_IGNORE_SHARE_ACCESS_CHECKåŠŸèƒ½ï¼Œå¯æ˜¯This routine is available starting with Windows Vista.
+    2.ç”±äºŽä¸“é—¨å¤åˆ¶è¢«ç‹¬å å¼ä½¿ç”¨çš„æ–‡ä»¶ï¼Œå¦‚åˆ†é¡µæ–‡ä»¶ï¼ˆæ­£åœ¨ä½¿ç”¨çš„pagefile.sysï¼‰å’Œå„ç§è¢«æ­£åœ¨ä½¿ç”¨HIVEæ–‡ä»¶.
+    3.æ‰©å±•åŠŸèƒ½ï¼šå¦‚åˆ é™¤æ–‡ä»¶ï¼ˆæ‰“å¼€çš„æ—¶å€™å¸¦æœ‰åˆ é™¤çš„å±žæ€§ï¼šFILE_DELETE_ON_CLOSE ï¼‰ä¼°è®¡ä¹Ÿå¯ä»¥çš„ï¼Œè¿™ä¸ªä¸ç”¨å‘é€IRPï¼Œè‡³å°‘åœ¨å½¢å¼ä¸Šã€‚
 
-    ´æÔÚµÄÈ±µãÓÐ:
-    1.Ã»ÓÐ¸´ÖÆÎÄ¼þµÄÊôÐÔ,Èç:ÎÄ¼þµÄËùÓÐÕßµÈÐÅÏ¢.
+    å­˜åœ¨çš„ç¼ºç‚¹æœ‰:
+    1.æ²¡æœ‰å¤åˆ¶æ–‡ä»¶çš„å±žæ€§,å¦‚:æ–‡ä»¶çš„æ‰€æœ‰è€…ç­‰ä¿¡æ¯.
 
     made by correy
     made at 2015.01.04
     */
 
     /*
-    //²âÊÔÓÃÀýÎÄ¼þÒ»£º
+    //æµ‹è¯•ç”¨ä¾‹æ–‡ä»¶ä¸€ï¼š
     //UNICODE_STRING FileName2  = RTL_CONSTANT_STRING(L"\\??\\c:\\test1.txt");
     //UNICODE_STRING newFileName2  = RTL_CONSTANT_STRING(L"\\??\\c:\\test2.txt");
     //UNICODE_STRING FileName3  = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\test1.txt");//
     //UNICODE_STRING newFileName3  = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\test3.txt");
 
-    //²âÊÔÓÃÀýÎÄ¼þ¶þ£º
+    //æµ‹è¯•ç”¨ä¾‹æ–‡ä»¶äºŒï¼š
     UNICODE_STRING FileName2  = RTL_CONSTANT_STRING(L"\\??\\c:\\WINDOWS\\system32\\config\\SAM");
     UNICODE_STRING newFileName2  = RTL_CONSTANT_STRING(L"\\??\\c:\\WINDOWS\\system32\\config\\SAM2");
     UNICODE_STRING FileName3  = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume1\\WINDOWS\\system32\\config\\SAM");//
@@ -1041,7 +1041,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
         &ffai,
         sizeof(FILE_FULL_EA_INFORMATION),
-        CreateFileTypeNone,//ÆäÊµÃüÃû¹ÜµÀºÍÓÊ¼þ²ÛÒ²¶¨ÒåÁË¡£
+        CreateFileTypeNone,//å…¶å®žå‘½åç®¡é“å’Œé‚®ä»¶æ§½ä¹Ÿå®šä¹‰äº†ã€‚
         NULL,
         /*
         Indicates that the I/O manager should not perform share-access checks on the file object after it is created.
@@ -1065,9 +1065,9 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //¿ÉÒÔ¿¼ÂÇÔÚÕâÀï¸øÎÄ¼þ¼ÓËø,±£»¤,²»ÈÃ±ðµÄ²Ù×÷ÔÙÐ´Èë.ZwLockFile,ÔÙÔÚÊÊµ±µÄÊ±ºò½âËø:ZwUnlockFile.
-    //¿ÉÊÇThis routine is available in Windows 7 and later versions of the Windows operating system.
-    //²»¹ýNtLockFileºÍNtUnlockFileÔÚXPÏÂµ¼³ö£¬¿ÉÒÔÊ¹ÓÃ¡£
+    //å¯ä»¥è€ƒè™‘åœ¨è¿™é‡Œç»™æ–‡ä»¶åŠ é”,ä¿æŠ¤,ä¸è®©åˆ«çš„æ“ä½œå†å†™å…¥.ZwLockFile,å†åœ¨é€‚å½“çš„æ—¶å€™è§£é”:ZwUnlockFile.
+    //å¯æ˜¯This routine is available in Windows 7 and later versions of the Windows operating system.
+    //ä¸è¿‡NtLockFileå’ŒNtUnlockFileåœ¨XPä¸‹å¯¼å‡ºï¼Œå¯ä»¥ä½¿ç”¨ã€‚
 
     Status = ZwQueryInformationFile(FileHandle,
                                     &IoStatusBlock,
@@ -1080,7 +1080,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;;
     }
 
-    //ÐÂ½¨ÎÄ¼þ.
+    //æ–°å»ºæ–‡ä»¶.
     CreateDisposition = FILE_OVERWRITE_IF;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -1103,14 +1103,14 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //ÎÄ¼þ´óÐ¡ÎªÁã£¬¾Í½áÊøÁË¡£
+    //æ–‡ä»¶å¤§å°ä¸ºé›¶ï¼Œå°±ç»“æŸäº†ã€‚
     if (fsi.EndOfFile.QuadPart == 0) {
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return TRUE;
     }
 
-    //²»´¦Àí´óÓÚ4GµÄÎÄ¼þ¡£
+    //ä¸å¤„ç†å¤§äºŽ4Gçš„æ–‡ä»¶ã€‚
     if (fsi.EndOfFile.HighPart != 0) {
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
@@ -1118,17 +1118,17 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = PAGE_SIZE;//²âÊÔ×¨ÓÃ¡£
-    //Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0Ê±¼ÓÇý¶¯ÑéÖ¤Æ÷£¬ÕâÀï»áÀ¶ÆÁ¡£
+    Length = PAGE_SIZE;//æµ‹è¯•ä¸“ç”¨ã€‚
+    //Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0æ—¶åŠ é©±åŠ¨éªŒè¯å™¨ï¼Œè¿™é‡Œä¼šè“å±ã€‚
     //if (Buffer == NULL) { 
     //    Status = STATUS_UNSUCCESSFUL;
-    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
     //    ZwClose(FileHandle);
     //    ZwClose(DestinationFileHandle);
     //    return b;
     //}
 
-    InitializeObjectAttributes(&ob, NULL, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);//¾ø¶Ô²»¿ÉÒÔÔÚÕâÀïÉèÖÃÂ·¾¶¡£
+    InitializeObjectAttributes(&ob, NULL, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);//ç»å¯¹ä¸å¯ä»¥åœ¨è¿™é‡Œè®¾ç½®è·¯å¾„ã€‚
     Status = ZwCreateSection(&SectionHandle,
                              SECTION_MAP_READ | SECTION_QUERY,
                              &ob,
@@ -1145,15 +1145,15 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     /*
-    ±¾ÏëÒ»Ò³Êý¾ÝÒ»Ò³Êý¾ÝµÄ¶ÁÈ¡µÄ¡£
-    ÏÖÔÚÊÇÕû¸öÈ«²¿¶ÁÈ¡ÁË¡£
+    æœ¬æƒ³ä¸€é¡µæ•°æ®ä¸€é¡µæ•°æ®çš„è¯»å–çš„ã€‚
+    çŽ°åœ¨æ˜¯æ•´ä¸ªå…¨éƒ¨è¯»å–äº†ã€‚
     */
     //for ( ;ByteOffset.QuadPart < file_size.QuadPart ; ) 
     {
         //RtlZeroMemory(Buffer, Length);
 
         //Status = ZwReadFile(FileHandle, NULL, NULL, NULL, &IoStatusBlock, Buffer, Length, &ByteOffset, NULL);
-        //if (!NT_SUCCESS (Status)) //¶ÔÓÚ´øËøµÄÎÄ¼þµÄ´ò¿ª»áÊ§°Ü¡£
+        //if (!NT_SUCCESS (Status)) //å¯¹äºŽå¸¦é”çš„æ–‡ä»¶çš„æ‰“å¼€ä¼šå¤±è´¥ã€‚
         //{
         //    KdPrint(("ZwReadFile fail with 0x%x.\n", Status));
         //    ExFreePoolWithTag(Buffer, TAG);
@@ -1162,7 +1162,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         //    return b;
         //}
 
-        //×¢Òâ£ºÕâÀïµÄÈ¨ÏÞºÍÉÏÃæµÄÈ¨ÏÞÒª¶ÔÓ¦¡£
+        //æ³¨æ„ï¼šè¿™é‡Œçš„æƒé™å’Œä¸Šé¢çš„æƒé™è¦å¯¹åº”ã€‚
         Status = ZwMapViewOfSection(SectionHandle,
                                     ZwCurrentProcess(),
                                     &BaseAddress,
@@ -1182,14 +1182,14 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
             return b;
         }
 
-        //Èç¹ûÒª´¦Àí´óÓÚ4GµÄÊý¾ÝÇë¼Ó¸öÑ­»·¡£²»¹ý´óÓÚ4GµÄÊý¾ÝÒ²ºÜÄÑÓ³Éä³É¹¦¡£
+        //å¦‚æžœè¦å¤„ç†å¤§äºŽ4Gçš„æ•°æ®è¯·åŠ ä¸ªå¾ªçŽ¯ã€‚ä¸è¿‡å¤§äºŽ4Gçš„æ•°æ®ä¹Ÿå¾ˆéš¾æ˜ å°„æˆåŠŸã€‚
         Status = ZwWriteFile(DestinationFileHandle,
                              NULL,
                              NULL,
                              NULL,
                              &IoStatusBlock,
                              /*Buffer*/ BaseAddress,
-                             fsi.EndOfFile.LowPart /*ViewSize  Length  IoStatusBlock.Information*/,//ÔÝÊ±Ã»ÓÐ´¦Àí´óÓÚ4GµÄÎÄ¼þ¡£
+                             fsi.EndOfFile.LowPart /*ViewSize  Length  IoStatusBlock.Information*/,//æš‚æ—¶æ²¡æœ‰å¤„ç†å¤§äºŽ4Gçš„æ–‡ä»¶ã€‚
                              &ByteOffset,
                              NULL);
         if (!NT_SUCCESS(Status)) {
@@ -1225,10 +1225,10 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
                     IN UNICODE_STRING * newFileName
 )
 /*
-²ÎÊýµÄÐÎÊ½ÊÇ£º"\Device\HarddiskVolume1\XXXµÈ¡£
+å‚æ•°çš„å½¢å¼æ˜¯ï¼š"\Device\HarddiskVolume1\XXXç­‰ã€‚
 
-´æÔÚµÄÈ±µãÓÐ:
-1.Ã»ÓÐ¸´ÖÆÎÄ¼þµÄÊôÐÔ,Èç:ÎÄ¼þµÄËùÓÐÕßµÈÐÅÏ¢.
+å­˜åœ¨çš„ç¼ºç‚¹æœ‰:
+1.æ²¡æœ‰å¤åˆ¶æ–‡ä»¶çš„å±žæ€§,å¦‚:æ–‡ä»¶çš„æ‰€æœ‰è€…ç­‰ä¿¡æ¯.
 */
 {
     BOOLEAN b = FALSE;
@@ -1254,7 +1254,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
     }
 
     InitializeObjectAttributes(&ob, FileName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
-    Status = FltCreateFile(//FltCreateFileExÔÚXP SP2ÉÏÃ»ÓÐµ¼³ö¡£
+    Status = FltCreateFile(//FltCreateFileExåœ¨XP SP2ä¸Šæ²¡æœ‰å¯¼å‡ºã€‚
                            Filter,
                            Data->Iopb->TargetInstance,//FltObjects->Instance,
                            &FileHandle,
@@ -1264,7 +1264,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
                            &IoStatusBlock,
                            0,
                            FILE_ATTRIBUTE_NORMAL,
-                           FILE_SHARE_VALID_FLAGS, //Õâ¸ö²»¶Ô£¬²»¹ýÒÀ¾ÝÊÇ¶ÔµÄ¡£
+                           FILE_SHARE_VALID_FLAGS, //è¿™ä¸ªä¸å¯¹ï¼Œä¸è¿‡ä¾æ®æ˜¯å¯¹çš„ã€‚
                            FILE_OPEN,
                            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
                            NULL,
@@ -1295,7 +1295,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
         return b;;
     }
 
-    ////¿ÉÒÔ¿¼ÂÇÔÚÕâÀï¸øÎÄ¼þ¼ÓËø,±£»¤,²»ÈÃ±ðµÄ²Ù×÷ÔÙÐ´Èë.ZwLockFile,ÔÙÔÚÊÊµ±µÄÊ±ºò½âËø:ZwUnlockFile.
+    ////å¯ä»¥è€ƒè™‘åœ¨è¿™é‡Œç»™æ–‡ä»¶åŠ é”,ä¿æŠ¤,ä¸è®©åˆ«çš„æ“ä½œå†å†™å…¥.ZwLockFile,å†åœ¨é€‚å½“çš„æ—¶å€™è§£é”:ZwUnlockFile.
     //Status = NtLockFile(FileHandle, 0, 0, 0, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0, TRUE, FALSE);
     //if (!NT_SUCCESS (Status)) 
     //{
@@ -1304,13 +1304,13 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
     //    return b;;
     //}
 
-    //È¥µôºó×ºµÄÐ±¸Ü¡£
+    //åŽ»æŽ‰åŽç¼€çš„æ–œæ ã€‚
     if (newFileName->Buffer[newFileName->Length / 2 - 1] == L'\\') {
         newFileName->Length -= 2;
         IS_HAVE_slash = TRUE;
     }
 
-    //ÐÂ½¨ÎÄ¼þ.
+    //æ–°å»ºæ–‡ä»¶.
     AllocationSize.QuadPart = 0;
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
@@ -1322,7 +1322,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
                            &IoStatusBlock,
                            0,
                            FILE_ATTRIBUTE_NORMAL,
-                           FILE_SHARE_VALID_FLAGS, //Õâ¸ö²»¶Ô£¬²»¹ýÒÀ¾ÝÊÇ¶ÔµÄ¡£
+                           FILE_SHARE_VALID_FLAGS, //è¿™ä¸ªä¸å¯¹ï¼Œä¸è¿‡ä¾æ®æ˜¯å¯¹çš„ã€‚
                            FILE_OPEN_IF,
                            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
                            NULL,
@@ -1330,13 +1330,13 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
                            IO_IGNORE_SHARE_ACCESS_CHECK);
     if (!NT_SUCCESS(Status)) {
         if (Status == STATUS_OBJECT_NAME_COLLISION) {//-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
-            b = TRUE;//Ä¿±êÎÄ¼þÒÑ¾­´æÔÚÁË£¬ËùÒÔ·µ»ØÕýÈ·¡£
-        } else { //¶ÔÓÚNTFSµÄÔªÎÄ¼þ/Á÷ÎÄ¼þ£¬¶ÀÕ¼Ê½·ÃÎÊµÄÎÄ¼þ»á×ßÕâÀï¡£Ó¦¸ÃÔÚÇ°Ãæ·Å¹ýNTFSµÄÔªÎÄ¼þ¡£
+            b = TRUE;//ç›®æ ‡æ–‡ä»¶å·²ç»å­˜åœ¨äº†ï¼Œæ‰€ä»¥è¿”å›žæ­£ç¡®ã€‚
+        } else { //å¯¹äºŽNTFSçš„å…ƒæ–‡ä»¶/æµæ–‡ä»¶ï¼Œç‹¬å å¼è®¿é—®çš„æ–‡ä»¶ä¼šèµ°è¿™é‡Œã€‚åº”è¯¥åœ¨å‰é¢æ”¾è¿‡NTFSçš„å…ƒæ–‡ä»¶ã€‚
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, file:%wZ", Status, newFileName);
-            b = FALSE;//ÔÙ´ÎÉùÃ÷Ê§°Ü£¬Ò²¿É×÷Îª¶ÏµãÊ¹ÓÃ¡£
+            b = FALSE;//å†æ¬¡å£°æ˜Žå¤±è´¥ï¼Œä¹Ÿå¯ä½œä¸ºæ–­ç‚¹ä½¿ç”¨ã€‚
         }
 
-        //»Ö¸´ºó×ºµÄÐ±¸Ü¡£
+        //æ¢å¤åŽç¼€çš„æ–œæ ã€‚
         if (IS_HAVE_slash) {
             newFileName->Length += 2;
             IS_HAVE_slash = FALSE;
@@ -1354,11 +1354,11 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter,
         return TRUE;
     }
 
-    Length = 0x1000;//²âÊÔ×¨ÓÃ¡£
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0Ê±¼ÓÇý¶¯ÑéÖ¤Æ÷£¬ÕâÀï»áÀ¶ÆÁ¡£
+    Length = 0x1000;//æµ‹è¯•ä¸“ç”¨ã€‚
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0æ—¶åŠ é©±åŠ¨éªŒè¯å™¨ï¼Œè¿™é‡Œä¼šè“å±ã€‚
     if (Buffer == NULL) {
         Status = STATUS_UNSUCCESSFUL;
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         //Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
         ObDereferenceObject(source_FileObject);
         ZwClose(DestinationFileHandle);

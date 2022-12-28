@@ -11,7 +11,7 @@ volatile RtlCreateUserThreadFn RtlCreateUserThread;
 
 NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddress)
 /*
-È±µã£ºÔÚÄ³Ğ©Æ½Ì¨ÏÂÕâ¸ö°ì·¨»ñÈ¡µÄÏµÍ³Ïß³ÌµÄÆğÊ¼µØÖ·ÊÇ0£¬ÔÚWindows 10ÏÂËùÓĞµÄ¶¼ÄÜ»ñÈ¡µ½¡£
+ç¼ºç‚¹ï¼šåœ¨æŸäº›å¹³å°ä¸‹è¿™ä¸ªåŠæ³•è·å–çš„ç³»ç»Ÿçº¿ç¨‹çš„èµ·å§‹åœ°å€æ˜¯0ï¼Œåœ¨Windows 10ä¸‹æ‰€æœ‰çš„éƒ½èƒ½è·å–åˆ°ã€‚
 */
 {
     HANDLE          kernelThreadHandle = NULL;
@@ -34,7 +34,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
                                    GENERIC_READ,
                                    *PsThreadType,
                                    KernelMode,
-                                   &kernelThreadHandle);//×¢ÒâÒª¹Ø±Õ¾ä±ú¡£  
+                                   &kernelThreadHandle);//æ³¨æ„è¦å…³é—­å¥æŸ„ã€‚  
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Thread);
@@ -52,8 +52,8 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
 
     *StartAddress = (PVOID)ThreadInformation;
     //KdPrint(("ProcessId:%d, ThreadId:%d, Win32 Start Address:0x%p\n", ProcessId, ThreadId, ThreadInformation)); 
-    //×¢Òâ£ºStart Address kernel32!BaseThreadStartThunk (0x7c810729)
-    //×¢ÒâÕâ¸öºÍ¶ÑÕ»µÄÀïÏÔÊ¾µÄµØÖ·ÊÇ²»Ò»ÑùµÄ¡£
+    //æ³¨æ„ï¼šStart Address kernel32!BaseThreadStartThunk (0x7c810729)
+    //æ³¨æ„è¿™ä¸ªå’Œå †æ ˆçš„é‡Œæ˜¾ç¤ºçš„åœ°å€æ˜¯ä¸ä¸€æ ·çš„ã€‚
 
     ObDereferenceObject(Thread);
     ZwClose(kernelThreadHandle);
@@ -74,13 +74,13 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
     PSYSTEM_THREAD_INFORMATION ThreadInfo = 0;
     int r = 0;
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//µÚÒ»´ÎĞèÇó0x9700£¬µÚ¶ş´ÎĞèÇó0x9750,ËùÒÔ³ËÒÔ2.
+    ReturnLength *= 2;//ç¬¬ä¸€æ¬¡éœ€æ±‚0x9700ï¼Œç¬¬äºŒæ¬¡éœ€æ±‚0x9750,æ‰€ä»¥ä¹˜ä»¥2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
@@ -97,20 +97,20 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
         return Status;
     }
 
-    //Ã¶¾Ù½ø³ÌĞÅÏ¢¡£
-    //ÅĞ¶¨ÏµÍ³½ø³ÌµÄºÃµÄ°ì·¨ÊÇºÍPEPROCESS PsInitialSystemProcess±È½Ï¡£
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //×¢ÊÍµÄ¶¼ÊÇÓĞÎÊÌâµÄ£¬ÈçÉÙÏÔÊ¾Ò»¸öµÈ£¬¿ÉÒÔ¸ÄÎªwhile¡£
+    //æšä¸¾è¿›ç¨‹ä¿¡æ¯ã€‚
+    //åˆ¤å®šç³»ç»Ÿè¿›ç¨‹çš„å¥½çš„åŠæ³•æ˜¯å’ŒPEPROCESS PsInitialSystemProcessæ¯”è¾ƒã€‚
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //æ³¨é‡Šçš„éƒ½æ˜¯æœ‰é—®é¢˜çš„ï¼Œå¦‚å°‘æ˜¾ç¤ºä¸€ä¸ªç­‰ï¼Œå¯ä»¥æ”¹ä¸ºwhileã€‚
     {
-        //Ã¶¾ÙÏß³ÌĞÅÏ¢¡£
+        //æšä¸¾çº¿ç¨‹ä¿¡æ¯ã€‚
         i = 0;
         ThreadInfo = (PSYSTEM_THREAD_INFORMATION)(it + 1); //it->TH;
         for (; i < it->NumberOfThreads; i++) {
             /*
-            ×¢Òâ£º
-            1.ÓĞÍ¬Ò»¸öµØÖ·ÅÜ¶à¸öÏß³ÌµÄÇé¿ö¡£ÌØ±ğÊÇÔÚÏµÍ³½ø³Ì¡£
-            2.X64ÏµÍ³ÉÏÓĞµÄÏß³ÌµØÖ·Îª0µÈ.¸Ğ¾õÕâ¸ö²»ÖØÒª£¬ÖØÒªµÄÊÇ»ñÈ¡ÁËTID¡£
+            æ³¨æ„ï¼š
+            1.æœ‰åŒä¸€ä¸ªåœ°å€è·‘å¤šä¸ªçº¿ç¨‹çš„æƒ…å†µã€‚ç‰¹åˆ«æ˜¯åœ¨ç³»ç»Ÿè¿›ç¨‹ã€‚
+            2.X64ç³»ç»Ÿä¸Šæœ‰çš„çº¿ç¨‹åœ°å€ä¸º0ç­‰.æ„Ÿè§‰è¿™ä¸ªä¸é‡è¦ï¼Œé‡è¦çš„æ˜¯è·å–äº†TIDã€‚
             */
-            //KdPrint(("    TID:%dÊôÓÚPID:%d£¬StartAddress:%p.\r\n",
+            //KdPrint(("    TID:%då±äºPID:%dï¼ŒStartAddress:%p.\r\n",
             //         ThreadInfo->ClientId.UniqueThread, 
             //         ThreadInfo->ClientId.UniqueProcess, 
             //         ThreadInfo->StartAddress));
@@ -120,7 +120,7 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
             }
 
             /*
-            ²¢ÇÒ¶ÏÑÔ£ºpsti <= ((char *)it + it->NextEntryOffset)
+            å¹¶ä¸”æ–­è¨€ï¼špsti <= ((char *)it + it->NextEntryOffset)
             */
             ThreadInfo = (PSYSTEM_THREAD_INFORMATION)((char *)ThreadInfo + sizeof(SYSTEM_THREAD_INFORMATION));
         }
@@ -128,8 +128,8 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
         For the last item in the array, NextEntryOffset is 0.
-        Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-        ËµÃ÷£ºNextEntryOffsetµÄÖµÊÇ²»¹Ì¶¨µÄ£¬¸ü²»ÊÇSYSTEM_PROCESS_INFORMATION½á¹¹µÄ´óĞ¡¡£ËùÒÔ²»ÄÜ¼ÓÒ»¸ö½á¹¹µÄ´óĞ¡À´±éÀú¡£
+        æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+        è¯´æ˜ï¼šNextEntryOffsetçš„å€¼æ˜¯ä¸å›ºå®šçš„ï¼Œæ›´ä¸æ˜¯SYSTEM_PROCESS_INFORMATIONç»“æ„çš„å¤§å°ã€‚æ‰€ä»¥ä¸èƒ½åŠ ä¸€ä¸ªç»“æ„çš„å¤§å°æ¥éå†ã€‚
         */
 
         if (it->NextEntryOffset == 0) {
@@ -154,7 +154,7 @@ void ApcCallback(PKAPC Apc,
                  PVOID SystemArgument2
 )
 /*
-×¢ÒâÕâÀïËùÔÚµÄÏß³Ì»·¾³ºÍIRQL¡£
+æ³¨æ„è¿™é‡Œæ‰€åœ¨çš„çº¿ç¨‹ç¯å¢ƒå’ŒIRQLã€‚
 */
 {
     UNREFERENCED_PARAMETER(NormalRoutine);
@@ -165,8 +165,8 @@ void ApcCallback(PKAPC Apc,
     ExFreePool(Apc);
 
     PsTerminateSystemThread(STATUS_SUCCESS);
-    //×¢ÒâÕâÀï¿ÉÄÜÃ»ÓĞÍË³öÁË¡£ÒòÎªÏß³Ì½áÊøÁË¡£ÔÚµ÷ÊÔ×´Ì¬ÏÂÔËĞĞ»á³öÏÖÄÇ¸ö¶Ïµã(nt!DebugService2)¡£
-    //Ò²¾ÍÊÇËµÏÂÃæµÄ´úÂë¾Í²»»áÔËĞĞÁË¡£¾ÍÊÇËµÕâ¸öº¯Êı²»»áÔËĞĞÍË³öµÄ´úÂë¡£
+    //æ³¨æ„è¿™é‡Œå¯èƒ½æ²¡æœ‰é€€å‡ºäº†ã€‚å› ä¸ºçº¿ç¨‹ç»“æŸäº†ã€‚åœ¨è°ƒè¯•çŠ¶æ€ä¸‹è¿è¡Œä¼šå‡ºç°é‚£ä¸ªæ–­ç‚¹(nt!DebugService2)ã€‚
+    //ä¹Ÿå°±æ˜¯è¯´ä¸‹é¢çš„ä»£ç å°±ä¸ä¼šè¿è¡Œäº†ã€‚å°±æ˜¯è¯´è¿™ä¸ªå‡½æ•°ä¸ä¼šè¿è¡Œé€€å‡ºçš„ä»£ç ã€‚
 }
 
 
@@ -177,12 +177,12 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
 
     Apc = (PKAPC)ExAllocatePoolWithTag(NonPagedPool, sizeof(KAPC), TAG);
     if (NULL == Apc) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ÉêÇëÄÚ´æÊ§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ç”³è¯·å†…å­˜å¤±è´¥");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
     KeInitializeApc(Apc,
-                    Thread,                           //Õâ¸öºÜ¹Ø¼ü¡£
+                    Thread,                           //è¿™ä¸ªå¾ˆå…³é”®ã€‚
                     OriginalApcEnvironment,
                     (PKKERNEL_ROUTINE)&ApcCallback,   // kernel-mode routine
                     0,                                // rundown routine
@@ -202,18 +202,18 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
     HANDLE   kernelThreadHandle = NULL;
 
     if (NULL == ZwTerminateThreadFn) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "»ñÈ¡ZwTerminateThreadµÄµØÖ·Ê§°Ü");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "è·å–ZwTerminateThreadçš„åœ°å€å¤±è´¥");
         return STATUS_UNSUCCESSFUL;
     }
 
-    //KernelMode/UserMode»ñÈ¡µÄ¶¼ÊÇÄÚºË¾ä±ú£¬¶¼¿ÉÒÔÓÃ£¬ÇÒ¶¼¿ÉÒÔÉ±ËÀÏß³Ì¡£
+    //KernelMode/UserModeè·å–çš„éƒ½æ˜¯å†…æ ¸å¥æŸ„ï¼Œéƒ½å¯ä»¥ç”¨ï¼Œä¸”éƒ½å¯ä»¥æ€æ­»çº¿ç¨‹ã€‚
     Status = ObOpenObjectByPointer(Thread,
                                    OBJ_KERNEL_HANDLE,
                                    NULL,
                                    GENERIC_ALL,
                                    *PsThreadType,
                                    KernelMode,
-                                   &kernelThreadHandle);//×¢ÒâÒª¹Ø±Õ¾ä±ú¡£  
+                                   &kernelThreadHandle);//æ³¨æ„è¦å…³é—­å¥æŸ„ã€‚  
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
@@ -232,9 +232,9 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
 
 NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In_opt_ PVOID Context)
 /*
-¹¦ÄÜ£ºÍ¨ÓÃµÄÃ¶¾ÙÏß³ÌµÄº¯Êı¡£
+åŠŸèƒ½ï¼šé€šç”¨çš„æšä¸¾çº¿ç¨‹çš„å‡½æ•°ã€‚
 
-×¢ÊÍ£º»Øµ÷º¯Êı·µ»Ø³É¹¦£¬½áÊøÃ¶¾Ù¡£
+æ³¨é‡Šï¼šå›è°ƒå‡½æ•°è¿”å›æˆåŠŸï¼Œç»“æŸæšä¸¾ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -246,13 +246,13 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
     ULONG i = 0;
     PSYSTEM_THREAD_INFORMATION ThreadInfo = 0;
 
-    //»ñÈ¡ĞèÒªµÄÄÚ´æ¡£
+    //è·å–éœ€è¦çš„å†…å­˜ã€‚
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//µÚÒ»´ÎĞèÇó0x9700£¬µÚ¶ş´ÎĞèÇó0x9750,ËùÒÔ³ËÒÔ2.
+    ReturnLength *= 2;//ç¬¬ä¸€æ¬¡éœ€æ±‚0x9700ï¼Œç¬¬äºŒæ¬¡éœ€æ±‚0x9750,æ‰€ä»¥ä¹˜ä»¥2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
     if (ProcessInfo == NULL) {
@@ -268,9 +268,9 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
         return Status;
     }
 
-    //Ã¶¾Ù½ø³ÌĞÅÏ¢¡£
-    //ÅĞ¶¨ÏµÍ³½ø³ÌµÄºÃµÄ°ì·¨ÊÇºÍPEPROCESS PsInitialSystemProcess±È½Ï¡£
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //×¢ÊÍµÄ¶¼ÊÇÓĞÎÊÌâµÄ£¬ÈçÉÙÏÔÊ¾Ò»¸öµÈ£¬¿ÉÒÔ¸ÄÎªwhile¡£
+    //æšä¸¾è¿›ç¨‹ä¿¡æ¯ã€‚
+    //åˆ¤å®šç³»ç»Ÿè¿›ç¨‹çš„å¥½çš„åŠæ³•æ˜¯å’ŒPEPROCESS PsInitialSystemProcessæ¯”è¾ƒã€‚
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //æ³¨é‡Šçš„éƒ½æ˜¯æœ‰é—®é¢˜çš„ï¼Œå¦‚å°‘æ˜¾ç¤ºä¸€ä¸ªç­‰ï¼Œå¯ä»¥æ”¹ä¸ºwhileã€‚
     {
         //KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n",
         //         it->UniqueProcessId, 
@@ -278,14 +278,14 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
         //         it->HandleCount));
 
         if (UniqueProcessId == it->UniqueProcessId) {
-            //Ã¶¾ÙÏß³ÌĞÅÏ¢¡£
+            //æšä¸¾çº¿ç¨‹ä¿¡æ¯ã€‚
             for (i = 0, ThreadInfo = it->TH; i < it->NumberOfThreads; i++) {
                 /*
-                ×¢Òâ£º
-                1.ÓĞÍ¬Ò»¸öµØÖ·ÅÜ¶à¸öÏß³ÌµÄÇé¿ö¡£ÌØ±ğÊÇÔÚÏµÍ³½ø³Ì¡£
-                2.X64ÏµÍ³ÉÏÓĞµÄÏß³ÌµØÖ·Îª0µÈ.¸Ğ¾õÕâ¸ö²»ÖØÒª£¬ÖØÒªµÄÊÇ»ñÈ¡ÁËTID¡£
+                æ³¨æ„ï¼š
+                1.æœ‰åŒä¸€ä¸ªåœ°å€è·‘å¤šä¸ªçº¿ç¨‹çš„æƒ…å†µã€‚ç‰¹åˆ«æ˜¯åœ¨ç³»ç»Ÿè¿›ç¨‹ã€‚
+                2.X64ç³»ç»Ÿä¸Šæœ‰çš„çº¿ç¨‹åœ°å€ä¸º0ç­‰.æ„Ÿè§‰è¿™ä¸ªä¸é‡è¦ï¼Œé‡è¦çš„æ˜¯è·å–äº†TIDã€‚
                 */
-                //KdPrint(("    TID:%dÊôÓÚPID:%d£¬StartAddress:%p\n", 
+                //KdPrint(("    TID:%då±äºPID:%dï¼ŒStartAddress:%p\n", 
                 //         ThreadInfo->ClientId.UniqueThread, 
                 //         ThreadInfo->ClientId.UniqueProcess,
                 //         ThreadInfo->StartAddress));
@@ -300,7 +300,7 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
                 }
 
                 /*
-                ²¢ÇÒ¶ÏÑÔ£ºpsti <= ((char *)it + it->NextEntryOffset)
+                å¹¶ä¸”æ–­è¨€ï¼špsti <= ((char *)it + it->NextEntryOffset)
                 */
                 ThreadInfo = (PSYSTEM_THREAD_INFORMATION)((char *)ThreadInfo + sizeof(SYSTEM_THREAD_INFORMATION));
             }
@@ -309,8 +309,8 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
         For the last item in the array, NextEntryOffset is 0.
-        Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-        ËµÃ÷£ºNextEntryOffsetµÄÖµÊÇ²»¹Ì¶¨µÄ£¬¸ü²»ÊÇPSYSTEM_PROCESS_INFORMATION_EX½á¹¹µÄ´óĞ¡¡£ËùÒÔ²»ÄÜ¼ÓÒ»¸ö½á¹¹µÄ´óĞ¡À´±éÀú¡£
+        æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+        è¯´æ˜ï¼šNextEntryOffsetçš„å€¼æ˜¯ä¸å›ºå®šçš„ï¼Œæ›´ä¸æ˜¯PSYSTEM_PROCESS_INFORMATION_EXç»“æ„çš„å¤§å°ã€‚æ‰€ä»¥ä¸èƒ½åŠ ä¸€ä¸ªç»“æ„çš„å¤§å°æ¥éå†ã€‚
         */
 
         if (it->NextEntryOffset == 0) {
@@ -328,27 +328,27 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 
 bool IsRemoteThread(_In_ HANDLE ProcessId)
 /*
-¹¦ÄÜ£ºÊ¶±ğÊÇ²»ÊÇÏß³Ì×¢Èë¡£
+åŠŸèƒ½ï¼šè¯†åˆ«æ˜¯ä¸æ˜¯çº¿ç¨‹æ³¨å…¥ã€‚
 
-ËµÃ÷£º½ø³ÌµÄÆô¶¯£¬¼´µÚÒ»¸öÏß³Ì¶¼ÊÇÓÃÔ¶³ÌÏß³Ì×¢ÈëµÄ·½Ê½´´½¨µÄ¡£
-      Î¢ÈíµÄsysmon¹¤¾ß¶¼ÊÇ°ÑÕâ¸öÉÏ±¨ÎªÏß³Ì×¢Èë¡£
-      µ«ÊÇ£¬ÕâÀïÅÅ³ıµô£¬¼´ËùÎ½Õı³£ÈËÈÏÎªµÄÏß³Ì×¢Èë¡£
+è¯´æ˜ï¼šè¿›ç¨‹çš„å¯åŠ¨ï¼Œå³ç¬¬ä¸€ä¸ªçº¿ç¨‹éƒ½æ˜¯ç”¨è¿œç¨‹çº¿ç¨‹æ³¨å…¥çš„æ–¹å¼åˆ›å»ºçš„ã€‚
+      å¾®è½¯çš„sysmonå·¥å…·éƒ½æ˜¯æŠŠè¿™ä¸ªä¸ŠæŠ¥ä¸ºçº¿ç¨‹æ³¨å…¥ã€‚
+      ä½†æ˜¯ï¼Œè¿™é‡Œæ’é™¤æ‰ï¼Œå³æ‰€è°“æ­£å¸¸äººè®¤ä¸ºçš„çº¿ç¨‹æ³¨å…¥ã€‚
 
 Parameters
 ProcessId
 [in] The process ID of the process.
 
-¼ÈÈ»ÊÇ×¢Èë£¬±ØĞë¹ØÏµµ½Á½¸ö¸ÅÄî£ºµ±Ç°½ø³ÌºÍÄ¿±ê½ø³Ì¡£
-µÚÒ»¸ö²ÎÊı¼´Ä¿±ê½ø³Ì
-µ±Ç°½ø³ÌĞèÒªµ÷ÓÃPsGetCurrentProcessId»ñÈ¡¡£
+æ—¢ç„¶æ˜¯æ³¨å…¥ï¼Œå¿…é¡»å…³ç³»åˆ°ä¸¤ä¸ªæ¦‚å¿µï¼šå½“å‰è¿›ç¨‹å’Œç›®æ ‡è¿›ç¨‹ã€‚
+ç¬¬ä¸€ä¸ªå‚æ•°å³ç›®æ ‡è¿›ç¨‹
+å½“å‰è¿›ç¨‹éœ€è¦è°ƒç”¨PsGetCurrentProcessIdè·å–ã€‚
 
-ÔËĞĞ»·¾³£ºÏß³Ì´´½¨Í¨ÖªµÄ»Øµ÷´´½¨Ê±»ú¡£
+è¿è¡Œç¯å¢ƒï¼šçº¿ç¨‹åˆ›å»ºé€šçŸ¥çš„å›è°ƒåˆ›å»ºæ—¶æœºã€‚
 */
 {
     bool ret = false;
 
     if (PsGetCurrentProcessId() == ProcessId) {
-        return ret;//×Ô¼º¸ø×Ô¼º´´½¨Ïß³ÌµÄ·Å¹ı¡£
+        return ret;//è‡ªå·±ç»™è‡ªå·±åˆ›å»ºçº¿ç¨‹çš„æ”¾è¿‡ã€‚
     }
 
     INT ThreadNumbers = 0;
@@ -358,7 +358,7 @@ ProcessId
     }
 
     if (ThreadNumbers <= 1) {
-        return ret;//´´½¨½ø³ÌµÄ·Å¹ı¡£
+        return ret;//åˆ›å»ºè¿›ç¨‹çš„æ”¾è¿‡ã€‚
     }
 
     return true;
@@ -366,7 +366,7 @@ ProcessId
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÒÔÏÂº¯ÊıÓĞ´ıÍêÉÆºÍ²âÊÔ£¬ÕâÀïÖ»ÊÇ¸ø³öË¼Â·ºÍÔ­ĞÍ¡£
+//ä»¥ä¸‹å‡½æ•°æœ‰å¾…å®Œå–„å’Œæµ‹è¯•ï¼Œè¿™é‡Œåªæ˜¯ç»™å‡ºæ€è·¯å’ŒåŸå‹ã€‚
 
 
 NTSTATUS
@@ -377,9 +377,9 @@ RtlpStartThread(
     HANDLE * ThreadHandleReturn
 )
 /*
-Õª×Ô£º\Win2K3\NT\base\ntos\rtl\threads.c
+æ‘˜è‡ªï¼š\Win2K3\NT\base\ntos\rtl\threads.c
 
-Ö»×ö²Î¿¼£¬Ö±½ÓÊ¹ÓÃ²»´ó£¬ÒòÎªÄ¿µÄÊÇ×¢Èë¡£
+åªåšå‚è€ƒï¼Œç›´æ¥ä½¿ç”¨ä¸å¤§ï¼Œå› ä¸ºç›®çš„æ˜¯æ³¨å…¥ã€‚
 */
 {
     if (nullptr == RtlCreateUserThread) {
@@ -401,21 +401,21 @@ RtlpStartThread(
 }
 
 
-NTSTATUS CreateUserThread(_In_ HANDLE Pid, 
-                          _In_ PUSER_THREAD_START_ROUTINE Function, 
+NTSTATUS CreateUserThread(_In_ HANDLE Pid,
+                          _In_ PUSER_THREAD_START_ROUTINE Function,
                           _In_ PVOID Parameter,
                           _Inout_ PHANDLE ThreadHandleReturn,
                           _Inout_ PCLIENT_ID ClientId
 )
 /*
-¹¦ÄÜ£ºRtlCreateUserThreadµÄ¼òµ¥·â×°¡£
+åŠŸèƒ½ï¼šRtlCreateUserThreadçš„ç®€å•å°è£…ã€‚
 
-²ÎÊı£º
-1.Pid£¬ÆäÊµÊÇÒ»¸öÕûÊı¡£
-2.Function£¬Ó¦ÓÃ²ãµÄ´úÂëµÄµØÖ·¡£
-3.Parameter£¬Ó¦ÓÃ²ãµÄÄÚ´æµØÖ·¡£
+å‚æ•°ï¼š
+1.Pidï¼Œå…¶å®æ˜¯ä¸€ä¸ªæ•´æ•°ã€‚
+2.Functionï¼Œåº”ç”¨å±‚çš„ä»£ç çš„åœ°å€ã€‚
+3.Parameterï¼Œåº”ç”¨å±‚çš„å†…å­˜åœ°å€ã€‚
 
-×¢Òâ£ºµ÷ÓÃ´Ëº¯ÊıÖ®Ç°Ó¦¸ÃÏÈµ÷ÓÃSetRtlCreateUserThreadAddress¡£
+æ³¨æ„ï¼šè°ƒç”¨æ­¤å‡½æ•°ä¹‹å‰åº”è¯¥å…ˆè°ƒç”¨SetRtlCreateUserThreadAddressã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -454,7 +454,7 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
         }
 
         Status = RtlCreateUserThread(
-            KernelHandle,           // process handle ÄÚºË¾ä±ú»¹ÊÇÓ¦ÓÃ²ãµÄpid?ÓĞ´ıÊµÑé¡£
+            KernelHandle,           // process handle å†…æ ¸å¥æŸ„è¿˜æ˜¯åº”ç”¨å±‚çš„pid?æœ‰å¾…å®éªŒã€‚
             NULL,                   // security descriptor
             FALSE,                  // Create suspended?
             0L,                     // ZeroBits: default
@@ -493,16 +493,16 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
                             _Inout_ PCLIENT_ID ClientId
 )
 /*
-¹¦ÄÜ£ºZwCreateThreadExµÄ¼òµ¥·â×°¡£
+åŠŸèƒ½ï¼šZwCreateThreadExçš„ç®€å•å°è£…ã€‚
 
-²ÎÊı£º
-1.Pid£¬ÆäÊµÊÇÒ»¸öÕûÊı¡£
-2.Function£¬Ó¦ÓÃ²ãµÄ´úÂëµÄµØÖ·¡£
-3.Parameter£¬Ó¦ÓÃ²ãµÄÄÚ´æµØÖ·¡£
+å‚æ•°ï¼š
+1.Pidï¼Œå…¶å®æ˜¯ä¸€ä¸ªæ•´æ•°ã€‚
+2.Functionï¼Œåº”ç”¨å±‚çš„ä»£ç çš„åœ°å€ã€‚
+3.Parameterï¼Œåº”ç”¨å±‚çš„å†…å­˜åœ°å€ã€‚
 
-×¢Òâ£ºµ÷ÓÃ´Ëº¯ÊıÖ®Ç°Ó¦¸ÃÏÈµ÷ÓÃSetZwCreateThreadExAddress¡£
+æ³¨æ„ï¼šè°ƒç”¨æ­¤å‡½æ•°ä¹‹å‰åº”è¯¥å…ˆè°ƒç”¨SetZwCreateThreadExAddressã€‚
 
-º¯ÊıÔ­ĞÍ±£´æÓëCreateUserThread¸ß¶È¼æÈİ£¬¸Ğ¾õPCLIENT_ID²ÎÊıÊÇ¶àÓàµÄ¡£
+å‡½æ•°åŸå‹ä¿å­˜ä¸CreateUserThreadé«˜åº¦å…¼å®¹ï¼Œæ„Ÿè§‰PCLIENT_IDå‚æ•°æ˜¯å¤šä½™çš„ã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -541,7 +541,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         }
 
         //Status = RtlCreateUserThread(
-        //    KernelHandle,           // process handle ÄÚºË¾ä±ú»¹ÊÇÓ¦ÓÃ²ãµÄpid?ÓĞ´ıÊµÑé¡£
+        //    KernelHandle,           // process handle å†…æ ¸å¥æŸ„è¿˜æ˜¯åº”ç”¨å±‚çš„pid?æœ‰å¾…å®éªŒã€‚
         //    NULL,                   // security descriptor
         //    FALSE,                  // Create suspended?
         //    0L,                     // ZeroBits: default
@@ -552,7 +552,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         //    ThreadHandleReturn,    // Thread handle return
         //    ClientId               // Thread id
         //);
-        Status = ZwCreateThreadEx(ThreadHandleReturn, //¾­²âÊÔ·¢ÏÖ£ºÕâ¸öÊÇtid¡£Ó¦ÓÃ²ãµÄ£¬·ÇÄÚºËÌ¬µÄ¾ä±ú¡£
+        Status = ZwCreateThreadEx(ThreadHandleReturn, //ç»æµ‹è¯•å‘ç°ï¼šè¿™ä¸ªæ˜¯tidã€‚åº”ç”¨å±‚çš„ï¼Œéå†…æ ¸æ€çš„å¥æŸ„ã€‚
                                   THREAD_ALL_ACCESS,
                                   NULL,
                                   KernelHandle,
@@ -605,24 +605,24 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
 //NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
 ///*
 //
-//×¢Òâ£ºWOW64µÄ´¦Àí¡£
+//æ³¨æ„ï¼šWOW64çš„å¤„ç†ã€‚
 //"\\SystemRoot\\System32\\kernel32.dll"
 //"\\SystemRoot\\SysWOW64\\kernel32.dll"
 //
-//¸ĞÌ¾£¡
-//¶àÃ´µÄÇÉºÏ¡£
-//PUSER_THREAD_START_ROUTINEºÍLoadLibraryWµÄÔ­ĞÍ¾¹È»Ò»ÖÂ¡£
-//ËùÒÔ£¬ÕâÊ¡È¥ÁËÔÚÓ¦ÓÃ²ãÉêÇë¿ÉÖ´ĞĞÄÚ´æµÄ²Ù×÷¡£
-//µ±È»¸ü¶àµÄÊÇ¸´ÖÆ´úÂë£¨¿ÉÒÔ²»ÊÇshellcode£¬µ±È»ÒªÖ§³ÖWOW64£©µ½Ó¦ÓÃ²ãµÄ²Ù×÷¡£
-//¸ü²»ÓÃËµshellcodeÁË¡£
+//æ„Ÿå¹ï¼
+//å¤šä¹ˆçš„å·§åˆã€‚
+//PUSER_THREAD_START_ROUTINEå’ŒLoadLibraryWçš„åŸå‹ç«Ÿç„¶ä¸€è‡´ã€‚
+//æ‰€ä»¥ï¼Œè¿™çœå»äº†åœ¨åº”ç”¨å±‚ç”³è¯·å¯æ‰§è¡Œå†…å­˜çš„æ“ä½œã€‚
+//å½“ç„¶æ›´å¤šçš„æ˜¯å¤åˆ¶ä»£ç ï¼ˆå¯ä»¥ä¸æ˜¯shellcodeï¼Œå½“ç„¶è¦æ”¯æŒWOW64ï¼‰åˆ°åº”ç”¨å±‚çš„æ“ä½œã€‚
+//æ›´ä¸ç”¨è¯´shellcodeäº†ã€‚
 //
-//×¢Òâ£ºWOW64µÄ²ÎÊıµÄ´óĞ¡£¬Èç£ºÖ¸ÕëºÍsize_tµÈ¡£
+//æ³¨æ„ï¼šWOW64çš„å‚æ•°çš„å¤§å°ï¼Œå¦‚ï¼šæŒ‡é’ˆå’Œsize_tç­‰ã€‚
 //
-//DllPullPathËùÔÚµÄÄÚ´æÊÇÓ¦ÓÃ²ãµÄ¡£
+//DllPullPathæ‰€åœ¨çš„å†…å­˜æ˜¯åº”ç”¨å±‚çš„ã€‚
 //*/
 //{
 //    NTSTATUS Status = STATUS_SUCCESS;
-//    PUSER_THREAD_START_ROUTINE LoadLibraryW = nullptr;//LoadLibraryWµÄµØÖ·¡£
+//    PUSER_THREAD_START_ROUTINE LoadLibraryW = nullptr;//LoadLibraryWçš„åœ°å€ã€‚
 //
 //    ASSERT(LoadLibraryW);
 //
