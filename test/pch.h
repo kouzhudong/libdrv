@@ -1,16 +1,16 @@
 /*
-ÎÄ¼şÃû×ÖÈ¡×ÔVS2017µÄ¿ØÖÆÌ¨Ê¾Àı¹¤³ÌµÄÍ·ÎÄ¼ş.
+æ–‡ä»¶åå­—å–è‡ªVS2017çš„æ§åˆ¶å°ç¤ºä¾‹å·¥ç¨‹çš„å¤´æ–‡ä»¶.
 
-¹¦ÄÜ:Ô¤±àÒëÍ·,²»¹ıÃ»ÓĞÓÃÃüÁîÇ¿ÖÆµÚÒ»¸ö°üº¬Õâ¸öÎÄ¼ş.
+åŠŸèƒ½:é¢„ç¼–è¯‘å¤´,ä¸è¿‡æ²¡æœ‰ç”¨å‘½ä»¤å¼ºåˆ¶ç¬¬ä¸€ä¸ªåŒ…å«è¿™ä¸ªæ–‡ä»¶.
 
-×¢Òâ:
-1.Õâ¸öÎÄ¼şÖ»°üº¬ÏµÍ³µÄÍ·ÎÄ¼şºÍÒ»Ğ©¹«¹²µÄÊı¾İ.
-2.Õâ¸öÎÄ¼şÖ»°üº¬Ò»Ğ©¹«¹²µÄÊı¾İ.
-3.Ò²¾ÍÊÇËµ±ğµÄÍ·ÎÄ¼şÖ»×¼°üº¬Õâ¸öÎÄ¼ş,²»×¼ÔÙ°üº¬±ğµÄÏµÍ³ÎÄ¼ş.
+æ³¨æ„:
+1.è¿™ä¸ªæ–‡ä»¶åªåŒ…å«ç³»ç»Ÿçš„å¤´æ–‡ä»¶å’Œä¸€äº›å…¬å…±çš„æ•°æ®.
+2.è¿™ä¸ªæ–‡ä»¶åªåŒ…å«ä¸€äº›å…¬å…±çš„æ•°æ®.
+3.ä¹Ÿå°±æ˜¯è¯´åˆ«çš„å¤´æ–‡ä»¶åªå‡†åŒ…å«è¿™ä¸ªæ–‡ä»¶,ä¸å‡†å†åŒ…å«åˆ«çš„ç³»ç»Ÿæ–‡ä»¶.
 
-´ËÎÄ¼şÖ÷ÒªÓÃÓÚ½â¾ö:
-1.ÏµÍ³ÎÄ¼ş°üº¬µ¼ÖÂµÄ±àÒë´íÎóÎÊÌâ.
-2.Í³Ò»¹æ»®ÎÄ¼şµÄ°üº¬¹ØÏµ.
+æ­¤æ–‡ä»¶ä¸»è¦ç”¨äºè§£å†³:
+1.ç³»ç»Ÿæ–‡ä»¶åŒ…å«å¯¼è‡´çš„ç¼–è¯‘é”™è¯¯é—®é¢˜.
+2.ç»Ÿä¸€è§„åˆ’æ–‡ä»¶çš„åŒ…å«å…³ç³».
 */
 
 
@@ -27,23 +27,23 @@
 #define INITGUID
 #define NTSTRSAFE_LIB
 
-#pragma warning(disable:4200) // Ê¹ÓÃÁË·Ç±ê×¼À©Õ¹ : ½á¹¹/ÁªºÏÖĞµÄÁã´óĞ¡Êı×é
+#pragma warning(disable:4200) // ä½¿ç”¨äº†éæ ‡å‡†æ‰©å±• : ç»“æ„/è”åˆä¸­çš„é›¶å¤§å°æ•°ç»„
 #pragma warning(disable:4201) // unnamed struct/union
-#pragma warning(disable:4214) // Ê¹ÓÃÁË·Ç±ê×¼À©Õ¹: ÕûĞÎÒÔÍâµÄÎ»ÓòÀàĞÍ
-#pragma warning(disable:4127) // Ìõ¼ş±í´ïÊ½ÊÇ³£Á¿
-#pragma warning(disable:4057) // ÔÚÉÔÎ¢²»Í¬µÄ»ùÀàĞÍ¼ä½ÓÑ°Ö·ÉÏ²»Í¬
-#pragma warning(disable:4152) // ·Ç±ê×¼À©Õ¹£¬±í´ïÊ½ÖĞµÄº¯Êı/Êı¾İÖ¸Õë×ª»»
-#pragma warning(disable:28172) //The function 'XXX' has PAGED_CODE or PAGED_CODE_LOCKED but is not declared to be in a paged segment. Ô­Òò£º1.º¯ÊıÄÚIRQLÉı¼¶£¬2.º¯ÊıÄÚµÄº¯ÊıµÄ²ÎÊıÓÃ¾Ö²¿±äÁ¿£¬ÇÒÒªÇóÕâ¸ö±äÁ¿ÊÇ·Ç·ÖÒ³ÄÚ´æ¡£
+#pragma warning(disable:4214) // ä½¿ç”¨äº†éæ ‡å‡†æ‰©å±•: æ•´å½¢ä»¥å¤–çš„ä½åŸŸç±»å‹
+#pragma warning(disable:4127) // æ¡ä»¶è¡¨è¾¾å¼æ˜¯å¸¸é‡
+#pragma warning(disable:4057) // åœ¨ç¨å¾®ä¸åŒçš„åŸºç±»å‹é—´æ¥å¯»å€ä¸Šä¸åŒ
+#pragma warning(disable:4152) // éæ ‡å‡†æ‰©å±•ï¼Œè¡¨è¾¾å¼ä¸­çš„å‡½æ•°/æ•°æ®æŒ‡é’ˆè½¬æ¢
+#pragma warning(disable:28172) //The function 'XXX' has PAGED_CODE or PAGED_CODE_LOCKED but is not declared to be in a paged segment. åŸå› ï¼š1.å‡½æ•°å†…IRQLå‡çº§ï¼Œ2.å‡½æ•°å†…çš„å‡½æ•°çš„å‚æ•°ç”¨å±€éƒ¨å˜é‡ï¼Œä¸”è¦æ±‚è¿™ä¸ªå˜é‡æ˜¯éåˆ†é¡µå†…å­˜ã€‚
 
 #include <ntifs.h>
 #include <wdm.h>
 #include <ntddk.h>
-#include <windef.h> //Ó¦¸Ã·ÅÔÚntddk.hµÄºóÃæ.
+#include <windef.h> //åº”è¯¥æ”¾åœ¨ntddk.hçš„åé¢.
 #include <in6addr.h>
 #include <ip2string.h>
 #include <guiddef.h>
 #include <ndis.h>
-#include <initguid.h> //¾²Ì¬¶¨ÒåUUIDÓÃµÄ£¬·ñÔò£ºerror LNK2001¡£
+#include <initguid.h> //é™æ€å®šä¹‰UUIDç”¨çš„ï¼Œå¦åˆ™ï¼šerror LNK2001ã€‚
 #include <Ntstrsafe.h>
 #include <ipmib.h>
 #include <netpnp.h>
@@ -56,13 +56,13 @@
 #include <Bcrypt.h>
 
 /*
-WDK7600.16385.1µÄÄÚºËÍ·ÎÄ¼şÃ»ÓĞu_shortµÄ¶¨Òå,ÓÃ»§²ãµÄÍ·ÎÄ¼şÓĞu_shortµÄ¶¨Òå.
-SOCKADDR½á¹¹ÀïÓÃµ½u_short.
-SOCKADDRÔÚws2def.hÖĞ¶¨Òå.
-ws2def.h²»½¨ÒéÖ±½Ó°üº¬.
-netioapi.h°üº¬ws2def.hµÈÎÄ¼ş.
-ËùÒÔÔÚWDK7600.16385.1ÖĞ,Èç¹û²»°üº¬Ó¦ÓÃ²ãµÄÍ·ÎÄ¼ş,Ó¦¸ÃÔÚ°üº¬netioapi.hÖ®Ç°,¼ÓÉÏu_shortµÄ¶¨Òå.
-·ñÕß,Ã¿¸ö°üº¬(°üÀ¨¼ä½Ó°üº¬)ws2def.hµÄc/cppÎÄ¼ş¶¼³öÏÖÒ»´ó¶ÑµÄ´íÎó.
+WDK7600.16385.1çš„å†…æ ¸å¤´æ–‡ä»¶æ²¡æœ‰u_shortçš„å®šä¹‰,ç”¨æˆ·å±‚çš„å¤´æ–‡ä»¶æœ‰u_shortçš„å®šä¹‰.
+SOCKADDRç»“æ„é‡Œç”¨åˆ°u_short.
+SOCKADDRåœ¨ws2def.hä¸­å®šä¹‰.
+ws2def.hä¸å»ºè®®ç›´æ¥åŒ…å«.
+netioapi.håŒ…å«ws2def.hç­‰æ–‡ä»¶.
+æ‰€ä»¥åœ¨WDK7600.16385.1ä¸­,å¦‚æœä¸åŒ…å«åº”ç”¨å±‚çš„å¤´æ–‡ä»¶,åº”è¯¥åœ¨åŒ…å«netioapi.hä¹‹å‰,åŠ ä¸Šu_shortçš„å®šä¹‰.
+å¦è€…,æ¯ä¸ªåŒ…å«(åŒ…æ‹¬é—´æ¥åŒ…å«)ws2def.hçš„c/cppæ–‡ä»¶éƒ½å‡ºç°ä¸€å¤§å †çš„é”™è¯¯.
 */
 typedef unsigned short  u_short;
 #include <netioapi.h>
@@ -84,11 +84,11 @@ typedef unsigned short  u_short;
 #include <aux_klib.h>
 #include <assert.h>
 #include <Ntdddisk.h>
-#include <intrin.h> //VS2012±àÒë¡£
-#include <immintrin.h>//VS2012±àÒë¡£
-//#include <mmintrin.h> //WDK ±àÒë¡£
-//#include <emmintrin.h>//WDK ±àÒë¡£
-//#include <xmmintrin.h>//WDK ±àÒë¡£
+#include <intrin.h> //VS2012ç¼–è¯‘ã€‚
+#include <immintrin.h>//VS2012ç¼–è¯‘ã€‚
+//#include <mmintrin.h> //WDK ç¼–è¯‘ã€‚
+//#include <emmintrin.h>//WDK ç¼–è¯‘ã€‚
+//#include <xmmintrin.h>//WDK ç¼–è¯‘ã€‚
 
 #include "..\inc\lib.h"
 
@@ -99,23 +99,23 @@ typedef unsigned short  u_short;
 
 
 /*
-ÎÄ¼şºÍ×¢²á±íµÄÂ·¾¶µÄ×î´ó³¤¶È¡£
+æ–‡ä»¶å’Œæ³¨å†Œè¡¨çš„è·¯å¾„çš„æœ€å¤§é•¿åº¦ã€‚
 
-ÎÄ¼şÈ¡Õâ¸öÊıµÄÔ­Òò£º
-1.ÎÄ¼şÂ·¾¶µÄ×î´ó³¤¶ÈÊÇ£ºMAX_PATH£¬µ«ÊÇÄÚºËÒªÓÃMAX_PATH * sizeof(wchar_t)¡£
-  ¼ÓÖ®ÎÄ¼şÉ³ºĞÂ·¾¶µÄÇ°×º£¬×î´óÒ²ÊÇÕâ¸öÊı£¬ËùÒÔË«±¶¾ÍÊÇ1024»òÕß1040¡£
-  É³ºĞÇ°×ºµÄÂ·¾¶Ó¦¸Ã¶¯Ì¬»ñÈ¡£¬µ«ÊÇÕâÑùÀË·ÑĞ§ÂÊ¡£ÕâÊÇÒÔ¿Õ¼ä»»Ğ§ÂÊµÄ×ö·¨¡£
-2.ÎÄ¼ş/Ä¿Â¼È«Â·¾¶µÄ³¤¶ÈµÄ¼«ÏŞÊÇ32K£¨×Ö·û£¬·Ç×Ö½ÚºÍ×Ö£©£¬µ«ÊÇÒ»°ãÇé¿öÏÂÊÇ²»³¬¹ıMAX_PATHµÄ¡£
+æ–‡ä»¶å–è¿™ä¸ªæ•°çš„åŸå› ï¼š
+1.æ–‡ä»¶è·¯å¾„çš„æœ€å¤§é•¿åº¦æ˜¯ï¼šMAX_PATHï¼Œä½†æ˜¯å†…æ ¸è¦ç”¨MAX_PATH * sizeof(wchar_t)ã€‚
+  åŠ ä¹‹æ–‡ä»¶æ²™ç›’è·¯å¾„çš„å‰ç¼€ï¼Œæœ€å¤§ä¹Ÿæ˜¯è¿™ä¸ªæ•°ï¼Œæ‰€ä»¥åŒå€å°±æ˜¯1024æˆ–è€…1040ã€‚
+  æ²™ç›’å‰ç¼€çš„è·¯å¾„åº”è¯¥åŠ¨æ€è·å–ï¼Œä½†æ˜¯è¿™æ ·æµªè´¹æ•ˆç‡ã€‚è¿™æ˜¯ä»¥ç©ºé—´æ¢æ•ˆç‡çš„åšæ³•ã€‚
+2.æ–‡ä»¶/ç›®å½•å…¨è·¯å¾„çš„é•¿åº¦çš„æé™æ˜¯32Kï¼ˆå­—ç¬¦ï¼Œéå­—èŠ‚å’Œå­—ï¼‰ï¼Œä½†æ˜¯ä¸€èˆ¬æƒ…å†µä¸‹æ˜¯ä¸è¶…è¿‡MAX_PATHçš„ã€‚
 
-×¢²á±íÈ¡Õâ¸öÊıµÄÔ­Òò£º
-1.²Î¿´ObQueryNameStringº¯ÊıµÄµÚÈı¸ö²ÎÊıµÄËµÃ÷:A reasonable size for the buffer to accommodate most object names is 1024 bytes.
-2.The maximum registry path length that will be copied£¬ÕâÊÇregmonµÄ×¢ÊÍ¡£
+æ³¨å†Œè¡¨å–è¿™ä¸ªæ•°çš„åŸå› ï¼š
+1.å‚çœ‹ObQueryNameStringå‡½æ•°çš„ç¬¬ä¸‰ä¸ªå‚æ•°çš„è¯´æ˜:A reasonable size for the buffer to accommodate most object names is 1024 bytes.
+2.The maximum registry path length that will be copiedï¼Œè¿™æ˜¯regmonçš„æ³¨é‡Šã€‚
 */
 #define MAXPATHLEN     1024
 
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms738518%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-//ÆäÊµ£ºIPV4µÄÖ»ĞèThis buffer should be large enough to hold at least 16 characters.
+//å…¶å®ï¼šIPV4çš„åªéœ€This buffer should be large enough to hold at least 16 characters.
 #define MAX_ADDRESS_STRING_LENGTH   64
 
 
@@ -126,18 +126,18 @@ typedef unsigned short  u_short;
 #define __FILENAMEW__ (wcsrchr(_CRT_WIDE(__FILE__), L'\\') ? wcsrchr(_CRT_WIDE(__FILE__), L'\\') + 1 : _CRT_WIDE(__FILE__))
 
 /*
-¼ÈÖ§³Öµ¥×Ö·ûÒ²Ö§³Ö¿í×Ö·û¡£
-×¢Òâ£º
-1.µÚÈı¸ö²ÎÊıÊÇµ¥×Ö·û£¬¿ÉÒÔÎª¿Õ£¬µ«²»ÒªÎªNULL£¬¸ü²»ÄÜÊ¡ÂÔ¡£
-2.Çı¶¯ÔÚDPCÉÏ²»Òª´òÓ¡¿í×Ö·û¡£
+æ—¢æ”¯æŒå•å­—ç¬¦ä¹Ÿæ”¯æŒå®½å­—ç¬¦ã€‚
+æ³¨æ„ï¼š
+1.ç¬¬ä¸‰ä¸ªå‚æ•°æ˜¯å•å­—ç¬¦ï¼Œå¯ä»¥ä¸ºç©ºï¼Œä½†ä¸è¦ä¸ºNULLï¼Œæ›´ä¸èƒ½çœç•¥ã€‚
+2.é©±åŠ¨åœ¨DPCä¸Šä¸è¦æ‰“å°å®½å­—ç¬¦ã€‚
 3.
 */
 
-//Õâ¸öÖ§³Ö3Èı¸ö²ÎÊı¡£
+//è¿™ä¸ªæ”¯æŒ3ä¸‰ä¸ªå‚æ•°ã€‚
 #define Print(ComponentId, Level, Format, ...) \
 {DbgPrintEx(ComponentId, Level, "FILE:%s, LINE:%d, "##Format".\r\n", __FILENAME__, __LINE__, __VA_ARGS__);}
 
-//Õâ¸ö×îÉÙ4¸ö²ÎÊı¡£
+//è¿™ä¸ªæœ€å°‘4ä¸ªå‚æ•°ã€‚
 #define PrintEx(ComponentId, Level, Format, ...) \
 {KdPrintEx((ComponentId, Level, "FILE:%s, LINE:%d, "##Format".\r\n", __FILENAME__, __LINE__, __VA_ARGS__));}
 

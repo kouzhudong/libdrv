@@ -39,27 +39,27 @@ void GetKernel32FullPath()
 
 PVOID GetLoadLibraryExWAddress(HANDLE UniqueProcess)
 /*
-¹¦ÄÜ£º»ñÈ¡Ò»¸ö½ø³ÌµÄLoadLibraryExWº¯ÊýµÄµØÖ·¡£
+åŠŸèƒ½ï¼šèŽ·å–ä¸€ä¸ªè¿›ç¨‹çš„LoadLibraryExWå‡½æ•°çš„åœ°å€ã€‚
 
-Õâ¸öº¯ÊýËùÔÚµÄÎÄ¼þÊÇ£º
+è¿™ä¸ªå‡½æ•°æ‰€åœ¨çš„æ–‡ä»¶æ˜¯ï¼š
 L"\\SystemRoot\\System32\\kernel32.dll"
 L"\\SystemRoot\\SysWOW64\\kernel32.dll"
 */
 {
     PVOID UserRoutine = NULL;
 
-    //·½·¨Ò»µÄ²âÊÔ¡£
+    //æ–¹æ³•ä¸€çš„æµ‹è¯•ã€‚
     UserRoutine = GetUserFunctionAddress(UniqueProcess, g_Ntkernel32Path.Buffer, "LoadLibraryExW");
     if (!UserRoutine) {
-    #ifdef _WIN64 //ÎªÁËÕâ¸öAPI·ÑÊ±£¬ÎªÁË¼Ó¿ìËÙ¶È£¬×îºÃÅÐ¶ÏÊÇ²»ÊÇWOW64½ø³Ì.
+    #ifdef _WIN64 //ä¸ºäº†è¿™ä¸ªAPIè´¹æ—¶ï¼Œä¸ºäº†åŠ å¿«é€Ÿåº¦ï¼Œæœ€å¥½åˆ¤æ–­æ˜¯ä¸æ˜¯WOW64è¿›ç¨‹.
         UserRoutine = GetUserFunctionAddress(UniqueProcess, g_NtkernelWow64Path.Buffer, "LoadLibraryExW");
     #endif
     }
 
-    //·½·¨¶þµÄ²âÊÔ£º²»Ö§³ÖWOW64¡£
+    //æ–¹æ³•äºŒçš„æµ‹è¯•ï¼šä¸æ”¯æŒWOW64ã€‚
     UserRoutine = GetUserFunctionAddressByPeb(UniqueProcess, g_DosKernel32Path.Buffer, "LoadLibraryExW");
     if (!UserRoutine) {
-    #ifdef _WIN64 //ÎªÁËÕâ¸öAPI·ÑÊ±£¬ÎªÁË¼Ó¿ìËÙ¶È£¬×îºÃÅÐ¶ÏÊÇ²»ÊÇWOW64½ø³Ì.
+    #ifdef _WIN64 //ä¸ºäº†è¿™ä¸ªAPIè´¹æ—¶ï¼Œä¸ºäº†åŠ å¿«é€Ÿåº¦ï¼Œæœ€å¥½åˆ¤æ–­æ˜¯ä¸æ˜¯WOW64è¿›ç¨‹.
         UserRoutine = GetUserFunctionAddressByPeb(UniqueProcess, g_DosKernelWow64Path.Buffer, "LoadLibraryExW");
     #endif
     }
@@ -83,8 +83,8 @@ NTSTATUS GetPcrTest()
 
     Prcb = KeGetPrcb(pkpcr);
 
-    ////ÏÂÃæ´òÓ¡»ñÈ¡Ò»Ð©Ã»ÓÐµ¼³öµÄÖØÒªµÄÐÅÏ¢£¬ÈçÖî¶à±äÁ¿¡£
-    //pdgv = pkpcr->KdVersionBlock;//ÔÚX64ÏÂÕâ¸öµÈÓÚÁã¡£
+    ////ä¸‹é¢æ‰“å°èŽ·å–ä¸€äº›æ²¡æœ‰å¯¼å‡ºçš„é‡è¦çš„ä¿¡æ¯ï¼Œå¦‚è¯¸å¤šå˜é‡ã€‚
+    //pdgv = pkpcr->KdVersionBlock;//åœ¨X64ä¸‹è¿™ä¸ªç­‰äºŽé›¶ã€‚
 
     ////pkdd = (PKDDEBUGGER_DATA64)((char *)pkpcr + sizeof(DBGKD_GET_VERSION64));
     //p = (char *)pdgv;

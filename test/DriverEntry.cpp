@@ -55,7 +55,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
     //GetSomeSystemRoutineAddress();
 
     //HANDLE UniqueProcess = NULL;
-    //ASSERTMSG("ÇëÌîÐ´ÆÚÍûµÄPID", UniqueProcess);
+    //ASSERTMSG("ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PID", UniqueProcess);
     //IsWow64Process(UniqueProcess);
 
     //CreateSystemThreadInIdleProcess();

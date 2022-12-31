@@ -1,5 +1,5 @@
 /*
-±¾ÎÄ°üÀ¨£ºProcess, Thread, ImageµÈµÄ²âÊÔ¡£
+æœ¬æ–‡åŒ…æ‹¬ï¼šProcess, Thread, Imageç­‰çš„æµ‹è¯•ã€‚
 */
 
 #pragma once

@@ -1,7 +1,7 @@
 /*
-±¾ÎÄÊÇÌá¹©¸øÍâÃæµÄ¹¤³ÌÊ¹ÓÃµÄ¡£
+æœ¬æ–‡æ˜¯æä¾›ç»™å¤–é¢çš„å·¥ç¨‹ä½¿ç”¨çš„ã€‚
 
-ÕâÀïµÄ¶¼ÊÇµ¼³öµÄº¯Êı£¬±äÁ¿£¬½á¹¹£¬ÀàµÈĞÅÏ¢¡£
+è¿™é‡Œçš„éƒ½æ˜¯å¯¼å‡ºçš„å‡½æ•°ï¼Œå˜é‡ï¼Œç»“æ„ï¼Œç±»ç­‰ä¿¡æ¯ã€‚
 */
 
 
@@ -18,23 +18,23 @@
 #define INITGUID
 #define NTSTRSAFE_LIB
 
-#pragma warning(disable:4200) // Ê¹ÓÃÁË·Ç±ê×¼À©Õ¹ : ½á¹¹/ÁªºÏÖĞµÄÁã´óĞ¡Êı×é
+#pragma warning(disable:4200) // ä½¿ç”¨äº†éæ ‡å‡†æ‰©å±• : ç»“æ„/è”åˆä¸­çš„é›¶å¤§å°æ•°ç»„
 #pragma warning(disable:4201) // unnamed struct/union
-#pragma warning(disable:4214) // Ê¹ÓÃÁË·Ç±ê×¼À©Õ¹: ÕûĞÎÒÔÍâµÄÎ»ÓòÀàĞÍ
-#pragma warning(disable:4127) // Ìõ¼ş±í´ïÊ½ÊÇ³£Á¿
-#pragma warning(disable:4057) // ÔÚÉÔÎ¢²»Í¬µÄ»ùÀàĞÍ¼ä½ÓÑ°Ö·ÉÏ²»Í¬
-#pragma warning(disable:4152) // ·Ç±ê×¼À©Õ¹£¬±í´ïÊ½ÖĞµÄº¯Êı/Êı¾İÖ¸Õë×ª»»
-#pragma warning(disable:28172) //The function 'XXX' has PAGED_CODE or PAGED_CODE_LOCKED but is not declared to be in a paged segment. Ô­Òò£º1.º¯ÊıÄÚIRQLÉı¼¶£¬2.º¯ÊıÄÚµÄº¯ÊıµÄ²ÎÊıÓÃ¾Ö²¿±äÁ¿£¬ÇÒÒªÇóÕâ¸ö±äÁ¿ÊÇ·Ç·ÖÒ³ÄÚ´æ¡£
+#pragma warning(disable:4214) // ä½¿ç”¨äº†éæ ‡å‡†æ‰©å±•: æ•´å½¢ä»¥å¤–çš„ä½åŸŸç±»å‹
+#pragma warning(disable:4127) // æ¡ä»¶è¡¨è¾¾å¼æ˜¯å¸¸é‡
+#pragma warning(disable:4057) // åœ¨ç¨å¾®ä¸åŒçš„åŸºç±»å‹é—´æ¥å¯»å€ä¸Šä¸åŒ
+#pragma warning(disable:4152) // éæ ‡å‡†æ‰©å±•ï¼Œè¡¨è¾¾å¼ä¸­çš„å‡½æ•°/æ•°æ®æŒ‡é’ˆè½¬æ¢
+#pragma warning(disable:28172) //The function 'XXX' has PAGED_CODE or PAGED_CODE_LOCKED but is not declared to be in a paged segment. åŸå› ï¼š1.å‡½æ•°å†…IRQLå‡çº§ï¼Œ2.å‡½æ•°å†…çš„å‡½æ•°çš„å‚æ•°ç”¨å±€éƒ¨å˜é‡ï¼Œä¸”è¦æ±‚è¿™ä¸ªå˜é‡æ˜¯éåˆ†é¡µå†…å­˜ã€‚
 
 #include <ntifs.h>
 #include <wdm.h>
 #include <ntddk.h>
-#include <windef.h> //Ó¦¸Ã·ÅÔÚntddk.hµÄºóÃæ.
+#include <windef.h> //åº”è¯¥æ”¾åœ¨ntddk.hçš„åé¢.
 #include <in6addr.h>
 #include <ip2string.h>
 #include <guiddef.h>
 #include <ndis.h>
-#include <initguid.h> //¾²Ì¬¶¨ÒåUUIDÓÃµÄ£¬·ñÔò£ºerror LNK2001¡£
+#include <initguid.h> //é™æ€å®šä¹‰UUIDç”¨çš„ï¼Œå¦åˆ™ï¼šerror LNK2001ã€‚
 #include <Ntstrsafe.h>
 #include <ipmib.h>
 #include <netpnp.h>
@@ -47,13 +47,13 @@
 #include <Bcrypt.h>
 
 /*
-WDK7600.16385.1µÄÄÚºËÍ·ÎÄ¼şÃ»ÓĞu_shortµÄ¶¨Òå,ÓÃ»§²ãµÄÍ·ÎÄ¼şÓĞu_shortµÄ¶¨Òå.
-SOCKADDR½á¹¹ÀïÓÃµ½u_short.
-SOCKADDRÔÚws2def.hÖĞ¶¨Òå.
-ws2def.h²»½¨ÒéÖ±½Ó°üº¬.
-netioapi.h°üº¬ws2def.hµÈÎÄ¼ş.
-ËùÒÔÔÚWDK7600.16385.1ÖĞ,Èç¹û²»°üº¬Ó¦ÓÃ²ãµÄÍ·ÎÄ¼ş,Ó¦¸ÃÔÚ°üº¬netioapi.hÖ®Ç°,¼ÓÉÏu_shortµÄ¶¨Òå.
-·ñÕß,Ã¿¸ö°üº¬(°üÀ¨¼ä½Ó°üº¬)ws2def.hµÄc/cppÎÄ¼ş¶¼³öÏÖÒ»´ó¶ÑµÄ´íÎó.
+WDK7600.16385.1çš„å†…æ ¸å¤´æ–‡ä»¶æ²¡æœ‰u_shortçš„å®šä¹‰,ç”¨æˆ·å±‚çš„å¤´æ–‡ä»¶æœ‰u_shortçš„å®šä¹‰.
+SOCKADDRç»“æ„é‡Œç”¨åˆ°u_short.
+SOCKADDRåœ¨ws2def.hä¸­å®šä¹‰.
+ws2def.hä¸å»ºè®®ç›´æ¥åŒ…å«.
+netioapi.håŒ…å«ws2def.hç­‰æ–‡ä»¶.
+æ‰€ä»¥åœ¨WDK7600.16385.1ä¸­,å¦‚æœä¸åŒ…å«åº”ç”¨å±‚çš„å¤´æ–‡ä»¶,åº”è¯¥åœ¨åŒ…å«netioapi.hä¹‹å‰,åŠ ä¸Šu_shortçš„å®šä¹‰.
+å¦è€…,æ¯ä¸ªåŒ…å«(åŒ…æ‹¬é—´æ¥åŒ…å«)ws2def.hçš„c/cppæ–‡ä»¶éƒ½å‡ºç°ä¸€å¤§å †çš„é”™è¯¯.
 */
 typedef unsigned short  u_short;
 #include <netioapi.h>
@@ -75,15 +75,15 @@ typedef unsigned short  u_short;
 #include <aux_klib.h>
 #include <assert.h>
 #include <Ntdddisk.h>
-#include <intrin.h> //VS2012±àÒë¡£
-#include <immintrin.h>//VS2012±àÒë¡£
-//#include <mmintrin.h> //WDK ±àÒë¡£
-//#include <emmintrin.h>//WDK ±àÒë¡£
-//#include <xmmintrin.h>//WDK ±àÒë¡£
+#include <intrin.h> //VS2012ç¼–è¯‘ã€‚
+#include <immintrin.h>//VS2012ç¼–è¯‘ã€‚
+//#include <mmintrin.h> //WDK ç¼–è¯‘ã€‚
+//#include <emmintrin.h>//WDK ç¼–è¯‘ã€‚
+//#include <xmmintrin.h>//WDK ç¼–è¯‘ã€‚
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//×Ô¼º¶¨ÒåµÄÒ»Ğ©»Øµ÷º¯ÊıÔ­ĞÍ¡£
+//è‡ªå·±å®šä¹‰çš„ä¸€äº›å›è°ƒå‡½æ•°åŸå‹ã€‚
 
 
 typedef NTSTATUS(WINAPI * HandleProcess)(_In_ HANDLE UniqueProcessId, _In_opt_ PVOID Context);
@@ -119,7 +119,7 @@ EXTERN_C_START
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÎÄ¼şÏà¹ØµÄµ¼³öµÄº¯Êı¡£
+//æ–‡ä»¶ç›¸å…³çš„å¯¼å‡ºçš„å‡½æ•°ã€‚
 
 
 BOOLEAN CopyFile(IN PWCH DestinationFile, IN PWCH SourceFile, IN BOOLEAN bFailIfExists);
@@ -143,7 +143,7 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
                                      OUT PUNICODE_STRING usFullPath);
 
 #if (NTDDI_VERSION < NTDDI_VISTA)
-NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP ÎªXPÁ¿Éí´òÔìµÄFltQueryDirectoryFile
+NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP ä¸ºXPé‡èº«æ‰“é€ çš„FltQueryDirectoryFile
                                _In_ PFLT_INSTANCE Instance,
                                _In_ PFILE_OBJECT FileObject,
                                _Out_writes_bytes_(Length) PVOID FileInformationBuffer,
@@ -179,7 +179,7 @@ NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_S
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Ëã·¨Ïà¹ØµÄ¡£
+//ç®—æ³•ç›¸å…³çš„ã€‚
 
 
 BOOL HashFile(_In_ PFLT_FILTER Filter,
@@ -190,7 +190,7 @@ BOOL HashFile(_In_ PFLT_FILTER Filter,
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Ä£¿éÏà¹ØµÄ
+//æ¨¡å—ç›¸å…³çš„
 
 
 VOID EnumUserModule(_In_ HANDLE Pid, _In_opt_ HandleUserModule CallBack, _In_opt_ PVOID Context);
@@ -205,7 +205,7 @@ BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName,
                          _In_opt_ HandleSection CallBack,
                          _In_opt_ PVOID Context);
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle,
                                             _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength);
@@ -221,7 +221,7 @@ VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÄÚ´æÏà¹Ø¡£
+//å†…å­˜ç›¸å…³ã€‚
 
 
 NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBack CallBack, _In_opt_ PVOID Context);
@@ -229,7 +229,7 @@ void UseNoExecuteMemory();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÔÓÏî
+//æ‚é¡¹
 
 
 _IRQL_requires_min_(PASSIVE_LEVEL)
@@ -255,7 +255,7 @@ void StringToLUID(wchar_t * rule_text, PLARGE_INTEGER pli);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÍøÂçÏà¹ØµÄ¡£
+//ç½‘ç»œç›¸å…³çš„ã€‚
 
 
 NTSTATUS EnumUnicastIpAddressTable();
@@ -282,7 +282,7 @@ void NetioEnumTest();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//object¡£
+//objectã€‚
 
 
 NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName);
@@ -299,7 +299,7 @@ void EnumerateTransactionObject();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//PEÎÄ¼şÏà¹ØµÄ¡£
+//PEæ–‡ä»¶ç›¸å…³çš„ã€‚
 
 
 PVOID MiFindExportedRoutineByName(_In_ PVOID DllBase, _In_ PANSI_STRING AnsiImageRoutineName);
@@ -314,7 +314,7 @@ BOOL IsProcessPe64(_In_ HANDLE UniqueProcess);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//½ø³ÌÏà¹ØµÄ¡£
+//è¿›ç¨‹ç›¸å…³çš„ã€‚
 
 
 BOOL GetCommandLine(_In_ HANDLE PId, _Inout_ PUNICODE_STRING CommandLine);
@@ -360,7 +360,7 @@ NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//×¢²á±íÏà¹ØµÄ¡£
+//æ³¨å†Œè¡¨ç›¸å…³çš„ã€‚
 
 
 NTSTATUS ZwEnumerateKeyEx(IN UNICODE_STRING * Name);
@@ -375,10 +375,10 @@ NTSTATUS GetKeyFullNameEx(__in PVOID Object, __in PUNICODE_STRING CompleteName, 
 //SSDT
 
 
-//Ô­ĞÍÕª×Ô£º\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
-//¾¡¹Ü\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h¼ÓÁË(NTDDI_VERSION >= NTDDI_WIN2K)¡£
-//µ«ÊÇÔçÆÚµÄÏµÍ³£¨XP£©²¢Ã»ÓĞµ¼³öÕâ¸öº¯Êı¡£
-//ËùÒÔÓĞ´Ë¶¨Òå¡£
+//åŸå‹æ‘˜è‡ªï¼š\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
+//å°½ç®¡\Windows Kits\10\Include\10.0.19041.0\km\ntifs.håŠ äº†(NTDDI_VERSION >= NTDDI_WIN2K)ã€‚
+//ä½†æ˜¯æ—©æœŸçš„ç³»ç»Ÿï¼ˆXPï¼‰å¹¶æ²¡æœ‰å¯¼å‡ºè¿™ä¸ªå‡½æ•°ã€‚
+//æ‰€ä»¥æœ‰æ­¤å®šä¹‰ã€‚
 typedef
 NTSTATUS
 (NTAPI * ZwQueryVirtualMemory_PFN) (
@@ -403,8 +403,8 @@ NTSTATUS
 typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
 
 
-//´Ëº¯ÊıÒÑ¾­µ¼³ö£¬µ«ÊÇ±àÒë»·¾³£¨¶ş½øÖÆºÍÎÄ±¾£©Ã»ÓĞÕâ¸ö¶¨Òå¡£
-//Ö»ĞèÓÃMmGetSystemRoutineAddress»ñÈ¡¼´¿É¡£
+//æ­¤å‡½æ•°å·²ç»å¯¼å‡ºï¼Œä½†æ˜¯ç¼–è¯‘ç¯å¢ƒï¼ˆäºŒè¿›åˆ¶å’Œæ–‡æœ¬ï¼‰æ²¡æœ‰è¿™ä¸ªå®šä¹‰ã€‚
+//åªéœ€ç”¨MmGetSystemRoutineAddressè·å–å³å¯ã€‚
 typedef
 NTSTATUS(NTAPI *
          RtlCreateUserThreadFn)(
@@ -470,7 +470,7 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Ïß³ÌÏà¹ØµÄ¡£
+//çº¿ç¨‹ç›¸å…³çš„ã€‚
 
 
 NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddress);
@@ -514,7 +514,7 @@ VOID GetApcStateOffset(PSIZE_T ApcStateOffset);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//CPUÏà¹ØµÄ¡£
+//CPUç›¸å…³çš„ã€‚
 
 
 VOID DisSmep();

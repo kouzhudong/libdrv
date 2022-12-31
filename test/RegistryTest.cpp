@@ -9,7 +9,7 @@ void RegisterLoadTest()
 {
     UNICODE_STRING uRegistryPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\correy");
 
-    //´ËÎÄ¼ş±ØĞëÊÇ±¾¼ÆËã»úµÄ,ÏµÍ³µÄ»òÕß×Ô¼ºÉú³ÉµÄ.
+    //æ­¤æ–‡ä»¶å¿…é¡»æ˜¯æœ¬è®¡ç®—æœºçš„,ç³»ç»Ÿçš„æˆ–è€…è‡ªå·±ç”Ÿæˆçš„.
     UNICODE_STRING uRegDatPath = RTL_CONSTANT_STRING(L"\\DosDevices\\c:\\correy.DAT");
 
     OBJECT_ATTRIBUTES obj;
@@ -29,8 +29,8 @@ void SetValueKeyDwordTest()
     UNICODE_STRING WdFilter = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WdFilter");
     UNICODE_STRING Start = RTL_CONSTANT_STRING(L"Start");
 
-    Status = SetValueKeyDword(&WinDefend, &Start, SERVICE_DISABLED);//¾­²âÊÔ£¬Õâ¸ö³É¹¦¡£
-    Status = SetValueKeyDword(&WdFilter, &Start, SERVICE_DISABLED); //¾­²âÊÔ£¬Õâ¸öÎŞĞ§¡£
+    Status = SetValueKeyDword(&WinDefend, &Start, SERVICE_DISABLED);//ç»æµ‹è¯•ï¼Œè¿™ä¸ªæˆåŠŸã€‚
+    Status = SetValueKeyDword(&WdFilter, &Start, SERVICE_DISABLED); //ç»æµ‹è¯•ï¼Œè¿™ä¸ªæ— æ•ˆã€‚
 }
 
 

@@ -7,10 +7,10 @@
 
 NTSTATUS ReadMBRTest()
 /*
-Ä¿µÄ£ºÇı¶¯ÖĞ¶ÁÈ¡MBR¡£
+ç›®çš„ï¼šé©±åŠ¨ä¸­è¯»å–MBRã€‚
 
-²Î¿¼×ÊÁÏ£º
-1.WRKµÄHalExamineMBRºÍIopCreateArcNamesDiskº¯Êı¡£
+å‚è€ƒèµ„æ–™ï¼š
+1.WRKçš„HalExamineMBRå’ŒIopCreateArcNamesDiskå‡½æ•°ã€‚
 2.https://technet.microsoft.com/en-us/library/cc976786.aspx
   https://technet.microsoft.com/en-us/library/ee126177(v=ws.10).aspx
 
@@ -18,7 +18,7 @@ made by correy
 made at 2016.10.28.
 homepage:http://correy.webs.com
 
-¶ÁÈ¡MBRµÄ²âÊÔÀı×Ó¡£
+è¯»å–MBRçš„æµ‹è¯•ä¾‹å­ã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;

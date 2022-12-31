@@ -18,10 +18,10 @@ NTSTATUS WINAPI HandleVirtualMemory(_In_ HANDLE Pid,
     struct
     {
         OBJECT_NAME_INFORMATION ObjectNameInfo;
-        WCHAR FileName[1024];//MAX_PATH ±ØĞëÎª1024£¬·ñÔòÊ§°Ü£¬Ô­Òò¿´£ºObQueryNameString¡£
+        WCHAR FileName[1024];//MAX_PATH å¿…é¡»ä¸º1024ï¼Œå¦åˆ™å¤±è´¥ï¼ŒåŸå› çœ‹ï¼šObQueryNameStringã€‚
     } s = {0};
 
-    UNREFERENCED_PARAMETER(Context);    
+    UNREFERENCED_PARAMETER(Context);
 
     Status = PsLookupProcessByProcessId(Pid, &Process);
     if (!NT_SUCCESS(Status)) {
@@ -52,7 +52,7 @@ NTSTATUS WINAPI HandleVirtualMemory(_In_ HANDLE Pid,
 
     ZwClose(KernelHandle);
     ObDereferenceObject(Process);
-    return STATUS_UNSUCCESSFUL;//¼ÌĞøÃ¶¾Ù
+    return STATUS_UNSUCCESSFUL;//ç»§ç»­æšä¸¾
 }
 
 
@@ -62,7 +62,7 @@ NTSTATUS WINAPI HandleOneUserModule(_In_ PVOID DllBase, _In_ PUNICODE_STRING Ful
     UNREFERENCED_PARAMETER(FullDllName);
     UNREFERENCED_PARAMETER(Context);
 
-    return STATUS_UNSUCCESSFUL;//¼ÌĞøÃ¶¾Ù
+    return STATUS_UNSUCCESSFUL;//ç»§ç»­æšä¸¾
 }
 
 
@@ -71,13 +71,13 @@ NTSTATUS HandleOneThread(_In_ PCLIENT_ID Cid, _In_opt_ PVOID Context)
     UNREFERENCED_PARAMETER(Cid);
     UNREFERENCED_PARAMETER(Context);
 
-    return STATUS_UNSUCCESSFUL;//¼ÌĞøÃ¶¾Ù
+    return STATUS_UNSUCCESSFUL;//ç»§ç»­æšä¸¾
 }
 
 
 NTSTATUS WINAPI HandleOneProcess(HANDLE UniqueProcessId, _In_opt_ PVOID Context)
 /*
-²âÊÔÑùÀı£ºÒ»¸öÃ¶¾Ù½ø³ÌµÄ»Øµ÷´¦Àíº¯Êı¡£
+æµ‹è¯•æ ·ä¾‹ï¼šä¸€ä¸ªæšä¸¾è¿›ç¨‹çš„å›è°ƒå¤„ç†å‡½æ•°ã€‚
 */
 {
     UNREFERENCED_PARAMETER(Context);
@@ -86,13 +86,13 @@ NTSTATUS WINAPI HandleOneProcess(HANDLE UniqueProcessId, _In_opt_ PVOID Context)
     EnumUserModule(UniqueProcessId, HandleOneUserModule, NULL);
     EnumVirtualMemory(UniqueProcessId, HandleVirtualMemory, NULL);
 
-    return STATUS_UNSUCCESSFUL;//¼ÌĞøÃ¶¾Ù
+    return STATUS_UNSUCCESSFUL;//ç»§ç»­æšä¸¾
 }
 
 
 NTSTATUS EnumProcessTest(VOID)
 /*
-²âÊÔÓÃÀı£ºÃ¶¾Ù½ø³ÌµÄÓÃ·¨¡£
+æµ‹è¯•ç”¨ä¾‹ï¼šæšä¸¾è¿›ç¨‹çš„ç”¨æ³•ã€‚
 */
 {
     return EnumProcess(HandleOneProcess, NULL);
@@ -102,14 +102,14 @@ NTSTATUS EnumProcessTest(VOID)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules, 
-                                      PAUX_MODULE_EXTENDED_INFO modules, 
+NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules,
+                                      PAUX_MODULE_EXTENDED_INFO modules,
                                       _In_opt_ PVOID Context
 )
 /*
-Ã¶¾ÙÄÚºËÄ£¿é£¨EnumAllKernelModule£©µÄÊ¾Àıº¯Êı¡£
+æšä¸¾å†…æ ¸æ¨¡å—ï¼ˆEnumAllKernelModuleï¼‰çš„ç¤ºä¾‹å‡½æ•°ã€‚
 
-×¢ÊÍ£º´Ë»Øµ÷º¯Êı×¢²áÒ»´Î£¬µ÷ÓÃÒ»´Î¡£
+æ³¨é‡Šï¼šæ­¤å›è°ƒå‡½æ•°æ³¨å†Œä¸€æ¬¡ï¼Œè°ƒç”¨ä¸€æ¬¡ã€‚
 */
 {
     UNREFERENCED_PARAMETER(Context);
@@ -132,7 +132,7 @@ NTSTATUS WINAPI HandleAllKernelModule(ULONG  numberOfModules,
 
 NTSTATUS PrintAllKernelModule()
 /*
-ÕâÊÇÒ»¸öEnumAllKernelModuleµÄÓÃ·¨µÄÀı×Ó£ºÃ¶¾ÙÄÚºËÄ£¿é¡£
+è¿™æ˜¯ä¸€ä¸ªEnumAllKernelModuleçš„ç”¨æ³•çš„ä¾‹å­ï¼šæšä¸¾å†…æ ¸æ¨¡å—ã€‚
 */
 {
     return EnumKernelModule(HandleAllKernelModule, NULL);
@@ -143,7 +143,7 @@ NTSTATUS PrintAllKernelModule()
 
 
 PVOID gLogThreadObj;
-LONG gDriverUnloading = FALSE;//ÎªTRUEÊ±¾Í²»ÔÙ½ÓÊÜ¸÷¸öÏûÏ¢ÁË£¬°üÀ¨ÍøÂçºÍ½ø³Ì¡£
+LONG gDriverUnloading = FALSE;//ä¸ºTRUEæ—¶å°±ä¸å†æ¥å—å„ä¸ªæ¶ˆæ¯äº†ï¼ŒåŒ…æ‹¬ç½‘ç»œå’Œè¿›ç¨‹ã€‚
 
 
 VOID SystemThreadInIdleProcess(__in PVOID  StartContext)
@@ -155,10 +155,10 @@ VOID SystemThreadInIdleProcess(__in PVOID  StartContext)
 
     for (; ; ) {
         if (gDriverUnloading) {
-            break;//×¢ÒâÇı¶¯Ğ¶ÔØÊ±£¬»¹ÓĞ¼ÇÂ¼Ã»ÓĞ±»¶ÁÈ¡/Ğ´ÈëµÄÇé¿ö¡£
+            break;//æ³¨æ„é©±åŠ¨å¸è½½æ—¶ï¼Œè¿˜æœ‰è®°å½•æ²¡æœ‰è¢«è¯»å–/å†™å…¥çš„æƒ…å†µã€‚
         }
 
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, 
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL,
               "i am in pid = %d process", HandleToLong(PsGetCurrentProcessId()));
 
         Sleep(1000);
@@ -182,7 +182,7 @@ void StopSystemThreadInIdleProcess()
 
 void CreateSystemThreadInIdleProcess()
 /*
-¸ïÃüÉĞÎ´³É¹¦£¬Í¬Ö¾ÈÔĞèÅ¬Á¦¡£
+é©å‘½å°šæœªæˆåŠŸï¼ŒåŒå¿—ä»éœ€åŠªåŠ›ã€‚
 */
 {
     NTSTATUS Status;
@@ -190,7 +190,7 @@ void CreateSystemThreadInIdleProcess()
     //HANDLE ProcessHandle = NULL;
     PKPCR pkpcr;
     struct _KPRCB * Prcb;
-    
+
     /*
     0: kd> dt _KPRCB IdleThread
     nt!_KPRCB
@@ -215,11 +215,11 @@ void CreateSystemThreadInIdleProcess()
     IdleThread = *(PETHREAD *)IdleThread;
     //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleThread);
 
-    //PEPROCESS IdleProcess = PsGetThreadProcess(IdleThread);//µÃµ½µÄÖµÊÇNULL¡£
+    //PEPROCESS IdleProcess = PsGetThreadProcess(IdleThread);//å¾—åˆ°çš„å€¼æ˜¯NULLã€‚
 
 //    PEPROCESS IdleProcess = NULL;
 //#pragma warning(push)
-//#pragma warning(disable:6387)//¡°_Param_(1)¡±¿ÉÄÜÊÇ¡°0¡±: Õâ²»·ûºÏº¯Êı¡°PsLookupProcessByProcessId¡±µÄ¹æ·¶¡£
+//#pragma warning(disable:6387)//â€œ_Param_(1)â€å¯èƒ½æ˜¯â€œ0â€: è¿™ä¸ç¬¦åˆå‡½æ•°â€œPsLookupProcessByProcessIdâ€çš„è§„èŒƒã€‚
 //    Status = PsLookupProcessByProcessId(0, &IdleProcess);//STATUS_INVALID_CID
 //#pragma warning(pop)      
 //    ASSERT(NT_SUCCESS(Status));
@@ -231,7 +231,7 @@ void CreateSystemThreadInIdleProcess()
     PEPROCESS IdleProcess = (PEPROCESS)((PCHAR)IdleThread + ProcessOffsetInThread);
     IdleProcess = *(PEPROCESS *)IdleProcess;
     //DBG_UNREFERENCED_LOCAL_VARIABLE(IdleProcess);
-    
+
     //Status = ObOpenObjectByPointer(IdleProcess,
     //                               OBJ_KERNEL_HANDLE,
     //                               NULL,
@@ -239,20 +239,20 @@ void CreateSystemThreadInIdleProcess()
     //                               *PsProcessType,
     //                               KernelMode,
     //                               &ProcessHandle);
-    //ASSERT(NT_SUCCESS(Status));//¼´Ê¹ÌîĞ´ÕıÈ·µÄIdle½ø³Ì£¬Ò²»á·µ»ØSTATUS_OBJECT_TYPE_MISMATCH¡£
+    //ASSERT(NT_SUCCESS(Status));//å³ä½¿å¡«å†™æ­£ç¡®çš„Idleè¿›ç¨‹ï¼Œä¹Ÿä¼šè¿”å›STATUS_OBJECT_TYPE_MISMATCHã€‚
 
     Status = PsCreateSystemThread(&threadHandle,
                                   THREAD_ALL_ACCESS,
                                   NULL,
                                   NULL, //ProcessHandle,
-                                  NULL, 
-                                  SystemThreadInIdleProcess, 
+                                  NULL,
+                                  SystemThreadInIdleProcess,
                                   NULL);
     ASSERT(NT_SUCCESS(Status));
     Status = ObReferenceObjectByHandle(threadHandle, 0, NULL, KernelMode, &gLogThreadObj, NULL);
     ASSERT(NT_SUCCESS(Status));
     ZwClose(threadHandle);
-    
+
     //ZwClose(ProcessHandle);
     //ObDereferenceObject(IdleProcess);
 }
