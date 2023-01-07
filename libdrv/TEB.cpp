@@ -2,8 +2,8 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Õª×Ô£º\Windows Kits\10\Include\10.0.19041.0\km\ntddk.h
-//´ÓÕâÀïÄã¿ÉÒÔ¿´µ½NT_TIB£¬NT_TIB32£¬NT_TIB64µÄ¶¨Òå¡£
+//æ‘˜è‡ªï¼š\Windows Kits\10\Include\10.0.19041.0\km\ntddk.h
+//ä»Žè¿™é‡Œä½ å¯ä»¥çœ‹åˆ°NT_TIBï¼ŒNT_TIB32ï¼ŒNT_TIB64çš„å®šä¹‰ã€‚
 
 
 #if defined(_M_AMD64) && !defined(__midl)
@@ -111,7 +111,7 @@ GetFiberData(
 
 #if (_MSC_FULL_VER >= 13012035)
 
-__inline 
+__inline
 struct _TEB * NTAPI NtCurrentTeb(VOID) { return (struct _TEB *)(ULONG_PTR)__readfsdword(PcTeb); }
 
 #else

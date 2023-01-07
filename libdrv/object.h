@@ -34,7 +34,7 @@ ObOpenObjectByName(
     __out PHANDLE Handle);
 
 
-//幸甚：\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h已经有定义了
+//骞哥敋锛歕Windows Kits\10\Include\10.0.19041.0\km\ntifs.h宸茬粡鏈夊畾涔変簡
 //EXTERN_C
 //NTSTATUS ZwOpenDirectoryObject(
 //    __out  PHANDLE DirectoryHandle,
@@ -61,14 +61,16 @@ ZwQueryDirectoryObject(
 
 //\WRK-v1.2\public\sdk\inc\ntobapi.h
 //https://msdn.microsoft.com/en-us/library/bb470238(v=vs.85).aspx
-typedef struct _OBJECT_DIRECTORY_INFORMATION {
+typedef struct _OBJECT_DIRECTORY_INFORMATION
+{
     UNICODE_STRING Name;
     UNICODE_STRING TypeName;
 } OBJECT_DIRECTORY_INFORMATION, * POBJECT_DIRECTORY_INFORMATION;
 
 
-//摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
-typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO {
+//鎽樿嚜锛歕wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
+typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
+{
     USHORT UniqueProcessId;
     USHORT CreatorBackTraceIndex;
     UCHAR ObjectTypeIndex;
@@ -79,8 +81,9 @@ typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO {
 } SYSTEM_HANDLE_TABLE_ENTRY_INFO, * PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
 
 
-//摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
-typedef struct _SYSTEM_HANDLE_INFORMATION {
+//鎽樿嚜锛歕wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
+typedef struct _SYSTEM_HANDLE_INFORMATION
+{
     ULONG NumberOfHandles;
     SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
 } SYSTEM_HANDLE_INFORMATION, * PSYSTEM_HANDLE_INFORMATION;

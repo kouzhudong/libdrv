@@ -8,7 +8,7 @@
 
 
 unsigned char * UnicodeToUTF8(int unicode, unsigned char * p)
-/**Õª×Ô£ºÍøÂç£¬ÓĞ´ı²âÊÔ¡£
+/**æ‘˜è‡ªï¼šç½‘ç»œï¼Œæœ‰å¾…æµ‹è¯•ã€‚
  * UnicodeToUTF8 - convert unicode char to UTF-8 char
  * @unicode: a UNICODE(utf-16) character
  * @p: a buffer to contain a utf-8 characters
@@ -60,7 +60,7 @@ unsigned char * UnicodeToUTF8(int unicode, unsigned char * p)
 
 
 int UTF8ToUnicode(unsigned char * ch, int * unicode)
-/**Õª×Ô£ºÍøÂç£¬ÓĞ´ı²âÊÔ¡£
+/**æ‘˜è‡ªï¼šç½‘ç»œï¼Œæœ‰å¾…æµ‹è¯•ã€‚
  * UTF8ToUnicode - convert UTF-8 char to unicode char
  * @ch: A buffer contain a utf-8 character
  * @unicode: Contain the converted utf-16 character
@@ -138,9 +138,9 @@ RtlUnicodeToUTF8N(
     _In_                                ULONG  UnicodeStringByteCount
 )
 /*
-µ÷ÓÃUnicodeToUTF8ÊµÏÖ¡£
+è°ƒç”¨UnicodeToUTF8å®ç°ã€‚
 
-×¢ÊÍ£ºÒ»¸ö×Ö·û£¬UnicodeÕ¼Á½¸ö×Ö½Ú£¬UTF8×î¶àÕ¼4×Ö½Ú¡£
+æ³¨é‡Šï¼šä¸€ä¸ªå­—ç¬¦ï¼ŒUnicodeå ä¸¤ä¸ªå­—èŠ‚ï¼ŒUTF8æœ€å¤šå 4å­—èŠ‚ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -171,9 +171,9 @@ RtlUTF8ToUnicodeN(
     _In_                             ULONG  UTF8StringByteCount
 )
 /*
-µ÷ÓÃUTF8ToUnicodeÊµÏÖ¡£
+è°ƒç”¨UTF8ToUnicodeå®ç°ã€‚
 
-×¢ÊÍ£ºÒ»¸ö×Ö·û£¬UnicodeÕ¼Á½¸ö×Ö½Ú£¬UTF8×î¶àÕ¼4×Ö½Ú¡£
+æ³¨é‡Šï¼šä¸€ä¸ªå­—ç¬¦ï¼ŒUnicodeå ä¸¤ä¸ªå­—èŠ‚ï¼ŒUTF8æœ€å¤šå 4å­—èŠ‚ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -182,7 +182,7 @@ RtlUTF8ToUnicodeN(
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
-    UNREFERENCED_PARAMETER(UTF8StringDestination); 
+    UNREFERENCED_PARAMETER(UTF8StringDestination);
 
 
     rturn Status;
@@ -212,7 +212,7 @@ _When_(AllocateDestinationString,
         _In_ BOOLEAN AllocateDestinationString
     )
     /*
-    µ÷ÓÃRtlUnicodeToUTF8NÊµÏÖ¡£
+    è°ƒç”¨RtlUnicodeToUTF8Nå®ç°ã€‚
     */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -238,7 +238,7 @@ RtlUTF8StringToUnicodeString(
     _In_ BOOLEAN AllocateDestinationString
 )
 /*
-µ÷ÓÃRtlUTF8ToUnicodeNÊµÏÖ¡£
+è°ƒç”¨RtlUTF8ToUnicodeNå®ç°ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;

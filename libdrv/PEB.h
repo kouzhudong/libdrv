@@ -8,7 +8,8 @@
 
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/aa813741(v=vs.85).aspx
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
+typedef struct _RTL_USER_PROCESS_PARAMETERS
+{
     BYTE           Reserved1[16];
     PVOID          Reserved2[10];
     UNICODE_STRING ImagePathName;
@@ -17,7 +18,8 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS {
 
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/aa813708(v=vs.85).aspx
-typedef struct _PEB_LDR_DATA {
+typedef struct _PEB_LDR_DATA
+{
     BYTE       Reserved1[8];
     PVOID      Reserved2[3];
     LIST_ENTRY InMemoryOrderModuleList;
@@ -35,7 +37,8 @@ VOID
 #if defined(_WIN64) //defined(_AMD64_) || defined(_IA64_) //
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/aa813706(v=vs.85).aspx
-typedef struct _PEB {
+typedef struct _PEB
+{
     BYTE Reserved1[2];
     BYTE BeingDebugged;
     BYTE Reserved2[21];
@@ -50,7 +53,8 @@ typedef struct _PEB {
 #else 
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/aa813706(v=vs.85).aspx
-typedef struct _PEB {
+typedef struct _PEB
+{
     BYTE                          Reserved1[2];
     BYTE                          BeingDebugged;
     BYTE                          Reserved2[1];
@@ -69,7 +73,7 @@ typedef struct _PEB {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//PEB32µÄ¶¨Òå¡£
+//PEB32çš„å®šä¹‰ã€‚
 
 
 //Windows Kits\8.0\Include\um\winternl.h
@@ -143,7 +147,7 @@ typedef struct _PEB_FREE_BLOCK
 typedef struct _PEB
 typedef struct _PEB32
 typedef struct _PEB64
-Õª×Ô£º\WRK-v1.2\public\sdk\inc\pebteb.h
+æ‘˜è‡ªï¼š\WRK-v1.2\public\sdk\inc\pebteb.h
 */
 #pragma pack(push,1)
 //typedef struct PEBTEB_STRUCT(_PEB) {
@@ -300,9 +304,9 @@ typedef struct _PEB32
 
 
 /*
-Õª×Ô£º\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
-´Ëº¯ÊıÔÚXP 32ÉÏ¾ÍÒÑ¾­µ¼³ö£¬Ó¦¸Ã¿ÉÒÔ·ÅĞÄÊ¹ÓÃ¡£
-»òÕßZwQueryInformationProcess µÄ ProcessBasicInformation.
+æ‘˜è‡ªï¼š\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
+æ­¤å‡½æ•°åœ¨XP 32ä¸Šå°±å·²ç»å¯¼å‡ºï¼Œåº”è¯¥å¯ä»¥æ”¾å¿ƒä½¿ç”¨ã€‚
+æˆ–è€…ZwQueryInformationProcess çš„ ProcessBasicInformation.
 */
 EXTERN_C
 //NTKERNELAPI 

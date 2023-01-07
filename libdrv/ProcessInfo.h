@@ -1,7 +1,7 @@
 /*
-´ËÎÄÖ÷Òª¶¨Òå_SYSTEM_PROCESS_INFORMATION¡£
+æ­¤æ–‡ä¸»è¦å®šä¹‰_SYSTEM_PROCESS_INFORMATIONã€‚
 
-ÊÔ¿´SYSTEM_PROCESS_INFORMATIONµÄ¶¨ÒåÓĞ¶àÉÙÖÖ£¬½ö½öÎ¢Èí¶¼¹«¿ªºÃ¼¸¸ö¡£
+è¯•çœ‹SYSTEM_PROCESS_INFORMATIONçš„å®šä¹‰æœ‰å¤šå°‘ç§ï¼Œä»…ä»…å¾®è½¯éƒ½å…¬å¼€å¥½å‡ ä¸ªã€‚
 */
 
 #pragma once
@@ -13,7 +13,8 @@
 
 
 //https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
-typedef struct _SYSTEM_PROCESS_INFORMATION {
+typedef struct _SYSTEM_PROCESS_INFORMATION
+{
     ULONG NextEntryOffset;
     ULONG NumberOfThreads;
     BYTE Reserved1[48];
@@ -41,7 +42,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION {
 
 
 /*
-Õâ¸öÊÇZwQuerySystemInformationÓÃµÄ½á¹¹¡£
+è¿™ä¸ªæ˜¯ZwQuerySystemInformationç”¨çš„ç»“æ„ã€‚
 http://msdn.microsoft.com/en-us/library/windows/desktop/ms725506(v=vs.85).aspx
 */
 //typedef struct _SYSTEM_PROCESS_INFORMATION {
@@ -61,11 +62,11 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms725506(v=vs.85).aspx
 
 
 /*
-Ò»ÏÂ¶¨ÒåÕª×Ô£º
-C:\Program Files (x86)\Windows Kits\8.0\Include\um\winternl.h»òÕß
-C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\winternl.h »òÕß
+ä¸€ä¸‹å®šä¹‰æ‘˜è‡ªï¼š
+C:\Program Files (x86)\Windows Kits\8.0\Include\um\winternl.hæˆ–è€…
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\winternl.h æˆ–è€…
 http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
-×¢ÒâÕâ¸öÊÇNtQuerySystemInformationÓÃµÄ¡£
+æ³¨æ„è¿™ä¸ªæ˜¯NtQuerySystemInformationç”¨çš„ã€‚
 */
 //typedef struct _SYSTEM_PROCESS_INFORMATION {
 //    ULONG NextEntryOffset;
@@ -82,7 +83,7 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //} SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
 
 
-//Õª×Ô£ºWRK¡£¿É¼ûÀïÃæÃ»ÓĞSYSTEM_THREAD_INFORMATION¡£
+//æ‘˜è‡ªï¼šWRKã€‚å¯è§é‡Œé¢æ²¡æœ‰SYSTEM_THREAD_INFORMATIONã€‚
 //typedef struct _SYSTEM_PROCESS_INFORMATION {
 //    ULONG NextEntryOffset;
 //    ULONG NumberOfThreads;
@@ -119,15 +120,15 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //    LARGE_INTEGER OtherTransferCount;
 //
 //    /*
-//    Õâ¸öºóÃæ¾ÍÊÇ£º
+//    è¿™ä¸ªåé¢å°±æ˜¯ï¼š
 //    SYSTEM_THREAD_INFORMATION TH[1];
-//    ¾ßÌåµÄ¿É²Î¿¼£º\win2k\private\windows\screg\winreg\perfdlls\os\perfsys.cµÄGetSystemThreadInfoº¯Êı¡£
+//    å…·ä½“çš„å¯å‚è€ƒï¼š\win2k\private\windows\screg\winreg\perfdlls\os\perfsys.cçš„GetSystemThreadInfoå‡½æ•°ã€‚
 //    */
 //} SYSTEM_PROCESS_INFORMATION, * PSYSTEM_PROCESS_INFORMATION;
 
 
 /*
-Õª×Ô£ºhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.html
+æ‘˜è‡ªï¼šhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.html
 */
 //typedef struct _SYSTEM_PROCESS_INFORMATION
 //{
@@ -140,7 +141,7 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //    LARGE_INTEGER CreateTime;
 //    LARGE_INTEGER UserTime;
 //    LARGE_INTEGER KernelTime;
-//    UNICODE_STRING ImageName;//Õâ¸öÃû×ÖºÃÏñ²»³¬¹ı15-16¸ö×Ö·û¡£
+//    UNICODE_STRING ImageName;//è¿™ä¸ªåå­—å¥½åƒä¸è¶…è¿‡15-16ä¸ªå­—ç¬¦ã€‚
 //    KPRIORITY BasePriority;
 //    HANDLE UniqueProcessId;
 //    HANDLE InheritedFromUniqueProcessId;
@@ -174,12 +175,12 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //    LARGE_INTEGER ReadTransferCount;
 //    LARGE_INTEGER WriteTransferCount;
 //    LARGE_INTEGER OtherTransferCount;
-//    SYSTEM_THREAD_INFORMATION TH[1];//Õâ¸ö±¾À´ÊÇ×¢ÊÍµôµÄ¡£
+//    SYSTEM_THREAD_INFORMATION TH[1];//è¿™ä¸ªæœ¬æ¥æ˜¯æ³¨é‡Šæ‰çš„ã€‚
 //} SYSTEM_PROCESS_INFORMATION, * PSYSTEM_PROCESS_INFORMATION;
 
 
-//Õª×Ô£ºhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.html£¬ÓĞĞŞ¸Ä¡£
-//Õâ¸ö°üº¬¸üÏêÏ¸µÄÏß³ÌĞÅÏ¢¡£
+//æ‘˜è‡ªï¼šhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.htmlï¼Œæœ‰ä¿®æ”¹ã€‚
+//è¿™ä¸ªåŒ…å«æ›´è¯¦ç»†çš„çº¿ç¨‹ä¿¡æ¯ã€‚
 //typedef struct _SYSTEM_PROCESS_INFORMATION
 //{
 //    ULONG NextEntryOffset;
@@ -191,7 +192,7 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //    LARGE_INTEGER CreateTime;
 //    LARGE_INTEGER UserTime;
 //    LARGE_INTEGER KernelTime;
-//    UNICODE_STRING ImageName;//Õâ¸öÃû×ÖºÃÏñ²»³¬¹ı15-16¸ö×Ö·û¡£
+//    UNICODE_STRING ImageName;//è¿™ä¸ªåå­—å¥½åƒä¸è¶…è¿‡15-16ä¸ªå­—ç¬¦ã€‚
 //    KPRIORITY BasePriority;
 //    HANDLE UniqueProcessId;
 //    HANDLE InheritedFromUniqueProcessId;
@@ -225,11 +226,11 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 //    LARGE_INTEGER ReadTransferCount;
 //    LARGE_INTEGER WriteTransferCount;
 //    LARGE_INTEGER OtherTransferCount;
-//    SYSTEM_THREAD_INFORMATION TH[1];//Õâ¸ö±¾À´ÊÇ×¢ÊÍµôµÄ¡£
+//    SYSTEM_THREAD_INFORMATION TH[1];//è¿™ä¸ªæœ¬æ¥æ˜¯æ³¨é‡Šæ‰çš„ã€‚
 //} SYSTEM_PROCESS_INFORMATION, * PSYSTEM_PROCESS_INFORMATION;
 
 
-//Áí¼û£ºhttps://chromium.googlesource.com/chromium/chromium/+/1a9d8d9f3355e8b9f35591c8a678940bd264f412/third_party/psutil/psutil/arch/mswindows/ntextapi.h
+//å¦è§ï¼šhttps://chromium.googlesource.com/chromium/chromium/+/1a9d8d9f3355e8b9f35591c8a678940bd264f412/third_party/psutil/psutil/arch/mswindows/ntextapi.h
 //typedef struct _SYSTEM_PROCESS_INFORMATION
 //{
 //    ULONG NextEntryOffset;
@@ -273,7 +274,8 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 
 
 //http://msdn.microsoft.com/en-us/library/cc248685.aspx
-typedef struct _NT6_TS_UNICODE_STRING {
+typedef struct _NT6_TS_UNICODE_STRING
+{
     USHORT Length;
     USHORT MaximumLength;
     //[size_is(MaximumLength/2), length_is(Length/2)] 
@@ -283,9 +285,10 @@ typedef struct _NT6_TS_UNICODE_STRING {
 
 /*
 http://msdn.microsoft.com/en-us/library/cc248684.aspx
-http://msdn.microsoft.com/en-us/library/cc248873.aspx ÕâÊÇallproc.h£¬µ«ÊÇWDKºÍWRKÀïÃæ¶¼Ã»ÓĞ£¬×¢ÊÍwdk8.1ÎÒÃ»ÓĞ°²×°¡£
+http://msdn.microsoft.com/en-us/library/cc248873.aspx è¿™æ˜¯allproc.hï¼Œä½†æ˜¯WDKå’ŒWRKé‡Œé¢éƒ½æ²¡æœ‰ï¼Œæ³¨é‡Šwdk8.1æˆ‘æ²¡æœ‰å®‰è£…ã€‚
 */
-typedef struct _TS_SYS_PROCESS_INFORMATION_NT6 {
+typedef struct _TS_SYS_PROCESS_INFORMATION_NT6
+{
     ULONG NextEntryOffset;
     ULONG NumberOfThreads;
     LARGE_INTEGER SpareLi1;
@@ -314,16 +317,16 @@ typedef struct _TS_SYS_PROCESS_INFORMATION_NT6 {
     SIZE_T PeakPagefileUsage;
     SIZE_T PrivatePageCount;
 
-    //Õâ¸ö½á¹¹ºÍSYSTEM_PROCESS_INFORMATION²î²»¶à£¬²»¹ıºóÃæÉÙÁËĞ©¡£
+    //è¿™ä¸ªç»“æ„å’ŒSYSTEM_PROCESS_INFORMATIONå·®ä¸å¤šï¼Œä¸è¿‡åé¢å°‘äº†äº›ã€‚
 } TS_SYS_PROCESS_INFORMATION_NT6, * PTS_SYS_PROCESS_INFORMATION_NT6;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//2008°æ±¾µÄMSDN£¬·ÇWDK¡£
+//2008ç‰ˆæœ¬çš„MSDNï¼ŒéWDKã€‚
 //http://msdn.microsoft.com/en-us/library/windows/desktop/ms687420(v=vs.85).aspx
-//ÉÏÃæµÄÒ»Ğ©±ê×¢ÔÚµÍ°æ±¾ÉÏµÄWDK³ö´í¡£
+//ä¸Šé¢çš„ä¸€äº›æ ‡æ³¨åœ¨ä½ç‰ˆæœ¬ä¸Šçš„WDKå‡ºé”™ã€‚
 EXTERN_C NTSTATUS /* WINAPI */ ZwQueryInformationProcess(
     __in          HANDLE ProcessHandle,
     __in          PROCESSINFOCLASS ProcessInformationClass,

@@ -7,8 +7,8 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-KLDR_DATA_TABLE_ENTRYµÄ¶¨Òå¡£
-Õª×Ô£º\nt5src\Source\Win2K3\NT\public\sdk\inc\ntldr.h
+KLDR_DATA_TABLE_ENTRYçš„å®šä¹‰ã€‚
+æ‘˜è‡ªï¼š\nt5src\Source\Win2K3\NT\public\sdk\inc\ntldr.h
 
 0: kd> vertarget
 Windows 8 Kernel Version 9200 MP (8 procs) Free x64
@@ -44,7 +44,7 @@ nt!_KLDR_DATA_TABLE_ENTRY
 */
 
 
-typedef struct _KLDR_DATA_TABLE_ENTRY//¶Ô±È·¢ÏÖ£¬ºÍ_LDR_DATA_TABLE_ENTRYÔÚºÜ¶àÆ«ÒÆÉÏµÄ³ÉÔ±µÄÃû×ÖºÍÀàĞÍ¶¼Ò»Ñù¡£
+typedef struct _KLDR_DATA_TABLE_ENTRY//å¯¹æ¯”å‘ç°ï¼Œå’Œ_LDR_DATA_TABLE_ENTRYåœ¨å¾ˆå¤šåç§»ä¸Šçš„æˆå‘˜çš„åå­—å’Œç±»å‹éƒ½ä¸€æ ·ã€‚
 {
     LIST_ENTRY InLoadOrderLinks;
     PVOID ExceptionTable;
@@ -59,9 +59,9 @@ typedef struct _KLDR_DATA_TABLE_ENTRY//¶Ô±È·¢ÏÖ£¬ºÍ_LDR_DATA_TABLE_ENTRYÔÚºÜ¶àÆ«
     UNICODE_STRING BaseDllName;
     ULONG Flags;
     USHORT LoadCount;
-    USHORT __Unused5;//Ãû×Ö²»Ò»Ñù¶øÒÑ¡£
+    USHORT __Unused5;//åå­—ä¸ä¸€æ ·è€Œå·²ã€‚
     PVOID SectionPointer;
-    ULONG CheckSum;//´ÓÏÂÃæ¿ªÊ¼ÓĞ±ä¶¯¡£
+    ULONG CheckSum;//ä»ä¸‹é¢å¼€å§‹æœ‰å˜åŠ¨ã€‚
     // ULONG padding on IA64
     PVOID LoadedImports;
     PVOID PatchInformation;
@@ -125,7 +125,7 @@ typedef struct _KLDR_DATA_TABLE_ENTRY64
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//ÕâĞ©Êı¾İ¶¼ÊÇÏµÍ³¶¨ÒåµÄ£¬¶ø²»ÊÇ×Ô¼º¶¨ÒåµÄ¡£
+//è¿™äº›æ•°æ®éƒ½æ˜¯ç³»ç»Ÿå®šä¹‰çš„ï¼Œè€Œä¸æ˜¯è‡ªå·±å®šä¹‰çš„ã€‚
 
 
 //\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntldr.h
@@ -185,7 +185,7 @@ typedef struct _PEB_LDR_DATA32
 } PEB_LDR_DATA32, * PPEB_LDR_DATA32;
 
 
-//Õª×ÔWRKµÄps.h¡£
+//æ‘˜è‡ªWRKçš„ps.hã€‚
 typedef struct _WOW64_PROCESS
 {
     PVOID Wow64;
@@ -193,7 +193,7 @@ typedef struct _WOW64_PROCESS
 
 
 /*
-Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/aa813708(v=vs.85).aspx
+æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/aa813708(v=vs.85).aspx
 */
 typedef struct _LDR_DATA_TABLE_ENTRY
 {
@@ -265,7 +265,7 @@ typedef struct _RTL_PROCESS_MODULE_INFORMATION {
     USHORT InitOrderIndex;
     USHORT LoadCount;
     USHORT OffsetToFileName;
-    UCHAR  FullPathName[256];//×¢Òâ½á¹¹¶ÔÆë¡£·¢ÏÖÕâÀïµÄÇ°ËÄ¸ö×Ö½ÚÓ¦¸ÃÊÇÇ°Ãæ¼¸¸öÇ©Ãû³ÉÔ±µÄÖµ¡£
+    UCHAR  FullPathName[256];//æ³¨æ„ç»“æ„å¯¹é½ã€‚å‘ç°è¿™é‡Œçš„å‰å››ä¸ªå­—èŠ‚åº”è¯¥æ˜¯å‰é¢å‡ ä¸ªç­¾åæˆå‘˜çš„å€¼ã€‚
 } RTL_PROCESS_MODULE_INFORMATION, * PRTL_PROCESS_MODULE_INFORMATION;
 
 

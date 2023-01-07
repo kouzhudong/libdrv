@@ -28,11 +28,11 @@ MSDN_Ref: HTTP://MSDN.Microsoft.com/En-US/Library/FF551986.aspx
 _IRQL_requires_max_(PASSIVE_LEVEL)
 BOOLEAN RtlIsNameInExpression(_In_ PUNICODE_STRING Expression, _In_ PUNICODE_STRING Name)
 /*
-²ÎÊı£º
-ExpressionÊÇ´øÓĞÆ¥Åä·ûµÄ×Ö·û¡£
-NameÊÇ±»ËÑË÷µÄ×Ö·û´®¡£
+å‚æ•°ï¼š
+Expressionæ˜¯å¸¦æœ‰åŒ¹é…ç¬¦çš„å­—ç¬¦ã€‚
+Nameæ˜¯è¢«æœç´¢çš„å­—ç¬¦ä¸²ã€‚
 
-×¢Òâ£º²»ÓÃÔÙ°ÑName×ª»»³É´óĞ´£¬ÒòÎªFsRtlIsNameInExpressionÖ§³Ö²»Çø·Ö´óĞ¡Ğ´¡£
+æ³¨æ„ï¼šä¸ç”¨å†æŠŠNameè½¬æ¢æˆå¤§å†™ï¼Œå› ä¸ºFsRtlIsNameInExpressionæ”¯æŒä¸åŒºåˆ†å¤§å°å†™ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -115,12 +115,12 @@ Return Value:
 EXCEPTION_EXECUTE_HANDLER - If the exception handler should be run.
 EXCEPTION_CONTINUE_SEARCH - If a higher exception handler should take care of this exception.
 
-ÓÃ·¨Ê¾Àı£º__except (ExceptionFilter(GetExceptionInformation()))
+ç”¨æ³•ç¤ºä¾‹ï¼š__except (ExceptionFilter(GetExceptionInformation()))
 --*/
 {
 #pragma warning(push)
-#pragma warning(disable:4065) //switch Óï¾ä°üº¬¡°default¡±µ«ÊÇÎ´°üº¬¡°case¡±±êÇ©
-#pragma warning(disable:4189) //¾Ö²¿±äÁ¿ÒÑ³õÊ¼»¯µ«²»ÒıÓÃ
+#pragma warning(disable:4065) //switch è¯­å¥åŒ…å«â€œdefaultâ€ä½†æ˜¯æœªåŒ…å«â€œcaseâ€æ ‡ç­¾
+#pragma warning(disable:4189) //å±€éƒ¨å˜é‡å·²åˆå§‹åŒ–ä½†ä¸å¼•ç”¨
 
     NTSTATUS Status = ExceptionPointer->ExceptionRecord->ExceptionCode;
     BOOLEAN IsNtstatusExpected = FsRtlIsNtstatusExpected(Status);
@@ -138,7 +138,7 @@ EXCEPTION_CONTINUE_SEARCH - If a higher exception handler should take care of th
 
 void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st)
 /*
-²ÎÊırule_textÊÇ±¾µØÊ±¼äµÄ×Ö·û´®¡£
+å‚æ•°rule_textæ˜¯æœ¬åœ°æ—¶é—´çš„å­—ç¬¦ä¸²ã€‚
 */
 {
     PSYSTEMTIME pst = (PSYSTEMTIME)rule_text;
@@ -164,7 +164,7 @@ void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st
 
 void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING TimeString)
 /*
-²ÎÊırule_textÊÇ±¾µØÊ±¼äµÄ×Ö·û´®¡£
+å‚æ•°rule_textæ˜¯æœ¬åœ°æ—¶é—´çš„å­—ç¬¦ä¸²ã€‚
 */
 {
     TIME_FIELDS tf = {0};

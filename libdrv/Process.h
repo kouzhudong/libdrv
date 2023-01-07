@@ -10,10 +10,10 @@
 
 
 /*
-RTL_USER_PROCESS_PARAMETERSÔÚÈçÏÂÁ½¸öÎÄ¼şÖĞÓĞ¶¨Òå£º
+RTL_USER_PROCESS_PARAMETERSåœ¨å¦‚ä¸‹ä¸¤ä¸ªæ–‡ä»¶ä¸­æœ‰å®šä¹‰ï¼š
 wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntrtl.h
 \win2k\private\windbg64\debugger\include\sundown.h
-ÕâÀï²ÉÓÃWRKµÄ¡£
+è¿™é‡Œé‡‡ç”¨WRKçš„ã€‚
 */
 
 #define DOS_MAX_COMPONENT_LENGTH 255
@@ -53,7 +53,7 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS_WRK
     HANDLE StandardOutput;
     HANDLE StandardError;
 
-    CURDIR CurrentDirectory;        // ProcessParameters ×¢Òâ£ºÕâ¸öºóÃæ¶à¸ö\,²»ĞÅ²âÊÔ»òÕß¿´RtlGetCurrentDirectory_Uº¯ÊıÔ´Âë¡£
+    CURDIR CurrentDirectory;        // ProcessParameters æ³¨æ„ï¼šè¿™ä¸ªåé¢å¤šä¸ª\,ä¸ä¿¡æµ‹è¯•æˆ–è€…çœ‹RtlGetCurrentDirectory_Uå‡½æ•°æºç ã€‚
     UNICODE_STRING DllPath;         // ProcessParameters
     UNICODE_STRING ImagePathName;   // ProcessParameters
     UNICODE_STRING CommandLine;     // ProcessParameters
@@ -75,10 +75,10 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS_WRK
     UNICODE_STRING RuntimeData;     // ProcessParameters
     RTL_DRIVE_LETTER_CURDIR CurrentDirectores[RTL_MAX_DRIVE_LETTERS];
 
-    //¾­²âÊÔ/¹Û²ì¿ÉµÃ£ºÉÏÃæµÄÊı¾İ²»±ä£¬²»Í¬µÄÏµÍ³»áÔÚÏÂÃæÌí¼Ó³ÉÔ±¡£
-    //ËùÒÔÕâ¸ö½á¹¹Ö»¿ÉÓÃÖ¸Õë£¬²»¿ÉÇ¶Ì×ÓÃÓÚ½á¹¹£¬ÒòÎªËüµÄ´óĞ¡»á±ä¡£
-    //ÎªÁËºÍÎ¢ÈíÍøÒ³ÉÏµÄÄÇ¸ö½á¹¹±ÜÃâÖØÃû£¬Õâ¸ö½á¹¹µÄºóÃæ¼Ó¸öWRK¡£
-    //×¢Òâ£ºÇ°Á½¸ö³ÉÔ±¡£
+    //ç»æµ‹è¯•/è§‚å¯Ÿå¯å¾—ï¼šä¸Šé¢çš„æ•°æ®ä¸å˜ï¼Œä¸åŒçš„ç³»ç»Ÿä¼šåœ¨ä¸‹é¢æ·»åŠ æˆå‘˜ã€‚
+    //æ‰€ä»¥è¿™ä¸ªç»“æ„åªå¯ç”¨æŒ‡é’ˆï¼Œä¸å¯åµŒå¥—ç”¨äºç»“æ„ï¼Œå› ä¸ºå®ƒçš„å¤§å°ä¼šå˜ã€‚
+    //ä¸ºäº†å’Œå¾®è½¯ç½‘é¡µä¸Šçš„é‚£ä¸ªç»“æ„é¿å…é‡åï¼Œè¿™ä¸ªç»“æ„çš„åé¢åŠ ä¸ªWRKã€‚
+    //æ³¨æ„ï¼šå‰ä¸¤ä¸ªæˆå‘˜ã€‚
 } RTL_USER_PROCESS_PARAMETERS_WRK, * PRTL_USER_PROCESS_PARAMETERS_WRK;
 
 
@@ -192,13 +192,13 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS64
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-EXTERN_C PUCHAR PsGetProcessImageFileName(IN PEPROCESS Process); //Î´¹«¿ªµÄº¯Êı¡£
+EXTERN_C PUCHAR PsGetProcessImageFileName(IN PEPROCESS Process); //æœªå…¬å¼€çš„å‡½æ•°ã€‚
 
 
-EXTERN_C bool NTAPI FsRtlIs32BitProcess(PEPROCESS Process);//ÒÑ¾­µ¼³ö¡£
+EXTERN_C bool NTAPI FsRtlIs32BitProcess(PEPROCESS Process);//å·²ç»å¯¼å‡ºã€‚
 
 
-//Õª×ÔWRK¡£
+//æ‘˜è‡ªWRKã€‚
 EXTERN_C
 //NTKERNELAPI
 PEJOB
@@ -207,20 +207,20 @@ PsGetProcessJob(
 );
 
 
-//Õª×Ô£º\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\internal\base\inc\zwapi.h
+//æ‘˜è‡ªï¼š\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\internal\base\inc\zwapi.h
 EXTERN_C
-NTSTATUS ZwAdjustPrivilegesToken(IN HANDLE TokenHandle, 
+NTSTATUS ZwAdjustPrivilegesToken(IN HANDLE TokenHandle,
                                  IN BOOLEAN DisableAllPrivileges,
                                  IN PTOKEN_PRIVILEGES NewState OPTIONAL,
                                  IN ULONG BufferLength OPTIONAL,
-                                 OUT PTOKEN_PRIVILEGES PreviousState OPTIONAL, 
+                                 OUT PTOKEN_PRIVILEGES PreviousState OPTIONAL,
                                  OUT PULONG ReturnLength);
 
 
 #if defined(_WIN64)
 
 
-//¹À¼ÆÕâ¸öº¯ÊıÔÚXP-64ÉÏµ¼³öÁË¡£
+//ä¼°è®¡è¿™ä¸ªå‡½æ•°åœ¨XP-64ä¸Šå¯¼å‡ºäº†ã€‚
 EXTERN_C
 //NTKERNELAPI
 PVOID PsGetProcessWow64Process(__in PEPROCESS Process);
@@ -234,9 +234,9 @@ PVOID PsGetCurrentProcessWow64Process(VOID);
 
 
 /*
-Õª×Ô£º\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
-´Ëº¯ÊıÔÚXP 32ÉÏ¾ÍÒÑ¾­µ¼³ö£¬Ó¦¸Ã¿ÉÒÔ·ÅĞÄÊ¹ÓÃ¡£
-»òÕßZwQueryInformationProcess µÄ ProcessBasicInformation.
+æ‘˜è‡ªï¼š\wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\ps.h
+æ­¤å‡½æ•°åœ¨XP 32ä¸Šå°±å·²ç»å¯¼å‡ºï¼Œåº”è¯¥å¯ä»¥æ”¾å¿ƒä½¿ç”¨ã€‚
+æˆ–è€…ZwQueryInformationProcess çš„ ProcessBasicInformation.
 */
 EXTERN_C
 //NTKERNELAPI

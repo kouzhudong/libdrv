@@ -32,7 +32,7 @@ const wchar_t * GetProtocolName(UINT8 protocol)
         protocol_name = L"ICMPV6";
         break;
     default:
-        protocol_name = L"Î´Öª";//Ò²¿É´òÓ¡Ò»¸öÊıÖµ¡£
+        protocol_name = L"æœªçŸ¥";//ä¹Ÿå¯æ‰“å°ä¸€ä¸ªæ•°å€¼ã€‚
         break;
     }
 
@@ -54,11 +54,11 @@ If the handle is an NDIS filter module handle,
 NDIS returns information about all the filter modules that are currently attached to the underlying miniport adapter to which the specified filter module is attached,
 starting with the top-most filter module.
 
-Õâ¸öº¯ÊıĞ´ºÃÁË£¬µ«ÊÇÓÃÔÚÄÄ¶ùÄØ£¿
-ÕâÀïÒÔNDISLWFÎªÀı¡£
-ÔÚÇı¶¯Èë¿ÚµÄNdisFRegisterFilterDriverº¯ÊıÖ®ºó£¬
-µ«ÊÇ´«µİÄÄ¸ö²ÎÊıÄØ£¿È«¾Ö±äÁ¿ºÍÕâ¸öº¯Êı¶¼ÓĞÁ½¸öÀàĞÍÊÇNDIS_HANDLE£¬¶¼Ê¹ÓÃµÄ½á¹ûÊÇ¶¼²»ĞĞ£¬·µ»Øc000000d£¬²ÎÊı²»¶Ô¡£ÔÚÊÕ·¢°üµÄµØ·½Ò²ÊÇÈç´Ë¡£
-×îºóÔÚAttachHandlerµÄ´¦Àíº¯Êı´¦ÓÃËüµÄµÚÒ»¸ö²ÎÊı³É¹¦¡£×¢Òâ£ºÕâÀï»áµ÷ÓÃ¶à´Î¡£
+è¿™ä¸ªå‡½æ•°å†™å¥½äº†ï¼Œä½†æ˜¯ç”¨åœ¨å“ªå„¿å‘¢ï¼Ÿ
+è¿™é‡Œä»¥NDISLWFä¸ºä¾‹ã€‚
+åœ¨é©±åŠ¨å…¥å£çš„NdisFRegisterFilterDriverå‡½æ•°ä¹‹åï¼Œ
+ä½†æ˜¯ä¼ é€’å“ªä¸ªå‚æ•°å‘¢ï¼Ÿå…¨å±€å˜é‡å’Œè¿™ä¸ªå‡½æ•°éƒ½æœ‰ä¸¤ä¸ªç±»å‹æ˜¯NDIS_HANDLEï¼Œéƒ½ä½¿ç”¨çš„ç»“æœæ˜¯éƒ½ä¸è¡Œï¼Œè¿”å›c000000dï¼Œå‚æ•°ä¸å¯¹ã€‚åœ¨æ”¶å‘åŒ…çš„åœ°æ–¹ä¹Ÿæ˜¯å¦‚æ­¤ã€‚
+æœ€ååœ¨AttachHandlerçš„å¤„ç†å‡½æ•°å¤„ç”¨å®ƒçš„ç¬¬ä¸€ä¸ªå‚æ•°æˆåŠŸã€‚æ³¨æ„ï¼šè¿™é‡Œä¼šè°ƒç”¨å¤šæ¬¡ã€‚
 
 made by correy
 made at 2014.12.25
@@ -67,7 +67,7 @@ made at 2014.12.25
     NDIS_STATUS Status = STATUS_UNSUCCESSFUL;
     PVOID  InterfaceBuffer = 0;
     ULONG  InterfaceBufferLength = 0;
-    ULONG  BytesNeeded = 0;//sizeof(NDIS_ENUM_FILTERS) + sizeof(NDIS_FILTER_INTERFACE) * 9;//ÆäÊµ»¹¿ÉÒÔÉèÖÃ¸üĞ¡µã¡£
+    ULONG  BytesNeeded = 0;//sizeof(NDIS_ENUM_FILTERS) + sizeof(NDIS_FILTER_INTERFACE) * 9;//å…¶å®è¿˜å¯ä»¥è®¾ç½®æ›´å°ç‚¹ã€‚
     ULONG  BytesWritten = 0;
     PNDIS_ENUM_FILTERS pefs = 0;
     PNDIS_FILTER_INTERFACE pfi = 0;
@@ -110,12 +110,12 @@ NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
                          OUT PTDI_ADDRESS_INFO LocalAddress
 )
 /*
-¹¦ÄÜ£º´Ëº¯ÊıÓÃÓÚTDI¹ıÂËÇı¶¯ÖĞ»ñÈ¡±¾µØµÄIP£¨IPv4/6£©µØÖ·¡£
+åŠŸèƒ½ï¼šæ­¤å‡½æ•°ç”¨äºTDIè¿‡æ»¤é©±åŠ¨ä¸­è·å–æœ¬åœ°çš„IPï¼ˆIPv4/6ï¼‰åœ°å€ã€‚
 
-×¢Òâ£º
-1.´Ëº¯ÊıµÄÔËĞĞÊ±»ú¡£
-2.´Ëº¯ÊıµÄÔËĞĞ»·¾³£¨IRQLºÍËøµÈ£©¡£
-3.´Ëº¯ÊıµÄÊäÈë²ÎÊı£¬ÌØ±ğËµÃ÷TDIµÄDeviceObject/FileObject·ÖºÃ¼¸ÖÖ£¨ÖÁÉÙÈıÖÖ£©£¬ÒªÑÏ¸ñµÄÇø·Ö¡£
+æ³¨æ„ï¼š
+1.æ­¤å‡½æ•°çš„è¿è¡Œæ—¶æœºã€‚
+2.æ­¤å‡½æ•°çš„è¿è¡Œç¯å¢ƒï¼ˆIRQLå’Œé”ç­‰ï¼‰ã€‚
+3.æ­¤å‡½æ•°çš„è¾“å…¥å‚æ•°ï¼Œç‰¹åˆ«è¯´æ˜TDIçš„DeviceObject/FileObjectåˆ†å¥½å‡ ç§ï¼ˆè‡³å°‘ä¸‰ç§ï¼‰ï¼Œè¦ä¸¥æ ¼çš„åŒºåˆ†ã€‚
 */
 {
     KEVENT Event;
@@ -330,8 +330,8 @@ NTSTATUS EnumIfTable2()
 /*
 https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff552524(v=vs.85)
 
-Your driver can use a similar function, GetIfTable2Ex, 
-to specify the level of interfaces to return. 
+Your driver can use a similar function, GetIfTable2Ex,
+to specify the level of interfaces to return.
 A call to the GetIfTable2Ex function with the Level parameter set to MibIfTableNormal retrieves the same results as calling the GetIfTable2 function.
 */
 {
@@ -454,9 +454,9 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IFSTACK_ROW pTable = &Table->Table[i];
 
-#if !DBG 
+    #if !DBG 
         DBG_UNREFERENCED_LOCAL_VARIABLE(pTable);
-#endif
+    #endif
 
         KdPrint(("HigherLayerInterfaceIndex:%d.\r\n", pTable->HigherLayerInterfaceIndex));
         KdPrint(("LowerLayerInterfaceIndex:%d.\r\n", pTable->LowerLayerInterfaceIndex));

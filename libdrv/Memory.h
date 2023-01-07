@@ -35,10 +35,10 @@ typedef struct _MEMORY_MAPPED_FILE_NAME_INFORMATION
 } MEMORY_MAPPED_FILE_NAME_INFORMATION, * PMEMORY_MAPPED_FILE_NAME_INFORMATION;
 
 
-//Ô­ÐÍÕª×Ô£º\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
-//¾¡¹Ü\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h¼ÓÁË(NTDDI_VERSION >= NTDDI_WIN2K)¡£
-//µ«ÊÇÔçÆÚµÄÏµÍ³£¨XP£©²¢Ã»ÓÐµ¼³öÕâ¸öº¯Êý¡£
-//ËùÒÔÓÐ´Ë¶¨Òå¡£
+//åŽŸåž‹æ‘˜è‡ªï¼š\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h
+//å°½ç®¡\Windows Kits\10\Include\10.0.19041.0\km\ntifs.håŠ äº†(NTDDI_VERSION >= NTDDI_WIN2K)ã€‚
+//ä½†æ˜¯æ—©æœŸçš„ç³»ç»Ÿï¼ˆXPï¼‰å¹¶æ²¡æœ‰å¯¼å‡ºè¿™ä¸ªå‡½æ•°ã€‚
+//æ‰€ä»¥æœ‰æ­¤å®šä¹‰ã€‚
 typedef
 NTSTATUS
 (NTAPI * ZwQueryVirtualMemory_PFN) (

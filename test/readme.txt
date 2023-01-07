@@ -1,14 +1,14 @@
 /*
-ÒªÊ¹KdPrintEx((DPFLTR_IHVNETWORK_ID,...ÉúĞ§µÄÁ½ÖÖÖÖ°ì·¨:
-1.ÏÈ¼ÓntµÄÔØ·ûºÅÎÄ¼ş£¬
-  È»ºóÔËĞĞwindbgÃüÁî£ºed nt!Kd_IHVNETWORK_Mask f£¬ÏàÓ¦µÄÀàËÆÃüÁîÓĞ£ºed nt!Kd_DEFAULT_Mask f;ed nt!Kd_FLTMGR_Mask f¡£
-  Õâ¸ö°ì·¨Á¢¼´ÉúĞ§£¬
-  Í¬Ê±Ò²ÊÇ¹Ø±ÕµÄ°ì·¨, Ö»ĞèÔÙ´ÎÉèÖÃÕâ¸öÖµÎª0¼´¿É¡£
-2.ÁíÒ»ÖÖ°ì·¨Ê¹ĞŞ¸Ä×¢²á±í.
-  Èç¹ûÓÃregÎÄ¼ş£¬ÄÚÈİÈçÏÂ£º
+è¦ä½¿KdPrintEx((DPFLTR_IHVNETWORK_ID,...ç”Ÿæ•ˆçš„ä¸¤ç§ç§åŠæ³•:
+1.å…ˆåŠ ntçš„è½½ç¬¦å·æ–‡ä»¶ï¼Œ
+  ç„¶åè¿è¡Œwindbgå‘½ä»¤ï¼šed nt!Kd_IHVNETWORK_Mask fï¼Œç›¸åº”çš„ç±»ä¼¼å‘½ä»¤æœ‰ï¼šed nt!Kd_DEFAULT_Mask f;ed nt!Kd_FLTMGR_Mask fã€‚
+  è¿™ä¸ªåŠæ³•ç«‹å³ç”Ÿæ•ˆï¼Œ
+  åŒæ—¶ä¹Ÿæ˜¯å…³é—­çš„åŠæ³•, åªéœ€å†æ¬¡è®¾ç½®è¿™ä¸ªå€¼ä¸º0å³å¯ã€‚
+2.å¦ä¸€ç§åŠæ³•ä½¿ä¿®æ”¹æ³¨å†Œè¡¨.
+  å¦‚æœç”¨regæ–‡ä»¶ï¼Œå†…å®¹å¦‚ä¸‹ï¼š
   Windows Registry Editor Version 5.00
 
   [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter]
   "IHVNETWORK"=dword:0000000f
-  µ«ÊÇĞèÒªÖØÆô.
+  ä½†æ˜¯éœ€è¦é‡å¯.
 */

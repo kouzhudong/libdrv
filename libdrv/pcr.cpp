@@ -4,8 +4,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//ÕâÊÇX64µÄ¶¨Òå¡£
-//ÕâÀïÓÃ´úÂëÊµÏÖ£¬Õâ¸öº¯Êı¿Ï¶¨Ã»ÓĞµ¼³ö¡£
+//è¿™æ˜¯X64çš„å®šä¹‰ã€‚
+//è¿™é‡Œç”¨ä»£ç å®ç°ï¼Œè¿™ä¸ªå‡½æ•°è‚¯å®šæ²¡æœ‰å¯¼å‡ºã€‚
 //__forceinline
 //PKPCR
 //KeGetPcr (
@@ -17,7 +17,7 @@
 //}
 
 
-//ÕâÊÇX64µÄ¶¨Òå¡£
+//è¿™æ˜¯X64çš„å®šä¹‰ã€‚
 //__forceinline
 //PKPCR
 //KeGetPcr (
@@ -30,8 +30,8 @@
 
 
 /*
-·ÂÕÕÏµÍ³µÄĞ´µÄ64Î»µÄKeGetPcr£¬
-×Ô¼ºĞ´Ò»¸öX86µÄ¡£
+ä»¿ç…§ç³»ç»Ÿçš„å†™çš„64ä½çš„KeGetPcrï¼Œ
+è‡ªå·±å†™ä¸€ä¸ªX86çš„ã€‚
 */
 #ifdef _X86_
 //__forceinline
@@ -40,20 +40,20 @@ PKPCR KeGetPcr(VOID)
     return (PKPCR)__readfsdword(FIELD_OFFSET(KPCR, SelfPcr));
 }
 #endif
-//ÁíÒ»ÖÖË¼Â·ÊÇ£ºÖ±½Ó»ã±à¡£
+//å¦ä¸€ç§æ€è·¯æ˜¯ï¼šç›´æ¥æ±‡ç¼–ã€‚
 //__asm {  
 //    movzx eax, _PCR
 //        mov pkpcr,eax
 //}
-//×¢Òâ£ºÕâÒ»ĞĞ.
+//æ³¨æ„ï¼šè¿™ä¸€è¡Œ.
 //#define _PCR   fs:[0]  
 
 
 struct _KPRCB * KeGetPrcb(PKPCR pkpcr)
     /*
-    _KPRCB½á¹¹Ã»ÓĞ¹«¿ª¡£
-    WRKºÍWINDBG¿Ï¶¨ÓĞ¡£
-    ¶øÇÒÓĞ32ºÍ64Ö®·Ö¡£
+    _KPRCBç»“æ„æ²¡æœ‰å…¬å¼€ã€‚
+    WRKå’ŒWINDBGè‚¯å®šæœ‰ã€‚
+    è€Œä¸”æœ‰32å’Œ64ä¹‹åˆ†ã€‚
     wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\i386.h
     wrk\WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\inc\amd64.h
     */

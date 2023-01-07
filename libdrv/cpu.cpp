@@ -48,16 +48,16 @@ const char * szFeatures[] =
 
 NTSTATUS CPUIDTTEST()
 /*
-±êÌâ£ºÄÚºËÖĞµÄCPUID¡£
+æ ‡é¢˜ï¼šå†…æ ¸ä¸­çš„CPUIDã€‚
 
-CPUIDÕâ¸öÖ¸ÁîºÜÓĞÓÃ£¬Èç²é¿´£ºCPUÎ¢Âë£¬ĞéÄâ»¯µÈ¡£
-×¢ÒâºÜ¾ÉµÄCPU²»Ö§³Ö£ºhttp://correy.webs.com/articles/computer/asm/cpu_microcode.asm.txt
-Èç´ËÖØÒªµÄÖ¸Áî£¬Î¢ÈíÆñÄÜ²»Ö§³Ö¡£
-¾¡¹ÜX64²»Ö§³ÖÄÚÁª»ã±à£¬µ«Ò²ÓĞÌæ´úµÄ°ì·¨¶Ô¸¶´ËÌØ±ğÓĞÓÃµÄÖ¸Áî¡£
-Èç£ºhttp://msdn.microsoft.com/en-us/library/26td21ds.aspx
+CPUIDè¿™ä¸ªæŒ‡ä»¤å¾ˆæœ‰ç”¨ï¼Œå¦‚æŸ¥çœ‹ï¼šCPUå¾®ç ï¼Œè™šæ‹ŸåŒ–ç­‰ã€‚
+æ³¨æ„å¾ˆæ—§çš„CPUä¸æ”¯æŒï¼šhttp://correy.webs.com/articles/computer/asm/cpu_microcode.asm.txt
+å¦‚æ­¤é‡è¦çš„æŒ‡ä»¤ï¼Œå¾®è½¯å²‚èƒ½ä¸æ”¯æŒã€‚
+å°½ç®¡X64ä¸æ”¯æŒå†…è”æ±‡ç¼–ï¼Œä½†ä¹Ÿæœ‰æ›¿ä»£çš„åŠæ³•å¯¹ä»˜æ­¤ç‰¹åˆ«æœ‰ç”¨çš„æŒ‡ä»¤ã€‚
+å¦‚ï¼šhttp://msdn.microsoft.com/en-us/library/26td21ds.aspx
 
-±¾ÎÄ²Î¿¼£ºhttp://msdn.microsoft.com/zh-cn/library/hskdteyh(v=vs.110).aspx
-ÔÚX86ºÍX64µÄWindowsÏµÍ³ÉÏ²âÊÔÍ¨¹ı¡£
+æœ¬æ–‡å‚è€ƒï¼šhttp://msdn.microsoft.com/zh-cn/library/hskdteyh(v=vs.110).aspx
+åœ¨X86å’ŒX64çš„Windowsç³»ç»Ÿä¸Šæµ‹è¯•é€šè¿‡ã€‚
 
 made by correy
 made at 2014.08.20
@@ -147,7 +147,7 @@ made at 2014.08.20
     // The code below arranges the information in a human readable form.
 
     /*
-    ÕâĞĞÖ¸Áî¶ÔÓ¦µÄ»ã±à´úÂëÎª£º
+    è¿™è¡ŒæŒ‡ä»¤å¯¹åº”çš„æ±‡ç¼–ä»£ç ä¸ºï¼š
     X86:
     180 test.c               f88902e5 8d758c          lea     esi,[ebp-74h]
     180 test.c               f88902e8 33c0            xor     eax,eax
@@ -481,7 +481,7 @@ made at 2014.08.20
 
 int GetsNumberOfValidExtendedIDs()
 /*
-¹¦ÄÜ£º»ñÈ¡CPUIDµÄ×î´ó¹¦ÄÜºÅ£¨»ù±¾µÄºÍÀ©Õ¹µÄ£©¡£
+åŠŸèƒ½ï¼šè·å–CPUIDçš„æœ€å¤§åŠŸèƒ½å·ï¼ˆåŸºæœ¬çš„å’Œæ‰©å±•çš„ï¼‰ã€‚
 
 https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 */
@@ -507,7 +507,7 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 
 int GetCPUBrandString()
 /*
-¹¦ÄÜ£º»ñÈ¡CPUIDµÄ×î´ó¹¦ÄÜºÅ£¨»ù±¾µÄºÍÀ©Õ¹µÄ£©¡£
+åŠŸèƒ½ï¼šè·å–CPUIDçš„æœ€å¤§åŠŸèƒ½å·ï¼ˆåŸºæœ¬çš„å’Œæ‰©å±•çš„ï¼‰ã€‚
 
 https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 */
@@ -524,7 +524,7 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
         printf_s("No support CPU Brand String.\n");
     }
 
-    //¾ßÌåµÄÔ­ÀíÎªÉ¶ÕâÑù×ö£¬Çë¿´intelºÍamdµÄ×ÊÁÏ¡£
+    //å…·ä½“çš„åŸç†ä¸ºå•¥è¿™æ ·åšï¼Œè¯·çœ‹intelå’Œamdçš„èµ„æ–™ã€‚
     for (unsigned i = 0x80000000; i <= nExIds; ++i) {
         __cpuid(CPUInfo, i);
 
@@ -535,12 +535,12 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
         } else if (i == 0x80000004) {
             memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
         } else {
-            //É¶Ò²²»×ö¡£
+            //å•¥ä¹Ÿä¸åšã€‚
         }
     }
 
-    if (nExIds >= 0x80000004) {//Õâ¸ö±Ø¶¨³ÉÁ¢¡£
-        //CPUBrandStringµÄÖµÎª£º        Intel(R) Core(TM) i3-3240 CPU @ 3.40GHz ×¢ÒâÇ°ÃæÓĞ¿Õ¸ñ¡£
+    if (nExIds >= 0x80000004) {//è¿™ä¸ªå¿…å®šæˆç«‹ã€‚
+        //CPUBrandStringçš„å€¼ä¸ºï¼š        Intel(R) Core(TM) i3-3240 CPU @ 3.40GHz æ³¨æ„å‰é¢æœ‰ç©ºæ ¼ã€‚
         printf_s("CPU Brand String: %s.\n", CPUBrandString);
     }
 
@@ -553,7 +553,7 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 
 int GetCPUIdentificationString()
 /*
-»ñÈ¡CPUµÄ³§ÉÌµÄ´úÂë
+è·å–CPUçš„å‚å•†çš„ä»£ç 
 
 https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 */
@@ -584,20 +584,20 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 
 int is_support_pae()
 /*
-¹¦ÄÜ£º¼ì²éÊÇ·ñ¿ªÆô£ºPhysical address extensions¡£
+åŠŸèƒ½ï¼šæ£€æŸ¥æ˜¯å¦å¼€å¯ï¼šPhysical address extensionsã€‚
 
-²Î¿¼£º
+å‚è€ƒï¼š
 https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
 https://msdn.microsoft.com/en-us/library/h65k4tze(v=vs.100).aspx
 
-ÁíÒ»¸öË¼Â·£º¼ì²âcr4µÄµÚÎåÎ»£¨´ÓÁã¿ªÊ¼£©¡£
+å¦ä¸€ä¸ªæ€è·¯ï¼šæ£€æµ‹cr4çš„ç¬¬äº”ä½ï¼ˆä»é›¶å¼€å§‹ï¼‰ã€‚
 http://blogs.msdn.com/b/ntdebugging/archive/2010/06/22/part-3-understanding-pte-non-pae-and-x64.aspx
 
-²Î¿¼£º
-Intel? 64 and IA-32 Architectures Software Developer¡¯s Manual Combined Volumes:1, 2A, 2B, 2C, 3A, 3B and 3C
-µÄ
+å‚è€ƒï¼š
+Intel? 64 and IA-32 Architectures Software Developerâ€™s Manual Combined Volumes:1, 2A, 2B, 2C, 3A, 3B and 3C
+çš„
 Figure 3-8. Feature Information Returned in the EDX Register
-ºÍ
+å’Œ
 Table 3-20. More on Feature Information Returned in the EDX Register
 */
 {
@@ -621,8 +621,8 @@ Table 3-20. More on Feature Information Returned in the EDX Register
 
 BOOL is_support_vmx()
 /*
-¹¦ÄÜ£ºÅĞ¶ÏCPUÊÇ·ñÖ§³ÖVMXÖ¸Áî¡£
-È¨Íş×ÊÁÏ£º23.6 DISCOVERING SUPPORT FOR VMX
+åŠŸèƒ½ï¼šåˆ¤æ–­CPUæ˜¯å¦æ”¯æŒVMXæŒ‡ä»¤ã€‚
+æƒå¨èµ„æ–™ï¼š23.6 DISCOVERING SUPPORT FOR VMX
 
 System software can determine whether a processor supports VMX operation using CPUID.
 If CPUID.1:ECX.VMX[bit 5] = 1, then VMX operation is supported.
@@ -678,18 +678,18 @@ BOOL is_support_intel()
 
 BOOL is_support_cpuid()
 /*
-¹¦ÄÜ£º¼ì²âCPUÊÇ·ñÖ§³ÖCPUIDÖ¸Áî¡£
+åŠŸèƒ½ï¼šæ£€æµ‹CPUæ˜¯å¦æ”¯æŒCPUIDæŒ‡ä»¤ã€‚
 
-²Î¿¼£º
+å‚è€ƒï¼š
 https://msdn.microsoft.com/en-us/library/aa983406(v=vs.100).aspx
 https://msdn.microsoft.com/en-us/library/aa983392(v=vs.100).aspx
 
-ËµÃ÷£º
-1.ÒòÎªÊ¹ÓÃÁËsize_t£¬ËùÒÔÖ§³Ö32ºÍ64.
-2.eflags¾ÍÊÇWINDBGÖĞµÄr eflÃüÁîÏÔÊ¾µÄÖµ¡£
+è¯´æ˜ï¼š
+1.å› ä¸ºä½¿ç”¨äº†size_tï¼Œæ‰€ä»¥æ”¯æŒ32å’Œ64.
+2.eflagså°±æ˜¯WINDBGä¸­çš„r eflå‘½ä»¤æ˜¾ç¤ºçš„å€¼ã€‚
 
-intelÊÖ²áµÄ3.4.3.3 System Flags and IOPL Field½ÚÃèÊöÈçÏÂ£º
-ID (bit 21)     Identification flag ¡ª The ability of a program to set or clear this flag indicates support for the CPUID instruction.
+intelæ‰‹å†Œçš„3.4.3.3 System Flags and IOPL FieldèŠ‚æè¿°å¦‚ä¸‹ï¼š
+ID (bit 21)     Identification flag â€” The ability of a program to set or clear this flag indicates support for the CPUID instruction.
 
 kd> .formats 0x200000
 Evaluate expression:
@@ -723,7 +723,7 @@ Evaluate expression:
 
 BOOL is_support_cpuid_ex()
 /*
-ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖCPUIDÖ¸Áî¡£
+åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒCPUIDæŒ‡ä»¤ã€‚
 
 The ID flag (bit 21) in the EFLAGS register indicates support for the CPUID instruction.
 If a software procedure can set and clear this flag, the processor executing the procedure supports the CPUID instruction.
@@ -735,19 +735,19 @@ This instruction operates the same in non-64-bit modes and 64-bit mode.
     SIZE_T result;
     SIZE_T temp;
 
-    original = __readeflags(); //¶ÁÈ¡
-    //ASSERT(_bittest(&original, 21) == 0);//¶ÏÑÔÕâ¸öÎ»Îª0.
+    original = __readeflags(); //è¯»å–
+    //ASSERT(_bittest(&original, 21) == 0);//æ–­è¨€è¿™ä¸ªä½ä¸º0.
 
     temp = original;
-    _bittestandset((LONG *)&temp, 21);//ÉèÖÃÕâÒ»Î»Îª1. ÁíÒ»¸ö°ì·¨ÊÇºÍ0x200000½øĞĞ»ò²Ù×÷¡£
+    _bittestandset((LONG *)&temp, 21);//è®¾ç½®è¿™ä¸€ä½ä¸º1. å¦ä¸€ä¸ªåŠæ³•æ˜¯å’Œ0x200000è¿›è¡Œæˆ–æ“ä½œã€‚
 
-    __writeeflags(temp);//Ğ´Èë²âÊÔ¡£
+    __writeeflags(temp);//å†™å…¥æµ‹è¯•ã€‚
 
-    result = __readeflags();//¶ÁÈ¡½á¹û¡£
+    result = __readeflags();//è¯»å–ç»“æœã€‚
 
-    __writeeflags(original);//»Ö¸´¡£
+    __writeeflags(original);//æ¢å¤ã€‚
 
-    //ÅĞ¶Ï
+    //åˆ¤æ–­
     if (_bittest((const LONG *)&result, 21) == 0) {
         B = FALSE;
     } else {
@@ -779,7 +779,7 @@ int is_support_ne()
     __cpuid(CPUInfo, 0x80000001);
     LONG edx = CPUInfo[3];
 
-    //¼´NX£ºNo Execute¡£
+    //å³NXï¼šNo Executeã€‚
     unsigned char b = _bittest(&edx, 20);
     if (b) {
         printf_s("Execute Disable Bit available.\n");
@@ -813,7 +813,7 @@ int Intel64ArchitectureAvailable()
     __cpuid(CPUInfo, 0x80000001);
     LONG edx = CPUInfo[3];
 
-    //¼´NX£ºNo Execute¡£
+    //å³NXï¼šNo Executeã€‚
     unsigned char b = _bittest(&edx, 29);
     if (b) {
         printf_s("Intel 64 Architecture available if 1.\n");
@@ -828,7 +828,7 @@ int Intel64ArchitectureAvailable()
 
 int is_support_msr()
 /*
-ÅĞ¶ÏÊÇ·ñÖ§³ÖRDMSR and WRMSRÖ¸Áî
+åˆ¤æ–­æ˜¯å¦æ”¯æŒRDMSR and WRMSRæŒ‡ä»¤
 */
 {
     if (!is_support_cpuid()) {
@@ -854,7 +854,7 @@ int is_support_msr()
 
     unsigned char b = _bittest((const LONG *)&edx, 5);
     if (b) {
-        printf_s("MSR¨CRDMSR and WRMSR Support.\n");
+        printf_s("MSRâ€“RDMSR and WRMSR Support.\n");
     }
 
     return 0;
@@ -866,7 +866,7 @@ int is_support_msr()
 
 int is_support_sysenter()
 /*
-¼ì²âÊÇ·ñÖ§³ÖSYSENTER and SYSEXIT and associated MSRs
+æ£€æµ‹æ˜¯å¦æ”¯æŒSYSENTER and SYSEXIT and associated MSRs
 */
 {
     if (!is_support_cpuid()) {
@@ -904,18 +904,18 @@ int is_support_sysenter()
 
 VOID IA32_VMX_PINBASED_CTLS()
 /*
-¹¦ÄÜ£º»ñÈ¡IA32_VMX_PINBASED_CTLS¼Ä´æÆ÷µÄÏêÏ¸ĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–IA32_VMX_PINBASED_CTLSå¯„å­˜å™¨çš„è¯¦ç»†ä¿¡æ¯ã€‚
 
-Ç°ÖÃÌõ¼ş£¬ CPUID.01H:ECX.[5] = 1 ¼´ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖVMXÖ¸ÁîµÄ½á¹ûÎªÕæ¡£
+å‰ç½®æ¡ä»¶ï¼Œ CPUID.01H:ECX.[5] = 1 å³åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒVMXæŒ‡ä»¤çš„ç»“æœä¸ºçœŸã€‚
 Capability Reporting Register of Pin-based VM-execution Controls (R/O)
-See Appendix A.3.1, ¡°Pin-Based VM-Execution Controls.¡±
+See Appendix A.3.1, â€œPin-Based VM-Execution Controls.â€
 
 made by correy
 made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PINBASED_CTLS ivpc;//ÔÚVS2012ÉÏ£¬Ç°Ãæ±ØĞë¼Ó¸öunion¡£
+    union IA32_VMX_PINBASED_CTLS ivpc;//åœ¨VS2012ä¸Šï¼Œå‰é¢å¿…é¡»åŠ ä¸ªunionã€‚
     unsigned __int64 t = 0;
 
     t = __readmsr(0x481);
@@ -932,9 +932,9 @@ http://correy.webs.com
 
 int GetMaxAddressBits()
 /*
-»ñÈ¡CPUÖ§³ÖµÄ×î´óÎïÀíµØÖ·ºÍÏßĞÔµØÖ·µÄÎ»Êı
+è·å–CPUæ”¯æŒçš„æœ€å¤§ç‰©ç†åœ°å€å’Œçº¿æ€§åœ°å€çš„ä½æ•°
 
-×¢Òâ£ºÕâ¸ö²Ù×÷ÏµÍ³Ö§³ÖµÄÊÇÁ½¸ö¸ÅÄî£¬²Ù×÷ÏµÍ³µÄ¿Ï¶¨Ğ¡ÓÚÕâ¸ö¡£
+æ³¨æ„ï¼šè¿™ä¸ªæ“ä½œç³»ç»Ÿæ”¯æŒçš„æ˜¯ä¸¤ä¸ªæ¦‚å¿µï¼Œæ“ä½œç³»ç»Ÿçš„è‚¯å®šå°äºè¿™ä¸ªã€‚
 */
 {
     if (!is_support_cpuid()) {
@@ -995,8 +995,8 @@ int is_support_syscall()
     __cpuid(CPUInfo, 0x80000001);
     int edx = CPUInfo[3];
 
-    //Èç¹ûÔÚ64Î»µÄÏµÍ³ÉÏ²âÊÔ£¬±àÒëÎª32µÄ³ÌĞò£¬Õâ¸ö»ñÈ¡ÊÇÊ§°ÜµÄ£¬±àÒëÎª64Î»³ÌĞò£¬Õâ¸öÔËĞĞÊÇ³É¹¦µÄ¡£
-    //µ«ÊÇ¿´ËµÃ÷£¬Ò²ÊÇÕâÑù£ºSYSCALL/SYSRET available in 64-bit mode¡£
+    //å¦‚æœåœ¨64ä½çš„ç³»ç»Ÿä¸Šæµ‹è¯•ï¼Œç¼–è¯‘ä¸º32çš„ç¨‹åºï¼Œè¿™ä¸ªè·å–æ˜¯å¤±è´¥çš„ï¼Œç¼–è¯‘ä¸º64ä½ç¨‹åºï¼Œè¿™ä¸ªè¿è¡Œæ˜¯æˆåŠŸçš„ã€‚
+    //ä½†æ˜¯çœ‹è¯´æ˜ï¼Œä¹Ÿæ˜¯è¿™æ ·ï¼šSYSCALL/SYSRET available in 64-bit modeã€‚
     unsigned char b = _bittest((const LONG *)&edx, 11);
     if (b) {
         printf_s("SYSCALL/SYSRET available in 64-bit mode.\n");
@@ -1011,19 +1011,19 @@ int is_support_syscall()
 
 VOID IA32_VMX_PROCBASED_CTLS()
 /*
-¹¦ÄÜ£º»ñÈ¡IA32_VMX_PROCBASED_CTLS¼Ä´æÆ÷µÄÏêÏ¸ĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–IA32_VMX_PROCBASED_CTLSå¯„å­˜å™¨çš„è¯¦ç»†ä¿¡æ¯ã€‚
 
-Ç°ÖÃÌõ¼ş£¬ CPUID.01H:ECX.[5] = 1 ¼´ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖVMXÖ¸ÁîµÄ½á¹ûÎªÕæ¡£
+å‰ç½®æ¡ä»¶ï¼Œ CPUID.01H:ECX.[5] = 1 å³åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒVMXæŒ‡ä»¤çš„ç»“æœä¸ºçœŸã€‚
 
 Capability Reporting Register of Primary Processor-based VM-execution Controls (R/O)
-See Appendix A.3.2, ¡°Primary Processor-Based VM-Execution Controls.¡±
+See Appendix A.3.2, â€œPrimary Processor-Based VM-Execution Controls.â€
 
 made by correy
 made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PROCBASED_CTLS ivpc;//ÔÚVS2012ÉÏ£¬Ç°Ãæ±ØĞë¼Ó¸öunion¡£
+    union IA32_VMX_PROCBASED_CTLS ivpc;//åœ¨VS2012ä¸Šï¼Œå‰é¢å¿…é¡»åŠ ä¸ªunionã€‚
     unsigned __int64 t = 0;
 
     t = __readmsr(0x482);
@@ -1041,19 +1041,19 @@ http://correy.webs.com
 #ifdef _AMD64_
 VOID IA32_VMX_PROCBASED_CTLS2()
 /*
-¹¦ÄÜ£º»ñÈ¡IA32_VMX_PROCBASED_CTLS2¼Ä´æÆ÷µÄÏêÏ¸ĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–IA32_VMX_PROCBASED_CTLS2å¯„å­˜å™¨çš„è¯¦ç»†ä¿¡æ¯ã€‚
 
-Ç°ÖÃÌõ¼ş£¬ If ( CPUID.01H:ECX.[5] && IA32_VMX_PROCBASED_CTLS[63]) ¼´ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖVMXÖ¸ÁîµÄ½á¹ûÎªÕæ¡£
+å‰ç½®æ¡ä»¶ï¼Œ If ( CPUID.01H:ECX.[5] && IA32_VMX_PROCBASED_CTLS[63]) å³åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒVMXæŒ‡ä»¤çš„ç»“æœä¸ºçœŸã€‚
 
 Capability Reporting Register of Secondary Processor-based VM-execution Controls (R/O)
-See Appendix A.3.3, ¡°Secondary Processor-Based VM-Execution Controls.¡±
+See Appendix A.3.3, â€œSecondary Processor-Based VM-Execution Controls.â€
 
 made by correy
 made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PROCBASED_CTLS2 ivpc2;//ÔÚVS2012ÉÏ£¬Ç°Ãæ±ØĞë¼Ó¸öunion¡£
+    union IA32_VMX_PROCBASED_CTLS2 ivpc2;//åœ¨VS2012ä¸Šï¼Œå‰é¢å¿…é¡»åŠ ä¸ªunionã€‚
     unsigned __int64 t = 0;
 
     t = __readmsr(0x482);
@@ -1077,21 +1077,21 @@ http://correy.webs.com
 
 NTSTATUS GetCpuTEMPERATURE()
 /*
-²âÊÔ³É¹¦µÄ»ñÈ¡Intel CPUÎÂ¶ÈµÄ´úÂë£¨ÕæÊµ»úÆ÷£©
-´Ë°ì·¨¿ÉÒÔÊ¶±ğĞéÄâ»ú£¬ÖÁÉÙÊ¶±ğVMWAREµÈ¡£
+æµ‹è¯•æˆåŠŸçš„è·å–Intel CPUæ¸©åº¦çš„ä»£ç ï¼ˆçœŸå®æœºå™¨ï¼‰
+æ­¤åŠæ³•å¯ä»¥è¯†åˆ«è™šæ‹Ÿæœºï¼Œè‡³å°‘è¯†åˆ«VMWAREç­‰ã€‚
 
-×¢Òâ£º²âÊÔ»·¾³×îºÃ²»ÒªÓÃĞéÄâ»ú£¬ÓÃÕæÊµµÄÎïÀí»úÆ÷¡£
-ÈçÊÇ64Î»Windows£¬¿ÉÒÔ¿ªÆôWINDBGµÄ±¾»úÄÚºËµ÷ÊÔ£º
+æ³¨æ„ï¼šæµ‹è¯•ç¯å¢ƒæœ€å¥½ä¸è¦ç”¨è™šæ‹Ÿæœºï¼Œç”¨çœŸå®çš„ç‰©ç†æœºå™¨ã€‚
+å¦‚æ˜¯64ä½Windowsï¼Œå¯ä»¥å¼€å¯WINDBGçš„æœ¬æœºå†…æ ¸è°ƒè¯•ï¼š
 lkd> rdmsr 0x19C; rdmsr 0x1A2
 msr[19c] = 00000000`88470000
 msr[1a2] = 00000000`00691400
-ÔÙ¼ÆËã¡£
+å†è®¡ç®—ã€‚
 
-×¢Òâ£ºÃ¿¸öºËĞÄÓĞ¸öÎÂ¶È£¬²»ÊÇÃ¿¸öCPUÏß³ÌÓĞ¸öÎÂ¶È¡£
+æ³¨æ„ï¼šæ¯ä¸ªæ ¸å¿ƒæœ‰ä¸ªæ¸©åº¦ï¼Œä¸æ˜¯æ¯ä¸ªCPUçº¿ç¨‹æœ‰ä¸ªæ¸©åº¦ã€‚
 
-¾ßÌåµÄ×ö·¨ÓĞ£º
-1.´´½¨¸öÉè±¸£¬Ìá¹©¸ö½è¿Ú¹©Ó¦ÓÃ²ãÓÃ¡£
-2.¿ªÆô¸ö¶¨Ê±Æ÷£¬ÔÚÄÚºË²»Í£µÄ´òÓ¡ÏûÏ¢¡£
+å…·ä½“çš„åšæ³•æœ‰ï¼š
+1.åˆ›å»ºä¸ªè®¾å¤‡ï¼Œæä¾›ä¸ªå€Ÿå£ä¾›åº”ç”¨å±‚ç”¨ã€‚
+2.å¼€å¯ä¸ªå®šæ—¶å™¨ï¼Œåœ¨å†…æ ¸ä¸åœçš„æ‰“å°æ¶ˆæ¯ã€‚
 */
 
 /*
@@ -1103,9 +1103,9 @@ CPUID.06H:EAX[bit0]
 15:0  Reserved.
 23:16 Temperature Target (R)
 The default thermal throttling or PROCHOT# activation temperature in degree C,
-The effective temperature for thermal throttling or PROCHOT# activation is ¡°Temperature Target¡± +¡°Target Offset¡±
+The effective temperature for thermal throttling or PROCHOT# activation is â€œTemperature Targetâ€ +â€œTarget Offsetâ€
 29:24 Target Offset (R/W)
-Specifies an offset in degrees C to adjust the throttling and 
+Specifies an offset in degrees C to adjust the throttling and
 PROCHOT# activation temperature from the default target specified in TEMPERATURE_TARGET (bits 23:16).
 */
 {
@@ -1118,17 +1118,17 @@ PROCHOT# activation temperature from the default target specified in TEMPERATURE
     int CPUInfo[4] = {-1};
     unsigned int t = 0;
 
-    //Ê¶±ğÊÇ·ñÖ§³ÖCPUIDÖ¸Áî¡£
+    //è¯†åˆ«æ˜¯å¦æ”¯æŒCPUIDæŒ‡ä»¤ã€‚
 
-    //Ê¶±ğÊÇ²»ÊÇIntel´¦ÀíÆ÷¡£
+    //è¯†åˆ«æ˜¯ä¸æ˜¯Intelå¤„ç†å™¨ã€‚
 
-    //Ê¶±ğÊÇ·ñÖ§³Ö²éÑ¯CPUµÄÎÂ¶È¡£
+    //è¯†åˆ«æ˜¯å¦æ”¯æŒæŸ¥è¯¢CPUçš„æ¸©åº¦ã€‚
     __cpuid(CPUInfo, 6);
     t = CPUInfo[0];
     //CPUID.06H:EAX[bit0] == 1
-    //¿ÉÊÇÏÂÃæµÄÁ½¸öÖµ»ñÈ¡µÄ¶¼ÎªÁã¡£
+    //å¯æ˜¯ä¸‹é¢çš„ä¸¤ä¸ªå€¼è·å–çš„éƒ½ä¸ºé›¶ã€‚
 
-    tt = __readmsr(MSR_TEMPERATURE_TARGET);//Èç¹ûÕâ¸öÊı×ÖÎª0£¬¿ÉÒÔÈÏÎªÊÇÔÚĞéÄâ»úÖĞ£¬ÓĞµÄÈí¼ş½Ğ£ºÄÍÈÈ£¬¿ÉÄÜÊÇ¼«ÏŞ¡£
+    tt = __readmsr(MSR_TEMPERATURE_TARGET);//å¦‚æœè¿™ä¸ªæ•°å­—ä¸º0ï¼Œå¯ä»¥è®¤ä¸ºæ˜¯åœ¨è™šæ‹Ÿæœºä¸­ï¼Œæœ‰çš„è½¯ä»¶å«ï¼šè€çƒ­ï¼Œå¯èƒ½æ˜¯æé™ã€‚
     ts = __readmsr(IA32_THERM_STATUS);
 
     //KdPrint(("MSR_TEMPERATURE_TARGET:0x%x.\r\n", tt));
@@ -1141,8 +1141,8 @@ PROCHOT# activation temperature from the default target specified in TEMPERATURE
     i = i / 0x10000;
 
     KdPrint(("TEMPERATURE:%d.\r\n", i));
-    //Õâ¸öÊı×ÖºÍ±ğµÄÈí¼şÓĞ1-2¶ÈµÄ²î±ğ¡£
-    //²»¹ıCore-TempºÍhwmonitorÒ²ÊÇÏà²î1-2¶È¡£
+    //è¿™ä¸ªæ•°å­—å’Œåˆ«çš„è½¯ä»¶æœ‰1-2åº¦çš„å·®åˆ«ã€‚
+    //ä¸è¿‡Core-Tempå’Œhwmonitorä¹Ÿæ˜¯ç›¸å·®1-2åº¦ã€‚
 
     return Status;
 }
@@ -1153,17 +1153,17 @@ PROCHOT# activation temperature from the default target specified in TEMPERATURE
 
 VOID READ_BASIC_VMX_INFORMATION()
 /*
-¹¦ÄÜ£º»ñÈ¡BASIC_VMX_INFORMATION¼Ä´æÆ÷µÄÏêÏ¸ĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–BASIC_VMX_INFORMATIONå¯„å­˜å™¨çš„è¯¦ç»†ä¿¡æ¯ã€‚
 
-Ç°ÖÃÌõ¼ş£¬ CPUID.01H:ECX.[5] = 1 ¼´ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖVMXÖ¸ÁîµÄ½á¹ûÎªÕæ¡£
-See Appendix A.1, ¡°Basic VMX Information.¡±
+å‰ç½®æ¡ä»¶ï¼Œ CPUID.01H:ECX.[5] = 1 å³åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒVMXæŒ‡ä»¤çš„ç»“æœä¸ºçœŸã€‚
+See Appendix A.1, â€œBasic VMX Information.â€
 
 made by correy
 made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union BASIC_VMX_INFORMATION bvi;//ÔÚVS2012ÉÏ£¬Ç°Ãæ±ØĞë¼Ó¸öunion¡£
+    union BASIC_VMX_INFORMATION bvi;//åœ¨VS2012ä¸Šï¼Œå‰é¢å¿…é¡»åŠ ä¸ªunionã€‚
     unsigned __int64 t = 0;
 
     t = __readmsr(0x480);
@@ -1185,12 +1185,12 @@ http://correy.webs.com
 
 NTSTATUS GET_VMX_BASIC_INFO()
 /*
-¹¦ÄÜ£º»ñÈ¡IA32_VMX_BASIC¼Ä´æÆ÷µÄĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–IA32_VMX_BASICå¯„å­˜å™¨çš„ä¿¡æ¯ã€‚
 
-×¢Òâ£ºWINDBGÃüÁî£ºrdmsr 0x480
+æ³¨æ„ï¼šWINDBGå‘½ä»¤ï¼šrdmsr 0x480
 
-C Î»Óò   https://msdn.microsoft.com/zh-cn/library/yszfawxh.aspx
-C++ Î»Óò https://msdn.microsoft.com/zh-cn/library/ewwyfdbe.aspx
+C ä½åŸŸ   https://msdn.microsoft.com/zh-cn/library/yszfawxh.aspx
+C++ ä½åŸŸ https://msdn.microsoft.com/zh-cn/library/ewwyfdbe.aspx
 
 https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsituseccom/27
 */
@@ -1199,23 +1199,23 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
     unsigned __int64 VMX_BASIC_MSR = 0;
     PMSR_IA32_VMX_BASIC vmx_basic;
 
-    //1.Ê¶±ğÊÇ·ñÖ§³ÖCPUIDÖ¸Áî¡£Ê¡ÂÔ¡£
+    //1.è¯†åˆ«æ˜¯å¦æ”¯æŒCPUIDæŒ‡ä»¤ã€‚çœç•¥ã€‚
 
-    //2.Ê¶±ğÊÇ²»ÊÇIntel´¦ÀíÆ÷¡£Ê¡ÂÔ¡£
+    //2.è¯†åˆ«æ˜¯ä¸æ˜¯Intelå¤„ç†å™¨ã€‚çœç•¥ã€‚
 
-    //3.¼ì²âÊÇ·ñÖ§³ÖRDMSR/WRMSRÖ¸Áî¡£ Ê¡ÂÔ¡£
+    //3.æ£€æµ‹æ˜¯å¦æ”¯æŒRDMSR/WRMSRæŒ‡ä»¤ã€‚ çœç•¥ã€‚
 
     /*
-    4.ÅĞ¶ÏCPUÊÇ·ñÖ§³ÖĞéÄâ»¯:CPUID.1:ECX.VMX[bit 5] = 1,ÒòÎª£º
+    4.åˆ¤æ–­CPUæ˜¯å¦æ”¯æŒè™šæ‹ŸåŒ–:CPUID.1:ECX.VMX[bit 5] = 1,å› ä¸ºï¼š
     VMX capability MSRs are readonly; an attempt to write them (with WRMSR) produces a general-protection exception (#GP(0)).
     They do not exist on processors that do not support VMX operation; a
     n attempt to read them (with RDMSR) on such processors produces a general-protection exception (#GP(0))
-    Ê¡ÂÔ¡£
+    çœç•¥ã€‚
     */
 
-    //5.¶ÁÈ¡²¢ÏÔÊ¾ĞÅÏ¢¡£
+    //5.è¯»å–å¹¶æ˜¾ç¤ºä¿¡æ¯ã€‚
 
-    VMX_BASIC_MSR = __readmsr(IA32_VMX_BASIC);//Èç¹ûÕâ¸öÊı×ÖÎª0£¬¿ÉÒÔÈÏÎªÊÇÔÚĞéÄâ»úÖĞ£¬ÓĞµÄÈí¼ş½Ğ£ºÄÍÈÈ£¬¿ÉÄÜÊÇ¼«ÏŞ¡£
+    VMX_BASIC_MSR = __readmsr(IA32_VMX_BASIC);//å¦‚æœè¿™ä¸ªæ•°å­—ä¸º0ï¼Œå¯ä»¥è®¤ä¸ºæ˜¯åœ¨è™šæ‹Ÿæœºä¸­ï¼Œæœ‰çš„è½¯ä»¶å«ï¼šè€çƒ­ï¼Œå¯èƒ½æ˜¯æé™ã€‚
 
     vmx_basic = (PMSR_IA32_VMX_BASIC)&VMX_BASIC_MSR;
 
@@ -1227,7 +1227,7 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
     KdPrint(("If bit 49 is read as 1, the logical processor supports the dual-monitor treatment of system-management interrupts and system - management mode.:0x%x.\r\n", vmx_basic->DMT_SMI_SMM));
     KdPrint(("Bits 53:50 report the memory type:0x%x.\r\n", vmx_basic->memory_type));
     KdPrint(("If bit 54 is read as 1:0x%x.\r\n", vmx_basic->INS_OUTS));
-    KdPrint(("Bit 55 is read as 1 if any VMX controls that default to 1 may be cleared to 0. Í¬Ê±»¹±íÊ¾Ö§³ÖÄÇ¼¸¸ö£¨4¸ö£©£ºIA32_VMX_TRUE_XXX:0x%x.\r\n", vmx_basic->IA32_VMX_TRUE));
+    KdPrint(("Bit 55 is read as 1 if any VMX controls that default to 1 may be cleared to 0. åŒæ—¶è¿˜è¡¨ç¤ºæ”¯æŒé‚£å‡ ä¸ªï¼ˆ4ä¸ªï¼‰ï¼šIA32_VMX_TRUE_XXX:0x%x.\r\n", vmx_basic->IA32_VMX_TRUE));
     KdPrint(("The values of bits 47:45 and bits 63:56 are reserved and are read as 0.:0x%x.\r\n", vmx_basic->reserved3));
 
     return Status;
@@ -1240,19 +1240,19 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
 #ifdef _AMD64_
 VOID IA32_VMX_EPT_VPID_CAP()
 /*
-¹¦ÄÜ£º»ñÈ¡IA32_VMX_EPT_VPID_CAP¼Ä´æÆ÷µÄÏêÏ¸ĞÅÏ¢¡£
+åŠŸèƒ½ï¼šè·å–IA32_VMX_EPT_VPID_CAPå¯„å­˜å™¨çš„è¯¦ç»†ä¿¡æ¯ã€‚
 
-Ç°ÖÃÌõ¼ş£¬ If ( CPUID.01H:ECX.[5] && IA32_VMX_PROCBASED_CTLS[63] && ( IA32_VMX_PROCBASED_CTLS2[33] || IA32_VMX_PROCBASED_CTLS2[37]) )
+å‰ç½®æ¡ä»¶ï¼Œ If ( CPUID.01H:ECX.[5] && IA32_VMX_PROCBASED_CTLS[63] && ( IA32_VMX_PROCBASED_CTLS2[33] || IA32_VMX_PROCBASED_CTLS2[37]) )
 
 Capability Reporting Register of EPT and VPID (R/O)
-See Appendix A.10, ¡°VPID and EPT Capabilities.¡±
+See Appendix A.10, â€œVPID and EPT Capabilities.â€
 
 made by correy
 made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_EPT_VPID_CAP ivevc;//ÔÚVS2012ÉÏ£¬Ç°Ãæ±ØĞë¼Ó¸öunion¡£
+    union IA32_VMX_EPT_VPID_CAP ivevc;//åœ¨VS2012ä¸Šï¼Œå‰é¢å¿…é¡»åŠ ä¸ªunionã€‚
     unsigned __int64 t = 0;
 
     t = __readmsr(IA32_VMX_PROCBASED_CTLS_MSR);
@@ -1308,10 +1308,10 @@ http://correy.webs.com
 
 int EnumCpuCache()
 /*
-¹¦ÄÜ£ºÃ¶¾ÙINTEL CPU µÄ¸÷¸ö²ã´ÎµÄCACHEĞÅÏ¢£¬Èç´óĞ¡£¬ÀàĞÍµÈ¡£
-Ó¢ÎÄËµ·¨ÊÇ:enumerate the deterministic cache parameters for each level of the cache hierarchy.
+åŠŸèƒ½ï¼šæšä¸¾INTEL CPU çš„å„ä¸ªå±‚æ¬¡çš„CACHEä¿¡æ¯ï¼Œå¦‚å¤§å°ï¼Œç±»å‹ç­‰ã€‚
+è‹±æ–‡è¯´æ³•æ˜¯:enumerate the deterministic cache parameters for each level of the cache hierarchy.
 
-²Î¿¼£ºWRKºÍINTELµÈµÄ×ÊÁÏ¡£
+å‚è€ƒï¼šWRKå’ŒINTELç­‰çš„èµ„æ–™ã€‚
 
 made by correy
 made at 2016.07.01
@@ -1334,8 +1334,8 @@ homepage:http://correy.webs.com
         return 0;
     }
 
-    //ÏÂÃæµÄËã·¨²ÎÕÕWindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ke\amd64\initkr.cÎÄ¼şÖĞµÄ
-    //KiSetCacheInformationIntelº¯Êı£¬µ±È»»¹ÓĞINTELµÄÎÄµµ¡£
+    //ä¸‹é¢çš„ç®—æ³•å‚ç…§WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ke\amd64\initkr.cæ–‡ä»¶ä¸­çš„
+    //KiSetCacheInformationIntelå‡½æ•°ï¼Œå½“ç„¶è¿˜æœ‰INTELçš„æ–‡æ¡£ã€‚
     INTEL_CACHE_INFO_EAX CacheInfoEax;
     INTEL_CACHE_INFO_EBX CacheInfoEbx;
     ULONG Index = 0;//Valid index values start from 0.
@@ -1353,21 +1353,21 @@ homepage:http://correy.webs.com
     int    bFullyAssociative = false;
 
     for (;; Index += 1) {
-        __cpuidex(CPUInfo, 4, Index); //×¢Òâ£º80000006H»¹ÓĞ¸öĞÅÏ¢¡£
+        __cpuidex(CPUInfo, 4, Index); //æ³¨æ„ï¼š80000006Hè¿˜æœ‰ä¸ªä¿¡æ¯ã€‚
         CacheInfoEax.Ulong = CPUInfo[0];
         CacheInfoEbx.Ulong = CPUInfo[1];
 
         if (CacheInfoEax.Type == IntelCacheNull) {
-            break;//ÏÂÃæINTELÒ²Ëµ³öÁË½áÊøµÄ±êÖ¾¡£
+            break;//ä¸‹é¢INTELä¹Ÿè¯´å‡ºäº†ç»“æŸçš„æ ‡å¿—ã€‚
         }
 
-        //ÁíÒ»ÖÖÍË³ö·½Ê½ÊÇ£ºhttps://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx 
+        //å¦ä¸€ç§é€€å‡ºæ–¹å¼æ˜¯ï¼šhttps://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx 
         if (!(CPUInfo[0] & 0xf0))
             break;
 
         if (Index == 0) {
             nCores = CPUInfo[0] >> 26;
-            printf_s("\n\nNumber of Cores = %d\n", nCores + 1);//¸Ğ¾õÕâ¸öÊÇ´íµÄ¡£
+            printf_s("\n\nNumber of Cores = %d\n", nCores + 1);//æ„Ÿè§‰è¿™ä¸ªæ˜¯é”™çš„ã€‚
         }
 
         nCacheType = (CPUInfo[0] & 0x1f);
@@ -1399,7 +1399,7 @@ homepage:http://correy.webs.com
             printf_s("   Type: Unknown\n");
         }
 
-        printf_s("   Level = %d\n", nCacheLevel + 1);//¸Ğ¾õÎŞĞë¼ÓÒ»¡£INTELËµÁË£ºstarts at 1¡£¹À¼ÆÎ¢ÈíµÄÈË»¹ÈÏÎª£ºstarts at 0¡£
+        printf_s("   Level = %d\n", nCacheLevel + 1);//æ„Ÿè§‰æ— é¡»åŠ ä¸€ã€‚INTELè¯´äº†ï¼šstarts at 1ã€‚ä¼°è®¡å¾®è½¯çš„äººè¿˜è®¤ä¸ºï¼šstarts at 0ã€‚
         if (bSelfInit) {
             printf_s("   Self Initializing\n");
         } else {
@@ -1418,16 +1418,16 @@ homepage:http://correy.webs.com
         //printf_s("   Ways of Associativity = %d\n", nWaysAssociativity + 1);
         //printf_s("   Number of Sets = %d\n", nNumberSets + 1);
 
-        //Î¢ÈíÍøÕ¾ÉÏµÄ¼¸¸öCPUIDÀı×ÓÊÇÃ»ÓĞ¼ÆËãCPU cache´óĞ¡µÄ£¬
-        //Èç£ºhttps://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx £¬ÕâÖ»ÊÇ¼òµ¥µÄÁĞ³öÖµ¶øÒÑ¡£ 
+        //å¾®è½¯ç½‘ç«™ä¸Šçš„å‡ ä¸ªCPUIDä¾‹å­æ˜¯æ²¡æœ‰è®¡ç®—CPU cacheå¤§å°çš„ï¼Œ
+        //å¦‚ï¼šhttps://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx ï¼Œè¿™åªæ˜¯ç®€å•çš„åˆ—å‡ºå€¼è€Œå·²ã€‚ 
 
-        //WRKÈçÊÇËµ£º
+        //WRKå¦‚æ˜¯è¯´ï¼š
         // Cache size = Ways x Partitions x LineSize x Sets. 
         // N.B. For fully-associative cache, the "Sets" returned from cpuid is actually the number of entries, not the "Ways".
         // Therefore the formula of evaluating the cache size below will still hold.
 
         /*
-        INTELÈçÊÇËµ£º
+        INTELå¦‚æ˜¯è¯´ï¼š
 
         INPUT EAX = 04H: Returns Deterministic Cache Parameters for Each Level
 
@@ -1445,9 +1445,9 @@ homepage:http://correy.webs.com
 
         The CPUID leaf 04H also reports data that can be used to derive the topology of processor cores in a physical package.
         This information is constant for all valid index values.
-        Software can query the raw data reported by executing CPUID with EAX=04H and ECX=0 and 
+        Software can query the raw data reported by executing CPUID with EAX=04H and ECX=0 and
         use it as part of the topology enumeration algorithm described in Chapter 8,
-        ¡°Multiple-Processor Management,¡± in the Intel? 64 and IA-32 Architectures Software Developer¡¯s Manual, Volume 3A.
+        â€œMultiple-Processor Management,â€ in the Intel? 64 and IA-32 Architectures Software Developerâ€™s Manual, Volume 3A.
         */
 
         CacheSize = (CacheInfoEbx.Associativity + 1) * (CacheInfoEbx.Partitions + 1) * (CacheInfoEbx.LineSize + 1) * (CPUInfo[2] + 1);
@@ -1456,11 +1456,11 @@ homepage:http://correy.webs.com
         //assert(Cache_Size == CacheSize);
         ASSERT(Cache_Size == CacheSize);
         /*
-        ÆäÊµ£º
-        nWaysAssociativity¿ÉÃüÃûÎªWays
-        nPhysicalLinePartitions¿ÉÃüÃûÎªPartitions
-        nSysLineSize¿ÉÃüÃûÎªLine_Size
-        nNumberSets¿ÉÃüÃûÎªSets
+        å…¶å®ï¼š
+        nWaysAssociativityå¯å‘½åä¸ºWays
+        nPhysicalLinePartitionså¯å‘½åä¸ºPartitions
+        nSysLineSizeå¯å‘½åä¸ºLine_Size
+        nNumberSetså¯å‘½åä¸ºSets
         */
 
         if (CacheSize >= (1024 * 1024)) {
@@ -1480,8 +1480,8 @@ homepage:http://correy.webs.com
 VOID DisSmep()
 /*
 https://github.com/zerosum0x0/ShellcodeDriver/blob/master/shellcodedriver/shellcodedriver.c
-SMEP»úÖÆÊÇÈ«¾Ö»úÖÆ£¬²»ÊÇÏŞ¶¨Ä³¸ö½ø³ÌµÄ¡£
-ÏÈ¼ì²éÊÇ·ñ¿ªÆôSMEP£¬Èç¹û¿ªÆôÁË¾Í¹Ø±Õ¡£
+SMEPæœºåˆ¶æ˜¯å…¨å±€æœºåˆ¶ï¼Œä¸æ˜¯é™å®šæŸä¸ªè¿›ç¨‹çš„ã€‚
+å…ˆæ£€æŸ¥æ˜¯å¦å¼€å¯SMEPï¼Œå¦‚æœå¼€å¯äº†å°±å…³é—­ã€‚
 */
 {
 #ifdef _AMD64_
@@ -1490,25 +1490,25 @@ SMEP»úÖÆÊÇÈ«¾Ö»úÖÆ£¬²»ÊÇÏŞ¶¨Ä³¸ö½ø³ÌµÄ¡£
 
     if (_bittest64((LONG64 const *)&cr4, 20)) {
         unsigned __int64 temp = cr4;
-        InterlockedBitTestAndReset64((LONG64 volatile *)&temp, 20);//µÚ20Î»ÉèÖÃÎªÁã¡£
+        InterlockedBitTestAndReset64((LONG64 volatile *)&temp, 20);//ç¬¬20ä½è®¾ç½®ä¸ºé›¶ã€‚
 
         //unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
-        
+
         __writecr4(temp); // disable SMEP    
     } else {
 
     }
 
-    //ÔÚÇı¶¯²ãÖ´ĞĞÓÃ»§Ì¬µÄ´úÂë£¨shellcode)ÁË¡£
+    //åœ¨é©±åŠ¨å±‚æ‰§è¡Œç”¨æˆ·æ€çš„ä»£ç ï¼ˆshellcode)äº†ã€‚
 
-    //__writecr4(cr4);//»Ö¸´¡£
+    //__writecr4(cr4);//æ¢å¤ã€‚
 #else
 
     unsigned int cr4 = __readcr4();
 
     if (_bittest((LONG const *)&cr4, 20)) {
         unsigned int temp = cr4;
-        InterlockedBitTestAndReset((LONG volatile *)&temp, 20);//µÚ20Î»ÉèÖÃÎªÁã¡£
+        InterlockedBitTestAndReset((LONG volatile *)&temp, 20);//ç¬¬20ä½è®¾ç½®ä¸ºé›¶ã€‚
 
         //unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
 
@@ -1517,9 +1517,9 @@ SMEP»úÖÆÊÇÈ«¾Ö»úÖÆ£¬²»ÊÇÏŞ¶¨Ä³¸ö½ø³ÌµÄ¡£
 
     }
 
-    //ÔÚÇı¶¯²ãÖ´ĞĞÓÃ»§Ì¬µÄ´úÂë£¨shellcode)ÁË¡£
+    //åœ¨é©±åŠ¨å±‚æ‰§è¡Œç”¨æˆ·æ€çš„ä»£ç ï¼ˆshellcode)äº†ã€‚
 
-    //__writecr4(cr4);//»Ö¸´¡£
+    //__writecr4(cr4);//æ¢å¤ã€‚
 
 #endif 
 }
@@ -1529,13 +1529,13 @@ SMEP»úÖÆÊÇÈ«¾Ö»úÖÆ£¬²»ÊÇÏŞ¶¨Ä³¸ö½ø³ÌµÄ¡£
 
 
 /*
-ÕâÀï·ÅÖÃµÄÊÇ¼¸¸öntÄÚºËµÄ¼¸¸öĞéÄâ»¯º¯Êı¡£
+è¿™é‡Œæ”¾ç½®çš„æ˜¯å‡ ä¸ªntå†…æ ¸çš„å‡ ä¸ªè™šæ‹ŸåŒ–å‡½æ•°ã€‚
 
-ÔİÊ±ÕâÀïÖ»ÓĞHviIsAnyHypervisorPresentÒÔ¼°Ö±½Óµ÷ÓÃÕâ¸öº¯ÊıµÄÈı¸öº¯Êı¡£
+æš‚æ—¶è¿™é‡Œåªæœ‰HviIsAnyHypervisorPresentä»¥åŠç›´æ¥è°ƒç”¨è¿™ä¸ªå‡½æ•°çš„ä¸‰ä¸ªå‡½æ•°ã€‚
 HviGetHypervisorInterface
 HviGetHypervisorVendorAndMaxFunction
 HviIsHypervisorVendorMicrosoft
-¿ÉÒÔÒ»´ÎÏòÉÏµİ¹éÄæÏò£¬Ó¦¸ÃÄÜÄæÏò²»ÉÙº¯Êı¡£
+å¯ä»¥ä¸€æ¬¡å‘ä¸Šé€’å½’é€†å‘ï¼Œåº”è¯¥èƒ½é€†å‘ä¸å°‘å‡½æ•°ã€‚
 */
 
 
@@ -1610,7 +1610,7 @@ char __fastcall HviGetHypervisorInterface(_DWORD *a1)
 }
 */
 /*
-Õâ¸öº¯ÊıµÄ²ÎÊıÊÇ£ºint CPUInfo[4]¡£
+è¿™ä¸ªå‡½æ•°çš„å‚æ•°æ˜¯ï¼šint CPUInfo[4]ã€‚
 */
 {
     bool b = false;
@@ -1659,7 +1659,7 @@ char __fastcall HviGetHypervisorVendorAndMaxFunction(_DWORD *a1)
 }
 */
 /*
-Õâ¸öº¯ÊıµÄ²ÎÊıÊÇ£ºint CPUInfo[4]¡£
+è¿™ä¸ªå‡½æ•°çš„å‚æ•°æ˜¯ï¼šint CPUInfo[4]ã€‚
 */
 {
     int CPUInfo[4] = {0};
@@ -1710,7 +1710,7 @@ error:
 }
 */
 /*
-´ÓÕâÀïÏ¸Ïë¿ÉÒÔÆ´³ö£º"Micrtosoft Hv".
+ä»è¿™é‡Œç»†æƒ³å¯ä»¥æ‹¼å‡ºï¼š"Micrtosoft Hv".
 */
 {
     bool ret = false;
@@ -2038,7 +2038,7 @@ bool HviIsIommuInUse()
 
 int HviTest()
 /*
-×¢Òâ£ºÕâÀïµÄ²âÊÔ´úÂëÊÇÔÚÓ¦ÓÃ²ã²âÊÔµÄ¡£
+æ³¨æ„ï¼šè¿™é‡Œçš„æµ‹è¯•ä»£ç æ˜¯åœ¨åº”ç”¨å±‚æµ‹è¯•çš„ã€‚
 */
 {
     bool b = IsAnyHypervisorPresent();

@@ -1,9 +1,9 @@
 /*
-╠╬нджВр╙йу╪╞CPU╣др╩п╘пео╒║ё
+Ф°╛Ф√┤Д╦╩Х╕│Ф■╤И⌡├CPUГ └Д╦─Д╨⌡Д©║Ф│╞Ц─┌
 
-╠╬нд╣д╢С╡©╥ж╢ЗбКтзгЩ╤╞╨мс╕сц╡Ц╤╪©ий╧сц║ё
+Ф°╛Ф√┤Г └Е╓╖И┐╗Е┬├Д╩ёГ═│Е°╗И╘╠Е┼╗Е▓▄Е╨■Г■╗Е╠┌И┐╫Е▐╞Д╫©Г■╗Ц─┌
 
-╥╡йгспprintf_s╣дс╕╦ц╤╪©ирттзс╕сц╡Цй╧сц║ё
+Е┤║Ф≤╞Ф°┴printf_sГ └Е╨■Х╞╔И┐╫Е▐╞Д╩╔Е°╗Е╨■Г■╗Е╠┌Д╫©Г■╗Ц─┌
 */
 
 #pragma once
@@ -19,14 +19,14 @@ class cpu
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//вт╪╨лМ╪с║ё
+//Х┤╙Е╥╠Ф╥╩Е┼═Ц─┌
 #define printf_s DbgPrint
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//╫А╧╧©ирттыпч╦д║ё
+//Г╩⌠Ф·└Е▐╞Д╩╔Е├█Д©╝Ф■╧Ц─┌
 union IA32_VMX_PINBASED_CTLS
 {
     unsigned __int64 all;
@@ -41,7 +41,7 @@ union IA32_VMX_PINBASED_CTLS
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//╫А╧╧©ирттыпч╦д║ё
+//Г╩⌠Ф·└Е▐╞Д╩╔Е├█Д©╝Ф■╧Ц─┌
 union IA32_VMX_PROCBASED_CTLS
 {
     unsigned __int64 all;
@@ -56,7 +56,7 @@ union IA32_VMX_PROCBASED_CTLS
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//╫А╧╧©ирттыпч╦д║ё
+//Г╩⌠Ф·└Е▐╞Д╩╔Е├█Д©╝Ф■╧Ц─┌
 union IA32_VMX_PROCBASED_CTLS2
 {
     unsigned __int64 all;
@@ -89,7 +89,7 @@ union BASIC_VMX_INFORMATION
         unsigned reserved2 : 3;                //!< [45:47]
         unsigned supported_32 : 1;             //!< [48]
         unsigned supported_dual_moniter : 1;   //!< [49]
-        unsigned memory_type : 4;              //!< [50:53] ╢С╡©╥ж╣хсз6
+        unsigned memory_type : 4;              //!< [50:53] Е╓╖И┐╗Е┬├Г╜┴Д╨▌6
         unsigned vm_exit_report : 1;           //!< [54]
         unsigned vmx_capability_hint : 1;      //!< [55]
         unsigned reserved3 : 8;                //!< [56:63]
@@ -103,7 +103,7 @@ union BASIC_VMX_INFORMATION
 #define IA32_VMX_BASIC         0x480
 
 
-//╩╧йг╤╗рЕ╦Ж╫А╧╧╟иё╛й║акбИ╥Ё╣дн╩сК╣д╪фкЦ║ё
+//Х©≤Ф≤╞Е╝ Д╧┴Д╦╙Г╩⌠Ф·└Е░╖О╪▄Г°│Д╨├И╨╩Г┐╕Г └Д╫█Д╦▌Г └Х╝║Г╝≈Ц─┌
 typedef struct  _MSR_IA32_VMX_BASIC {
     unsigned VMCS_RID : 31; //Bits 30:0 contain the 31-bit VMCS revision identifier used by the processor.
     unsigned reserved1 : 1; //Bit 31 is always 0.
@@ -118,14 +118,14 @@ typedef struct  _MSR_IA32_VMX_BASIC {
     // VM exits due to execution of the INS and OUTS instructions.This reporting is done only if this bit is read as 1.
     unsigned IA32_VMX_TRUE : 1; //Bit 55 is read as 1 if any VMX controls that default to 1 may be cleared to 0.
     unsigned reserved3 : 8; //The values of bits 47:45 and bits 63:56 are reserved and are read as 0.
-    //ртиойЩвжоЮ╪сн╙64.
+    //Д╩╔Д╦┼Ф∙╟Е╜≈Г⌡╦Е┼═Д╦╨64.
 } MSR_IA32_VMX_BASIC, * PMSR_IA32_VMX_BASIC;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//╫А╧╧©ирттыпч╦д║ё
+//Г╩⌠Ф·└Е▐╞Д╩╔Е├█Д©╝Ф■╧Ц─┌
 union IA32_VMX_EPT_VPID_CAP
 {
     unsigned __int64 all;
@@ -166,7 +166,7 @@ union IA32_VMX_EPT_VPID_CAP
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//р╩об╫А╧╧у╙втё╨WRKё╛в╒ймю╢втINTEL║ё
+//Д╦─Д╦▀Г╩⌠Ф·└Ф▒≤Х┤╙О╪ WRKО╪▄ФЁ╗И┤┼Ф²╔Х┤╙INTELЦ─┌
 
 
 #ifdef _AMD64_

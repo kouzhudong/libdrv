@@ -18,7 +18,8 @@ extern "C" {
 
 
 #pragma pack(1)
-    typedef struct ServiceDescriptorEntry {
+    typedef struct ServiceDescriptorEntry
+    {
         ULONG_PTR * ServiceTableBase;
         unsigned int * ServiceCounterTableBase; //Used only in checked build
         unsigned int NumberOfServices;
@@ -41,7 +42,7 @@ extern "C" {
 #endif 
 
 
-#define SYSCALL_INDEX_64(_Function) (*(PULONG)((PUCHAR)_Function+3)) //Õâ¸öÔİÊ±Ã»ÓÃ£¬ÓĞ´ıÊµÑéºÍÑéÖ¤¡£
+#define SYSCALL_INDEX_64(_Function) (*(PULONG)((PUCHAR)_Function+3)) //è¿™ä¸ªæš‚æ—¶æ²¡ç”¨ï¼Œæœ‰å¾…å®éªŒå’ŒéªŒè¯ã€‚
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

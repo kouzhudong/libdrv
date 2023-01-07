@@ -10,7 +10,7 @@ VOID PspQueueApcSpecialApc(IN PKAPC Apc,
                            IN PVOID * SystemArgument1,
                            IN PVOID * SystemArgument2
 )
-//Õª×Ô£º\WRK-v1.2\base\ntos\ps\psctx.c
+//æ‘˜è‡ªï¼š\WRK-v1.2\base\ntos\ps\psctx.c
 {
     PAGED_CODE();
 
@@ -37,7 +37,7 @@ Routine Description:
 Arguments:
     ThreadHandle - Supplies a handle to a thread object.
                    The caller must have THREAD_SET_CONTEXT access to the thread.
-                   ÇÒÕâ¸ö¾ä±ú±ØĞëÊÇÄÚºËÌ¬µÄ¾ä±ú¡£
+                   ä¸”è¿™ä¸ªå¥æŸ„å¿…é¡»æ˜¯å†…æ ¸æ€çš„å¥æŸ„ã€‚
     ApcRoutine - Supplies the address of the APC routine to execute when the APC fires.
     ApcArgument1 - Supplies the first PVOID passed to the APC
     ApcArgument2 - Supplies the second PVOID passed to the APC
@@ -45,18 +45,18 @@ Arguments:
 Return Value:
     Returns an NT Status code indicating success or failure of the API
 
-Õª×Ô£º\WRK-v1.2\base\ntos\ps\psctx.c
-ÉÔÎ¢ÓĞĞŞ¸Ä¡£
+æ‘˜è‡ªï¼š\WRK-v1.2\base\ntos\ps\psctx.c
+ç¨å¾®æœ‰ä¿®æ”¹ã€‚
 
-ÓëÆä»ñÈ¡NtQueueApcThreadµÄµØÖ·£¬²»ÈçÖ±½ÓÊµÏÖËü£¬¼æÈİĞÔÓĞ´ı¿¼ÂÇ¡£
+ä¸å…¶è·å–NtQueueApcThreadçš„åœ°å€ï¼Œä¸å¦‚ç›´æ¥å®ç°å®ƒï¼Œå…¼å®¹æ€§æœ‰å¾…è€ƒè™‘ã€‚
 
-×¢ÒâÄÚºË´úÂëÖĞÓĞµÄµØ·½ÔÚÕâ¸öº¯Êıµ÷ÓÃÇ°KeRaiseIrql(APC_LEVEL, &OldIrql);
-Ê¹ÓÃºóÈ»ºóKeLowerIrql(OldIrql);
+æ³¨æ„å†…æ ¸ä»£ç ä¸­æœ‰çš„åœ°æ–¹åœ¨è¿™ä¸ªå‡½æ•°è°ƒç”¨å‰KeRaiseIrql(APC_LEVEL, &OldIrql);
+ä½¿ç”¨åç„¶åKeLowerIrql(OldIrql);
 
-ÓÉ´Ë¿É¼û£¬ÕâÀïÃ»ÓĞ¼ì²éÏß³ÌµÄ×´Ì¬£¬Ò²Ã»ÓĞµÈ´ıAPC²Ù×÷µÄÍê³É¡£
-ÒòÎªAPC¿ÉÄÜÓÀÔ¶²»Ö´ĞĞ¡£
-ËùÒÔ£¬ÕâÒ²ĞíÊÇÎ¢Èí²»¹«¿ªAPCµÄÔ­Òò¡£
-µ«ÊÇ£¬ËüÊÇÒ»¸ö»ù±¾µÄ»úÖÆ£¬ËùÒÔ£¬Ëü²»ÄÜ±»ÒÆÈ¥¡£
+ç”±æ­¤å¯è§ï¼Œè¿™é‡Œæ²¡æœ‰æ£€æŸ¥çº¿ç¨‹çš„çŠ¶æ€ï¼Œä¹Ÿæ²¡æœ‰ç­‰å¾…APCæ“ä½œçš„å®Œæˆã€‚
+å› ä¸ºAPCå¯èƒ½æ°¸è¿œä¸æ‰§è¡Œã€‚
+æ‰€ä»¥ï¼Œè¿™ä¹Ÿè®¸æ˜¯å¾®è½¯ä¸å…¬å¼€APCçš„åŸå› ã€‚
+ä½†æ˜¯ï¼Œå®ƒæ˜¯ä¸€ä¸ªåŸºæœ¬çš„æœºåˆ¶ï¼Œæ‰€ä»¥ï¼Œå®ƒä¸èƒ½è¢«ç§»å»ã€‚
 */
 {
     PETHREAD Thread;
@@ -111,9 +111,9 @@ NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
                                   __in_opt PVOID ApcArgument3
 )
 /*
-¶ÔNtQueueApcThreadµÄ·â×°¡£
+å¯¹NtQueueApcThreadçš„å°è£…ã€‚
 
-µÚÒ»¸ö²ÎÊı£¬ÊÇÓÃ»§Ì¬µÄ¾ä±ú£¬ÆäÊµÊÇtid.
+ç¬¬ä¸€ä¸ªå‚æ•°ï¼Œæ˜¯ç”¨æˆ·æ€çš„å¥æŸ„ï¼Œå…¶å®æ˜¯tid.
 */
 {
     PETHREAD Thread;
@@ -148,8 +148,8 @@ NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
 
 
 VOID BaseDispatchAPC(LPVOID lpApcArgument1, LPVOID lpApcArgument2, LPVOID lpApcArgument3)
-//Õª×Ô£º\win2k\trunk\private\windows\base\client\thread.c
-//×¢Òâ£ºÕâ¸öº¯ÊıÓ¦ÔÚÓÃ»§¿Õ¼ä¡£
+//æ‘˜è‡ªï¼š\win2k\trunk\private\windows\base\client\thread.c
+//æ³¨æ„ï¼šè¿™ä¸ªå‡½æ•°åº”åœ¨ç”¨æˆ·ç©ºé—´ã€‚
 {
     PAPCFUNC pfnAPC;
     ULONG_PTR dwData;
@@ -177,7 +177,7 @@ Return Value:
     TRUE - The operations was successful
     FALSE - The operation failed. GetLastError() is not defined.
 
-Õª×Ô£º\win2k\trunk\private\windows\base\client\thread.c
+æ‘˜è‡ªï¼š\win2k\trunk\private\windows\base\client\thread.c
 --*/
 {
     NTSTATUS Status;
@@ -193,10 +193,10 @@ Return Value:
 
 VOID GetApcStateOffset(PSIZE_T ApcStateOffset)
 /*
-¹¦ÄÜ£º»ñÈ¡ApcStateÔÚ_kthreadÖĞµÄÆ«ÒÆ¡£
-´úÂëºÍË¼Â·£ºhttp://www.rohitab.com/discuss/topic/40737-inject-dll-from-kernel-mode/
+åŠŸèƒ½ï¼šè·å–ApcStateåœ¨_kthreadä¸­çš„åç§»ã€‚
+ä»£ç å’Œæ€è·¯ï¼šhttp://www.rohitab.com/discuss/topic/40737-inject-dll-from-kernel-mode/
 
-×¢Òâ£º»¹ÓĞ¼¸¸ö³ÉÔ±£¬Èç£ºAlerted£¬AlertableµÈ£¬²»Òª»ìÏı¡£
+æ³¨æ„ï¼šè¿˜æœ‰å‡ ä¸ªæˆå‘˜ï¼Œå¦‚ï¼šAlertedï¼ŒAlertableç­‰ï¼Œä¸è¦æ··æ·†ã€‚
 */
 {
     PEPROCESS Process = PsGetCurrentProcess();

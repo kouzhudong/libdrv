@@ -9,9 +9,9 @@
 
 NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBack CallBack, _In_opt_ PVOID Context)
 /*
-¹¦ÄÜ£ºÃ¶¾ÙÒ»¸ö½ø³ÌµÄÓÃ»§¿Õ¼äµÄÄÚ´æ¡£
+åŠŸèƒ½ï¼šæšä¸¾ä¸€ä¸ªè¿›ç¨‹çš„ç”¨æˆ·ç©ºé—´çš„å†…å­˜ã€‚
 
-µ÷ÓÃ´Ëº¯ÊıÇ°£¬ĞèÏÈµ÷ÓÃSetZwQueryVirtualMemoryAddressº¯Êı¡£
+è°ƒç”¨æ­¤å‡½æ•°å‰ï¼Œéœ€å…ˆè°ƒç”¨SetZwQueryVirtualMemoryAddresså‡½æ•°ã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -30,11 +30,11 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
         return Status;
     }
 
-    Status = ObOpenObjectByPointer(Process, 
-                                   OBJ_KERNEL_HANDLE, 
-                                   NULL, 
+    Status = ObOpenObjectByPointer(Process,
+                                   OBJ_KERNEL_HANDLE,
+                                   NULL,
                                    GENERIC_READ,
-                                   *PsProcessType, 
+                                   *PsProcessType,
                                    KernelMode,
                                    &KernelHandle);
     if (!NT_SUCCESS(Status)) {
@@ -46,8 +46,8 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
     SIZE_T HighestUserAddress = (SIZE_T)MmHighestUserAddress;
 #if defined(_WIN64)
     if (PsGetProcessWow64Process(Process)) {
-        HighestUserAddress = 0x7ffeffff;//32Î»µÄÏµÍ³ÓĞ3GBµÄÅäÖÃ£¬PEÎÄ¼şÓĞ´óÄÚ´æµÄÅäÖÃ£¬WOW64ÊÇ·ñÓĞ3GBÖ§³Ö£¿
-    } 
+        HighestUserAddress = 0x7ffeffff;//32ä½çš„ç³»ç»Ÿæœ‰3GBçš„é…ç½®ï¼ŒPEæ–‡ä»¶æœ‰å¤§å†…å­˜çš„é…ç½®ï¼ŒWOW64æ˜¯å¦æœ‰3GBæ”¯æŒï¼Ÿ
+    }
 #endif
 
     for (; Address < HighestUserAddress;) {
@@ -87,27 +87,27 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
 
 void UseNoExecuteMemory()
 /*
-¹¦ÄÜ£º½ûÖ¹Ä¬ÈÏÇé¿öÏÂÊ¹ÓÃ¿ÉÖ´ĞĞµÄÄÚ´æ¡£
+åŠŸèƒ½ï¼šç¦æ­¢é»˜è®¤æƒ…å†µä¸‹ä½¿ç”¨å¯æ‰§è¡Œçš„å†…å­˜ã€‚
 
-ÓĞĞ§·¶Î§£ºExDefaultNonPagedPoolTypeºÍExDefaultMdlProtection¡£¶ÔÓÚ±ğµÄ¿ÉÖ´ĞĞÊôĞÔÎŞĞ§¡£
+æœ‰æ•ˆèŒƒå›´ï¼šExDefaultNonPagedPoolTypeå’ŒExDefaultMdlProtectionã€‚å¯¹äºåˆ«çš„å¯æ‰§è¡Œå±æ€§æ— æ•ˆã€‚
 
-×¢ÊÍ£º²»µ«¶Ô£¨¾²Ì¬£©¿âÓĞĞ§£¬¶ÔÊ¹ÓÃµÄ³ÌĞò±¾ÉíÒ²ÓĞĞ§¡£
+æ³¨é‡Šï¼šä¸ä½†å¯¹ï¼ˆé™æ€ï¼‰åº“æœ‰æ•ˆï¼Œå¯¹ä½¿ç”¨çš„ç¨‹åºæœ¬èº«ä¹Ÿæœ‰æ•ˆã€‚
 
-½¨Òé£ºÓÅÏÈµ÷ÓÃ´Ëº¯Êı¡£
+å»ºè®®ï¼šä¼˜å…ˆè°ƒç”¨æ­¤å‡½æ•°ã€‚
 
-ÓÃÍ¾£º¿ªÆôÇı¶¯³ÌĞòĞ£ÑéÆ÷µÄ¶ÏÑÔ´¦Àí¡£
+ç”¨é€”ï¼šå¼€å¯é©±åŠ¨ç¨‹åºæ ¡éªŒå™¨çš„æ–­è¨€å¤„ç†ã€‚
 
-ÎªPOOL_NX_OPTINÑ¡Ôñ¼ÓÈëµÄËùÓĞÔ´ÎÄ¼ş¶¨ÒåÖµ = 1¡£ Îª´Ë£¬ÔÚÇı¶¯³ÌĞòÏîÄ¿µÄÊÊµ±ÊôĞÔÒ³ÖĞ°üÀ¨ÒÔÏÂÔ¤´¦ÀíÆ÷¶¨Òå£º
+ä¸ºPOOL_NX_OPTINé€‰æ‹©åŠ å…¥çš„æ‰€æœ‰æºæ–‡ä»¶å®šä¹‰å€¼ = 1ã€‚ ä¸ºæ­¤ï¼Œåœ¨é©±åŠ¨ç¨‹åºé¡¹ç›®çš„é€‚å½“å±æ€§é¡µä¸­åŒ…æ‹¬ä»¥ä¸‹é¢„å¤„ç†å™¨å®šä¹‰ï¼š
 C_DEFINES=$(C_DEFINES) -DPOOL_NX_OPTIN=1
 
-ĞÄµÃ£ºÓĞµÄ¹¤³Ì£¨·Ç¾²Ì¬¿â£©±ØĞëÔÚÔ¤´¦ÀíÆ÷Àï¶¨Òå£ºPOOL_NX_OPTIN=1 ·½¿ÉÉúĞ§¡£
+å¿ƒå¾—ï¼šæœ‰çš„å·¥ç¨‹ï¼ˆéé™æ€åº“ï¼‰å¿…é¡»åœ¨é¢„å¤„ç†å™¨é‡Œå®šä¹‰ï¼šPOOL_NX_OPTIN=1 æ–¹å¯ç”Ÿæ•ˆã€‚
 
 https://learn.microsoft.com/zh-cn/windows-hardware/drivers/kernel/single-binary-opt-in-pool-nx-optin
 */
 {
 #define POOL_NX_OPTIN 1
 #define POOL_NX_OPTOUT 0
-    //ÉÏÃæÁ½¸ö¶¨ÒåÈ·±£ExInitializeDriverRuntime¿ÉÒÔÖ´ĞĞ¡£
+    //ä¸Šé¢ä¸¤ä¸ªå®šä¹‰ç¡®ä¿ExInitializeDriverRuntimeå¯ä»¥æ‰§è¡Œã€‚
 
 #if (NTDDI_VERSION >= NTDDI_VISTA)
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);

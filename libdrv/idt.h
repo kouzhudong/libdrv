@@ -1,8 +1,8 @@
 /*
-���ܣ���ʾÿ��CPU��IDT��Ϣ��
-ע�ͣ�һ�½ṹժ��WRK��
+功能：显示每个CPU的IDT信息。
+注释：一下结构摘自WRK。
 
-�ο���
+参考：
 http://uninformed.org/index.cgi?v=8&a=2&p=8
 http://resources.infosecinstitute.com/hooking-idt/
 
@@ -29,7 +29,7 @@ VOID
     VOID
     );
 
-struct _KINTERRUPT;//�ṹ����ǰ�á�
+struct _KINTERRUPT;//结构声明前置。
 
 // begin_ntddk begin_wdm begin_ntifs begin_ntosp
 
@@ -541,7 +541,7 @@ nt!_KIDTENTRY
    +0x006 ExtendedOffset   : Uint2B
 kd> dt _X86_DESCRIPTOR
 Symbol _X86_DESCRIPTOR not found.
-kd> dt _DESCRIPTOR ע�⣺64λ��û������ṹ��
+kd> dt _DESCRIPTOR 注意：64位下没有这个结构。
 nt!_DESCRIPTOR
    +0x000 Pad              : Uint2B
    +0x002 Limit            : Uint2B
@@ -568,12 +568,12 @@ nt!_DESCRIPTOR
    +0x038 DispatchCount    : 0xffffffff
    +0x03c DispatchCode     : [106] 0x56535554
 
-1: kd> dt _AMD64_DESCRIPTOR ע�⣺���л�����64λϵͳ��
+1: kd> dt _AMD64_DESCRIPTOR 注意：运行环境是64位系统。
 test!_AMD64_DESCRIPTOR
    +0x000 Pad              : [3] Uint2B
    +0x006 Limit            : Uint2B
    +0x008 Base             : Uint8B
-1: kd> dt _KIDTENTRY64 ע�⣺���л�����64λϵͳ��
+1: kd> dt _KIDTENTRY64 注意：运行环境是64位系统。
 nt!_KIDTENTRY64
    +0x000 OffsetLow        : Uint2B
    +0x002 Selector         : Uint2B

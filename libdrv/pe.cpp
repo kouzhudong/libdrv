@@ -20,10 +20,10 @@ bool IsValidPE(_In_ PVOID Data)
         PIMAGE_NT_HEADERS NtHeader = RtlImageNtHeader(Data);
         switch (NtHeader->Signature) {
         case IMAGE_OS2_SIGNATURE:
-            //LOGA(ERROR_LEVEL, "¹§Ï²Äã:·¢ÏÖÒ»¸öNEÎÄ¼ş!");
+            //LOGA(ERROR_LEVEL, "æ­å–œä½ :å‘ç°ä¸€ä¸ªNEæ–‡ä»¶!");
             break;
         case IMAGE_OS2_SIGNATURE_LE://IMAGE_VXD_SIGNATURE
-            //LOGA(ERROR_LEVEL, "¹§Ï²Äã:·¢ÏÖÒ»¸öLEÎÄ¼ş!");
+            //LOGA(ERROR_LEVEL, "æ­å–œä½ :å‘ç°ä¸€ä¸ªLEæ–‡ä»¶!");
             break;
         case IMAGE_NT_SIGNATURE:
             ret = true;
@@ -33,26 +33,26 @@ bool IsValidPE(_In_ PVOID Data)
             break;
         }
 
-#if 0
+    #if 0
         ULONG  ntSignature = (ULONG)dos_header + dos_header->e_lfanew;
         unsigned short int other = *(unsigned short int *)ntSignature;
         ntSignature = *(ULONG *)ntSignature;
 
         if (IMAGE_OS2_SIGNATURE == other) {
-            //LOGA(ERROR_LEVEL, "¹§Ï²Äã:·¢ÏÖÒ»¸öNEÎÄ¼ş!");
+            //LOGA(ERROR_LEVEL, "æ­å–œä½ :å‘ç°ä¸€ä¸ªNEæ–‡ä»¶!");
             __leave;
         }
 
         if (IMAGE_OS2_SIGNATURE_LE == other) //IMAGE_VXD_SIGNATURE
         {
-            //LOGA(ERROR_LEVEL, "¹§Ï²Äã:·¢ÏÖÒ»¸öLEÎÄ¼ş!");
+            //LOGA(ERROR_LEVEL, "æ­å–œä½ :å‘ç°ä¸€ä¸ªLEæ–‡ä»¶!");
             __leave;
         }
 
         if (IMAGE_NT_SIGNATURE == ntSignature) {
             ret = true;
         }
-#endif // 0
+    #endif // 0
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         ret = GetExceptionCode();
         ///LOGA(ERROR_LEVEL, "ExceptionCode:%#x", ret);
@@ -77,7 +77,7 @@ BOOL IsPe64(_In_ PVOID ImageBase)
             return FALSE;
         }
 
-        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//ÔÚ64Î»ÏµÍ³ÉÏ¼ì²éWOW4³ÌĞò¡£
+        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//åœ¨64ä½ç³»ç»Ÿä¸Šæ£€æŸ¥WOW4ç¨‹åºã€‚
         ntSignature = *(ULONG *)ntSignature;
         if (IMAGE_NT_SIGNATURE != ntSignature) {
             return FALSE;
@@ -87,18 +87,18 @@ BOOL IsPe64(_In_ PVOID ImageBase)
         FileHeader = (PIMAGE_FILE_HEADER)CoffHeaderOffset;
 
         /*
-        ¶ÔÓÚ¿ÉÑ¡Í·µÄ±ê×¼ÓòÀ´Ëµ£¬ÊÇ32Î»µÄ¿ÉÑ¡Í·ºÍ64Î»µÄ¿ÉÑ¡Í·ÎŞËùÎ½£¬ÒòÎªÆ«ÒÆ¶¼ÊÇÒ»ÑùµÄ¡£
+        å¯¹äºå¯é€‰å¤´çš„æ ‡å‡†åŸŸæ¥è¯´ï¼Œæ˜¯32ä½çš„å¯é€‰å¤´å’Œ64ä½çš„å¯é€‰å¤´æ— æ‰€è°“ï¼Œå› ä¸ºåç§»éƒ½æ˜¯ä¸€æ ·çš„ã€‚
         */
         OptionalHeader = (PIMAGE_OPTIONAL_HEADER)((SIZE_T)FileHeader + sizeof(IMAGE_FILE_HEADER));
 
         if (OptionalHeader->Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
-            //ÕâÊÇÒ»¸öÆÕÍ¨µÄPEÎÄ¼ş
+            //è¿™æ˜¯ä¸€ä¸ªæ™®é€šçš„PEæ–‡ä»¶
         } else if (OptionalHeader->Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
-            isPe64File = TRUE;//ÕâÊÇÒ»¸öµÄPE32+ÎÄ¼ş
+            isPe64File = TRUE;//è¿™æ˜¯ä¸€ä¸ªçš„PE32+æ–‡ä»¶
         } else if (OptionalHeader->Magic == IMAGE_ROM_OPTIONAL_HDR_MAGIC) {
-            //ÕâÊÇÒ»¸öµÄROMÓ³Ïñ
+            //è¿™æ˜¯ä¸€ä¸ªçš„ROMæ˜ åƒ
         } else {
-            //Î´ÖªµÄÎÄ¼şÀàĞÍ.
+            //æœªçŸ¥çš„æ–‡ä»¶ç±»å‹.
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
@@ -110,10 +110,10 @@ BOOL IsPe64(_In_ PVOID ImageBase)
 
 ULONG Rva2Offset(IN LPVOID Data, IN ULONG Rva)
 /*
-·µ»Ø0±íÊ¾Ê§°Ü£¬ÆäËûµÄÊÇÔÚÎÄ¼şÖĞµÄÆ«ÒÆ¡£
+è¿”å›0è¡¨ç¤ºå¤±è´¥ï¼Œå…¶ä»–çš„æ˜¯åœ¨æ–‡ä»¶ä¸­çš„åç§»ã€‚
 */
 {
-    ULONG Offset = 0;//·µ»ØÖµ¡£
+    ULONG Offset = 0;//è¿”å›å€¼ã€‚
     IMAGE_FILE_HEADER * FileHeader = NULL;
     IMAGE_SECTION_HEADER * SectionHeader = NULL;
     USHORT i = 0;
@@ -125,16 +125,16 @@ ULONG Rva2Offset(IN LPVOID Data, IN ULONG Rva)
 
     FileHeader = (IMAGE_FILE_HEADER *)((SIZE_T)DosHeader->e_lfanew + sizeof(ULONG) + (SIZE_T)Data);
 
-    SectionHeader = (IMAGE_SECTION_HEADER *)((ULONG)(ULONG)DosHeader->e_lfanew + 
-                                                      sizeof(ULONG) + 
-                                                      sizeof(IMAGE_FILE_HEADER) + 
-                                                      FileHeader->SizeOfOptionalHeader);//±ØĞë¼Ó(ULONG),²»È»³ö´í.
-    
+    SectionHeader = (IMAGE_SECTION_HEADER *)((ULONG)(ULONG)DosHeader->e_lfanew +
+                                             sizeof(ULONG) +
+                                             sizeof(IMAGE_FILE_HEADER) +
+                                             FileHeader->SizeOfOptionalHeader);//å¿…é¡»åŠ (ULONG),ä¸ç„¶å‡ºé”™.
+
     SectionHeader = (IMAGE_SECTION_HEADER *)((SIZE_T)SectionHeader + (SIZE_T)Data);
 
-    for (; i < FileHeader->NumberOfSections; i++) //¹æ·¶¹æ¶¨ÊÇ´Ó1¿ªÊ¼µÄ.
+    for (; i < FileHeader->NumberOfSections; i++) //è§„èŒƒè§„å®šæ˜¯ä»1å¼€å§‹çš„.
     {
-        if (Rva >= SectionHeader[i].VirtualAddress && Rva <= 
+        if (Rva >= SectionHeader[i].VirtualAddress && Rva <=
             (SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize)) {
             Offset = Rva - SectionHeader[i].VirtualAddress + SectionHeader[i].PointerToRawData;
             break;
@@ -147,10 +147,10 @@ ULONG Rva2Offset(IN LPVOID Data, IN ULONG Rva)
 
 UINT Rva2Va(_In_ PBYTE Data, _In_ UINT Rva)
 /*
-·µ»Ø0±íÊ¾Ê§°Ü£¬ÆäËûµÄÊÇÔÚÎÄ¼şÖĞµÄÆ«ÒÆ¡£
+è¿”å›0è¡¨ç¤ºå¤±è´¥ï¼Œå…¶ä»–çš„æ˜¯åœ¨æ–‡ä»¶ä¸­çš„åç§»ã€‚
 */
 {
-    UINT Offset = 0;//·µ»ØÖµ¡£
+    UINT Offset = 0;//è¿”å›å€¼ã€‚
 
     PIMAGE_NT_HEADERS NtHeader = RtlImageNtHeader(Data);
     PIMAGE_FILE_HEADER FileHeader = (PIMAGE_FILE_HEADER)&NtHeader->FileHeader;
@@ -158,10 +158,10 @@ UINT Rva2Va(_In_ PBYTE Data, _In_ UINT Rva)
     PIMAGE_SECTION_HEADER SectionHeader = (PIMAGE_SECTION_HEADER)
         ((PBYTE)OptionalHeader + FileHeader->SizeOfOptionalHeader);
 
-    //×¢Òâ£ºÓĞ¸öºê½ĞIMAGE_FIRST_SECTION¡£
+    //æ³¨æ„ï¼šæœ‰ä¸ªå®å«IMAGE_FIRST_SECTIONã€‚
 
     for (WORD i = 0; i < FileHeader->NumberOfSections; i++) {
-        if (Rva >= SectionHeader[i].VirtualAddress && 
+        if (Rva >= SectionHeader[i].VirtualAddress &&
             Rva <= SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize) {
             Offset = Rva - SectionHeader[i].VirtualAddress + SectionHeader[i].PointerToRawData;
             break;
@@ -178,7 +178,7 @@ UINT Rva2Va(_In_ PBYTE Data, _In_ UINT Rva)
 PVOID MiFindExportedRoutineByNameEx(_In_ PVOID DllBase, _In_ PANSI_STRING AnsiImageRoutineName)
 /*++
 Routine Description:
-    This function searches the argument module looking for the requested exported function name.    
+    This function searches the argument module looking for the requested exported function name.
 Arguments:
     DllBase - Supplies the base address of the requested module.
     AnsiImageRoutineName - Supplies the ANSI routine name being searched for.
@@ -186,7 +186,7 @@ Return Value:
     The virtual address of the requested routine or NULL if not found.
 --*/
 /*
-´Ëº¯ÊıÊÊÓÃÓÚ»ñÈ¡Ö»Ó³Éä(map)¶øÃ»ÓĞ¼ÓÔØ(load)µÄÓĞµ¼³öº¯ÊıµÄPEÎÄ¼şµÄº¯ÊıµØÖ·µÄ»ñÈ¡¡£
+æ­¤å‡½æ•°é€‚ç”¨äºè·å–åªæ˜ å°„(map)è€Œæ²¡æœ‰åŠ è½½(load)çš„æœ‰å¯¼å‡ºå‡½æ•°çš„PEæ–‡ä»¶çš„å‡½æ•°åœ°å€çš„è·å–ã€‚
 */
 {
     USHORT OrdinalNumber;
@@ -212,9 +212,9 @@ Return Value:
         return FunctionAddress;
     }
 
-    //È·±£DllBase¿ÉÒÔ·ÃÎÊ¡£·ñÔòÀ¶ÆÁ¡£
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, 
-                                                                            TRUE, 
+    //ç¡®ä¿DllBaseå¯ä»¥è®¿é—®ã€‚å¦åˆ™è“å±ã€‚
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
+                                                                            TRUE,
                                                                             IMAGE_DIRECTORY_ENTRY_EXPORT,
                                                                             &ExportSize);
     if (ExportDirectory == NULL) {
@@ -278,7 +278,7 @@ Return Value:
     FunctionAddress = (PVOID)((PCHAR)DllBase + Offset);
 
     // Forwarders are not used by the kernel and HAL to each other.
-    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) || 
+    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) ||
            (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
 
     return FunctionAddress;
@@ -297,30 +297,30 @@ Return Value:
 --*/
 
 /*
-Ğ´×÷Ä¿µÄ£º
-MmGetSystemRoutineAddressÕâ¸öº¯ÊıÓĞÈçÏÂµÄÏŞÖÆ£º
+å†™ä½œç›®çš„ï¼š
+MmGetSystemRoutineAddressè¿™ä¸ªå‡½æ•°æœ‰å¦‚ä¸‹çš„é™åˆ¶ï¼š
 It can only be used for routines exported by the kernel or HAL, not for any driver-defined routine.
 
-FltGetRoutineAddressÕâ¸öº¯ÊıÓĞÈçÏÂµÄÏŞÖÆ£º
-1.µ÷ÓÃµÄº¯Êı¡£
-2.ÄÇ¸öÄ£¿é±ØĞëÒÑ¾­¼ÓÔØ¡£
+FltGetRoutineAddressè¿™ä¸ªå‡½æ•°æœ‰å¦‚ä¸‹çš„é™åˆ¶ï¼š
+1.è°ƒç”¨çš„å‡½æ•°ã€‚
+2.é‚£ä¸ªæ¨¡å—å¿…é¡»å·²ç»åŠ è½½ã€‚
 
-NdisGetRoutineAddressÓĞÀàËÆµÄÏŞÖÆ¡£
+NdisGetRoutineAddressæœ‰ç±»ä¼¼çš„é™åˆ¶ã€‚
 
-ÓĞÊ±ºò»ñÈ¡±ğµÄÄÚºËÄ£¿éµÄº¯ÊıµÄµØÖ·ÊÇÒ»¸ö½â¾öÎÊÌâµÄ°ì·¨£¬Èç£ºWINHV.sys¡£
-ÓĞÈËÎª´Ë»¹×¨ÃÅĞ´ÁËº¯Êı£¬µ±È»ÊÇ½âÎöPE32/PE32+ÁË¡£
+æœ‰æ—¶å€™è·å–åˆ«çš„å†…æ ¸æ¨¡å—çš„å‡½æ•°çš„åœ°å€æ˜¯ä¸€ä¸ªè§£å†³é—®é¢˜çš„åŠæ³•ï¼Œå¦‚ï¼šWINHV.sysã€‚
+æœ‰äººä¸ºæ­¤è¿˜ä¸“é—¨å†™äº†å‡½æ•°ï¼Œå½“ç„¶æ˜¯è§£æPE32/PE32+äº†ã€‚
 
-ÆäÊµÏµÍ³ÒÑ¾­Ìá¹©ÁËÒ»Ğ©º¯Êı£¬Ö»²»¹ıµ¼³ö¶øÃ»ÓĞ¹«¿ª¶øÒÑ¡£
+å…¶å®ç³»ç»Ÿå·²ç»æä¾›äº†ä¸€äº›å‡½æ•°ï¼Œåªä¸è¿‡å¯¼å‡ºè€Œæ²¡æœ‰å…¬å¼€è€Œå·²ã€‚
 
-¿´WRKÖªµÀ:MmGetSystemRoutineAddressÊÇÍ¨¹ıMiFindExportedRoutineByNameÊµÏÖµÄ¡£
-¿ÉÊÇ£ºMiFindExportedRoutineByNameÃ»ÓĞµ¼³ö£¬¶¨Î»ÓÖÃ»ÓĞºÃµÄÎÈ¶¨µÄ°ì·¨¡£
-ËùÒÔ×Ô¼ºÊµÏÖ£¬»¹ºÃRtlImageDirectoryEntryToData£¨RtlImageNtHeader£©ÒÑ¾­µ¼³ö¡£
+çœ‹WRKçŸ¥é“:MmGetSystemRoutineAddressæ˜¯é€šè¿‡MiFindExportedRoutineByNameå®ç°çš„ã€‚
+å¯æ˜¯ï¼šMiFindExportedRoutineByNameæ²¡æœ‰å¯¼å‡ºï¼Œå®šä½åˆæ²¡æœ‰å¥½çš„ç¨³å®šçš„åŠæ³•ã€‚
+æ‰€ä»¥è‡ªå·±å®ç°ï¼Œè¿˜å¥½RtlImageDirectoryEntryToDataï¼ˆRtlImageNtHeaderï¼‰å·²ç»å¯¼å‡ºã€‚
 
-±¾ÎÄµÄÒ»Ğ©ĞÅÏ¢Õª×Ô£ºWRK¡£
-²»¹ıÕâÒ²ÊÇÔ´Âë£¬¼ÓÈëÇı¶¯Ò²ÊÇ¿ÉÒÔÊ¹ÓÃµÄ¡£
+æœ¬æ–‡çš„ä¸€äº›ä¿¡æ¯æ‘˜è‡ªï¼šWRKã€‚
+ä¸è¿‡è¿™ä¹Ÿæ˜¯æºç ï¼ŒåŠ å…¥é©±åŠ¨ä¹Ÿæ˜¯å¯ä»¥ä½¿ç”¨çš„ã€‚
 
-×¢Òâ£º
-Èç¹ûÊÇ»ñÈ¡Ó¦ÓÃ²ãµÄµØÖ·£¬ĞèÒª¸½¼Óµ½½ø³Ì¡£
+æ³¨æ„ï¼š
+å¦‚æœæ˜¯è·å–åº”ç”¨å±‚çš„åœ°å€ï¼Œéœ€è¦é™„åŠ åˆ°è¿›ç¨‹ã€‚
 
 made by correy
 made at 2014.08.18
@@ -347,7 +347,7 @@ made at 2014.08.18
         return FunctionAddress;
     }
 
-    //È·±£DllBase¿ÉÒÔ·ÃÎÊ¡£·ñÔòÀ¶ÆÁ¡£
+    //ç¡®ä¿DllBaseå¯ä»¥è®¿é—®ã€‚å¦åˆ™è“å±ã€‚
     ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
                                                                             TRUE,
                                                                             IMAGE_DIRECTORY_ENTRY_EXPORT,
@@ -414,9 +414,9 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
                                             _In_opt_ PVOID Context
 )
 /*
-Ã¶¾ÙÓÃ»§Ä£¿éµÄ»Øµ÷º¯Êı¡£
+æšä¸¾ç”¨æˆ·æ¨¡å—çš„å›è°ƒå‡½æ•°ã€‚
 
-×¢Òâ£ºË«·½µÄDLLÂ·¾¶ÊÇÈ«Â·¾¶ÇÒ¸ñÊ½Ò»ÖÂ¡£
+æ³¨æ„ï¼šåŒæ–¹çš„DLLè·¯å¾„æ˜¯å…¨è·¯å¾„ä¸”æ ¼å¼ä¸€è‡´ã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -444,7 +444,7 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
     UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(DllBase, &FunctionName);
     if (UserFunctionAddress->UserFunctionAddress) {
         Status = STATUS_SUCCESS;
-    } 
+    }
 
     return Status;
 }
@@ -452,12 +452,12 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
 
 PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
 /*
-¹¦ÄÜ£º»ñÈ¡Ä³¸ö½ø³ÌµÄÄ³¸öÄ£¿éµÄÄ³¸ö(µ¼³ö)º¯ÊıµÄµØÖ·¡£
+åŠŸèƒ½ï¼šè·å–æŸä¸ªè¿›ç¨‹çš„æŸä¸ªæ¨¡å—çš„æŸä¸ª(å¯¼å‡º)å‡½æ•°çš„åœ°å€ã€‚
 
-²ÎÊıËµÃ÷£º
-DllFullName£ºÄ£¿éµÄÈ«Â·¾¶¡£
+å‚æ•°è¯´æ˜ï¼š
+DllFullNameï¼šæ¨¡å—çš„å…¨è·¯å¾„ã€‚
 
-×¢ÊÍ£ºÖ®ËùÒÔÓÃÈ«Â·¾¶£¬ÊÇÒòÎªÒ»¸ö½ø³Ì¿ÉÄÜ¼ÓÔØÁ½¸öÏàÍ¬Ãû×ÖµÄÄ£¿é£¬ÈçWOW64½ø³ÌÓĞÁ½¸öntdll.dll¡£
+æ³¨é‡Šï¼šä¹‹æ‰€ä»¥ç”¨å…¨è·¯å¾„ï¼Œæ˜¯å› ä¸ºä¸€ä¸ªè¿›ç¨‹å¯èƒ½åŠ è½½ä¸¤ä¸ªç›¸åŒåå­—çš„æ¨¡å—ï¼Œå¦‚WOW64è¿›ç¨‹æœ‰ä¸¤ä¸ªntdll.dllã€‚
 */
 {
     GetUserFunctionAddressInfo UserFunctionAddress = {0};
@@ -485,7 +485,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
     struct
     {
         OBJECT_NAME_INFORMATION ObjectNameInfo;
-        WCHAR FileName[1024];//MAX_PATH ±ØĞëÎª1024£¬·ñÔòÊ§°Ü£¬Ô­Òò¿´£ºObQueryNameString¡£
+        WCHAR FileName[1024];//MAX_PATH å¿…é¡»ä¸º1024ï¼Œå¦åˆ™å¤±è´¥ï¼ŒåŸå› çœ‹ï¼šObQueryNameStringã€‚
     } s = {0};
 
     __try {
@@ -516,7 +516,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
                                                     MemoryBasicInfo->BaseAddress,
                                                     &s.ObjectNameInfo,
                                                     sizeof(s));
-        if (!NT_SUCCESS(Status)) {//µØÖ·Îª0»á·µ»ØSTATUS_INVALID_ADDRESS¡£
+        if (!NT_SUCCESS(Status)) {//åœ°å€ä¸º0ä¼šè¿”å›STATUS_INVALID_ADDRESSã€‚
             //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
         }
@@ -535,10 +535,10 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
 
         ANSI_STRING FunctionName = {0};
         RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
-        UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress, 
+        UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress,
                                                                                &FunctionName);
         if (UserFunctionAddress->UserFunctionAddress) {
-            Status = STATUS_SUCCESS;//½áÊøÉÏ²ãµÄÃ¶¾Ù¡£
+            Status = STATUS_SUCCESS;//ç»“æŸä¸Šå±‚çš„æšä¸¾ã€‚
         }
 
         KeUnstackDetachProcess(&ApcState);
@@ -558,12 +558,12 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
 
 PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
 /*
-¹¦ÄÜ£º»ñÈ¡Ä³¸ö½ø³ÌµÄÄ³¸öÄ£¿éµÄÄ³¸ö(µ¼³ö)º¯ÊıµÄµØÖ·¡£
+åŠŸèƒ½ï¼šè·å–æŸä¸ªè¿›ç¨‹çš„æŸä¸ªæ¨¡å—çš„æŸä¸ª(å¯¼å‡º)å‡½æ•°çš„åœ°å€ã€‚
 
-²ÎÊıËµÃ÷£º
-DllFullName£ºÄ£¿éµÄÈ«Â·¾¶¡£
+å‚æ•°è¯´æ˜ï¼š
+DllFullNameï¼šæ¨¡å—çš„å…¨è·¯å¾„ã€‚
 
-×¢ÊÍ£ºÖ®ËùÒÔÓÃÈ«Â·¾¶£¬ÊÇÒòÎªÒ»¸ö½ø³Ì¿ÉÄÜ¼ÓÔØÁ½¸öÏàÍ¬Ãû×ÖµÄÄ£¿é£¬ÈçWOW64½ø³ÌÓĞÁ½¸öntdll.dll¡£
+æ³¨é‡Šï¼šä¹‹æ‰€ä»¥ç”¨å…¨è·¯å¾„ï¼Œæ˜¯å› ä¸ºä¸€ä¸ªè¿›ç¨‹å¯èƒ½åŠ è½½ä¸¤ä¸ªç›¸åŒåå­—çš„æ¨¡å—ï¼Œå¦‚WOW64è¿›ç¨‹æœ‰ä¸¤ä¸ªntdll.dllã€‚
 */
 {
     GetUserFunctionAddressInfo UserFunctionAddress = {0};
@@ -580,15 +580,15 @@ DllFullName£ºÄ£¿éµÄÈ«Â·¾¶¡£
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-BOOL ModifyPe32Entry(_In_ PVOID ImageBase) //ËıÄÌÄÌµÄ£¬²»ÄÜÓÃboolºÍtrue.
+BOOL ModifyPe32Entry(_In_ PVOID ImageBase) //å¥¹å¥¶å¥¶çš„ï¼Œä¸èƒ½ç”¨boolå’Œtrue.
 /*
-´Ë°ì·¨¶ÔDLL£¬SYSºÍEXE¶¼ÓĞĞ§
-×¢Òâ£ºDLLºÍÇı¶¯µÄ·µ»ØÖµÊÇ²»Ò»ÑùµÄ¡£
+æ­¤åŠæ³•å¯¹DLLï¼ŒSYSå’ŒEXEéƒ½æœ‰æ•ˆ
+æ³¨æ„ï¼šDLLå’Œé©±åŠ¨çš„è¿”å›å€¼æ˜¯ä¸ä¸€æ ·çš„ã€‚
 
-´ËÊ±Çı¶¯ÒÑ¾­¼ÓÔØ£¬µ«»¹Ã»ÓĞÔËĞĞ¡£
-×ö·¨ÊÇÔÚÇı¶¯µÄÈë¿ÚÌîĞ´c20800¼´ret 8¡£×¢ÊÍ²»ÊÇ£ºretnµÄ»úÆ÷Âëc3.
-²»±ØÒªÔÙĞ´mov eax,STATUS_UNSUCCESSFULµÄ»úÆ÷ÂëÁË¡£#define STATUS_UNSUCCESSFUL ((NTSTATUS)0xC0000001L)
-wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈë¿ÚÊÇpeÎÄ¼şµÄÈë¿ÚºÍDriverEntryµÄ¹ØÏµ¡£
+æ­¤æ—¶é©±åŠ¨å·²ç»åŠ è½½ï¼Œä½†è¿˜æ²¡æœ‰è¿è¡Œã€‚
+åšæ³•æ˜¯åœ¨é©±åŠ¨çš„å…¥å£å¡«å†™c20800å³ret 8ã€‚æ³¨é‡Šä¸æ˜¯ï¼šretnçš„æœºå™¨ç c3.
+ä¸å¿…è¦å†å†™mov eax,STATUS_UNSUCCESSFULçš„æœºå™¨ç äº†ã€‚#define STATUS_UNSUCCESSFUL ((NTSTATUS)0xC0000001L)
+wdkç¼–è¯‘çš„é©±åŠ¨å…¥å£æ˜¯æ·»åŠ çš„ï¼ŒéçœŸæ­£çš„å…¥å£ï¼Œæ±‡ç¼–å†™çš„é©±åŠ¨å…¥å£æ‰æ˜¯çœŸæ­£çš„å…¥å£ï¼Œè¿™é‡Œçš„å…¥å£æ˜¯peæ–‡ä»¶çš„å…¥å£å’ŒDriverEntryçš„å…³ç³»ã€‚
 */
 {
     PIMAGE_DOS_HEADER DosHeader;
@@ -602,7 +602,7 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
     PSIZE_T EntryPoint;
 
     //B8 00 00 00 00     mov     eax, 000000000h
-    //c20c00             ret c   ÆäÊµÕâ¸ö²»Ö¹ÊÇDLL£¬»¹ÓĞEXE£¬µ«ÊÇÎÄ¼şµÄÈë¿Ú¶¼ÊÇÃ»ÓĞ²ÎÊıµÄ¡£
+    //c20c00             ret c   å…¶å®è¿™ä¸ªä¸æ­¢æ˜¯DLLï¼Œè¿˜æœ‰EXEï¼Œä½†æ˜¯æ–‡ä»¶çš„å…¥å£éƒ½æ˜¯æ²¡æœ‰å‚æ•°çš„ã€‚
     unsigned char opcode[] = {0xB8,0x00,0x00,0x00,0x00,0xc2,0x0c,0x00};
 
     __try {
@@ -611,7 +611,7 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
             return FALSE;
         }
 
-        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//ÔÚ64Î»ÏµÍ³ÉÏ¼ì²éWOW4³ÌĞò¡£
+        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//åœ¨64ä½ç³»ç»Ÿä¸Šæ£€æŸ¥WOW4ç¨‹åºã€‚
         ntSignature = *(ULONG *)ntSignature;
         if (IMAGE_NT_SIGNATURE != ntSignature) {
             return FALSE;
@@ -621,17 +621,17 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
         FileHeader = (PIMAGE_FILE_HEADER)CoffHeaderOffset;
 
         /*
-        ¶ÔÓÚ¿ÉÑ¡Í·µÄ±ê×¼ÓòÀ´Ëµ£¬ÊÇ32Î»µÄ¿ÉÑ¡Í·ºÍ64Î»µÄ¿ÉÑ¡Í·ÎŞËùÎ½£¬ÒòÎªÆ«ÒÆ¶¼ÊÇÒ»ÑùµÄ¡£
+        å¯¹äºå¯é€‰å¤´çš„æ ‡å‡†åŸŸæ¥è¯´ï¼Œæ˜¯32ä½çš„å¯é€‰å¤´å’Œ64ä½çš„å¯é€‰å¤´æ— æ‰€è°“ï¼Œå› ä¸ºåç§»éƒ½æ˜¯ä¸€æ ·çš„ã€‚
         */
         OptionalHeader = (PIMAGE_OPTIONAL_HEADER32)((SIZE_T)FileHeader + sizeof(IMAGE_FILE_HEADER));
 
         AddressOfEntryPoint = OptionalHeader->AddressOfEntryPoint + (SIZE_T)ImageBase;
 
         /*
-        Õâ¸ö²Ù×÷»¹ÊÇºÜÓĞ±ØÒªµÄ£º
-        1.´¥·¢Òì³£¡£¾¡¹ÜÕâ¸öºÜÉÙ·¢Éú¡£
-        2.¿ÉÒÔ²é¿´Êı¾İ¡£
-        3.Ó¦ÎªÄÚ´æ·ÃÎÊ¹ıÁË£¬ËùÒÔµ¼ÖÂMmBuildMdlForNonPagedPool²»»áÀ¶ÆÁ¡£
+        è¿™ä¸ªæ“ä½œè¿˜æ˜¯å¾ˆæœ‰å¿…è¦çš„ï¼š
+        1.è§¦å‘å¼‚å¸¸ã€‚å°½ç®¡è¿™ä¸ªå¾ˆå°‘å‘ç”Ÿã€‚
+        2.å¯ä»¥æŸ¥çœ‹æ•°æ®ã€‚
+        3.åº”ä¸ºå†…å­˜è®¿é—®è¿‡äº†ï¼Œæ‰€ä»¥å¯¼è‡´MmBuildMdlForNonPagedPoolä¸ä¼šè“å±ã€‚
         */
         x = *(int *)AddressOfEntryPoint;
         x = 0;
@@ -641,15 +641,15 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
             return FALSE;
         }
 
-        MmBuildMdlForNonPagedPool(pmdl);//Èç¹ûAddressOfEntryPointÊÇÎŞĞ§ÄÚ´æ£¬ÕâÀï»áÀ¶ÆÁ¡£
+        MmBuildMdlForNonPagedPool(pmdl);//å¦‚æœAddressOfEntryPointæ˜¯æ— æ•ˆå†…å­˜ï¼Œè¿™é‡Œä¼šè“å±ã€‚
         //pmdl->MdlFlags |= MDL_MAPPED_TO_SYSTEM_VA;
 
-#pragma prefast(push)
-#pragma prefast(disable: 28145, "The opaque MDL structure should not be modified by a driver.")
+    #pragma prefast(push)
+    #pragma prefast(disable: 28145, "The opaque MDL structure should not be modified by a driver.")
         ClearFlag(pmdl->MdlFlags,
                   MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
         SetFlag(pmdl->MdlFlags, MDL_PAGES_LOCKED);
-#pragma prefast(pop)        
+    #pragma prefast(pop)        
 
         EntryPoint = (PSIZE_T)MmMapLockedPagesSpecifyCache(pmdl,
                                                            KernelMode,
@@ -659,11 +659,11 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
                                                            NormalPagePriority);
         ASSERT(EntryPoint);
 
-#pragma prefast(push)
-#pragma prefast(disable: 6386, "Ğ´Èëµ½¡°EntryPoint¡±Ê±»º³åÇøÒç³ö: ¿ÉĞ´´óĞ¡Îª¡°_Param_(1)->ByteCount¡±¸ö×Ö½Ú£¬µ«¿ÉÄÜĞ´ÈëÁË¡°8¡±¸ö×Ö½Ú")
+    #pragma prefast(push)
+    #pragma prefast(disable: 6386, "å†™å…¥åˆ°â€œEntryPointâ€æ—¶ç¼“å†²åŒºæº¢å‡º: å¯å†™å¤§å°ä¸ºâ€œ_Param_(1)->ByteCountâ€ä¸ªå­—èŠ‚ï¼Œä½†å¯èƒ½å†™å…¥äº†â€œ8â€ä¸ªå­—èŠ‚")
         ASSERT(pmdl->ByteCount >= 8);
         RtlCopyMemory(EntryPoint, opcode, 8);
-#pragma prefast(pop)          
+    #pragma prefast(pop)          
 
         MmUnmapLockedPages(EntryPoint, pmdl);
         IoFreeMdl(pmdl);
@@ -678,10 +678,10 @@ wdk±àÒëµÄÇı¶¯Èë¿ÚÊÇÌí¼ÓµÄ£¬·ÇÕæÕıµÄÈë¿Ú£¬»ã±àĞ´µÄÇı¶¯Èë¿Ú²ÅÊÇÕæÕıµÄÈë¿Ú£¬ÕâÀïµÄÈ
 
 BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
 /*
-´Ë°ì·¨¶ÔDLL£¬SYSºÍEXE¶¼ÓĞĞ§
-×¢Òâ£ºDLLºÍÇı¶¯µÄ·µ»ØÖµÊÇ²»Ò»ÑùµÄ¡£
+æ­¤åŠæ³•å¯¹DLLï¼ŒSYSå’ŒEXEéƒ½æœ‰æ•ˆ
+æ³¨æ„ï¼šDLLå’Œé©±åŠ¨çš„è¿”å›å€¼æ˜¯ä¸ä¸€æ ·çš„ã€‚
 
-×ö·¨ÊÇÔÚÇı¶¯µÄÈë¿ÚÌîĞ´retnµÄ»úÆ÷Âëc3.
+åšæ³•æ˜¯åœ¨é©±åŠ¨çš„å…¥å£å¡«å†™retnçš„æœºå™¨ç c3.
 */
 {
     PIMAGE_DOS_HEADER DosHeader;
@@ -704,7 +704,7 @@ BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
             return TRUE;
         }
 
-        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//ÔÚ64Î»ÏµÍ³ÉÏ¼ì²éWOW4³ÌĞò¡£
+        ntSignature = (SIZE_T)DosHeader + DosHeader->e_lfanew;//åœ¨64ä½ç³»ç»Ÿä¸Šæ£€æŸ¥WOW4ç¨‹åºã€‚
         ntSignature = *(ULONG *)ntSignature;
         if (IMAGE_NT_SIGNATURE != ntSignature) {
             return TRUE;
@@ -714,38 +714,38 @@ BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
         FileHeader = (PIMAGE_FILE_HEADER)CoffHeaderOffset;
 
         /*
-        ¶ÔÓÚ¿ÉÑ¡Í·µÄ±ê×¼ÓòÀ´Ëµ£¬ÊÇ32Î»µÄ¿ÉÑ¡Í·ºÍ64Î»µÄ¿ÉÑ¡Í·ÎŞËùÎ½£¬ÒòÎªÆ«ÒÆ¶¼ÊÇÒ»ÑùµÄ¡£
+        å¯¹äºå¯é€‰å¤´çš„æ ‡å‡†åŸŸæ¥è¯´ï¼Œæ˜¯32ä½çš„å¯é€‰å¤´å’Œ64ä½çš„å¯é€‰å¤´æ— æ‰€è°“ï¼Œå› ä¸ºåç§»éƒ½æ˜¯ä¸€æ ·çš„ã€‚
         */
         OptionalHeader = (PIMAGE_OPTIONAL_HEADER64)((SIZE_T)FileHeader + sizeof(IMAGE_FILE_HEADER));
 
         AddressOfEntryPoint = OptionalHeader->AddressOfEntryPoint + (SIZE_T)ImageBase;
 
         /*
-        Õâ¸ö²Ù×÷»¹ÊÇºÜÓĞ±ØÒªµÄ£º
-        1.´¥·¢Òì³£¡£¾¡¹ÜÕâ¸öºÜÉÙ·¢Éú¡£
-        2.¿ÉÒÔ²é¿´Êı¾İ¡£
-        3.Ó¦ÎªÄÚ´æ·ÃÎÊ¹ıÁË£¬ËùÒÔµ¼ÖÂMmBuildMdlForNonPagedPool²»»áÀ¶ÆÁ¡£
+        è¿™ä¸ªæ“ä½œè¿˜æ˜¯å¾ˆæœ‰å¿…è¦çš„ï¼š
+        1.è§¦å‘å¼‚å¸¸ã€‚å°½ç®¡è¿™ä¸ªå¾ˆå°‘å‘ç”Ÿã€‚
+        2.å¯ä»¥æŸ¥çœ‹æ•°æ®ã€‚
+        3.åº”ä¸ºå†…å­˜è®¿é—®è¿‡äº†ï¼Œæ‰€ä»¥å¯¼è‡´MmBuildMdlForNonPagedPoolä¸ä¼šè“å±ã€‚
         */
         x = *(int *)AddressOfEntryPoint;
         x = 0;
 
-        //ÓĞµÄÇı¶¯²»¿ÉÒÔĞ´£¬±ÈÈç32µÄ±ùÈĞ£¬ÔÚÕâÀïÈ·±£Ò»Ğ©£¬É¾³ıÖ»¶ÁÊôĞÔ¡£
+        //æœ‰çš„é©±åŠ¨ä¸å¯ä»¥å†™ï¼Œæ¯”å¦‚32çš„å†°åˆƒï¼Œåœ¨è¿™é‡Œç¡®ä¿ä¸€äº›ï¼Œåˆ é™¤åªè¯»å±æ€§ã€‚
         pmdl = IoAllocateMdl((PVOID)AddressOfEntryPoint, 6, 0, 0, NULL);
         if (!pmdl) {
             return TRUE;
         }
 
-        MmBuildMdlForNonPagedPool(pmdl);//Èç¹ûAddressOfEntryPointÊÇÎŞĞ§ÄÚ´æ£¬ÕâÀï»áÀ¶ÆÁ¡£
+        MmBuildMdlForNonPagedPool(pmdl);//å¦‚æœAddressOfEntryPointæ˜¯æ— æ•ˆå†…å­˜ï¼Œè¿™é‡Œä¼šè“å±ã€‚
         //pmdl->MdlFlags |= MDL_MAPPED_TO_SYSTEM_VA;
 
-#pragma prefast(push)
-#pragma prefast(disable: 28145, "The opaque MDL structure should not be modified by a driver.")
+    #pragma prefast(push)
+    #pragma prefast(disable: 28145, "The opaque MDL structure should not be modified by a driver.")
         ClearFlag(pmdl->MdlFlags,
                   MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
         SetFlag(pmdl->MdlFlags, MDL_PAGES_LOCKED);
-#pragma prefast(pop)        
+    #pragma prefast(pop)        
 
-        //WIN10ÑéÖ¤Æ÷ÏÂ»áÓĞÏµÍ³µÄ¶ÏÑÔ£¬Ëµspecified an executable MDL mapping¡£
+        //WIN10éªŒè¯å™¨ä¸‹ä¼šæœ‰ç³»ç»Ÿçš„æ–­è¨€ï¼Œè¯´specified an executable MDL mappingã€‚
         EntryPoint = (PSIZE_T)MmMapLockedPagesSpecifyCache(pmdl,
                                                            KernelMode,
                                                            MmCached,
@@ -754,11 +754,11 @@ BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
                                                            NormalPagePriority);
         ASSERT(EntryPoint);
 
-#pragma prefast(push)
-#pragma prefast(disable: 6386, "Ğ´Èëµ½¡°EntryPoint¡±Ê±»º³åÇøÒç³ö: ¿ÉĞ´´óĞ¡Îª¡°_Param_(1)->ByteCount¡±¸ö×Ö½Ú£¬µ«¿ÉÄÜĞ´ÈëÁË¡°6¡±¸ö×Ö½Ú¡£")
+    #pragma prefast(push)
+    #pragma prefast(disable: 6386, "å†™å…¥åˆ°â€œEntryPointâ€æ—¶ç¼“å†²åŒºæº¢å‡º: å¯å†™å¤§å°ä¸ºâ€œ_Param_(1)->ByteCountâ€ä¸ªå­—èŠ‚ï¼Œä½†å¯èƒ½å†™å…¥äº†â€œ6â€ä¸ªå­—èŠ‚ã€‚")
         ASSERT(pmdl->ByteCount >= 6);
-        RtlCopyMemory((PSIZE_T)EntryPoint, opcode, 6);//ÆäÊµÖ±½Ó¸³ÖµÒ²¿ÉÒÔ¡£
-#pragma prefast(pop)            
+        RtlCopyMemory((PSIZE_T)EntryPoint, opcode, 6);//å…¶å®ç›´æ¥èµ‹å€¼ä¹Ÿå¯ä»¥ã€‚
+    #pragma prefast(pop)            
 
         MmUnmapLockedPages((PVOID)EntryPoint, pmdl);
         IoFreeMdl(pmdl);
@@ -773,7 +773,7 @@ BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
 
 VOID ModifyPeEntry(_In_ PVOID ImageBase)
 /*
-ÕâÀïÓĞÒşº¬µÄÅĞ¶ÏÊÇ²»ÊÇÓĞĞ§PEÎÄ¼ş¸ñÊ½µÄ¹¦ÄÜ¡£
+è¿™é‡Œæœ‰éšå«çš„åˆ¤æ–­æ˜¯ä¸æ˜¯æœ‰æ•ˆPEæ–‡ä»¶æ ¼å¼çš„åŠŸèƒ½ã€‚
 */
 {
     if (!IsValidPE(ImageBase)) {
@@ -793,13 +793,13 @@ VOID ModifyPeEntry(_In_ PVOID ImageBase)
 
 NTSTATUS ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, _In_ PUNICODE_STRING NewFileName)
 /*
-¹¦ÄÜ£ºÔÚÇı¶¯²ãÊÍ·Å×ÊÔ´ĞÅÏ¢µ½ÎÄ¼ş¡£
+åŠŸèƒ½ï¼šåœ¨é©±åŠ¨å±‚é‡Šæ”¾èµ„æºä¿¡æ¯åˆ°æ–‡ä»¶ã€‚
 
-²ÎÊıËµÃ÷£º
-FileName£º×ÊÔ´ËùÔÚµÄÎÄ¼ş£¬ÕâÀïÊÇÇı¶¯ÎÄ¼ş¡£
-Type£º×ÊÔ´µÄÀàĞÍ£¬¼´Ó¦ÓÃ²ã¶¨ÒåµÄRT_¿ªÍ·µÄRT_RCDATAÖ®ÀàµÄÊı¾İ¡£
-Id£º×ÊÔ´µÄ±êÊ¶¡£
-NewFileName£ºĞÂÎÄ¼şµÄÃû×Ö£¬Èç£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS\\system32\\config\\SAM¡£
+å‚æ•°è¯´æ˜ï¼š
+FileNameï¼šèµ„æºæ‰€åœ¨çš„æ–‡ä»¶ï¼Œè¿™é‡Œæ˜¯é©±åŠ¨æ–‡ä»¶ã€‚
+Typeï¼šèµ„æºçš„ç±»å‹ï¼Œå³åº”ç”¨å±‚å®šä¹‰çš„RT_å¼€å¤´çš„RT_RCDATAä¹‹ç±»çš„æ•°æ®ã€‚
+Idï¼šèµ„æºçš„æ ‡è¯†ã€‚
+NewFileNameï¼šæ–°æ–‡ä»¶çš„åå­—ï¼Œå¦‚ï¼š"\Device\HarddiskVolume1\XXXæˆ–è€…\\??\\c:\\WINDOWS\\system32\\config\\SAMã€‚
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
@@ -816,7 +816,7 @@ NewFileName£ºĞÂÎÄ¼şµÄÃû×Ö£¬Èç£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS
     PVOID  MessageData;
     ULONG Size = 0;
 
-    //ĞÂ½¨ÎÄ¼ş.
+    //æ–°å»ºæ–‡ä»¶.
     CreateDisposition = FILE_OPEN_IF;// FILE_OPEN_IF FILE_OVERWRITE_IF FILE_SUPERSEDE;
     InitializeObjectAttributes(&ob, NewFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -835,17 +835,17 @@ NewFileName£ºĞÂÎÄ¼şµÄÃû×Ö£¬Èç£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS
         return Status;
     }
 
-    BaseAddress = GetImageBase(FileName);//ÉÏÃæµÄZwMapViewOfSectionµÈ¼¸¸öº¯ÊıÊÇÃ»ÓĞÓÃµÄ¡£
+    BaseAddress = GetImageBase(FileName);//ä¸Šé¢çš„ZwMapViewOfSectionç­‰å‡ ä¸ªå‡½æ•°æ˜¯æ²¡æœ‰ç”¨çš„ã€‚
 
     ResourceIdPath[0] = Type;
     ResourceIdPath[1] = Id;
     ResourceIdPath[2] = 0;
-    Status = LdrFindResource_U(BaseAddress, ResourceIdPath, 3, &ResourceDataEntry);//ÓÃZwMapViewOfSection·µ»Øc000008a
+    Status = LdrFindResource_U(BaseAddress, ResourceIdPath, 3, &ResourceDataEntry);//ç”¨ZwMapViewOfSectionè¿”å›c000008a
     ASSERT(NT_SUCCESS(Status));
     Status = LdrAccessResource(BaseAddress, ResourceDataEntry, &MessageData, &Size);
     ASSERT(NT_SUCCESS(Status));
 
-    //Èç¹ûÒª´¦Àí´óÓÚ4GµÄÊı¾İÇë¼Ó¸öÑ­»·¡£²»¹ı´óÓÚ4GµÄÊı¾İÒ²ºÜÄÑÓ³Éä³É¹¦¡£
+    //å¦‚æœè¦å¤„ç†å¤§äº4Gçš„æ•°æ®è¯·åŠ ä¸ªå¾ªç¯ã€‚ä¸è¿‡å¤§äº4Gçš„æ•°æ®ä¹Ÿå¾ˆéš¾æ˜ å°„æˆåŠŸã€‚
     Status = ZwWriteFile(DestinationFileHandle,
                          NULL,
                          NULL,
@@ -867,7 +867,7 @@ NewFileName£ºĞÂÎÄ¼şµÄÃû×Ö£¬Èç£º"\Device\HarddiskVolume1\XXX»òÕß\\??\\c:\\WINDOWS
 
 NTSTATUS NTAPI IsFilePe64(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_opt_ PVOID Context)
 /*
-MapViewOfSectionµÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¼ì²éPE¸ñÊ½¡£
+MapViewOfSectionçš„å›è°ƒå‡½æ•°ï¼Œç”¨äºæ£€æŸ¥PEæ ¼å¼ã€‚
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
@@ -887,7 +887,7 @@ MapViewOfSectionµÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¼ì²éPE¸ñÊ½¡£
 
 BOOL IsFilePe64(_In_ PUNICODE_STRING ImageFileName)
 /*
-¹¦ÄÜ£ºÅĞ¶ÏÒ»¸öPE¸ñÊ½µÄÎÄ¼şÊÇ²»ÊÇPE32+¡£
+åŠŸèƒ½ï¼šåˆ¤æ–­ä¸€ä¸ªPEæ ¼å¼çš„æ–‡ä»¶æ˜¯ä¸æ˜¯PE32+ã€‚
 */
 {
     BOOL ret = false;
@@ -900,11 +900,11 @@ BOOL IsFilePe64(_In_ PUNICODE_STRING ImageFileName)
 
 BOOL IsProcessPe64(_In_ HANDLE UniqueProcess)
 /*
-¹¦ÄÜ£ºÅĞ¶ÏÒ»¸ö½ø³ÌÊÇ²»ÊÇ64Î»µÄ¡£
+åŠŸèƒ½ï¼šåˆ¤æ–­ä¸€ä¸ªè¿›ç¨‹æ˜¯ä¸æ˜¯64ä½çš„ã€‚
 
-ÊµÏÖ°ì·¨£º¼ì²éÕâ¸öÎÄ¼ş¶ÔÓ¦µÄÎÄ¼şµÄPE¸ñÊ½£¬ÕâÊÇ»ù±¾µÄ°ì·¨¡£
+å®ç°åŠæ³•ï¼šæ£€æŸ¥è¿™ä¸ªæ–‡ä»¶å¯¹åº”çš„æ–‡ä»¶çš„PEæ ¼å¼ï¼Œè¿™æ˜¯åŸºæœ¬çš„åŠæ³•ã€‚
 
-»¹ÓĞµÄ±ğµÄ¼ì²é°ì·¨£¬Èç£ºÄÚ´æµÈ£¬ÕâĞ©°ì·¨Ò²Ğí¸ü¼òµ¥ºÍ¸ßĞ§¡£
+è¿˜æœ‰çš„åˆ«çš„æ£€æŸ¥åŠæ³•ï¼Œå¦‚ï¼šå†…å­˜ç­‰ï¼Œè¿™äº›åŠæ³•ä¹Ÿè®¸æ›´ç®€å•å’Œé«˜æ•ˆã€‚
 */
 {
     BOOL ret = false;

@@ -7,9 +7,9 @@
 
 
 /*
-XPÏÂÔËÐÐÒªÓÃXP±àÒë»·¾³¡£
-²¢ÇÒÌí¼ÓÈçÏÂ´úÂë¡£
-ÏÈÔËÐÐ¸öFILEMON£¬Ò²ÊÇ»ñÈ¡µ½µÄÎª¿Õ¡£
+XPä¸‹è¿è¡Œè¦ç”¨XPç¼–è¯‘çŽ¯å¢ƒã€‚
+å¹¶ä¸”æ·»åŠ å¦‚ä¸‹ä»£ç ã€‚
+å…ˆè¿è¡Œä¸ªFILEMONï¼Œä¹Ÿæ˜¯èŽ·å–åˆ°çš„ä¸ºç©ºã€‚
 */
 #if (NTDDI_VERSION < NTDDI_WS03SP1)
 NTSTATUS
@@ -38,7 +38,7 @@ VOID NTAPI WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer,
 VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer);
 
 #if (NTDDI_VERSION < NTDDI_VISTA)
-NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP ÎªXPÁ¿Éí´òÔìµÄFltQueryDirectoryFile
+NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP ä¸ºXPé‡èº«æ‰“é€ çš„FltQueryDirectoryFile
                                _In_ PFLT_INSTANCE Instance,
                                _In_ PFILE_OBJECT FileObject,
                                _Out_writes_bytes_(Length) PVOID FileInformationBuffer,

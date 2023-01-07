@@ -9,8 +9,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/gg750724.aspx Õâ¸öWRKÒ²ÓĞµÄ¡£
-typedef struct {
+//æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/gg750724.aspx è¿™ä¸ªWRKä¹Ÿæœ‰çš„ã€‚
+typedef struct
+{
     LARGE_INTEGER KernelTime;
     LARGE_INTEGER UserTime;
     LARGE_INTEGER CreateTime;
@@ -40,16 +41,16 @@ typedef struct {
 
 
 /*
-Õª×Ô£ºhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.html
+æ‘˜è‡ªï¼šhttp://doxygen.reactos.org/de/d22/ndk_2extypes_8h_source.html
 
-ÓĞĞŞ¸Ä£º
-1.×îºóÒ»¸ö³ÉÔ±·´×¢ÊÍ¡£
-2.Ãû×Öºó¼Ó¸öEX
-3.´ËÄ¿µÄÊÇÎªÁË»ñÈ¡tidµÈĞÅÏ¢¡£
+æœ‰ä¿®æ”¹ï¼š
+1.æœ€åä¸€ä¸ªæˆå‘˜åæ³¨é‡Šã€‚
+2.åå­—ååŠ ä¸ªEX
+3.æ­¤ç›®çš„æ˜¯ä¸ºäº†è·å–tidç­‰ä¿¡æ¯ã€‚
 
-¸Ğ¾õ¹È¸è£º
+æ„Ÿè§‰è°·æ­Œï¼š
 https://chromium.googlesource.com/chromium/chromium/+/1a9d8d9f3355e8b9f35591c8a678940bd264f412/third_party/psutil/psutil/arch/mswindows/ntextapi.h
-µÄÕâ¸öµÄ¶¨ÒåÒ²²»´í¡£
+çš„è¿™ä¸ªçš„å®šä¹‰ä¹Ÿä¸é”™ã€‚
 */
 typedef struct _SYSTEM_PROCESS_INFORMATION_EX
 {
@@ -62,7 +63,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION_EX
     LARGE_INTEGER CreateTime;
     LARGE_INTEGER UserTime;
     LARGE_INTEGER KernelTime;
-    UNICODE_STRING ImageName;//Õâ¸öÃû×ÖºÃÏñ²»³¬¹ı15-16¸ö×Ö·û¡£
+    UNICODE_STRING ImageName;//è¿™ä¸ªåå­—å¥½åƒä¸è¶…è¿‡15-16ä¸ªå­—ç¬¦ã€‚
     KPRIORITY BasePriority;
     HANDLE UniqueProcessId;
     HANDLE InheritedFromUniqueProcessId;
@@ -96,7 +97,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION_EX
     LARGE_INTEGER ReadTransferCount;
     LARGE_INTEGER WriteTransferCount;
     LARGE_INTEGER OtherTransferCount;
-    SYSTEM_THREAD_INFORMATION TH[1];//Õâ¸ö±¾À´ÊÇ×¢ÊÍµôµÄ¡£
+    SYSTEM_THREAD_INFORMATION TH[1];//è¿™ä¸ªæœ¬æ¥æ˜¯æ³¨é‡Šæ‰çš„ã€‚
 } SYSTEM_PROCESS_INFORMATION_EX, * PSYSTEM_PROCESS_INFORMATION_EX;
 
 
@@ -104,8 +105,8 @@ typedef struct _SYSTEM_PROCESS_INFORMATION_EX
 
 
 typedef
-NTSTATUS 
-(WINAPI *ZwTerminateThread_pfn)(
+NTSTATUS
+(WINAPI * ZwTerminateThread_pfn)(
     __in_opt HANDLE ThreadHandle,
     __in NTSTATUS ExitStatus
     );
@@ -121,7 +122,7 @@ EXTERN_C NTSTATUS WINAPI ZwQueryInformationThread(
 );
 
 
-//Õª×Ô£ºWRK¡£
+//æ‘˜è‡ªï¼šWRKã€‚
 EXTERN_C
 BOOLEAN
 PsIsThreadImpersonating(
@@ -174,22 +175,22 @@ typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(
 //    OUT PCLIENT_ID ClientId OPTIONAL
 //);
 
-//´Ëº¯ÊıÒÑ¾­µ¼³ö£¬µ«ÊÇ±àÒë»·¾³£¨¶ş½øÖÆºÍÎÄ±¾£©Ã»ÓĞÕâ¸ö¶¨Òå¡£
-//Ö»ĞèÓÃMmGetSystemRoutineAddress»ñÈ¡¼´¿É¡£
+//æ­¤å‡½æ•°å·²ç»å¯¼å‡ºï¼Œä½†æ˜¯ç¼–è¯‘ç¯å¢ƒï¼ˆäºŒè¿›åˆ¶å’Œæ–‡æœ¬ï¼‰æ²¡æœ‰è¿™ä¸ªå®šä¹‰ã€‚
+//åªéœ€ç”¨MmGetSystemRoutineAddressè·å–å³å¯ã€‚
 typedef
-NTSTATUS (NTAPI *
-RtlCreateUserThreadFn)(
-    IN HANDLE Process,
-    IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
-    IN BOOLEAN CreateSuspended,
-    IN ULONG ZeroBits OPTIONAL,
-    IN SIZE_T MaximumStackSize OPTIONAL,
-    IN SIZE_T CommittedStackSize OPTIONAL,
-    IN PUSER_THREAD_START_ROUTINE StartAddress,
-    IN PVOID Parameter OPTIONAL,
-    OUT PHANDLE Thread OPTIONAL,
-    OUT PCLIENT_ID ClientId OPTIONAL
-);
+NTSTATUS(NTAPI *
+         RtlCreateUserThreadFn)(
+             IN HANDLE Process,
+             IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
+             IN BOOLEAN CreateSuspended,
+             IN ULONG ZeroBits OPTIONAL,
+             IN SIZE_T MaximumStackSize OPTIONAL,
+             IN SIZE_T CommittedStackSize OPTIONAL,
+             IN PUSER_THREAD_START_ROUTINE StartAddress,
+             IN PVOID Parameter OPTIONAL,
+             OUT PHANDLE Thread OPTIONAL,
+             OUT PCLIENT_ID ClientId OPTIONAL
+             );
 
 //Win2K3\NT\public\sdk\inc\ntrtl.h
 //NTSYSAPI
@@ -210,16 +211,16 @@ RtlCreateUserThreadFn)(
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//NtCreateThreadExÕâ¸öº¯ÊıÊÇĞÂÔöµÄ£¬XPÔ´ÂëÀïÃ»ÓĞ¡£
+//NtCreateThreadExè¿™ä¸ªå‡½æ•°æ˜¯æ–°å¢çš„ï¼ŒXPæºç é‡Œæ²¡æœ‰ã€‚
 
 
 /*
-ÆäÊµÒ²ÎŞĞè²âÊÔNtCreateThreadEx¡£
-ÒòÎªRtlCreateUserThread->RtlpCreateUserThreadEx->ZwCreateThreadEx->NtCreateThreadEx¡£
-³ı·ÇZwCreateThreadEx±ÈRtlCreateUserThreadÓĞ¶îÍâµÄ¹¦ÄÜ£¬»òÕßËµRtlCreateUserThreadÉ¾¼õZwCreateThreadExµÄ¹¦ÄÜ¡£
-ÆäÊµRtlCreateUserThread·â×°ÁËZwCreateThreadEx£¬±ÈZwCreateThreadEx¸üºÃÓÃ¸üÓÑºÃ¡£
-Ò»¸öÊ¹ÓÃZwCreateThreadExµÄÔ­ÒòÊÇRtlCreateUserThreadÃ»ÓĞµ¼³ö(win7ÉÏ´Ëº¯ÊıÃ»ÓĞµ¼³ö)¡£
-RtlCreateUserThreadÔÚXPÒÑ¾­ÓĞÁË£¬¹À¼ÆÃ»ÓĞµ¼³ö¡£
+å…¶å®ä¹Ÿæ— éœ€æµ‹è¯•NtCreateThreadExã€‚
+å› ä¸ºRtlCreateUserThread->RtlpCreateUserThreadEx->ZwCreateThreadEx->NtCreateThreadExã€‚
+é™¤éZwCreateThreadExæ¯”RtlCreateUserThreadæœ‰é¢å¤–çš„åŠŸèƒ½ï¼Œæˆ–è€…è¯´RtlCreateUserThreadåˆ å‡ZwCreateThreadExçš„åŠŸèƒ½ã€‚
+å…¶å®RtlCreateUserThreadå°è£…äº†ZwCreateThreadExï¼Œæ¯”ZwCreateThreadExæ›´å¥½ç”¨æ›´å‹å¥½ã€‚
+ä¸€ä¸ªä½¿ç”¨ZwCreateThreadExçš„åŸå› æ˜¯RtlCreateUserThreadæ²¡æœ‰å¯¼å‡º(win7ä¸Šæ­¤å‡½æ•°æ²¡æœ‰å¯¼å‡º)ã€‚
+RtlCreateUserThreadåœ¨XPå·²ç»æœ‰äº†ï¼Œä¼°è®¡æ²¡æœ‰å¯¼å‡ºã€‚
 */
 
 
@@ -275,20 +276,20 @@ typedef struct _PS_ATTRIBUTE_LIST
 
 typedef
 NTSTATUS
-(NTAPI * 
-ZwCreateThreadExFn)(
-    _Out_ PHANDLE ThreadHandle,
-    _In_ ACCESS_MASK DesiredAccess,
-    _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
-    _In_ HANDLE ProcessHandle,
-    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
-    _In_opt_ PVOID Argument,
-    _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
-    _In_ SIZE_T ZeroBits,
-    _In_ SIZE_T StackSize,
-    _In_ SIZE_T MaximumStackSize,
-    _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
-);
+(NTAPI *
+ ZwCreateThreadExFn)(
+     _Out_ PHANDLE ThreadHandle,
+     _In_ ACCESS_MASK DesiredAccess,
+     _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
+     _In_ HANDLE ProcessHandle,
+     _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
+     _In_opt_ PVOID Argument,
+     _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+     _In_ SIZE_T ZeroBits,
+     _In_ SIZE_T StackSize,
+     _In_ SIZE_T MaximumStackSize,
+     _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
+     );
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

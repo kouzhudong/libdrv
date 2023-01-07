@@ -16,11 +16,11 @@ class SystemInfo
 
 
 /*
-Ò»ÏÂ¶¨ÒåÕª×Ô£º
-C:\Program Files (x86)\Windows Kits\8.0\Include\um\winternl.h»òÕß
+ä¸€ä¸‹å®šä¹‰æ‘˜è‡ªï¼š
+C:\Program Files (x86)\Windows Kits\8.0\Include\um\winternl.hæˆ–è€…
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\winternl.h
 
-¸ü¶àµÄĞÅÏ¢£¬¿É¿´£º
+æ›´å¤šçš„ä¿¡æ¯ï¼Œå¯çœ‹ï¼š
 http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/SYSTEM_INFORMATION_CLASS.html#SystemProcessInformation
 http://doxygen.reactos.org/d2/d5c/ntddk__ex_8h_source.html
 */
@@ -37,7 +37,7 @@ http://doxygen.reactos.org/d2/d5c/ntddk__ex_8h_source.html
 //} SYSTEM_INFORMATION_CLASS;
 
 
-//ÏÂÃæµÄ½á¹¹Õª×Ô:http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/SYSTEM_INFORMATION_CLASS.html
+//ä¸‹é¢çš„ç»“æ„æ‘˜è‡ª:http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/SYSTEM_INFORMATION_CLASS.html
 //typedef enum _SYSTEM_INFORMATION_CLASS {
 //    SystemBasicInformation,
 //    SystemProcessorInformation,
@@ -81,16 +81,17 @@ http://doxygen.reactos.org/d2/d5c/ntddk__ex_8h_source.html
 //    SystemPrioritySeperation,
 //    SystemPlugPlayBusInformation,
 //    SystemDockInformation,
-//    SystemPowerInformation,//ÌáÊ¾ÖØ¸´¶¨Òå,ºóÃæ¼ÓÒ»¸ö1.
+//    SystemPowerInformation,//æç¤ºé‡å¤å®šä¹‰,åé¢åŠ ä¸€ä¸ª1.
 //    SystemProcessorSpeedInformation,
 //    SystemCurrentTimeZoneInformation,
 //    SystemLookasideInformation
 //} SYSTEM_INFORMATION_CLASS, * PSYSTEM_INFORMATION_CLASS;
 
 
-//Õª×Ô£º\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
+//æ‘˜è‡ªï¼š\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
 // System Information Classes.
-typedef enum _SYSTEM_INFORMATION_CLASS {
+typedef enum _SYSTEM_INFORMATION_CLASS
+{
     SystemBasicInformation,
     SystemProcessorInformation,             // obsolete...delete
     SystemPerformanceInformation,
@@ -107,7 +108,7 @@ typedef enum _SYSTEM_INFORMATION_CLASS {
     SystemStackTraceInformation,
     SystemPagedPoolInformation,
     SystemNonPagedPoolInformation,
-    SystemHandleInformation,//ExpGetHandleInformation´¦ÀíµÄ¡£
+    SystemHandleInformation,//ExpGetHandleInformationå¤„ç†çš„ã€‚
     SystemObjectInformation,
     SystemPageFileInformation,
     SystemVdmInstemulInformation,
@@ -181,8 +182,8 @@ typedef enum _SYSTEM_INFORMATION_CLASS {
 
 
 /*
-Õª×Ô£ºhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx¡£
-ÓĞĞŞ¸Ä¡£
+æ‘˜è‡ªï¼šhttp://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspxã€‚
+æœ‰ä¿®æ”¹ã€‚
 */
 EXTERN_C
 NTSTATUS /* WINAPI NtQuerySystemInformation */ ZwQuerySystemInformation(
@@ -192,11 +193,11 @@ NTSTATUS /* WINAPI NtQuerySystemInformation */ ZwQuerySystemInformation(
     _Out_opt_  PULONG ReturnLength);
 
 
-//ÏÂÃæµÄÕª×Ô:http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/NtQuerySystemInformation.html
+//ä¸‹é¢çš„æ‘˜è‡ª:http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/NtQuerySystemInformation.html
 //NTSYSAPI
 //NTSTATUS
 //NTAPI
-//ZwQuerySystemInformation(//°ÑNtĞŞ¸ÄÎªZw.
+//ZwQuerySystemInformation(//æŠŠNtä¿®æ”¹ä¸ºZw.
 //                         IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
 //                         OUT PVOID               SystemInformation,
 //                         IN ULONG                SystemInformationLength,

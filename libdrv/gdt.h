@@ -1,6 +1,6 @@
 /*
-¹¦ÄÜ£ºÏÔÊ¾Ã¿¸öCPUµÄGDTĞÅÏ¢¡£
-×¢ÊÍ£ºÒ»ÏÂ½á¹¹Õª×ÔWRK¡£
+åŠŸèƒ½ï¼šæ˜¾ç¤ºæ¯ä¸ªCPUçš„GDTä¿¡æ¯ã€‚
+æ³¨é‡Šï¼šä¸€ä¸‹ç»“æ„æ‘˜è‡ªWRKã€‚
 
 made by correy.
 made at 2015.01.11.
@@ -42,19 +42,19 @@ typedef union _KGDTENTRY64 {
 
             struct {
                 ULONG   BaseMiddle : 8;
-                ULONG   Type : 5;//°ÑSÎ»°üº¬½øÈ¥ÁË£¬Ò²¾ÍÊÇÊÇ·ñÎªÏµÍ³¶ÎÃèÊö·ûµÄÎ»¡£
+                ULONG   Type : 5;//æŠŠSä½åŒ…å«è¿›å»äº†ï¼Œä¹Ÿå°±æ˜¯æ˜¯å¦ä¸ºç³»ç»Ÿæ®µæè¿°ç¬¦çš„ä½ã€‚
                 ULONG   Dpl : 2;
                 ULONG   Present : 1;
                 ULONG   LimitHigh : 4;
-                ULONG   System : 1;//¼´AVL£¬ÏµÍ³Èí¼ş×Ô¶¨ÒåµÄ¡£
+                ULONG   System : 1;//å³AVLï¼Œç³»ç»Ÿè½¯ä»¶è‡ªå®šä¹‰çš„ã€‚
                 ULONG   LongMode : 1;
-                ULONG   DefaultBig : 1;//¼´INTELµÄD/B (default operation size/default stack pointer size and/or upper bound) flag¡£
+                ULONG   DefaultBig : 1;//å³INTELçš„D/B (default operation size/default stack pointer size and/or upper bound) flagã€‚
                 ULONG   Granularity : 1;
                 ULONG   BaseHigh : 8;
             } Bits;
         };
 
-        //ULONG BaseUpper;/*¾­¹Û²ì£¬64ÏÂµÄ½á¹¹µÄ³¤¶ÈÊÇ6×Ö½Ú£¬²»ÊÇÉÏÃæ¶¨ÒåµÄ16×Ö½Ú¡£*/
+        //ULONG BaseUpper;/*ç»è§‚å¯Ÿï¼Œ64ä¸‹çš„ç»“æ„çš„é•¿åº¦æ˜¯6å­—èŠ‚ï¼Œä¸æ˜¯ä¸Šé¢å®šä¹‰çš„16å­—èŠ‚ã€‚*/
         //ULONG MustBeZero;
     };
 
@@ -83,7 +83,7 @@ typedef struct _X86_KSPECIAL_REGISTERS {
     ULONG KernelDr6;
     ULONG KernelDr7;
     X86_DESCRIPTOR Gdtr;
-    X86_DESCRIPTOR Idtr;//ÓÉ´Ë¿ÉÖª£¬GDTºÍIDTµÄ½á¹¹ÊÇÒ»ÑùµÄ¡£
+    X86_DESCRIPTOR Idtr;//ç”±æ­¤å¯çŸ¥ï¼ŒGDTå’ŒIDTçš„ç»“æ„æ˜¯ä¸€æ ·çš„ã€‚
     USHORT Tr;
     USHORT Ldtr;
     ULONG Reserved[6];
@@ -102,13 +102,13 @@ typedef struct _KGDTENTRY {
         } Bytes;
         struct {
             ULONG   BaseMid : 8;
-            ULONG   Type : 5;//°ÑSÎ»°üº¬½øÈ¥ÁË£¬Ò²¾ÍÊÇÊÇ·ñÎªÏµÍ³¶ÎÃèÊö·ûµÄÎ»¡£
+            ULONG   Type : 5;//æŠŠSä½åŒ…å«è¿›å»äº†ï¼Œä¹Ÿå°±æ˜¯æ˜¯å¦ä¸ºç³»ç»Ÿæ®µæè¿°ç¬¦çš„ä½ã€‚
             ULONG   Dpl : 2;
             ULONG   Pres : 1;
             ULONG   LimitHi : 4;
-            ULONG   Sys : 1;//¼´AVL£¬ÏµÍ³Èí¼ş×Ô¶¨ÒåµÄ¡£
+            ULONG   Sys : 1;//å³AVLï¼Œç³»ç»Ÿè½¯ä»¶è‡ªå®šä¹‰çš„ã€‚
             ULONG   Reserved_0 : 1;//LongMode
-            ULONG   Default_Big : 1;//¼´INTELµÄD/B (default operation size/default stack pointer size and/or upper bound) flag¡£
+            ULONG   Default_Big : 1;//å³INTELçš„D/B (default operation size/default stack pointer size and/or upper bound) flagã€‚
             ULONG   Granularity : 1;
             ULONG   BaseHi : 8;
         } Bits;

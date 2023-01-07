@@ -10,10 +10,10 @@
 
 
 /*
-¸ù¾İ£ºTable 3-1. Code- and Data-Segment Types£¬·ÂÕÕWINDBGµÄdgÃüÁî¶¨Òå¡£
+æ ¹æ®ï¼šTable 3-1. Code- and Data-Segment Typesï¼Œä»¿ç…§WINDBGçš„dgå‘½ä»¤å®šä¹‰ã€‚
 */
 char SegmentTypes[][256] = {
-    "<Reserved>",//Data Read-OnlyËõĞ´ÊÇ£ºData RO£¬Ò²¿ÉÈÏÎªÊÇ£º <Reserved>¡£Èç¹û½á¹¹£¨UINT64£©È«²¿ÎªÁã£¬Ò²¿ÉÈÏÎªÊÇReserved¡£
+    "<Reserved>",//Data Read-Onlyç¼©å†™æ˜¯ï¼šData ROï¼Œä¹Ÿå¯è®¤ä¸ºæ˜¯ï¼š <Reserved>ã€‚å¦‚æœç»“æ„ï¼ˆUINT64ï¼‰å…¨éƒ¨ä¸ºé›¶ï¼Œä¹Ÿå¯è®¤ä¸ºæ˜¯Reservedã€‚
     "Data RO AC",//Data Read-Only, accessed
     "Data RW",//Data Read/Write
     "Data RW AC",//Data Read/Write, accessed
@@ -24,14 +24,14 @@ char SegmentTypes[][256] = {
 
     "Code EO",//Code Execute-Only
     "Code EO AC",//Code Execute-Only, accessed
-    "Code RE",//Code Execute/Read ¼Ó¿Õ¸ñÒÔ±ãÏÔÊ¾µÄ¶ÔÆë¡£
+    "Code RE",//Code Execute/Read åŠ ç©ºæ ¼ä»¥ä¾¿æ˜¾ç¤ºçš„å¯¹é½ã€‚
     "Code RE AC",//Code Execute/Read, accessed
     "Code EO CO",//Code Execute-Only, conforming
     "Code EO CO AC",//Code Execute-Only, conforming, accessed
     "Code RE CO",//Code Execute/Read, conforming
     "Code RE CO AC",//Code Execute/Read, conforming, accessed
-    "TSS32 Busy ",//Õâ¸öÒ²¿ÉÏÔÊ¾Ö»ÒªÊ¶±ğÁËTSS¼°ÄÚÈİ¡£
-    "TSS32 Avl" //Õâ¸öÔÚX86ÉÏ³öÏÖÁË¡£
+    "TSS32 Busy ",//è¿™ä¸ªä¹Ÿå¯æ˜¾ç¤ºåªè¦è¯†åˆ«äº†TSSåŠå†…å®¹ã€‚
+    "TSS32 Avl" //è¿™ä¸ªåœ¨X86ä¸Šå‡ºç°äº†ã€‚
 };
 
 
@@ -44,13 +44,13 @@ char SegmentTypes[][256] = {
 //#endif
 
 
-USHORT NTAPI GetGdtLimit();//»ã±àº¯Êı¡£
+USHORT NTAPI GetGdtLimit();//æ±‡ç¼–å‡½æ•°ã€‚
 
 
 #if defined(_WIN64)
 void show_gdt(int i)
 /*
-iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
+içš„å–å€¼å¯ä»¥æ˜¯0.
 */
 {
     //SIZE_T IDTR;
@@ -67,8 +67,8 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     //SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    pkgdte = KeGetPcr()->GdtBase;//Ã»ÓĞ__sgdt,Ò²²»ÓÃsgdt»ã±àÖ¸ÁîµÄ°ì·¨¡£µ«ÊÇÕâ¸ö»ñÈ¡µÄÃ»ÓĞ³¤¶È¡£
-    GdtLimit = GetGdtLimit();//Ò»°ãµÈÓÚ0x7f.
+    pkgdte = KeGetPcr()->GdtBase;//æ²¡æœ‰__sgdt,ä¹Ÿä¸ç”¨sgdtæ±‡ç¼–æŒ‡ä»¤çš„åŠæ³•ã€‚ä½†æ˜¯è¿™ä¸ªè·å–çš„æ²¡æœ‰é•¿åº¦ã€‚
+    GdtLimit = GetGdtLimit();//ä¸€èˆ¬ç­‰äº0x7f.
     KeRevertToUserAffinityThread();
 
     //p = &gdtr.Limit;
@@ -76,10 +76,10 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     //pkgdte = (PKGDTENTRY)r; 
 
     /*
-    ÆäÊµÖ±½Ó£º
+    å…¶å®ç›´æ¥ï¼š
     maximun = (idtr.Base + 1) / sizeof(KIDTENTRY);
-    Ò²¿ÉÒÔ¡£
-    maximunÒ»°ãµÈÓÚ256.
+    ä¹Ÿå¯ä»¥ã€‚
+    maximunä¸€èˆ¬ç­‰äº256.
     */
     //if (gdtr.Pad % sizeof(KIDTENTRY) == 0) {
     //    maximun = gdtr.Pad / sizeof(KIDTENTRY);
@@ -92,17 +92,17 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     //    maximun = GdtLimit / sizeof(KGDTENTRY64);
     //} else {
     //    maximun = GdtLimit / sizeof(KGDTENTRY64);
-    //    maximun++;//Ò»°ãÊÇ128.
+    //    maximun++;//ä¸€èˆ¬æ˜¯128.
     //}
 
     maximun = (GdtLimit + 1) / sizeof(KGDTENTRY64);
 
     /*
-    ÏÔÊ¾¸ñÊ½£º
+    æ˜¾ç¤ºæ ¼å¼ï¼š
     CPU SN Sel        Base              Limit          Type    Pl Size Gran Pres Long Flags
     --- -- ---- ----------------- ----------------- ---------- -- ---- ---- ---- ---- --------
 
-    ×¢ÊÍ£ºCPUºÍSNÊÇ×Ô¼ºÌí¼ÓµÄ¡£SN¼´Segment Name,Èç£ºCS£¬DS£¬FSµÈ.
+    æ³¨é‡Šï¼šCPUå’ŒSNæ˜¯è‡ªå·±æ·»åŠ çš„ã€‚SNå³Segment Name,å¦‚ï¼šCSï¼ŒDSï¼ŒFSç­‰.
     */
     KdPrint(("Sel        Base             Limit             Type   DPl Size Gran Pres Long Flags\n"));//CPU SN 
     KdPrint(("---- ---------------- ---------------- ------------- --- ---- ---- ---- ---- --------\n"));//--- -- 
@@ -126,45 +126,45 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         Limit = pkgdte_t->LimitLow + (pkgdte_t->Bits.LimitHigh << 16);
 
         if (pkgdte_t->Bits.DefaultBig && Base) {
-            //À©³ä¸ßÎ»Îª1.¼´F.
+            //æ‰©å……é«˜ä½ä¸º1.å³F.
             Base += 0xffffffff00000000;
         }
 
         if (pkgdte_t->Bits.DefaultBig && pkgdte_t->Bits.Granularity) {
-            //À©³ä¸ßÎ»Îª1.¼´F.
+            //æ‰©å……é«˜ä½ä¸º1.å³F.
             //SIZE_T t = Limit;
             Limit = (Limit << 12);
             Limit += PAGE_SIZE - 1;
         }
 
         Type = pkgdte_t->Bits.Type;
-        _bittestandreset((LONG *)&Type, 4);//ÒòÎªÕâ¸ö°üº¬ÁËSÎ»£¬ËùÒÔÒªÇå³ıÕâ¸öÎ»±êÖ¾¡£
+        _bittestandreset((LONG *)&Type, 4);//å› ä¸ºè¿™ä¸ªåŒ…å«äº†Sä½ï¼Œæ‰€ä»¥è¦æ¸…é™¤è¿™ä¸ªä½æ ‡å¿—ã€‚
 
         if (pkgdte_t->Bits.DefaultBig) {
-            size = "Bg  ";//Big ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            size = "Bg  ";//Big åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            size = "Nb  ";//Not Big ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            size = "Nb  ";//Not Big åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->Bits.Granularity) {
-            Granularity = "Pg  ";//Page ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Granularity = "Pg  ";//Page åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            Granularity = "By  ";//Byte ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Granularity = "By  ";//Byte åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->Bits.Present) {
-            Present = "P   ";//Present ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Present = "P   ";//Present åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            Present = "NP  ";//NO Present ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Present = "NP  ";//NO Present åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->Bits.LongMode) {
-            LongMode = "Lo  ";//Long ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            LongMode = "Lo  ";//Long åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            LongMode = "Nl  ";//NO long ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            LongMode = "Nl  ";//NO long åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
-        Flags = (pkgdte_t->Bytes.Flags2 >> 4);//È¥µôSegment limitµÄÄÇ¼¸Î»¡£
+        Flags = (pkgdte_t->Bytes.Flags2 >> 4);//å»æ‰Segment limitçš„é‚£å‡ ä½ã€‚
         Flags = Flags << 8;
         Flags = Flags + pkgdte_t->Bytes.Flags1;
 
@@ -183,11 +183,11 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
 
         //if (pkgdte_t->Bits.Present)
         //{
-        //    KdPrint(("µÚ%dºÅCPUµÄGDTµÄSel:0x%03x, Base:0x%016p, Limit:0x%016p, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x, LongMode:0x%x, Default_Big:0x%x, Granularity:0x%x.\n", 
+        //    KdPrint(("ç¬¬%då·CPUçš„GDTçš„Sel:0x%03x, Base:0x%016p, Limit:0x%016p, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x, LongMode:0x%x, Default_Big:0x%x, Granularity:0x%x.\n", 
         //        i, index * sizeof (KGDTENTRY64), Base, Limit,
         //        pkgdte_t->Bits.Type,
         //        pkgdte_t->Bits.Dpl,
-        //        pkgdte_t->Bits.Present,//ÔÙ´òÓ¡Ò»´Î°É£¡
+        //        pkgdte_t->Bits.Present,//å†æ‰“å°ä¸€æ¬¡å§ï¼
         //        pkgdte_t->Bits.System,
         //        pkgdte_t->Bits.LongMode,
         //        pkgdte_t->Bits.DefaultBig,
@@ -196,14 +196,14 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         //}
         //else //<Reserved> 
         //{
-        //    KdPrint(("µÚ%dºÅCPUµÄGDTµÄSel:0x%03x is Reserved!\n", i, index * sizeof (KGDTENTRY64)));
+        //    KdPrint(("ç¬¬%då·CPUçš„GDTçš„Sel:0x%03x is Reserved!\n", i, index * sizeof (KGDTENTRY64)));
         //}
 
 
-        ////Å¼¶û³öÏÖÓĞÒ»¸ö²»¶Ô£¬¼´0x38µÄÖµ²»¶Ô£¬
-        //Base = pkgdte_t->BaseLow + (pkgdte_t->HighWord.Bits.BaseHi << 24) + (pkgdte_t->HighWord.Bits.BaseMid << 16);//ÆäÊµÓÃÎ»Óë¸ü¿ì | ¡£
+        ////å¶å°”å‡ºç°æœ‰ä¸€ä¸ªä¸å¯¹ï¼Œå³0x38çš„å€¼ä¸å¯¹ï¼Œ
+        //Base = pkgdte_t->BaseLow + (pkgdte_t->HighWord.Bits.BaseHi << 24) + (pkgdte_t->HighWord.Bits.BaseMid << 16);//å…¶å®ç”¨ä½ä¸æ›´å¿« | ã€‚
 
-        //if (pkgdte_t->HighWord.Bits.Granularity && BooleanFlagOn(pkgdte_t->HighWord.Bits.Type, 2 ) ) {//¹ØÓÚ±êÖ¾Î»¼°Ëã·¨£¬¼ûÈ¨Íş×ÊÁÏ¡£
+        //if (pkgdte_t->HighWord.Bits.Granularity && BooleanFlagOn(pkgdte_t->HighWord.Bits.Type, 2 ) ) {//å…³äºæ ‡å¿—ä½åŠç®—æ³•ï¼Œè§æƒå¨èµ„æ–™ã€‚
         //    Limit = pkgdte_t->LimitLow + (pkgdte_t->HighWord.Bits.LimitHi << 16);
         //    Limit *= PAGE_SIZE;
         //    Limit += PAGE_SIZE - 1;
@@ -211,7 +211,7 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         //    Limit = pkgdte_t->LimitLow + (pkgdte_t->HighWord.Bits.LimitHi << 16);
         //}
 
-        //KdPrint(("µÚ%dºÅCPUµÄGDTµÄSel:0x%03x, Base:0x%08x, Limit:0x%08x, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x,Default_Big:0x%x, Granularity:0x%x.\n", 
+        //KdPrint(("ç¬¬%då·CPUçš„GDTçš„Sel:0x%03x, Base:0x%08x, Limit:0x%08x, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x,Default_Big:0x%x, Granularity:0x%x.\n", 
         //    i, index * sizeof (KGDTENTRY), Base, Limit,
         //    pkgdte_t->HighWord.Bits.Type,
         //    pkgdte_t->HighWord.Bits.Dpl,
@@ -222,16 +222,16 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         //    ));
 
         /*
-        ÕâÀïµÄDefault_Big¶ÔÓ¦dgÃüÁîµÄsize.
-        ÕâÀïµÄSys¶ÔÓ¦dgÃüÁîµÄlong.
-        FlagsµÄÖµµÈÓÚ±äÏà´òÓ¡ÁË£¬ÕâÀï¾Í²»ÔÙ´òÓ¡ÁË¡£
+        è¿™é‡Œçš„Default_Bigå¯¹åº”dgå‘½ä»¤çš„size.
+        è¿™é‡Œçš„Syså¯¹åº”dgå‘½ä»¤çš„long.
+        Flagsçš„å€¼ç­‰äºå˜ç›¸æ‰“å°äº†ï¼Œè¿™é‡Œå°±ä¸å†æ‰“å°äº†ã€‚
         */
     }
 }
 #else 
 void show_gdt(int i)
 /*
-iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
+içš„å–å€¼å¯ä»¥æ˜¯0.
 */
 {
     //SIZE_T IDTR;
@@ -248,8 +248,8 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     //SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    pkgdte = KeGetPcr()->GDT;//Ã»ÓĞ__sgdt,Ò²²»ÓÃsgdt»ã±àÖ¸ÁîµÄ°ì·¨¡£µ«ÊÇÕâ¸ö»ñÈ¡µÄÃ»ÓĞ³¤¶È¡£
-    GdtLimit = GetGdtLimit();//Ò»°ãµÈÓÚ0x3ff.
+    pkgdte = KeGetPcr()->GDT;//æ²¡æœ‰__sgdt,ä¹Ÿä¸ç”¨sgdtæ±‡ç¼–æŒ‡ä»¤çš„åŠæ³•ã€‚ä½†æ˜¯è¿™ä¸ªè·å–çš„æ²¡æœ‰é•¿åº¦ã€‚
+    GdtLimit = GetGdtLimit();//ä¸€èˆ¬ç­‰äº0x3ff.
     KeRevertToUserAffinityThread();
 
     //p = &gdtr.Limit;
@@ -257,10 +257,10 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     //pkgdte = (PKGDTENTRY)r; 
 
     /*
-    ÆäÊµÖ±½Ó£º
+    å…¶å®ç›´æ¥ï¼š
     maximun = (idtr.Base + 1) / sizeof(KIDTENTRY);
-    Ò²¿ÉÒÔ¡£
-    maximunÒ»°ãµÈÓÚ256.
+    ä¹Ÿå¯ä»¥ã€‚
+    maximunä¸€èˆ¬ç­‰äº256.
     */
     //if (gdtr.Pad % sizeof(KIDTENTRY) == 0) {
     //    maximun = gdtr.Pad / sizeof(KIDTENTRY);
@@ -273,15 +273,15 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         maximun = GdtLimit / sizeof(KGDTENTRY);
     } else {
         maximun = GdtLimit / sizeof(KGDTENTRY);
-        maximun++;//Ò»°ãÊÇ128.
+        maximun++;//ä¸€èˆ¬æ˜¯128.
     }
 
     /*
-    ÏÔÊ¾¸ñÊ½£º
+    æ˜¾ç¤ºæ ¼å¼ï¼š
     CPU SN Sel        Base              Limit          Type    Pl Size Gran Pres Long Flags
     --- -- ---- ----------------- ----------------- ---------- -- ---- ---- ---- ---- --------
 
-    ×¢ÊÍ£ºCPUºÍSNÊÇ×Ô¼ºÌí¼ÓµÄ¡£SN¼´Segment Name,Èç£ºCS£¬DS£¬FSµÈ.
+    æ³¨é‡Šï¼šCPUå’ŒSNæ˜¯è‡ªå·±æ·»åŠ çš„ã€‚SNå³Segment Name,å¦‚ï¼šCSï¼ŒDSï¼ŒFSç­‰.
     */
     KdPrint(("Sel  Base             Limit          Type DPl Size Gran Pres Long Flags\n"));//CPU SN 
     KdPrint(("---- -------- ------------- ------------- --- ---- ---- ---- ---- --------\n"));//--- -- 
@@ -298,13 +298,13 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         char * LongMode = NULL;
         int    Flags = 0;
 
-        //×¢Òâ£º0x38´¦µÄÖµ²»Í£µÄ±ä»¯¡£
+        //æ³¨æ„ï¼š0x38å¤„çš„å€¼ä¸åœçš„å˜åŒ–ã€‚
         USHORT  BaseLow = pkgdte_t->BaseLow;
         ULONG   BaseMid = pkgdte_t->HighWord.Bits.BaseMid;
         ULONG   BaseHi = pkgdte_t->HighWord.Bits.BaseHi;
-        Base = (BaseHi << 24) + (BaseMid << 16) + BaseLow;//ÆäÊµÓÃÎ»Óë¸ü¿ì | ¡£
+        Base = (BaseHi << 24) + (BaseMid << 16) + BaseLow;//å…¶å®ç”¨ä½ä¸æ›´å¿« | ã€‚
 
-        if (pkgdte_t->HighWord.Bits.Granularity && BooleanFlagOn(pkgdte_t->HighWord.Bits.Type, 2)) {//¹ØÓÚ±êÖ¾Î»¼°Ëã·¨£¬¼ûÈ¨Íş×ÊÁÏ¡£
+        if (pkgdte_t->HighWord.Bits.Granularity && BooleanFlagOn(pkgdte_t->HighWord.Bits.Type, 2)) {//å…³äºæ ‡å¿—ä½åŠç®—æ³•ï¼Œè§æƒå¨èµ„æ–™ã€‚
             Limit = pkgdte_t->LimitLow + (pkgdte_t->HighWord.Bits.LimitHi << 16);
             Limit *= PAGE_SIZE;
             Limit += PAGE_SIZE - 1;
@@ -314,46 +314,46 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
 
         //if (pkgdte_t->HighWord.Bits.Default_Big && Base)
         //{
-        //    //À©³ä¸ßÎ»Îª1.¼´F.
+        //    //æ‰©å……é«˜ä½ä¸º1.å³F.
         //    Base += 0xffff0000;
         //}      
 
         //if (pkgdte_t->Bits.DefaultBig && pkgdte_t->Bits.Granularity)
         //{
-        //    //À©³ä¸ßÎ»Îª1.¼´F.
+        //    //æ‰©å……é«˜ä½ä¸º1.å³F.
         //    SIZE_T t = Limit;
         //    Limit = (Limit << 12);
         //    Limit += PAGE_SIZE - 1;
         //} 
 
         Type = pkgdte_t->HighWord.Bits.Type;
-        _bittestandreset((LONG *)&Type, 4);//ÒòÎªÕâ¸ö°üº¬ÁËSÎ»£¬ËùÒÔÒªÇå³ıÕâ¸öÎ»±êÖ¾¡£
+        _bittestandreset((LONG *)&Type, 4);//å› ä¸ºè¿™ä¸ªåŒ…å«äº†Sä½ï¼Œæ‰€ä»¥è¦æ¸…é™¤è¿™ä¸ªä½æ ‡å¿—ã€‚
 
         if (pkgdte_t->HighWord.Bits.Default_Big) {
-            size = "Bg  ";//Big ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            size = "Bg  ";//Big åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            size = "Nb  ";//Not Big ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            size = "Nb  ";//Not Big åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->HighWord.Bits.Granularity) {
-            Granularity = "Pg  ";//Page ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Granularity = "Pg  ";//Page åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            Granularity = "By  ";//Byte ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Granularity = "By  ";//Byte åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->HighWord.Bits.Pres) {
-            Present = "P   ";//Present ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Present = "P   ";//Present åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            Present = "NP  ";//NO Present ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            Present = "NP  ";//NO Present åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
         if (pkgdte_t->HighWord.Bits.Reserved_0) {
-            LongMode = "Lo  ";//Long ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            LongMode = "Lo  ";//Long åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         } else {
-            LongMode = "Nl  ";//NO long ¼Ó¿Õ¸ñÊÇÎªÁË¶ÔÆëÏÔÊ¾¡£
+            LongMode = "Nl  ";//NO long åŠ ç©ºæ ¼æ˜¯ä¸ºäº†å¯¹é½æ˜¾ç¤ºã€‚
         }
 
-        Flags = (pkgdte_t->HighWord.Bytes.Flags2 >> 4);//È¥µôSegment limitµÄÄÇ¼¸Î»¡£
+        Flags = (pkgdte_t->HighWord.Bytes.Flags2 >> 4);//å»æ‰Segment limitçš„é‚£å‡ ä½ã€‚
         Flags = Flags << 8;
         Flags = Flags + pkgdte_t->HighWord.Bytes.Flags1;
 
@@ -370,7 +370,7 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
                  Flags
                  ));
 
-        //KdPrint(("µÚ%dºÅCPUµÄGDTµÄSel:0x%03x, Base:0x%08x, Limit:0x%08x, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x,Default_Big:0x%x, Granularity:0x%x.\n", 
+        //KdPrint(("ç¬¬%då·CPUçš„GDTçš„Sel:0x%03x, Base:0x%08x, Limit:0x%08x, type:0x%02x, Dpl:0x%x, Pres:0x%x, Sys:0x%x,Default_Big:0x%x, Granularity:0x%x.\n", 
         //    i, index * sizeof (KGDTENTRY), Base, Limit,
         //    pkgdte_t->HighWord.Bits.Type,
         //    pkgdte_t->HighWord.Bits.Dpl,
@@ -381,9 +381,9 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         //    ));
 
         /*
-        ÕâÀïµÄDefault_Big¶ÔÓ¦dgÃüÁîµÄsize.
-        ÕâÀïµÄSys¶ÔÓ¦dgÃüÁîµÄlong.
-        FlagsµÄÖµµÈÓÚ±äÏà´òÓ¡ÁË£¬ÕâÀï¾Í²»ÔÙ´òÓ¡ÁË¡£
+        è¿™é‡Œçš„Default_Bigå¯¹åº”dgå‘½ä»¤çš„size.
+        è¿™é‡Œçš„Syså¯¹åº”dgå‘½ä»¤çš„long.
+        Flagsçš„å€¼ç­‰äºå˜ç›¸æ‰“å°äº†ï¼Œè¿™é‡Œå°±ä¸å†æ‰“å°äº†ã€‚
         */
     }
 }

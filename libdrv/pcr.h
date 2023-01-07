@@ -1,20 +1,20 @@
 /*
-�ļ�����KeGetPcr.c
-���ܣ���ȡĳ��CPU��PCR/PRCB��
+文件名：KeGetPcr.c
+功能：获取某个CPU的PCR/PRCB。
 
-��ǰ�о�eprocess/kprocess��_ethread/_kthread�ͺ������ˡ�
-��ʵ���б����Ǹ��ӵײ�ģ������_kpcr��_kprcb��
-����Ļ���blos,PCI��Ӳ����Ϣ��
+以前感觉eprocess/kprocess和_ethread/_kthread就很厉害了。
+其实还有比他们更加底层的，这就是_kpcr和_kprcb。
+更多的还有blos,PCI等硬件信息。
 
-��ǰ������̫�ײ㣬���Ҵ�����
-��ʵ���Ǳ���Ӵ����Ӵ����кܶ�ĺô���
-����û���û���﷨ʵ�ֵ�X86��X64�ı�̡���ʵҲ�Ǳ���Ļ�࣬�ɱ�����ʵ�ֶ��ѡ�
-������ϵͳ������֪��ϵͳ��֪ʶ����Ҫ֪�����뻷������Ϣ������á�
+以前觉得这太底层，不敢触及。
+其实这是必须接触，接触到有很多的好处。
+本文没有用汇编语法实现的X86和X64的编程。其实也是变相的汇编，由编译器实现而已。
+看来搞系统，不但知道系统的知识，还要知道编译环境的信息，会更好。
 
-���������ܣ��ٸ߼�Ҳ�ǽ�����Ӳ��ʵ�ֵġ�
-û��Ӳ�������������궼û�С�
+软件再智能，再高级也是借助于硬件实现的。
+没用硬件，连空虚的灵魂都没有。
 
-���Ĳο���WDK��MSDN��
+本文参考：WDK和MSDN。
 
 made by correy
 made at 2014.08.22
@@ -22,7 +22,7 @@ made at 2014.08.22
 
 
 /*
-X86����֤��
+X86的验证：
 0: kd> !pcr
 KPCR for Processor 0 at ffdff000:
 	Major 1 Minor 1
@@ -99,13 +99,13 @@ KPCR for Processor 0 at ffdff000:
    +0x058 KernelReserved   : [14] 0
    +0x090 SecondLevelCacheSize : 0
    +0x094 HalReserved      : [16] 0
-   +0x0d4 InterruptMode    : 0      ע�⣺�����￪ʼ������ڽṹ�Ķ���������û�еġ�Ҳ����˵WINDBG������ʾ�ıȽṹ����ĳ�Ա���ĸ���
+   +0x0d4 InterruptMode    : 0      注意：从这里开始这里的在结构的定义里面是没有的。也就是说WINDBG命令显示的比结构定义的成员多四个。
    +0x0d8 Spare1           : 0 ''
    +0x0dc KernelReserved2  : [17] 0
    +0x120 PrcbData         : _KPRCB
 0: kd> dt nt!_kpcr ffdff000 -b
    ...
-   ������̫���Ͳ���ʾ�ˣ��м�ǧ�С�
+   这命令太长就不显示了，有几千行。
 0: kd> dt nt!_kprcb 0xffdff120
    +0x000 MinorVersion     : 1
    +0x002 MajorVersion     : 1
@@ -198,7 +198,7 @@ KPCR for Processor 0 at ffdff000:
    +0x918 UpdateSignature  : _LARGE_INTEGER 0x00000017`00000000
    +0x920 NpxSaveArea      : _FX_SAVE_AREA
    +0xb30 PowerState       : _PROCESSOR_POWER_STATE
-0: kd> dt nt!_kpcr poi(pkpcr) ���Ǳ�̻�ȡ�ģ����Ժ�ǰ��ĶԱȡ�
+0: kd> dt nt!_kpcr poi(pkpcr) 这是编程获取的，可以和前面的对比。
    +0x000 NtTib            : _NT_TIB
    +0x01c SelfPcr          : 0xffdff000 _KPCR
    +0x020 Prcb             : 0xffdff120 _KPRCB
@@ -230,7 +230,7 @@ KPCR for Processor 0 at ffdff000:
 
 
 /*
-X64����֤��
+X64的验证：
 0: kd> !pcr
 KPCR for Processor 0 at fffff800019f9d00:
 	Major 1 Minor 1
@@ -310,7 +310,7 @@ KPCR for Processor 0 at fffff800019f9d00:
    +0x108 KdVersionBlock   : (null)
    +0x110 Unused3          : (null)
    +0x118 PcrAlign1        : [24] 0
-   +0x180 Prcb             : _KPRCB ע�⣺�����￪ʼ������ڽṹ�Ķ���������û�еġ�Ҳ����˵WINDBG������ʾ�ıȽṹ����ĳ�Ա���ĸ���
+   +0x180 Prcb             : _KPRCB 注意：从这里开始这里的在结构的定义里面是没有的。也就是说WINDBG命令显示的比结构定义的成员多四个。
 0: kd> dt nt!_kprcb fffff800019f9e80
    +0x000 MxCsr            : 0x1f80
    +0x004 LegacyNumber     : 0 ''
@@ -554,7 +554,7 @@ KPCR for Processor 0 at fffff800019f9d00:
    +0x4be8 ExtendedState    : 0xfffff880`009c6000 _XSAVE_AREA
    +0x4c00 Mailbox          : (null)
    +0x4c80 RequestMailbox   : [1] _REQUEST_MAILBOX
-0: kd> dt nt!_kpcr poi(pkpcr) ���Ǳ�̻�ȡ�ģ����Ժ�ǰ��ĶԱȡ�
+0: kd> dt nt!_kpcr poi(pkpcr) 这是编程获取的，可以和前面的对比。
    +0x000 NtTib            : _NT_TIB
    +0x000 GdtBase          : 0xfffff800`01753000 _KGDTENTRY64
    +0x008 TssBase          : 0xfffff800`01754080 _KTSS64
@@ -591,7 +591,7 @@ KPCR for Processor 0 at fffff800019f9d00:
 #include "pch.h"
 
 
-//#include <wdbgexts.h> //�������Ӧ�ò���ļ����������DBGKD_GET_VERSION64��DBGKD_DEBUG_DATA_HEADER64��KDDEBUGGER_DATA64�Ƚṹ��
+//#include <wdbgexts.h> //这个属于应用层的文件。这里包含DBGKD_GET_VERSION64和DBGKD_DEBUG_DATA_HEADER64，KDDEBUGGER_DATA64等结构。
 
 
 class pcr

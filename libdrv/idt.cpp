@@ -11,7 +11,7 @@
 #if defined(_WIN64)
 void show_idt(int i)
 /*
-iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
+içš„å–å€¼å¯ä»¥æ˜¯0.
 */
 {
     AMD64_DESCRIPTOR idtr = {0};
@@ -25,7 +25,7 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    __sidt(&idtr);//KeGetPcrº¯Êı¿ÉÊÇ¿ÉÓÃµÄÓ´£¡
+    __sidt(&idtr);//KeGetPcrå‡½æ•°å¯æ˜¯å¯ç”¨çš„å“Ÿï¼
     KeRevertToUserAffinityThread();
 
     p = &idtr.Pad[1];
@@ -37,7 +37,7 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         maximun = idtr.Pad[0] / sizeof(KIDTENTRY64);
     } else {
         maximun = idtr.Pad[0] / sizeof(KIDTENTRY64);
-        maximun++;//Õâ¸öÊıÒ²ÊÇ256.
+        maximun++;//è¿™ä¸ªæ•°ä¹Ÿæ˜¯256.
     }
 
     for (; index < maximun; index++) {
@@ -48,16 +48,16 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         ISR += (pkidte_t->OffsetLow + (pkidte_t->OffsetMiddle << 16));
 
         if (pkidte_t->IstIndex == 0) {
-            KdPrint(("µÚ%dºÅCPUµÄµÚ0x%02xÖĞ¶ÏµÄµØÖ·:0x%p\n", i, index, ISR));
+            KdPrint(("ç¬¬%då·CPUçš„ç¬¬0x%02xä¸­æ–­çš„åœ°å€:0x%p\n", i, index, ISR));
         } else {
-            KdPrint(("µÚ%dºÅCPUµÄµÚ0x%02xÖĞ¶ÏµÄµØÖ·:0x%p\n", i, index, ISR));//»¹¿ÉÒÔ½øÒ»²½»ñÈ¡StackµÄĞÅÏ¢¡£
+            KdPrint(("ç¬¬%då·CPUçš„ç¬¬0x%02xä¸­æ–­çš„åœ°å€:0x%p\n", i, index, ISR));//è¿˜å¯ä»¥è¿›ä¸€æ­¥è·å–Stackçš„ä¿¡æ¯ã€‚
         }
     }
 }
 #else 
 void show_idt(int i)
 /*
-iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
+içš„å–å€¼å¯ä»¥æ˜¯0.
 */
 {
     //SIZE_T IDTR;
@@ -72,7 +72,7 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    __sidt(&idtr);// http://msdn.microsoft.com/zh-cn/library/aa983358%28v=vs.120%29.aspx ÁíÒ»¸öË¼Â·ÊÇ×Ô¼ºÊµÏÖ£ºKeGetPcr()¡£
+    __sidt(&idtr);// http://msdn.microsoft.com/zh-cn/library/aa983358%28v=vs.120%29.aspx å¦ä¸€ä¸ªæ€è·¯æ˜¯è‡ªå·±å®ç°ï¼šKeGetPcr()ã€‚
     KeRevertToUserAffinityThread();
 
     p = &idtr.Limit;
@@ -81,10 +81,10 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
     pkidte = (PKIDTENTRY)r;
 
     /*
-    ÆäÊµÖ±½Ó£º
+    å…¶å®ç›´æ¥ï¼š
     maximun = (idtr.Base + 1) / sizeof(KIDTENTRY);
-    Ò²¿ÉÒÔ¡£
-    maximunÒ»°ãµÈÓÚ256.
+    ä¹Ÿå¯ä»¥ã€‚
+    maximunä¸€èˆ¬ç­‰äº256.
     */
     if (idtr.Pad % sizeof(KIDTENTRY) == 0) {
         maximun = idtr.Pad / sizeof(KIDTENTRY);
@@ -93,18 +93,18 @@ iµÄÈ¡Öµ¿ÉÒÔÊÇ0.
         maximun++;
     }
 
-    for (; index < maximun; index++) //ÁíÒ»¸öË¼Â·ÊÇ¸ù¾İLimitÀ´±éÀú£¬Õâ¸öÊıÒ»°ãÊÇ2047 == 0x7ff.
+    for (; index < maximun; index++) //å¦ä¸€ä¸ªæ€è·¯æ˜¯æ ¹æ®Limitæ¥éå†ï¼Œè¿™ä¸ªæ•°ä¸€èˆ¬æ˜¯2047 == 0x7ff.
     {
         PKIDTENTRY pkidte_t = &pkidte[index];
 
         if (pkidte_t->ExtendedOffset) {
             ISR = pkidte_t->Offset + (pkidte_t->ExtendedOffset << 16);
-            KdPrint(("µÚ%dºÅCPUµÄµÚ0x%02xÖĞ¶ÏµÄµØÖ·:0x%p\n", i, index, ISR));
-        } else {//×¢Òâ£ºpkidte_t->ExtendedOffset == 0µÄÇé¿öµÄ·ÖÎö¡£
+            KdPrint(("ç¬¬%då·CPUçš„ç¬¬0x%02xä¸­æ–­çš„åœ°å€:0x%p\n", i, index, ISR));
+        } else {//æ³¨æ„ï¼špkidte_t->ExtendedOffset == 0çš„æƒ…å†µçš„åˆ†æã€‚
             if (pkidte_t->Selector == 8) {
-                KdPrint(("µÚ%dºÅCPUµÄµÚ0x%02xÖĞ¶ÏÃ»ÓĞÊ¹ÓÃ¡£Offset:0x%x,Access:0x%x.\n", i, index, pkidte_t->Offset, pkidte_t->Access));
+                KdPrint(("ç¬¬%då·CPUçš„ç¬¬0x%02xä¸­æ–­æ²¡æœ‰ä½¿ç”¨ã€‚Offset:0x%x,Access:0x%x.\n", i, index, pkidte_t->Offset, pkidte_t->Access));
             } else {
-                KdPrint(("µÚ%dºÅCPUµÄµÚ0x%02xÖĞ¶ÏµÄTask Selector:0x%x, Offset:0x%x, Access:0x%x¡£\n", i, index, pkidte_t->Selector, pkidte_t->Offset, pkidte_t->Access));
+                KdPrint(("ç¬¬%då·CPUçš„ç¬¬0x%02xä¸­æ–­çš„Task Selector:0x%x, Offset:0x%x, Access:0x%xã€‚\n", i, index, pkidte_t->Selector, pkidte_t->Offset, pkidte_t->Access));
             }
         }
     }

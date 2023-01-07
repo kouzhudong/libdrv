@@ -28,7 +28,7 @@ typedef VOID(*PPS_APC_ROUTINE) (__in_opt PVOID ApcArgument1,
                                 __in_opt PVOID ApcArgument3);
 
 
-//¸Ä×Ô£ºhttps://docs.microsoft.com/en-us/windows/win32/api/winnt/nc-winnt-papcfunc
+//æ”¹è‡ªï¼šhttps://docs.microsoft.com/en-us/windows/win32/api/winnt/nc-winnt-papcfunc
 typedef
 void (*PAPCFUNC)(
     ULONG_PTR Parameter
@@ -111,7 +111,7 @@ NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle,
                                 __in_opt PVOID ApcArgument3);
 
 NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
-                                  //HANDLE MemoryReserveHandle, //ÕæÊµµÄ°æ±¾»¹ÓĞÕâ¸ö²ÎÊı¡£
+                                  //HANDLE MemoryReserveHandle, //çœŸå®çš„ç‰ˆæœ¬è¿˜æœ‰è¿™ä¸ªå‚æ•°ã€‚
                                   __in PPS_APC_ROUTINE ApcRoutine,
                                   __in_opt PVOID ApcArgument1,
                                   __in_opt PVOID ApcArgument2,

@@ -18,15 +18,15 @@ volatile ZwCreateThreadExFn ZwCreateThreadEx;
 
 int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 /*
-¹¦ÄÜ£º»ñÈ¡NTDLL.DLLÀïµÄZWº¯ÊıµÄIndex¡£
+åŠŸèƒ½ï¼šè·å–NTDLL.DLLé‡Œçš„ZWå‡½æ•°çš„Indexã€‚
 
-ÏÖÔÚµÄ×ö·¨ÊÇ»ñÈ¡smss.exe½ø³ÌµÄNTDLL.DLL£¬È»ºó½âÎö¡£
-Õâ¸ö×ö·¨µÄÈ±µãÊÇ£º
-1.ÔÚÏµÍ³Æô¶¯Ê±smss.exe»¹Ã»Æô¶¯£¬
-2.»¹ÓĞNTDLL.DLLµÄÄÚ´æ¿ÉÄÜ»á±³´Û¸Ä£¬ÈçHOOK£¬ÉõÖÁÊÇÑéÖ¤Æ÷µÄ´Û¸Ä¡£
+ç°åœ¨çš„åšæ³•æ˜¯è·å–smss.exeè¿›ç¨‹çš„NTDLL.DLLï¼Œç„¶åè§£æã€‚
+è¿™ä¸ªåšæ³•çš„ç¼ºç‚¹æ˜¯ï¼š
+1.åœ¨ç³»ç»Ÿå¯åŠ¨æ—¶smss.exeè¿˜æ²¡å¯åŠ¨ï¼Œ
+2.è¿˜æœ‰NTDLL.DLLçš„å†…å­˜å¯èƒ½ä¼šèƒŒç¯¡æ”¹ï¼Œå¦‚HOOKï¼Œç”šè‡³æ˜¯éªŒè¯å™¨çš„ç¯¡æ”¹ã€‚
 3.
 
-¸Ä½øµÄ×ö·¨ÊÇ£º¼ÓÔØNTDLL.DLLÕâ¸öÎÄ¼ş£¬Éú³É×Ô¼ºµÄÄÚ´æÓ³Ïñ£¬È»ºó½âÎö¡£
+æ”¹è¿›çš„åšæ³•æ˜¯ï¼šåŠ è½½NTDLL.DLLè¿™ä¸ªæ–‡ä»¶ï¼Œç”Ÿæˆè‡ªå·±çš„å†…å­˜æ˜ åƒï¼Œç„¶åè§£æã€‚
 */
 {
     HANDLE ProcessId = NULL;
@@ -41,10 +41,10 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
     ASSERT(NT_SUCCESS(Status));
     ASSERT(ProcessId);
 
-    Status = PsLookupProcessByProcessId(ProcessId, &Process);//µÃµ½Ö¸¶¨½ø³ÌIDµÄ½ø³Ì»·¾³¿é
+    Status = PsLookupProcessByProcessId(ProcessId, &Process);//å¾—åˆ°æŒ‡å®šè¿›ç¨‹IDçš„è¿›ç¨‹ç¯å¢ƒå—
     ASSERT(NT_SUCCESS(Status));
 
-    KeStackAttachProcess(Process, &ApcState); //¸½¼Óµ±Ç°Ïß³Ìµ½Ä¿±ê½ø³Ì¿Õ¼äÄÚ   
+    KeStackAttachProcess(Process, &ApcState); //é™„åŠ å½“å‰çº¿ç¨‹åˆ°ç›®æ ‡è¿›ç¨‹ç©ºé—´å†…   
 
     DllBase = GetNtdllImageBase(Process);
     ASSERT(DllBase);
@@ -54,7 +54,7 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 
     index = (*(PULONG)((PUCHAR)FunctionAddress + 4));
 
-    KeUnstackDetachProcess(&ApcState);//½â³ı¸½¼Ó
+    KeUnstackDetachProcess(&ApcState);//è§£é™¤é™„åŠ 
 
     ObDereferenceObject(Process);
 
@@ -64,11 +64,11 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 
 int GetIndexByName(PANSI_STRING NtRoutineName)
 /*
-¹¦ÄÜ£ºÔÚntdll.dllÖĞ»ñÈ¡Zwº¯ÊıµÄË÷ÒıºÅ¡£
+åŠŸèƒ½ï¼šåœ¨ntdll.dllä¸­è·å–Zwå‡½æ•°çš„ç´¢å¼•å·ã€‚
 
-ÒÔÏÂÊÇ²Î¿¼ĞÅÏ¢
+ä»¥ä¸‹æ˜¯å‚è€ƒä¿¡æ¯
 
-windbgÖĞµÄĞÅÏ¢£º
+windbgä¸­çš„ä¿¡æ¯ï¼š
 2: kd> uf ntdll!ZwCreateFile
 ntdll!NtCreateFile:
 00007ffe`415fd180 4c8bd1          mov     r10,rcx
@@ -84,7 +84,7 @@ ntdll!NtCreateFile+0x15:
 00007ffe`415fd195 cd2e            int     2Eh
 00007ffe`415fd197 c3              ret
 
-IDAÖĞµÄĞÅÏ¢£º
+IDAä¸­çš„ä¿¡æ¯ï¼š
 .text:000000018009CA40                                              ; Exported entry 287. NtCreateFile
 .text:000000018009CA40                                              ; Exported entry 1870. ZwCreateFile
 .text:000000018009CA40
@@ -92,8 +92,8 @@ IDAÖĞµÄĞÅÏ¢£º
 .text:000000018009CA40
 .text:000000018009CA40
 .text:000000018009CA40                                                              public ZwCreateFile
-.text:000000018009CA40                                              ZwCreateFile    proc near               ; CODE XREF: EtwpCreateFile+107¡üp
-.text:000000018009CA40                                                                                      ; RtlpFileIsWin32WithRCManifest+E3¡üp ...
+.text:000000018009CA40                                              ZwCreateFile    proc near               ; CODE XREF: EtwpCreateFile+107â†‘p
+.text:000000018009CA40                                                                                      ; RtlpFileIsWin32WithRCManifest+E3â†‘p ...
 .text:000000018009CA40 4C 8B D1                                                     mov     r10, rcx        ; NtCreateFile
 .text:000000018009CA43 B8 55 00 00 00                                               mov     eax, 55h ; 'U'
 .text:000000018009CA48 F6 04 25 08 03 FE 7F 01                                      test    byte ptr ds:7FFE0308h, 1
@@ -102,7 +102,7 @@ IDAÖĞµÄĞÅÏ¢£º
 .text:000000018009CA54 C3                                                           retn
 .text:000000018009CA55                                              ; ---------------------------------------------------------------------------
 .text:000000018009CA55
-.text:000000018009CA55                                              loc_18009CA55:                          ; CODE XREF: ZwCreateFile+10¡üj
+.text:000000018009CA55                                              loc_18009CA55:                          ; CODE XREF: ZwCreateFile+10â†‘j
 .text:000000018009CA55 CD 2E                                                        int     2Eh             ; DOS 2+ internal - EXECUTE COMMAND
 .text:000000018009CA55                                                                                      ; DS:SI -> counted CR-terminated command string
 .text:000000018009CA57 C3                                                           retn
@@ -222,12 +222,12 @@ IDAÖĞµÄĞÅÏ¢£º
 
 SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
 /*
-¹¦ÄÜ£º»ñÈ¡X64ÉÏÃ»ÓĞµ¼³öµÄZwº¯Êı¡£
-×¢ÊÍ£º1.·²ÓĞNtµÄº¯Êı¶¼ÓĞ¶ÔÓ¦µÄZwº¯Êı¡£
-      2.ÔÚ¿ªÆôÇı¶¯³ÌĞòÑéÖ¤Æ÷µÄÇé¿öÏÂZwCreateFileµÄÖµÊÇnt!VfZwCreateFile¡£
-      3.ÔÚ¿ªÆôÇı¶¯³ÌĞòÑéÖ¤Æ÷µÄÇé¿öÏÂÓÃMmGetSystemRoutineAddress»ñÈ¡µÄZwCreateFileµÄÖµÒ²ÊÇnt!VfZwCreateFile¡£
-      4.ÎŞÂÛZwCreateFile´¦µÄÄÚÈİ±ä³ÉÉ¶£¬µ«ÊÇÄÇ¸öµØÖ·»¹ÊÇËüµÄµØÖ·£¬Õâ¸öÊÇ²»±äµÄ¡£
-      5.MiFindExportedRoutineByName»ñÈ¡µÄ²ÅÊÇÕæÕıµÄZwCreateFileµØÖ·¡£
+åŠŸèƒ½ï¼šè·å–X64ä¸Šæ²¡æœ‰å¯¼å‡ºçš„Zwå‡½æ•°ã€‚
+æ³¨é‡Šï¼š1.å‡¡æœ‰Ntçš„å‡½æ•°éƒ½æœ‰å¯¹åº”çš„Zwå‡½æ•°ã€‚
+      2.åœ¨å¼€å¯é©±åŠ¨ç¨‹åºéªŒè¯å™¨çš„æƒ…å†µä¸‹ZwCreateFileçš„å€¼æ˜¯nt!VfZwCreateFileã€‚
+      3.åœ¨å¼€å¯é©±åŠ¨ç¨‹åºéªŒè¯å™¨çš„æƒ…å†µä¸‹ç”¨MmGetSystemRoutineAddressè·å–çš„ZwCreateFileçš„å€¼ä¹Ÿæ˜¯nt!VfZwCreateFileã€‚
+      4.æ— è®ºZwCreateFileå¤„çš„å†…å®¹å˜æˆå•¥ï¼Œä½†æ˜¯é‚£ä¸ªåœ°å€è¿˜æ˜¯å®ƒçš„åœ°å€ï¼Œè¿™ä¸ªæ˜¯ä¸å˜çš„ã€‚
+      5.MiFindExportedRoutineByNameè·å–çš„æ‰æ˜¯çœŸæ­£çš„ZwCreateFileåœ°å€ã€‚
 */
 {
     SIZE_T p = 0;
@@ -270,7 +270,7 @@ SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
     ASSERT(base == CreateKey - ZwCreateKeyIndex * z);
 
     /*
-    ÒòÎªÓĞµÄZWº¯ÊıÃ»ÓĞÔÚÄÚºËµ¼³ö£¬ËùÒÔÕâÀïÒª·ÃÎÊNTDLL.DLL¡£
+    å› ä¸ºæœ‰çš„ZWå‡½æ•°æ²¡æœ‰åœ¨å†…æ ¸å¯¼å‡ºï¼Œæ‰€ä»¥è¿™é‡Œè¦è®¿é—®NTDLL.DLLã€‚
     */
 
     index = GetIndexByName(ZwRoutineName);
@@ -287,10 +287,10 @@ SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
 
 ULONG GetIndexOfSsdtFunction(PCSTR function_name)
 /*
-¹¦ÄÜ£º»ñÈ¡SSDTº¯ÊıµÄµ÷ÓÃºÅ¡£
-ÕâÀïÖ§³ÖÄÚºËÃ»ÓĞµ¼³öµÄSSDTµÄº¯Êı£¬¼´ntoskrnl.exeÃ»ÓĞµ¼³ö£¬¶øntdll.dllµ¼³öµÄ£¬ÔÚSSDTÀïÓĞµÄº¯Êı¡£
+åŠŸèƒ½ï¼šè·å–SSDTå‡½æ•°çš„è°ƒç”¨å·ã€‚
+è¿™é‡Œæ”¯æŒå†…æ ¸æ²¡æœ‰å¯¼å‡ºçš„SSDTçš„å‡½æ•°ï¼Œå³ntoskrnl.exeæ²¡æœ‰å¯¼å‡ºï¼Œè€Œntdll.dllå¯¼å‡ºçš„ï¼Œåœ¨SSDTé‡Œæœ‰çš„å‡½æ•°ã€‚
 
-windbgµÄ·ÖÎö£º
+windbgçš„åˆ†æï¼š
 0: kd> !process 0 0 smss.exe
 PROCESS 93248840  SessionId: none  Cid: 01d4    Peb: 02e3d000  ParentCid: 0004
     DirBase: 9d53d080  ObjectTable: 93427d00  HandleCount:  53.
@@ -309,7 +309,7 @@ ntdll!NtCreateFile:
 76ff0505 e803000000      call    ntdll!NtCreateFile+0xd (76ff050d)
 76ff050a c22c00          ret     2Ch
 
-IDAµÄ·ÖÎö£º
+IDAçš„åˆ†æï¼š
 .text:6A2904F1                                              ; ---------------------------------------------------------------------------
 .text:6A2904F2 8D A4 24 00 00 00 00 8D A4 24 00 00 00 00                    align 10h
 .text:6A290500                                              ; Exported entry 294. NtCreateFile
@@ -320,8 +320,8 @@ IDAµÄ·ÖÎö£º
 .text:6A290500
 .text:6A290500                                              ; __stdcall NtCreateFile(x, x, x, x, x, x, x, x, x, x, x)
 .text:6A290500                                                              public _NtCreateFile@44
-.text:6A290500                                              _NtCreateFile@44 proc near              ; CODE XREF: EtwpCreateFile(x,x,x,x,x,x)+C4¡üp
-.text:6A290500                                                                                      ; RtlpFileIsWin32WithRCManifest(x)+8A¡üp ...
+.text:6A290500                                              _NtCreateFile@44 proc near              ; CODE XREF: EtwpCreateFile(x,x,x,x,x,x)+C4â†‘p
+.text:6A290500                                                                                      ; RtlpFileIsWin32WithRCManifest(x)+8Aâ†‘p ...
 .text:6A290500 B8 78 01 00 00                                               mov     eax, 178h       ; NtCreateFile
 .text:6A290505 E8 03 00 00 00                                               call    sub_6A29050D    ; Call Procedure
 .text:6A290505
@@ -333,7 +333,7 @@ IDAµÄ·ÖÎö£º
 .text:6A29050D                                              ; =============== S U B R O U T I N E =======================================
 .text:6A29050D
 .text:6A29050D
-.text:6A29050D                                              sub_6A29050D    proc near               ; CODE XREF: NtCreateFile(x,x,x,x,x,x,x,x,x,x,x)+5¡üp
+.text:6A29050D                                              sub_6A29050D    proc near               ; CODE XREF: NtCreateFile(x,x,x,x,x,x,x,x,x,x,x)+5â†‘p
 .text:6A29050D 8B D4                                                        mov     edx, esp
 .text:6A29050F 0F 34                                                        sysenter                ; Fast Transition to System Call Entry Point
 .text:6A290511 C3                                                           retn                    ; Return Near from Procedure
@@ -372,12 +372,12 @@ IDAµÄ·ÖÎö£º
 
 SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 /*
-¹¦ÄÜ£º»ñÈ¡ÄÚºËÖĞµÄZwÏµÁĞº¯ÊıµÄµØÖ·£¨Ö÷ÒªÊÇÃ»ÓĞµ¼³öµÄ£©£¬Ö§³ÖX86ºÍAMD64¡£
+åŠŸèƒ½ï¼šè·å–å†…æ ¸ä¸­çš„Zwç³»åˆ—å‡½æ•°çš„åœ°å€ï¼ˆä¸»è¦æ˜¯æ²¡æœ‰å¯¼å‡ºçš„ï¼‰ï¼Œæ”¯æŒX86å’ŒAMD64ã€‚
 
-×¢ÒâÊÂÏî£º
-1.½¨ÒéÔÚÇı¶¯Èë¿ÚµÄÉÏÏÂÎÄÖĞÖ´ĞĞ¡£
-2.½ö½öÊÇÊ¾Àı¡£ÀïÃæµÄ³õÊ¼»¯º¯ÊıÓÃµ½ÁËÈ«¾Ö±äÁ¿£¬ÕâÊ±ÎªÁËÊ¡ÊÂ¡£
-3.´Ëº¯ÊıÓĞ´ı¸Ä½ø£¬Èç£ºÍêÃÀºÍ¼òµ¥ÊÇÃ¬¶ÜµÄ£¬²»ÄÜÍ¬Ê±Âú×ã¡£
+æ³¨æ„äº‹é¡¹ï¼š
+1.å»ºè®®åœ¨é©±åŠ¨å…¥å£çš„ä¸Šä¸‹æ–‡ä¸­æ‰§è¡Œã€‚
+2.ä»…ä»…æ˜¯ç¤ºä¾‹ã€‚é‡Œé¢çš„åˆå§‹åŒ–å‡½æ•°ç”¨åˆ°äº†å…¨å±€å˜é‡ï¼Œè¿™æ—¶ä¸ºäº†çœäº‹ã€‚
+3.æ­¤å‡½æ•°æœ‰å¾…æ”¹è¿›ï¼Œå¦‚ï¼šå®Œç¾å’Œç®€å•æ˜¯çŸ›ç›¾çš„ï¼Œä¸èƒ½åŒæ—¶æ»¡è¶³ã€‚
 */
 {
     SIZE_T RoutineAddress = 0;
@@ -385,11 +385,11 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 
     RtlInitAnsiString(&ZwRoutineName, RoutineName);
 
-//#if defined(_AMD64_) || defined(_IA64_) 
-//    RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
-//#else
-//    RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
-//#endif 
+    //#if defined(_AMD64_) || defined(_IA64_) 
+    //    RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
+    //#else
+    //    RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
+    //#endif 
 
     RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
 
