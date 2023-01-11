@@ -57,8 +57,7 @@ Static Library For Windows KernelMode Drivers
 
 
 特别说明：  
-本库只提供c/c++调用接口文档，  
-其他的，如：ASM，C#，GO，PYTHON，JAVA，PHP等自行定义。  
+本库只提供c/rust调用接口，其他的，如：ASM，C++等暂不支持。  
 
 
 注意：
