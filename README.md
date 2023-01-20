@@ -56,8 +56,12 @@ Static Library For Windows KernelMode Drivers
 18. 稳定性第一，兼容性第二，扩展性第三，速度第四，可读性第五。  
 
 
-特别说明：  
-本库只提供c/rust调用接口，其他的，如：ASM，C++等暂不支持。  
+接口文件说明：  
+1. lib.h文件用于c/cpp  
+2. cpp.h 仅仅cpp, 不支持c.  
+3. asm.inc文件用于asm  
+4. libdrv.rs文件用于rust  
+5.   
 
 
 注意：
