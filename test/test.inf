@@ -16,28 +16,43 @@ PnpLockdown = 1
 
 
 [DestinationDirs]
-DefaultDestDir          = 12
+DefaultDestDir    = 12
 test.DriverFiles  = 12            ;%windir%\system32\drivers
 
 ;;
 ;; Default install sections
 ;;
 
-[DefaultInstall]
+[DefaultInstall.NTamd64]
 OptionDesc  = %ServiceDescription%
 CopyFiles   = test.DriverFiles
 
-[DefaultInstall.Services]
+[DefaultInstall.NTamd64.Services]
+AddService  = %ServiceName%,,test.Service
+
+[DefaultInstall.NTx86]
+OptionDesc  = %ServiceDescription%
+CopyFiles   = test.DriverFiles
+
+[DefaultInstall.NTx86.Services]
 AddService  = %ServiceName%,,test.Service
 
 ;;
 ;; Default uninstall sections
 ;;
 
-[DefaultUninstall]
-DelFiles   = test.DriverFiles
+[DefaultUninstall.NTamd64]
+;DelFiles   = test.DriverFiles
+LegacyUninstall=1
 
-[DefaultUninstall.Services]
+[DefaultUninstall.NTamd64.Services]
+DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
+
+[DefaultUninstall.NTx86]
+;DelFiles   = test.DriverFiles
+LegacyUninstall=1
+
+[DefaultUninstall.NTx86.Services]
 DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
 
 ;
@@ -93,4 +108,3 @@ DefaultInstance         = "Null Instance"
 Instance1.Name          = "Null Instance"
 Instance1.Altitude      = "370030"
 Instance1.Flags         = 0x1          ; Suppress automatic attachments
-
