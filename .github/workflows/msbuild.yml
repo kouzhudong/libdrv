@@ -40,7 +40,7 @@ jobs:
     - name: test
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-          dir /a /s c:
+          dir /s c:
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
