@@ -39,7 +39,7 @@ jobs:
 
     - name: test
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      - run: |
+      run: |
           dir /a /s c:
 
     - name: Build
