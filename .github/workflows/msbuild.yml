@@ -39,7 +39,9 @@ jobs:
 
     - name: test
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      - powershell -Command "dir /s c:"  
+      script: 
+        - |
+        powershell "dir /s c:"
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
