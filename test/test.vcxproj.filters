@@ -45,6 +45,12 @@
     <ClInclude Include="SsdtTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DriverEntry.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SsdtTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

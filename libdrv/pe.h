@@ -69,5 +69,9 @@ VOID ModifyPeEntry(_In_ PVOID ImageBase);
 BOOL IsFilePe64(_In_ PUNICODE_STRING ImageFileName);
 BOOL IsProcessPe64(_In_ HANDLE UniqueProcess);
 
+_Must_inspect_result_
+_IRQL_requires_max_(APC_LEVEL)
+PVOID NTAPI GetRoutineAddress(_In_ PCSTR ModuleName, _In_ PCSTR RoutineName);
+
 
 EXTERN_C_END

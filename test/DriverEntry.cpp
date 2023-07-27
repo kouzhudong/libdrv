@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "DriverEntry.h"
-#include "..\inc\lib.h"
 #include "ProcessTest.h"
 #include "FileTest.h"
 #include "RegistryTest.h"
 #include "SsdtTest.h"
+#include "c.h"
+#include "pe.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +55,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     //CreateSystemThreadInIdleProcess();
 
-    SetValueKeyDwordTest();
+    TestGetRoutineAddress();
 
     return Status;
 }

@@ -204,17 +204,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\lib.h" />
+    <ClInclude Include="c.h" />
     <ClInclude Include="DriverEntry.h" />
     <ClInclude Include="FileTest.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="pe.h" />
     <ClInclude Include="ProcessTest.h" />
     <ClInclude Include="RegistryTest.h" />
     <ClInclude Include="SsdtTest.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="c.c" />
     <ClCompile Include="DriverEntry.cpp" />
     <ClCompile Include="FileTest.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="pe.cpp" />
     <ClCompile Include="ProcessTest.cpp" />
     <ClCompile Include="RegistryTest.cpp" />
     <ClCompile Include="SsdtTest.cpp" />
