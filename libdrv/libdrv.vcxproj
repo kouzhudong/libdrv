@@ -39,6 +39,7 @@
     <ClInclude Include="CopyFile.h" />
     <ClInclude Include="cpp.h" />
     <ClInclude Include="cpu.h" />
+    <ClInclude Include="encrypt.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="gdt.h" />
     <ClInclude Include="hash.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="Registry.h" />
+    <ClInclude Include="signature.h" />
     <ClInclude Include="ssdt.h" />
     <ClInclude Include="stl.h" />
     <ClInclude Include="SystemInfo.h" />
@@ -69,6 +71,7 @@
     <ClCompile Include="CopyFile.cpp" />
     <ClCompile Include="cpp.cpp" />
     <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="encrypt.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="gdt.cpp" />
     <ClCompile Include="hash.cpp" />
@@ -86,6 +89,7 @@
     <ClCompile Include="PEB.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Registry.cpp" />
+    <ClCompile Include="signature.cpp" />
     <ClCompile Include="ssdt.cpp" />
     <ClCompile Include="stl.cpp" />
     <ClCompile Include="SystemInfo.cpp" />

@@ -206,6 +206,7 @@
     <ClInclude Include="..\inc\lib.h" />
     <ClInclude Include="c.h" />
     <ClInclude Include="DriverEntry.h" />
+    <ClInclude Include="encrypt.h" />
     <ClInclude Include="FileTest.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pe.h" />
@@ -216,6 +217,7 @@
   <ItemGroup>
     <ClCompile Include="c.c" />
     <ClCompile Include="DriverEntry.cpp" />
+    <ClCompile Include="encrypt.cpp" />
     <ClCompile Include="FileTest.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="pe.cpp" />
