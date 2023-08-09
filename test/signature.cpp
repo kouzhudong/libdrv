@@ -23,7 +23,7 @@ void TestEcdsaSignature()
 */
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
-    LPCWSTR AlgId = BCRYPT_ECDSA_P256_ALGORITHM;
+    LPCWSTR AlgId = BCRYPT_ECDSA_P521_ALGORITHM;
     LPCWSTR Implementation = nullptr;
     ULONG   Flags = 0;
     NTSTATUS NtStatus = BCryptOpenAlgorithmProvider(&hAlgorithm, AlgId, Implementation, Flags);
@@ -33,7 +33,7 @@ void TestEcdsaSignature()
     }
 
     BCRYPT_KEY_HANDLE hKey = nullptr;
-    ULONG   Length = 256;
+    ULONG   Length = 521;
     NtStatus = BCryptGenerateKeyPair(hAlgorithm, &hKey, Length, 0);
     if (STATUS_SUCCESS != NtStatus) {
         BCryptCloseAlgorithmProvider(hAlgorithm, 0);

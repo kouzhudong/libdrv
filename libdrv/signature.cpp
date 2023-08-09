@@ -17,7 +17,7 @@ NTSTATUS WINAPI EcdsaSignHash(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P256_ALGORITHM, NULL, 0);
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P521_ALGORITHM, NULL, 0);
     ASSERT(NT_SUCCESS(status));
 
     BCRYPT_KEY_HANDLE hPrivateKey = NULL;
@@ -63,7 +63,7 @@ BOOL WINAPI EcdsaVerifySignature(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P256_ALGORITHM, NULL, 0);
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P521_ALGORITHM, NULL, 0);
     ASSERT(NT_SUCCESS(status));
 
     BCRYPT_KEY_HANDLE hPublicKey = NULL;
