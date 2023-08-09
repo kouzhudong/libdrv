@@ -51,7 +51,7 @@ void TestEcdsaSignature()
     NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPRIVATE_BLOB, NULL, 0, &PrivateKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
-    PBCRYPT_DSA_KEY_BLOB PrivateKey = (PBCRYPT_DSA_KEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PrivateKeyLen, TAG);
+    PBCRYPT_ECCKEY_BLOB PrivateKey = (PBCRYPT_ECCKEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PrivateKeyLen, TAG);
     ASSERT(PrivateKey);
 
     NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPRIVATE_BLOB, (PUCHAR)PrivateKey, PrivateKeyLen, &PrivateKeyLen, 0);
@@ -63,7 +63,7 @@ void TestEcdsaSignature()
     NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPUBLIC_BLOB, NULL, 0, &PublicKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
-    PBCRYPT_DSA_KEY_BLOB PublicKey = (PBCRYPT_DSA_KEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PublicKeyLen, TAG);
+    PBCRYPT_ECCKEY_BLOB PublicKey = (PBCRYPT_ECCKEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PublicKeyLen, TAG);
     ASSERT(PublicKey);
 
     NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPUBLIC_BLOB, (PUCHAR)PublicKey, PublicKeyLen, &PublicKeyLen, 0);
