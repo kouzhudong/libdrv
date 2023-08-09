@@ -12,7 +12,7 @@ NTSTATUS WINAPI EcdsaSignHash(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
 {
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
-    BOOL ret = CngHashData(BCRYPT_SHA1_ALGORITHM, Data, DataSize, &Hash, &HashSize);
+    BOOL ret = CngHashData(BCRYPT_SHA512_ALGORITHM, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
@@ -58,7 +58,7 @@ BOOL WINAPI EcdsaVerifySignature(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
     BOOL IsVerify = FALSE;
-    BOOL ret = CngHashData(BCRYPT_SHA1_ALGORITHM, Data, DataSize, &Hash, &HashSize);
+    BOOL ret = CngHashData(BCRYPT_SHA512_ALGORITHM, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
