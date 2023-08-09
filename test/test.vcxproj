@@ -212,6 +212,7 @@
     <ClInclude Include="pe.h" />
     <ClInclude Include="ProcessTest.h" />
     <ClInclude Include="RegistryTest.h" />
+    <ClInclude Include="signature.h" />
     <ClInclude Include="SsdtTest.h" />
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +224,7 @@
     <ClCompile Include="pe.cpp" />
     <ClCompile Include="ProcessTest.cpp" />
     <ClCompile Include="RegistryTest.cpp" />
+    <ClCompile Include="signature.cpp" />
     <ClCompile Include="SsdtTest.cpp" />
   </ItemGroup>
   <ItemGroup>

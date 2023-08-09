@@ -7,6 +7,7 @@
 #include "c.h"
 #include "pe.h"
 #include "encrypt.h"
+#include "signature.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +57,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     //CreateSystemThreadInIdleProcess();
 
-    TestRsaEncrypt();
+    TestEcdsaSignature();
 
     return Status;
 }
