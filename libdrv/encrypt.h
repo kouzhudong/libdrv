@@ -22,6 +22,8 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
                                     _In_ ULONG CipherTextSize
 );
 
+void WINAPI AesEncryptDecryptTest();
+
 
 EXTERN_C_END
 

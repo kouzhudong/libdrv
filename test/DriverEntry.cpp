@@ -57,7 +57,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     //CreateSystemThreadInIdleProcess();
 
-    TestEcdsaSignature();
+    AesEncryptDecryptTest();
 
     return Status;
 }
