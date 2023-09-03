@@ -2,22 +2,27 @@
 #include "hash.h"
 
 
-NTSTATUS WINAPI EcdsaSignHash(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
-                              _In_ ULONG PrivateKeyLen,
-                              _In_reads_bytes_(DataSize) PUCHAR Data,
-                              _In_ ULONG DataSize,
-                              _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
-                              _In_ ULONG * SignSize
+NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
+                         _In_z_ LPCWSTR pszAlgId,
+                         _In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
+                         _In_ ULONG PrivateKeyLen,
+                         _In_reads_bytes_(DataSize) PUCHAR Data,
+                         _In_ ULONG DataSize,
+                         _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
+                         _In_ ULONG * SignSize
 )
+/*
+参数越多，功能越强大。
+*/
 {
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
-    BOOL ret = CngHashData(BCRYPT_SHA512_ALGORITHM, Data, DataSize, &Hash, &HashSize);
+    BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P521_ALGORITHM, NULL, 0);
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, NULL, 0);
     ASSERT(NT_SUCCESS(status));
 
     BCRYPT_KEY_HANDLE hPrivateKey = NULL;
@@ -47,23 +52,28 @@ NTSTATUS WINAPI EcdsaSignHash(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
 }
 
 
-BOOL WINAPI EcdsaVerifySignature(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey,
-                                 _In_ ULONG PublicKeyLen,
-                                 _In_reads_bytes_(DataSize) PUCHAR Data,
-                                 _In_ ULONG DataSize,
-                                 _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
-                                 _In_ ULONG SignSize
+BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
+                            _In_z_ LPCWSTR pszAlgId,
+                            _In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey,
+                            _In_ ULONG PublicKeyLen,
+                            _In_reads_bytes_(DataSize) PUCHAR Data,
+                            _In_ ULONG DataSize,
+                            _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
+                            _In_ ULONG SignSize
 )
+/*
+注意：不是所有的组合，Windows都支持。
+*/
 {
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
     BOOL IsVerify = FALSE;
-    BOOL ret = CngHashData(BCRYPT_SHA512_ALGORITHM, Data, DataSize, &Hash, &HashSize);
+    BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, BCRYPT_ECDSA_P521_ALGORITHM, NULL, 0);
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, NULL, 0);
     ASSERT(NT_SUCCESS(status));
 
     BCRYPT_KEY_HANDLE hPublicKey = NULL;
@@ -85,4 +95,43 @@ BOOL WINAPI EcdsaVerifySignature(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey
     BCryptDestroyKey(hPublicKey);
 
     return IsVerify;
+}
+
+
+
+NTSTATUS WINAPI SignHashByEcdsa(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,
+                                _In_ ULONG PrivateKeyLen,
+                                _In_reads_bytes_(DataSize) PUCHAR Data,
+                                _In_ ULONG DataSize,
+                                _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
+                                _In_ ULONG * SignSize
+)
+{
+    return SignHash(BCRYPT_SHA512_ALGORITHM,
+                    BCRYPT_ECDSA_P521_ALGORITHM,
+                    PrivateKey,
+                    PrivateKeyLen,
+                    Data,
+                    DataSize,
+                    Sign,
+                    SignSize);
+}
+
+
+BOOL WINAPI VerifySignatureByEcdsa(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey,
+                                   _In_ ULONG PublicKeyLen,
+                                   _In_reads_bytes_(DataSize) PUCHAR Data,
+                                   _In_ ULONG DataSize,
+                                   _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
+                                   _In_ ULONG SignSize
+)
+{
+    return VerifySignature(BCRYPT_SHA512_ALGORITHM,
+                           BCRYPT_ECDSA_P521_ALGORITHM,
+                           PublicKey,
+                           PublicKeyLen,
+                           Data,
+                           DataSize,
+                           Sign,
+                           SignSize);
 }

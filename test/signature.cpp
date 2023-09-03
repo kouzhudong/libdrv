@@ -77,9 +77,9 @@ void TestEcdsaSignature()
     PUCHAR Sign = nullptr;
     ULONG SignSize = 0;
 
-    EcdsaSignHash((PUCHAR)PrivateKey, PrivateKeyLen, (PUCHAR)Data, DataSize, &Sign, &SignSize);
+    SignHashByEcdsa((PUCHAR)PrivateKey, PrivateKeyLen, (PUCHAR)Data, DataSize, &Sign, &SignSize);
 
-    EcdsaVerifySignature((PUCHAR)PublicKey, PublicKeyLen, (PUCHAR)Data, DataSize, Sign, SignSize);
+    VerifySignatureByEcdsa((PUCHAR)PublicKey, PublicKeyLen, (PUCHAR)Data, DataSize, Sign, SignSize);
 
     ExFreePoolWithTag(Sign, TAG);
 
