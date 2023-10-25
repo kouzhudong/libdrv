@@ -304,7 +304,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             __leave;
         }
 
-        hKey = 0;
+        hKey = nullptr;
 
         if (pbPlainText) {
             ExFreePoolWithTag(pbPlainText, TAG);
