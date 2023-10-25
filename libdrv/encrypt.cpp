@@ -395,5 +395,9 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         if (pbIV) {
             ExFreePoolWithTag(pbIV, TAG);
         }
+
+        if (pbBlob) {
+            ExFreePoolWithTag(pbBlob, TAG);
+        }        
     }
 }
