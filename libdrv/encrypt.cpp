@@ -12,19 +12,19 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
 
 */
 {
-    BCRYPT_ALG_HANDLE hAlgorithm = NULL;
-    BCRYPT_KEY_HANDLE hKey = NULL;
+    BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
+    BCRYPT_KEY_HANDLE hKey = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
 
     __try {
-        Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, NULL, 0);
+        Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, nullptr, 0);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
         Status = BCryptImportKeyPair(hAlgorithm,
-                                     NULL,
+                                     nullptr,
                                      BCRYPT_RSAPRIVATE_BLOB,
                                      &hKey,
                                      PrivateKey,
@@ -38,8 +38,8 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
         Status = BCryptDecrypt(hKey,
                                CipherText,
                                CipherTextSize,
-                               NULL,
-                               NULL,
+                               nullptr,
+                               nullptr,
                                0,
                                PlainText,
                                PlainTextSize,
@@ -76,19 +76,19 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
 
 */
 {
-    BCRYPT_ALG_HANDLE hAlgorithm = NULL;
+    BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
-    BCRYPT_KEY_HANDLE hKey = NULL;
+    BCRYPT_KEY_HANDLE hKey = nullptr;
 
     __try {
-        Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, NULL, 0);
+        Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, nullptr, 0);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
         Status = BCryptImportKeyPair(hAlgorithm,
-                                     NULL,
+                                     nullptr,
                                      BCRYPT_RSAPUBLIC_BLOB,
                                      &hKey,
                                      PublicKey,
@@ -102,8 +102,8 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
         Status = BCryptEncrypt(hKey,
                                PlainText,
                                PlainTextSize,
-                               NULL,
-                               NULL,
+                               nullptr,
+                               nullptr,
                                0,
                                CipherText,
                                CipherTextSize,
@@ -137,11 +137,11 @@ Encrypting Data with CNG
 https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 */
 {
-    BCRYPT_ALG_HANDLE       hAesAlg = NULL;
-    BCRYPT_KEY_HANDLE       hKey = NULL;
+    BCRYPT_ALG_HANDLE       hAesAlg = nullptr;
+    BCRYPT_KEY_HANDLE       hKey = nullptr;
     NTSTATUS                Status = STATUS_UNSUCCESSFUL;
     DWORD cbCipherText = 0, cbPlainText = 0, cbData = 0, cbKeyObject = 0, cbBlockLen = 0, cbBlob = 0;
-    PBYTE pbCipherText = NULL, pbPlainText = NULL, pbKeyObject = NULL, pbIV = NULL, pbBlob = NULL;
+    PBYTE pbCipherText = nullptr, pbPlainText = nullptr, pbKeyObject = nullptr, pbIV = nullptr, pbBlob = nullptr;
 
     const BYTE rgbPlaintext[] =
     {
@@ -164,7 +164,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
     __try {
 
     // Open an algorithm handle.
-        if (!NT_SUCCESS(Status = BCryptOpenAlgorithmProvider(&hAesAlg, BCRYPT_AES_ALGORITHM, NULL, 0))) {
+        if (!NT_SUCCESS(Status = BCryptOpenAlgorithmProvider(&hAesAlg, BCRYPT_AES_ALGORITHM, nullptr, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -182,7 +182,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         // Allocate the key object on the heap.
         pbKeyObject = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbKeyObject, TAG);
-        if (NULL == pbKeyObject) {
+        if (nullptr == pbKeyObject) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -206,7 +206,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         // Allocate a buffer for the IV. The buffer is consumed during the encrypt/decrypt process.
         pbIV = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbBlockLen, TAG);
-        if (NULL == pbIV) {
+        if (nullptr == pbIV) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -235,26 +235,26 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         // Save another copy of the key for later.
-        if (!NT_SUCCESS(Status = BCryptExportKey(hKey, NULL, BCRYPT_OPAQUE_KEY_BLOB, NULL, 0, &cbBlob, 0))) {
+        if (!NT_SUCCESS(Status = BCryptExportKey(hKey, nullptr, BCRYPT_OPAQUE_KEY_BLOB, nullptr, 0, &cbBlob, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
         // Allocate the buffer to hold the BLOB.
         pbBlob = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbBlob, TAG);
-        if (NULL == pbBlob) {
+        if (nullptr == pbBlob) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
-        if (!NT_SUCCESS(Status = BCryptExportKey(hKey, NULL, BCRYPT_OPAQUE_KEY_BLOB, pbBlob, cbBlob, &cbBlob, 0))) {
+        if (!NT_SUCCESS(Status = BCryptExportKey(hKey, nullptr, BCRYPT_OPAQUE_KEY_BLOB, pbBlob, cbBlob, &cbBlob, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
         cbPlainText = sizeof(rgbPlaintext);
         pbPlainText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbPlainText, TAG);
-        if (NULL == pbPlainText) {
+        if (nullptr == pbPlainText) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -265,10 +265,10 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         if (!NT_SUCCESS(Status = BCryptEncrypt(hKey,
                                                pbPlainText,
                                                cbPlainText,
-                                               NULL,
+                                               nullptr,
                                                pbIV,
                                                cbBlockLen,
-                                               NULL,
+                                               nullptr,
                                                0,
                                                &cbCipherText,
                                                BCRYPT_BLOCK_PADDING))) {
@@ -277,7 +277,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         pbCipherText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbCipherText, TAG);
-        if (NULL == pbCipherText) {
+        if (nullptr == pbCipherText) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -287,7 +287,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         if (!NT_SUCCESS(Status = BCryptEncrypt(hKey,
                                                pbPlainText,
                                                cbPlainText,
-                                               NULL,
+                                               nullptr,
                                                pbIV,
                                                cbBlockLen,
                                                pbCipherText,
@@ -310,12 +310,12 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             ExFreePoolWithTag(pbPlainText, TAG);
         }
 
-        pbPlainText = NULL;
+        pbPlainText = nullptr;
 
         memset(pbKeyObject, 0, cbKeyObject);// We can reuse the key object.    
         memcpy(pbIV, rgbIV, cbBlockLen);// Reinitialize the IV because encryption would have modified it.
         if (!NT_SUCCESS(Status = BCryptImportKey(hAesAlg,
-                                                 NULL,
+                                                 nullptr,
                                                  BCRYPT_OPAQUE_KEY_BLOB,
                                                  &hKey,
                                                  pbKeyObject,
@@ -331,10 +331,10 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         if (!NT_SUCCESS(Status = BCryptDecrypt(hKey,
                                                pbCipherText,
                                                cbCipherText,
-                                               NULL,
+                                               nullptr,
                                                pbIV,
                                                cbBlockLen,
-                                               NULL,
+                                               nullptr,
                                                0,
                                                &cbPlainText,
                                                BCRYPT_BLOCK_PADDING))) {
@@ -343,7 +343,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         pbPlainText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbPlainText, TAG);
-        if (NULL == pbPlainText) {
+        if (nullptr == pbPlainText) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -351,7 +351,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         if (!NT_SUCCESS(Status = BCryptDecrypt(hKey,
                                                pbCipherText,
                                                cbCipherText,
-                                               NULL,
+                                               nullptr,
                                                pbIV,
                                                cbBlockLen,
                                                pbPlainText,

@@ -21,13 +21,13 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
-    BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, NULL, 0);
+    BCRYPT_ALG_HANDLE       hSignAlg = nullptr;
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
     ASSERT(NT_SUCCESS(status));
 
-    BCRYPT_KEY_HANDLE hPrivateKey = NULL;
+    BCRYPT_KEY_HANDLE hPrivateKey = nullptr;
     status = BCryptImportKeyPair(hSignAlg,
-                                 NULL,
+                                 nullptr,
                                  BCRYPT_ECCPRIVATE_BLOB,
                                  &hPrivateKey,
                                  PrivateKey,
@@ -35,14 +35,14 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
                                  BCRYPT_NO_KEY_VALIDATION);
     ASSERT(NT_SUCCESS(status));
 
-    status = BCryptSignHash(hPrivateKey, NULL, Hash, HashSize, NULL, 0, SignSize, 0);
+    status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, nullptr, 0, SignSize, 0);
     ASSERT(NT_SUCCESS(status));
 
     *Sign = (PUCHAR)ExAllocatePoolWithTag(NonPagedPool, *SignSize, TAG);
     ASSERT(*Sign);
 
     ULONG Result = 0;
-    status = BCryptSignHash(hPrivateKey, NULL, Hash, HashSize, *Sign, *SignSize, &Result, 0);
+    status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, *Sign, *SignSize, &Result, 0);
     ASSERT(NT_SUCCESS(status));
 
     BCryptCloseAlgorithmProvider(hSignAlg, 0);
@@ -72,13 +72,13 @@ BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
     ASSERT(ret);
 
     NTSTATUS                status = STATUS_UNSUCCESSFUL;
-    BCRYPT_ALG_HANDLE       hSignAlg = NULL;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, NULL, 0);
+    BCRYPT_ALG_HANDLE       hSignAlg = nullptr;
+    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
     ASSERT(NT_SUCCESS(status));
 
-    BCRYPT_KEY_HANDLE hPublicKey = NULL;
+    BCRYPT_KEY_HANDLE hPublicKey = nullptr;
     status = BCryptImportKeyPair(hSignAlg,
-                                 NULL,
+                                 nullptr,
                                  BCRYPT_ECCPUBLIC_BLOB,
                                  &hPublicKey,
                                  PublicKey,
@@ -86,7 +86,7 @@ BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
                                  BCRYPT_NO_KEY_VALIDATION);
     ASSERT(NT_SUCCESS(status));
 
-    status = BCryptVerifySignature(hPublicKey, NULL, Hash, HashSize, Sign, SignSize, 0);
+    status = BCryptVerifySignature(hPublicKey, nullptr, Hash, HashSize, Sign, SignSize, 0);
     if (NT_SUCCESS(status)) {
         IsVerify = TRUE;
     }

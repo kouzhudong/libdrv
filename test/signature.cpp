@@ -48,25 +48,25 @@ void TestEcdsaSignature()
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     ULONG PrivateKeyLen = 0;
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPRIVATE_BLOB, NULL, 0, &PrivateKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_ECCPRIVATE_BLOB, nullptr, 0, &PrivateKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     PBCRYPT_ECCKEY_BLOB PrivateKey = (PBCRYPT_ECCKEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PrivateKeyLen, TAG);
     ASSERT(PrivateKey);
 
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPRIVATE_BLOB, (PUCHAR)PrivateKey, PrivateKeyLen, &PrivateKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_ECCPRIVATE_BLOB, (PUCHAR)PrivateKey, PrivateKeyLen, &PrivateKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     ULONG PublicKeyLen = 0;
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPUBLIC_BLOB, NULL, 0, &PublicKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_ECCPUBLIC_BLOB, nullptr, 0, &PublicKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     PBCRYPT_ECCKEY_BLOB PublicKey = (PBCRYPT_ECCKEY_BLOB)ExAllocatePoolWithTag(NonPagedPool, PublicKeyLen, TAG);
     ASSERT(PublicKey);
 
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_ECCPUBLIC_BLOB, (PUCHAR)PublicKey, PublicKeyLen, &PublicKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_ECCPUBLIC_BLOB, (PUCHAR)PublicKey, PublicKeyLen, &PublicKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     //////////////////////////////////////////////////////////////////////////////////////////////

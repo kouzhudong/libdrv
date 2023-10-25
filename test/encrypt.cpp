@@ -30,37 +30,37 @@ void TestRsaEncrypt()
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     ULONG KeyPairLen = 0;
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAFULLPRIVATE_BLOB, NULL, 0, &KeyPairLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAFULLPRIVATE_BLOB, nullptr, 0, &KeyPairLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     BCRYPT_RSAKEY_BLOB * RsaKeyPair = (BCRYPT_RSAKEY_BLOB *)ExAllocatePoolWithTag(NonPagedPool, KeyPairLen, TAG);
     ASSERT(RsaKeyPair);//前四个字节是：RSA3
 
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAFULLPRIVATE_BLOB, (PUCHAR)RsaKeyPair, KeyPairLen, &KeyPairLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAFULLPRIVATE_BLOB, (PUCHAR)RsaKeyPair, KeyPairLen, &KeyPairLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     ULONG PrivateKeyLen = 0;
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAPRIVATE_BLOB, NULL, 0, &PrivateKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAPRIVATE_BLOB, nullptr, 0, &PrivateKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     BCRYPT_RSAKEY_BLOB * PrivateKey = (BCRYPT_RSAKEY_BLOB *)ExAllocatePoolWithTag(NonPagedPool, PrivateKeyLen, TAG); 
     ASSERT(PrivateKey);//前四个字节是：RSA2
 
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAPRIVATE_BLOB, (PUCHAR)PrivateKey, PrivateKeyLen, &PrivateKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAPRIVATE_BLOB, (PUCHAR)PrivateKey, PrivateKeyLen, &PrivateKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     ULONG PublicKeyLen = 0;
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAPUBLIC_BLOB, NULL, 0, &PublicKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAPUBLIC_BLOB, nullptr, 0, &PublicKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     BCRYPT_RSAKEY_BLOB * PublicKey = (BCRYPT_RSAKEY_BLOB *)ExAllocatePoolWithTag(NonPagedPool, PublicKeyLen, TAG); 
     ASSERT(PublicKey);//前四个字节是：RSA1
 
-    NtStatus = BCryptExportKey(hKey, NULL, BCRYPT_RSAPUBLIC_BLOB, (PUCHAR)PublicKey, PublicKeyLen, &PublicKeyLen, 0);
+    NtStatus = BCryptExportKey(hKey, nullptr, BCRYPT_RSAPUBLIC_BLOB, (PUCHAR)PublicKey, PublicKeyLen, &PublicKeyLen, 0);
     ASSERT(STATUS_SUCCESS == NtStatus);
 
     //////////////////////////////////////////////////////////////////////////////////////////////

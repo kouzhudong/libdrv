@@ -18,7 +18,7 @@ PVOID NTAPI AllocatePoolZero(
     PVOID Allocation;
 
     Allocation = ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
-    if ((Allocation != NULL)) {
+    if (Allocation) {
         RtlZeroMemory(Allocation, NumberOfBytes);
     }
 
