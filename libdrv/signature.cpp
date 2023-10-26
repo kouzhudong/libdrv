@@ -38,7 +38,7 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
     status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, nullptr, 0, SignSize, 0);
     ASSERT(NT_SUCCESS(status));
 
-    *Sign = (PUCHAR)ExAllocatePoolWithTag(NonPagedPool, *SignSize, TAG);
+    *Sign = static_cast<PUCHAR>(ExAllocatePoolWithTag(NonPagedPool, *SignSize, TAG));
     ASSERT(*Sign);
 
     ULONG Result = 0;
