@@ -24,9 +24,3 @@ BOOL WINAPI VerifySignatureByEcdsa(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicK
 
 
 EXTERN_C_END
-
-
-class signature
-{
-
-};

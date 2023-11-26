@@ -26,9 +26,3 @@ void WINAPI AesEncryptDecryptTest();
 
 
 EXTERN_C_END
-
-
-class encrypt
-{
-
-};
