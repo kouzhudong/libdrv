@@ -9,7 +9,7 @@ jobs:
       matrix:
         configuration: [Debug] #, Release
         platform: [x64]
-    runs-on: windows-2022 #2019安装WDK不太顺利。
+    runs-on: windows-2019 #2019安装WDK不太顺利。
     env:
       Solution_Path: .\libdrv.sln
     steps:
