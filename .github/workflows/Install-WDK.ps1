@@ -22,14 +22,14 @@ $argumentList = ("/features", "+", "/quiet")
 
 if (Test-IsWin19) {
     # `winsdksetup.exe /features + /quiet` installs all features without showing the GUI
-    Install-Binary -Url $winSdkUrl -Name "winsdksetup.exe" -ArgumentList $argumentList
+    Install-Binary -Url $winSdkUrl "winsdksetup.exe" -ArgumentList $argumentList
 }
 
 # `wdksetup.exe /features + /quiet` installs all features without showing the GUI
-Install-Binary -Url $wdkUrl -Name "wdksetup.exe" -ArgumentList $argumentList
+Install-Binary -Url $wdkUrl "wdksetup.exe" -ArgumentList $argumentList
 
 # Need to install the VSIX to get the build targets when running VSBuild
 $FilePath = Resolve-Path -Path $FilePath
-Install-VsixExtension -FilePath $FilePath -Name "WDK.vsix" -VSversion $VSver -InstallOnly
+Install-VsixExtension -FilePath $FilePath "WDK.vsix" -VSversion $VSver -InstallOnly
 
 Invoke-PesterTests -TestFile "WDK"
