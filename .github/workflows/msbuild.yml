@@ -24,9 +24,9 @@ jobs:
         run: nuget restore .
         
         #谨记：这个只需运行一次即可。
-      #- name: Install WDK #这个执行半个小时是要的。
-      #  working-directory: ${{env.GITHUB_WORKSPACE}}
-      #  run: .\.github\workflows\Install-WDK.ps1 #microsoft\runner-images\images\win\scripts\Installers\Install-WDK.ps1
+      - name: Install WDK #这个执行半个小时是要的。
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: .\.github\workflows\Install-WDK.ps1 #microsoft\runner-images\images\win\scripts\Installers\Install-WDK.ps1
 
       - name: Build solution
         run: msbuild /m  /p:Configuration=${{ env.Configuration }} /p:Platform=${{ env.Platform }} ${{ env.Solution_Path }}
