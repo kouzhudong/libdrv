@@ -29,22 +29,22 @@
 #include <ntifs.h>
 #include <wdm.h>
 #include <ntddk.h>
-//#include <windef.h> //应该放在ntddk.h的后面.
-//#include <in6addr.h>
-//#include <ip2string.h>
-//#include <guiddef.h>
-//#include <ndis.h>
-//#include <initguid.h> //静态定义UUID用的，否则：error LNK2001。
-//#include <Ntstrsafe.h>
-//#include <ipmib.h>
-//#include <netpnp.h>
-//#include <ntintsafe.h>
-//#include <fltkernel.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <stddef.h>
-//#include <Bcrypt.h>
+#include <windef.h> //应该放在ntddk.h的后面.
+#include <in6addr.h>
+#include <ip2string.h>
+#include <guiddef.h>
+#include <ndis.h>
+#include <initguid.h> //静态定义UUID用的，否则：error LNK2001。
+#include <Ntstrsafe.h>
+#include <ipmib.h>
+#include <netpnp.h>
+#include <ntintsafe.h>
+#include <fltkernel.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <Bcrypt.h>
 
 /*
 WDK7600.16385.1的内核头文件没有u_short的定义,用户层的头文件有u_short的定义.
@@ -56,27 +56,27 @@ netioapi.h包含ws2def.h等文件.
 否者,每个包含(包括间接包含)ws2def.h的c/cpp文件都出现一大堆的错误.
 */
 typedef unsigned short  u_short;
-//#include <netioapi.h>
-////#include <ws2def.h>
-//#include <ws2ipdef.h>
-//#include <mstcpip.h>
-//#include <wmilib.h>
-//#include <wmistr.h>
-//#include <tdi.h>
-//#include <tdiinfo.h>
-//#include <tdikrnl.h>
-//#include <tdistat.h>
-////#include <fwpmk.h>
-//#include <wsk.h>
-//#include <ntimage.h>
-//#include <fwpsk.h>  //NDIS61
-//#include <dontuse.h>
-//#include <suppress.h>
-//#include <aux_klib.h>
-//#include <assert.h>
-//#include <Ntdddisk.h>
-//#include <intrin.h> //VS2012编译。
-//#include <immintrin.h>//VS2012编译。
+#include <netioapi.h>
+//#include <ws2def.h>
+#include <ws2ipdef.h>
+#include <mstcpip.h>
+#include <wmilib.h>
+#include <wmistr.h>
+#include <tdi.h>
+#include <tdiinfo.h>
+#include <tdikrnl.h>
+#include <tdistat.h>
+//#include <fwpmk.h>
+#include <wsk.h>
+#include <ntimage.h>
+#include <fwpsk.h>  //NDIS61
+#include <dontuse.h>
+#include <suppress.h>
+#include <aux_klib.h>
+#include <assert.h>
+#include <Ntdddisk.h>
+#include <intrin.h> //VS2012编译。
+#include <immintrin.h>//VS2012编译。
 //#include <mmintrin.h> //WDK 编译。
 //#include <emmintrin.h>//WDK 编译。
 //#include <xmmintrin.h>//WDK 编译。
