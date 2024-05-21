@@ -41,6 +41,7 @@
     <ClInclude Include="cpu.h" />
     <ClInclude Include="encrypt.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="flt.h" />
     <ClInclude Include="gdt.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="idt.h" />
@@ -73,6 +74,7 @@
     <ClCompile Include="cpu.cpp" />
     <ClCompile Include="encrypt.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="flt.cpp" />
     <ClCompile Include="gdt.cpp" />
     <ClCompile Include="hash.cpp" />
     <ClCompile Include="idt.cpp" />
