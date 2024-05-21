@@ -6,6 +6,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+EXTERN_C_START
+
+
 NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
                                      __in PCFLT_RELATED_OBJECTS FltObjects,
                                      OUT PUNICODE_STRING usFullPath);
@@ -28,6 +31,9 @@ NTSTATUS FltQueryDirectoryFile( //FltQueryDirectoryFile_XP 为XP量身打造的FltQuer
 
 VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects);
 NTSTATUS EnumerateFilters();
+
+
+EXTERN_C_END
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -177,6 +177,8 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
 
 NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_STRING  ExistingFileName);
 
+NTSTATUS EnumerateFilters();
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //算法相关的。

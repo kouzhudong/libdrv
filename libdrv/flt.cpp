@@ -248,7 +248,7 @@ made at 2013.10.23
 */
 
 
-void PrintFilterFullInformation(PFLT_FILTER pf)
+void PrintFilterFullInformation(PFLT_FILTER Filter)
 {
     //另一个思路是使用:FltEnumerateFilterInformation
 
@@ -259,7 +259,7 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
     PFILTER_FULL_INFORMATION pfi{};
     UNICODE_STRING FilterName{};
 
-    Status = FltGetFilterInformation(pf, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
+    Status = FltGetFilterInformation(Filter, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -273,7 +273,7 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
     }
     RtlZeroMemory(Buffer, BufferSize);
 
-    Status = FltGetFilterInformation(pf, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
+    Status = FltGetFilterInformation(Filter, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(Buffer, TAG);
         return;
@@ -306,7 +306,7 @@ void PrintFilterFullInformation(PFLT_FILTER pf)
 }
 
 
-void PrintVolumeStandardInformation(PFLT_VOLUME pv)
+void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
 {
     NTSTATUS Status = STATUS_SUCCESS;
     PVOID  Buffer{};
@@ -315,7 +315,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
     PFILTER_VOLUME_STANDARD_INFORMATION pvsi{};
     UNICODE_STRING VolumeName{};
 
-    Status = FltGetVolumeInformation(pv, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
+    Status = FltGetVolumeInformation(Volume, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -329,7 +329,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
     }
     RtlZeroMemory(Buffer, BufferSize);
 
-    Status = FltGetVolumeInformation(pv, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
+    Status = FltGetVolumeInformation(Volume, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(Buffer, TAG);
         return;
@@ -442,13 +442,43 @@ void PrintVolumeStandardInformation(PFLT_VOLUME pv)
     }
 
     //这里也要用FltObjectDereference再释放一下?
-    FltObjectDereference(pv);
+    FltObjectDereference(Volume);
 
     ExFreePoolWithTag(Buffer, TAG);
 }
 
 
-void EnumerateInstances(PFLT_FILTER pf)
+NTSTATUS DumpInstanceName(_In_ PFLT_INSTANCE Instance)
+{
+    ULONG BytesReturned{};
+    NTSTATUS Status = FltGetInstanceInformation(Instance, InstanceBasicInformation, NULL, 0, &BytesReturned);
+    if (!BytesReturned) {
+        return Status;
+    }
+
+    auto Info = (PINSTANCE_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, BytesReturned, TAG);
+    if (Info == nullptr) {
+        return STATUS_UNSUCCESSFUL;
+    }
+    RtlZeroMemory(Info, BytesReturned);
+
+    Status = FltGetInstanceInformation(Instance, InstanceBasicInformation, Info, BytesReturned, &BytesReturned);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+    } else {
+        UNICODE_STRING InstanceName{};
+        InstanceName.Length = Info->InstanceNameLength;
+        InstanceName.MaximumLength = InstanceName.Length;
+        InstanceName.Buffer = (PWCH)((PBYTE)Info + Info->InstanceNameBufferOffset);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "InstanceName:%wZ", InstanceName);
+    }
+
+    ExFreePoolWithTag(Info, TAG);
+    return Status;
+}
+
+
+void EnumerateInstances(PFLT_FILTER Filter)
 {
     //FltEnumerateInstances
     //FltGetInstanceInformation 这个获取的全是数字,所以放弃使用.
@@ -461,7 +491,7 @@ void EnumerateInstances(PFLT_FILTER pf)
     ULONG  NumberInstancesReturned = 0;
     ULONG i{};
 
-    Status = FltEnumerateInstances(nullptr, pf, InstanceList, InstanceListSize, &NumberInstancesReturned);
+    Status = FltEnumerateInstances(nullptr, Filter, InstanceList, InstanceListSize, &NumberInstancesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -475,7 +505,7 @@ void EnumerateInstances(PFLT_FILTER pf)
     }
     RtlZeroMemory(InstanceList, InstanceListSize);
 
-    Status = FltEnumerateInstances(nullptr, pf, InstanceList, InstanceListSize, &NumberInstancesReturned);
+    Status = FltEnumerateInstances(nullptr, Filter, InstanceList, InstanceListSize, &NumberInstancesReturned);
     if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(InstanceList, TAG);
         return;
@@ -484,19 +514,20 @@ void EnumerateInstances(PFLT_FILTER pf)
     for (i = 0; i < NumberInstancesReturned; i++) {
         //打印每个实例的信息.
         //相信和卷设备是一样的,转换为卷设备再打印,这里就不打印详细信息的,只打印实例的地址.
-        DbgPrint("PFLT_FILTER:%p\tInstances:%p\n", pf, InstanceList[i]);
+        DbgPrint("PFLT_FILTER:%p\tInstances:%p\n", Filter, InstanceList[i]);
+        DumpInstanceName(InstanceList[i]);
 
         FltObjectDereference(InstanceList[i]);
     }
 
     //这里也要用FltObjectDereference再释放一下?
-    FltObjectDereference(pf);
+    FltObjectDereference(Filter);
 
     ExFreePoolWithTag(InstanceList, TAG);
 }
 
 
-void EnumerateVolumes(PFLT_FILTER pf)
+void EnumerateVolumes(PFLT_FILTER Filter)
 {
     //FltEnumerateVolumes这个获取全了,要枚举.
     //FltGetVolumeInformation
@@ -508,7 +539,7 @@ void EnumerateVolumes(PFLT_FILTER pf)
     ULONG  NumberVolumesReturned = 0;
     ULONG i{};
 
-    Status = FltEnumerateVolumes(pf, VolumeList, VolumeListSize, &NumberVolumesReturned);
+    Status = FltEnumerateVolumes(Filter, VolumeList, VolumeListSize, &NumberVolumesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -523,7 +554,7 @@ void EnumerateVolumes(PFLT_FILTER pf)
     }
     RtlZeroMemory(VolumeList, VolumeListSize);
 
-    Status = FltEnumerateVolumes(pf, VolumeList, VolumeListSize, &NumberVolumesReturned);
+    Status = FltEnumerateVolumes(Filter, VolumeList, VolumeListSize, &NumberVolumesReturned);
     if (!NT_SUCCESS(Status)) {
         ExFreePoolWithTag(VolumeList, TAG);
         return;
@@ -537,7 +568,7 @@ void EnumerateVolumes(PFLT_FILTER pf)
     }
 
     //这里也要用FltObjectDereference再释放一下?
-    FltObjectDereference(pf);
+    FltObjectDereference(Filter);
 
     ExFreePoolWithTag(VolumeList, TAG);
 }
