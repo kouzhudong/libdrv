@@ -20,6 +20,7 @@ BOOLEAN RtlIsNameInExpression(_In_ PUNICODE_STRING Expression, _In_ PUNICODE_STR
 
 NTSTATUS AllocateUnicodeString(_In_ PUNICODE_STRING String);
 VOID FreeUnicodeString(_In_ PUNICODE_STRING String);
+NTSTATUS CopyUnicodeString(_Inout_ PUNICODE_STRING DestString, _In_ PCUNICODE_STRING SourceString);
 
 LONG ExceptionFilter(_In_ PEXCEPTION_POINTERS ExceptionPointer);
 

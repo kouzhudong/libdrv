@@ -355,7 +355,9 @@ BOOL GetCommandLine(_In_ HANDLE PId, _Inout_ PUNICODE_STRING CommandLine);
 
 BOOL GetCurrentDirectory(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING CurrentDirectory);
 
-NTSTATUS GetUserOfProcess(_In_ HANDLE Pid, _Out_ PUNICODE_STRING User);
+NTSTATUS GetUserOfToken(_In_ PACCESS_TOKEN Token, _Out_ PUNICODE_STRING User);
+NTSTATUS GetUserOfProcess(_In_ PEPROCESS Process, _Out_ PUNICODE_STRING User);
+NTSTATUS GetUserOfProcessId(_In_ HANDLE Pid, _Out_ PUNICODE_STRING User);
 
 BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter,
                                     _In_opt_ PFLT_INSTANCE Instance,
