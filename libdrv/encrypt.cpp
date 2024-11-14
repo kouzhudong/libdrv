@@ -8,9 +8,6 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
                                      _Out_writes_bytes_opt_(PlainTextSize) PUCHAR PlainText,
                                      _In_ ULONG PlainTextSize
 )
-/*
-
-*/
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     BCRYPT_KEY_HANDLE hKey = nullptr;
@@ -71,10 +68,6 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
                                     _Out_writes_bytes_opt_(CipherTextSize) PUCHAR CipherText,
                                     _In_ ULONG CipherTextSize
 )
-/*
-
-
-*/
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
@@ -143,27 +136,23 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
     DWORD cbCipherText = 0, cbPlainText = 0, cbData = 0, cbKeyObject = 0, cbBlockLen = 0, cbBlob = 0;
     PBYTE pbCipherText = nullptr, pbPlainText = nullptr, pbKeyObject = nullptr, pbIV = nullptr, pbBlob = nullptr;
 
-    const BYTE rgbPlaintext[] =
-    {
+    const BYTE rgbPlaintext[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
     };
 
-    static const BYTE rgbIV[] =
-    {
+    static const BYTE rgbIV[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
     };
 
-    static const BYTE rgbAES128Key[] =
-    {
+    static const BYTE rgbAES128Key[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
     };
 
     __try {
-
-    // Open an algorithm handle.
+        // Open an algorithm handle.
         if (!NT_SUCCESS(Status = BCryptOpenAlgorithmProvider(&hAesAlg, BCRYPT_AES_ALGORITHM, nullptr, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
@@ -198,8 +187,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             __leave;
         }
 
-        // Determine whether the cbBlockLen is not longer than the IV length.
-        if (cbBlockLen > sizeof(rgbIV)) {
+        if (cbBlockLen > sizeof(rgbIV)) {// Determine whether the cbBlockLen is not longer than the IV length.
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -398,6 +386,6 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         if (pbBlob) {
             ExFreePoolWithTag(pbBlob, TAG);
-        }        
+        }
     }
 }
