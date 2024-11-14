@@ -252,14 +252,10 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
 {
     //另一个思路是使用:FltEnumerateFilterInformation
 
-    NTSTATUS Status = STATUS_SUCCESS;
     PVOID  Buffer{};
     ULONG  BufferSize = 0;
     ULONG  BytesReturned = 0;
-    PFILTER_FULL_INFORMATION pfi{};
-    UNICODE_STRING FilterName{};
-
-    Status = FltGetFilterInformation(Filter, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
+    NTSTATUS Status = FltGetFilterInformation(Filter, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -279,8 +275,9 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
         return;
     }
 
-    pfi = static_cast<PFILTER_FULL_INFORMATION>(Buffer);
+    auto pfi = static_cast<PFILTER_FULL_INFORMATION>(Buffer);
 
+    UNICODE_STRING FilterName{};
     FilterName.Buffer = pfi->FilterNameBuffer;
     FilterName.Length = pfi->FilterNameLength;
     FilterName.MaximumLength = pfi->FilterNameLength;//不再加2.
@@ -312,9 +309,6 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
     PVOID  Buffer{};
     ULONG  BufferSize = 0;
     ULONG  BytesReturned = 0;
-    PFILTER_VOLUME_STANDARD_INFORMATION pvsi{};
-    UNICODE_STRING VolumeName{};
-
     Status = FltGetVolumeInformation(Volume, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -335,8 +329,9 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
         return;
     }
 
-    pvsi = static_cast<PFILTER_VOLUME_STANDARD_INFORMATION>(Buffer);
+    auto pvsi = static_cast<PFILTER_VOLUME_STANDARD_INFORMATION>(Buffer);
 
+    UNICODE_STRING VolumeName{};
     VolumeName.Buffer = pvsi->FilterVolumeName;
     VolumeName.Length = pvsi->FilterVolumeNameLength;
     VolumeName.MaximumLength = pvsi->FilterVolumeNameLength;//不再加2.
@@ -489,8 +484,6 @@ void EnumerateInstances(PFLT_FILTER Filter)
     PFLT_INSTANCE * InstanceList{};
     ULONG  InstanceListSize = 0;
     ULONG  NumberInstancesReturned = 0;
-    ULONG i{};
-
     Status = FltEnumerateInstances(nullptr, Filter, InstanceList, InstanceListSize, &NumberInstancesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -511,7 +504,7 @@ void EnumerateInstances(PFLT_FILTER Filter)
         return;
     }
 
-    for (i = 0; i < NumberInstancesReturned; i++) {
+    for (ULONG i = 0; i < NumberInstancesReturned; i++) {
         //打印每个实例的信息.
         //相信和卷设备是一样的,转换为卷设备再打印,这里就不打印详细信息的,只打印实例的地址.
         DbgPrint("PFLT_FILTER:%p\tInstances:%p\n", Filter, InstanceList[i]);
@@ -533,13 +526,10 @@ void EnumerateVolumes(PFLT_FILTER Filter)
     //FltGetVolumeInformation
     //FltEnumerateVolumeInformation这个不用,是获取单个的,要循环.
 
-    NTSTATUS Status = STATUS_SUCCESS;
     PFLT_VOLUME * VolumeList{};
     ULONG  VolumeListSize = 0;
     ULONG  NumberVolumesReturned = 0;
-    ULONG i{};
-
-    Status = FltEnumerateVolumes(Filter, VolumeList, VolumeListSize, &NumberVolumesReturned);
+    NTSTATUS Status = FltEnumerateVolumes(Filter, VolumeList, VolumeListSize, &NumberVolumesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return;
@@ -560,7 +550,7 @@ void EnumerateVolumes(PFLT_FILTER Filter)
         return;
     }
 
-    for (i = 0; i < NumberVolumesReturned; i++) {
+    for (ULONG i = 0; i < NumberVolumesReturned; i++) {
         //打印每个卷设备的信息.
         PrintVolumeStandardInformation(VolumeList[i]);
 
@@ -576,15 +566,12 @@ void EnumerateVolumes(PFLT_FILTER Filter)
 
 NTSTATUS EnumerateFilters()
 {
-    NTSTATUS Status = STATUS_SUCCESS;
-    PFLT_FILTER * FilterList{};
     ULONG FilterListSize = 0;
     ULONG NumberFiltersReturned = 0;
-    ULONG i{};
 
     //Because filters can register at any time, two calls to FltEnumerateFilters are not guaranteed to return the same result.
     //确保两次调用FltEnumerateFilters期间不要加载或者卸载minifilter.建议使用rundown机制.
-    Status = FltEnumerateFilters(nullptr, FilterListSize, &NumberFiltersReturned);
+    NTSTATUS Status = FltEnumerateFilters(nullptr, FilterListSize, &NumberFiltersReturned);
     if (!NT_SUCCESS(Status)) //#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
     {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -595,7 +582,7 @@ NTSTATUS EnumerateFilters()
     //建议每次成功的调用之后都调用:VOID FltObjectDereference(_Inout_  PVOID FltObject);
 
     FilterListSize = sizeof(PFLT_FILTER) * NumberFiltersReturned * 2;//多申请一倍.
-    FilterList = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, FilterListSize, TAG);
+    auto FilterList = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, FilterListSize, TAG);
     if (FilterList == nullptr) {
         return Status;
     }
@@ -704,7 +691,7 @@ NTSTATUS EnumerateFilters()
     */
 
     //打印每个驱动的信息,这里选择FilterFullInformation类型.
-    for (i = 0; i < NumberFiltersReturned; i++) {
+    for (ULONG i = 0; i < NumberFiltersReturned; i++) {
         PrintFilterFullInformation(FilterList[i]);//打印系统的所有的minifilter 驱动.
         EnumerateInstances(FilterList[i]);//枚举每个minifilter驱动的每个过滤设备的实例,里面可以获取更多的信息.
         EnumerateVolumes(FilterList[i]);//枚举每个minifilter驱动的每个卷设备的信息,里面可以获取更多的信息,其实和上面的差不多.
@@ -717,7 +704,7 @@ NTSTATUS EnumerateFilters()
     When these pointers are no longer needed, the caller must release them by calling FltObjectDereference on each one.
     Thus every successful call to FltEnumerateFilters must be matched by a subsequent call to FltObjectDereference for each returned filter pointer.
     */
-    for (i = 0; i < NumberFiltersReturned; i++) {
+    for (ULONG i = 0; i < NumberFiltersReturned; i++) {
         FltObjectDereference(FilterList[i]);
     }
 
