@@ -378,7 +378,7 @@ NTSTATUS GetPidFromProcessName(_In_ PWSTR ProcessName, _Inout_ PHANDLE UniquePro
 
 NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context);
 
-BOOL GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessName);
+NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING ProcessName);
 
 HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId);
 
