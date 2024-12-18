@@ -7,7 +7,7 @@
 
 const wchar_t * GetProtocolName(UINT8 protocol)
 {
-    wchar_t * protocol_name = nullptr;
+    const wchar_t * protocol_name = nullptr;
 
     switch (protocol) {
     case IPPROTO_TCP:

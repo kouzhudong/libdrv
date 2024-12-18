@@ -113,10 +113,10 @@ i的取值可以是0.
         SIZE_T Base = 0;
         SIZE_T Limit = 0;
         ULONG  Type = 0;
-        char * size = nullptr;
-        char * Granularity = nullptr;
-        char * Present = nullptr;
-        char * LongMode = nullptr;
+        const char * size = nullptr;
+        const char * Granularity = nullptr;
+        const char * Present = nullptr;
+        const char * LongMode = nullptr;
         int    Flags = 0;
 
         Base = pkgdte_t->Bits.BaseHigh;

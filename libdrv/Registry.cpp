@@ -550,7 +550,7 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
     ULONG Length = 0;
     PUNICODE_STRING ObjectNameInfo = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
-    UNICODE_STRING KeyPath = {0};
+    UNICODE_STRING KeyPath{};
 
     do {
         if (CompleteName->Buffer == nullptr) {
@@ -798,9 +798,9 @@ homepage:https://correy.webs.com
 不足之处,敬请指出.
 */
 {
-    UNICODE_STRING CurrentUserKeyPath = {0};
-    UNICODE_STRING us_RtlFormatCurrentUserKeyPath;
-    RtlFormatCurrentUserKeyPath g_p_RtlFormatCurrentUserKeyPath;
+    UNICODE_STRING CurrentUserKeyPath{};
+    UNICODE_STRING us_RtlFormatCurrentUserKeyPath{};
+    RtlFormatCurrentUserKeyPath g_p_RtlFormatCurrentUserKeyPath{};
 
     RtlInitUnicodeString(&us_RtlFormatCurrentUserKeyPath, L"RtlFormatCurrentUserKeyPath");
     g_p_RtlFormatCurrentUserKeyPath = static_cast<RtlFormatCurrentUserKeyPath>(MmGetSystemRoutineAddress(&us_RtlFormatCurrentUserKeyPath));

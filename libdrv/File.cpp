@@ -42,7 +42,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
-    IO_STATUS_BLOCK  IoStatusBlock = {0};
+    IO_STATUS_BLOCK  IoStatusBlock{};
     PVOID FileInformation{};
     ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
     FILE_DIRECTORY_INFORMATION * fibdi{};
@@ -99,7 +99,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     for (fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;
          ;
          fibdi = (FILE_DIRECTORY_INFORMATION *)((char *)fibdi + fibdi->NextEntryOffset)) {
-        UNICODE_STRING FileName = {0};
+        UNICODE_STRING FileName{};
 
         if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
             //这里可以考虑递归。这里放弃了文件夹的显示。
@@ -145,7 +145,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
-    IO_STATUS_BLOCK  IoStatusBlock = {0};
+    IO_STATUS_BLOCK  IoStatusBlock{};
     PVOID FileInformation{};
     ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
 
@@ -193,7 +193,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     }
 
     do {
-        UNICODE_STRING FileName = {0};
+        UNICODE_STRING FileName{};
         FILE_DIRECTORY_INFORMATION * fibdi{};
 
         Status = ZwQueryDirectoryFile(FileHandle,
@@ -270,12 +270,12 @@ Length：扇区的倍数。
 3.写第一个扇区之外的扇区会失败。
 */
 {
-    LARGE_INTEGER partitionTableOffset = {0};
+    LARGE_INTEGER partitionTableOffset{};
     KEVENT event{};
     IO_STATUS_BLOCK ioStatus{};
     PIRP irp{};
     NTSTATUS Status = STATUS_SUCCESS;
-    wchar_t deviceNameBuffer[128];
+    wchar_t deviceNameBuffer[128]{};
     UNICODE_STRING ObjectName{};
     PDEVICE_OBJECT DeviceObject{};//设备L"\\Device\\Harddisk%d\\DR%d" 或者 符号连接L"\\Device\\Harddisk%d\\Partition0" 所代表的对象。
     PFILE_OBJECT FileObject{};
@@ -522,7 +522,7 @@ homepage:https://correy.webs.com
 {
     NTSTATUS Status = STATUS_SUCCESS;
     OBJECT_ATTRIBUTES ob{};
-    IO_STATUS_BLOCK  IoStatusBlock = {0};
+    IO_STATUS_BLOCK  IoStatusBlock{};
     HANDLE FileHandle{};
     PFILE_LINK_INFORMATION FILELINKINFORMATION = nullptr;
     ULONG  Length = 0;
@@ -632,7 +632,7 @@ homepage:http://correy.webs.com
 /*
 这个摘自：filemon。
 */
-CHAR * NtfsMetadataFileNames[] = {
+const CHAR * NtfsMetadataFileNames[] = {
     "$Mft",
     "$MftMirr",
     "$LogFile",
@@ -708,8 +708,8 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
 {
     NTSTATUS Status = STATUS_SUCCESS;
     HANDLE FileHandle = nullptr;
-    OBJECT_ATTRIBUTES objAttributes = {0};
-    IO_STATUS_BLOCK ioStatusBlock = {0};
+    OBJECT_ATTRIBUTES objAttributes{};
+    IO_STATUS_BLOCK ioStatusBlock{};
     BOOL B = FALSE;
     PFLT_FILE_NAME_INFORMATION NameInfo = nullptr;
 

@@ -298,11 +298,11 @@ NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
 */
 {
     OBJECT_ATTRIBUTES ob{};
-    IO_STATUS_BLOCK IoStatusBlock = {0};
+    IO_STATUS_BLOCK IoStatusBlock{};
     HANDLE source_fileHandle{}, target_fileHandle{};
     PFILE_OBJECT source{}, target{};
     NTSTATUS Status{};
-    LARGE_INTEGER AllocationSize = {0};
+    LARGE_INTEGER AllocationSize{};
 
     InitializeObjectAttributes(&ob, name, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&source_fileHandle,
@@ -420,19 +420,19 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
 {
     BOOLEAN b = FALSE;
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    UNICODE_STRING df = {0};
+    UNICODE_STRING df{};
     UNICODE_STRING f = RTL_CONSTANT_STRING(L"\\??\\"); //On Microsoft Windows 2000 and later versions of the operating system, \?? is equivalent to \DosDevices.
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
     HANDLE DestinationFileHandle = 0;
-    IO_STATUS_BLOCK IoStatusBlock = {0};
+    IO_STATUS_BLOCK IoStatusBlock{};
     PVOID Buffer{};
     ULONG Length = 0;
-    LARGE_INTEGER file_size = {0};
-    LARGE_INTEGER ByteOffset = {0};
-    LARGE_INTEGER i = {0};
-    FILE_STANDARD_INFORMATION fsi = {0};
-    LARGE_INTEGER AllocationSize = {0};
+    LARGE_INTEGER file_size{};
+    LARGE_INTEGER ByteOffset{};
+    LARGE_INTEGER i{};
+    FILE_STANDARD_INFORMATION fsi{};
+    LARGE_INTEGER AllocationSize{};
     ULONG CreateDisposition = 0;
 
     //如果SourceFile是文件夹,在下面打开的时候返回失败.
@@ -596,14 +596,14 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
     HANDLE DestinationFileHandle = 0;
-    IO_STATUS_BLOCK IoStatusBlock = {0};
+    IO_STATUS_BLOCK IoStatusBlock{};
     PVOID Buffer{};
     ULONG Length = 0;
     ULONG CreateDisposition = 0;
-    FILE_STANDARD_INFORMATION fsi = {0};
-    LARGE_INTEGER ByteOffset = {0};
-    LARGE_INTEGER AllocationSize = {0};
-    LARGE_INTEGER file_size = {0};
+    FILE_STANDARD_INFORMATION fsi{};
+    LARGE_INTEGER ByteOffset{};
+    LARGE_INTEGER AllocationSize{};
+    LARGE_INTEGER file_size{};
 
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&FileHandle,
@@ -737,15 +737,15 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
     HANDLE DestinationFileHandle{};
-    IO_STATUS_BLOCK IoStatusBlock = {0};
+    IO_STATUS_BLOCK IoStatusBlock{};
     PVOID Buffer{};
     ULONG Length = 0;
     ULONG CreateDisposition = 0;
-    FILE_STANDARD_INFORMATION fsi = {0};
-    LARGE_INTEGER ByteOffset = {0};
-    LARGE_INTEGER AllocationSize = {0};
-    LARGE_INTEGER file_size = {0};
-    FILE_FULL_EA_INFORMATION ffai = {0};
+    FILE_STANDARD_INFORMATION fsi{};
+    LARGE_INTEGER ByteOffset{};
+    LARGE_INTEGER AllocationSize{};
+    LARGE_INTEGER file_size{};
+    FILE_FULL_EA_INFORMATION ffai{};
 
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     //Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);

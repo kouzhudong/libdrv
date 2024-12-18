@@ -58,7 +58,7 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
     }
 
     if (!NT_SUCCESS(Status)) {
-        UNICODE_STRING  VolumeName = {0};
+        UNICODE_STRING  VolumeName{};
         ULONG  BufferSizeNeeded = 0;
 
         Status = FltGetVolumeName(FltObjects->Volume, nullptr, &BufferSizeNeeded);

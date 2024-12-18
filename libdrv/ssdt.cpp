@@ -125,10 +125,10 @@ IDA中的信息：
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     UNICODE_STRING NTDLL = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\ntdll.dll");
-    wchar_t NtNTDLL[MAX_PATH] = {0};
-    UNICODE_STRING g_NtNTDLL = {0};
-    wchar_t DosNTDLL[MAX_PATH] = {0};
-    UNICODE_STRING g_DosNTDLL = {0};
+    wchar_t NtNTDLL[MAX_PATH]{};
+    UNICODE_STRING g_NtNTDLL{};
+    wchar_t DosNTDLL[MAX_PATH]{};
+    UNICODE_STRING g_DosNTDLL{};
 
     RtlInitUnicodeString(&g_NtNTDLL, NtNTDLL);
     g_NtNTDLL.MaximumLength = sizeof(NtNTDLL);
@@ -381,7 +381,7 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 */
 {
     SIZE_T RoutineAddress = 0;
-    ANSI_STRING ZwRoutineName = {0};
+    ANSI_STRING ZwRoutineName{};
 
     RtlInitAnsiString(&ZwRoutineName, RoutineName);
 

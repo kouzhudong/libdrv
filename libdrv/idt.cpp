@@ -14,7 +14,7 @@ void show_idt(int i)
 i的取值可以是0.
 */
 {
-    AMD64_DESCRIPTOR idtr = {0};
+    AMD64_DESCRIPTOR idtr{};
 
     SIZE_T r = 0;
     PVOID p{};

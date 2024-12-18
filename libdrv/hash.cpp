@@ -126,8 +126,8 @@ algorithm的取值有：BCRYPT_MD5_ALGORITHM，BCRYPT_SHA1_ALGORITHM，BCRYPT_SH
 lpFileHash的值由调用者释放。
 */
 {
-    IO_STATUS_BLOCK  IoStatusBlock = {0};
-    OBJECT_ATTRIBUTES ObjectAttributes = {0};
+    IO_STATUS_BLOCK  IoStatusBlock{};
+    OBJECT_ATTRIBUTES ObjectAttributes{};
     NTSTATUS Status = STATUS_SUCCESS;
     BOOL bResult = FALSE;
     PVOID buffer = nullptr;

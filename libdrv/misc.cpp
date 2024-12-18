@@ -155,7 +155,7 @@ void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st
 */
 {
     PSYSTEMTIME pst = (PSYSTEMTIME)rule_text;
-    TIME_FIELDS tf = {0};
+    TIME_FIELDS tf{};
     LARGE_INTEGER temp{};
     BOOLEAN B = FALSE;
 
@@ -180,7 +180,7 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 参数rule_text是本地时间的字符串。
 */
 {
-    TIME_FIELDS tf = {0};
+    TIME_FIELDS tf{};
     NTSTATUS Status;
 
     RtlTimeToTimeFields(st, &tf);
@@ -203,7 +203,7 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 void StringToInteger(wchar_t * rule_text, PULONG y)
 {
     NTSTATUS Status{};
-    UNICODE_STRING rule = {0};
+    UNICODE_STRING rule{};
 
     RtlInitUnicodeString(&rule, rule_text);
 
@@ -215,7 +215,7 @@ void StringToInteger(wchar_t * rule_text, PULONG y)
 ULONG GetCurrnetTime()
 {
     ULONG ulRet = 0;
-    LARGE_INTEGER CurrentTime = {0};
+    LARGE_INTEGER CurrentTime{};
 
     KeQuerySystemTime(&CurrentTime);
 

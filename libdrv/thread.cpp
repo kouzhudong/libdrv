@@ -63,7 +63,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
 NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    SYSTEM_PROCESS_INFORMATION temp = {0};
+    SYSTEM_PROCESS_INFORMATION temp{};
     PSYSTEM_PROCESS_INFORMATION ProcessInfo = &temp;
     PSYSTEM_PROCESS_INFORMATION it{};
     ULONG SystemInformationLength = 0;
@@ -240,7 +240,7 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    SYSTEM_PROCESS_INFORMATION_EX buffer = {0};
+    SYSTEM_PROCESS_INFORMATION_EX buffer{};
     PSYSTEM_PROCESS_INFORMATION_EX ProcessInfo = &buffer;
     PSYSTEM_PROCESS_INFORMATION_EX it{};
     ULONG SystemInformationLength = 0;

@@ -99,7 +99,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
         return Status;
     }
 
-    UNICODE_STRING KeyPath = {0};
+    UNICODE_STRING KeyPath{};
     RtlInitUnicodeString(&KeyPath, Temp->Buffer);
 
     NtName->MaximumLength = KeyPath.MaximumLength + sizeof(wchar_t);
@@ -227,7 +227,7 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
     OBJECT_ATTRIBUTES ObjectAttributes{};
     IO_STATUS_BLOCK IoStatus{};
     PFILE_OBJECT FileObject{};
-    UNICODE_STRING FullName = {0};
+    UNICODE_STRING FullName{};
     POBJECT_NAME_INFORMATION FileNameInfo = nullptr;
 
     // Initialize the system DLL
@@ -394,9 +394,9 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
     //}
 
     do {
-        UNICODE_STRING FileName = {0};
+        UNICODE_STRING FileName{};
         POBJECT_DIRECTORY_INFORMATION podi{};
-        UNICODE_STRING FullName = {0};
+        UNICODE_STRING FullName{};
 
         RestartScan = FALSE; //为TRUE会导致死循环;
         Status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);

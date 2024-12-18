@@ -89,7 +89,7 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
     //方法三：再复杂一点，包含的信息也多一点。
 
     {
-        UNICODE_STRING          usNtStatus = {0};
+        UNICODE_STRING          usNtStatus{};
         ANSI_STRING             asNtStatus{};
         UCHAR                   ucFinalSize{};
         PWSTR                   pwzTarget;

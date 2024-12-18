@@ -432,14 +432,14 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
 
     PGetUserFunctionAddressInfo UserFunctionAddress = static_cast<PGetUserFunctionAddressInfo>(Context);
 
-    UNICODE_STRING DllFullName = {0};
+    UNICODE_STRING DllFullName{};
     RtlInitUnicodeString(&DllFullName, UserFunctionAddress->DllFullName);
 
     if (0 != RtlCompareUnicodeString(FullDllName, &DllFullName, TRUE)) {
         return Status;
     }
 
-    ANSI_STRING FunctionName = {0};
+    ANSI_STRING FunctionName{};
     RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
 
     UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(DllBase, &FunctionName);
@@ -461,7 +461,7 @@ DllFullName：模块的全路径。
 注释：之所以用全路径，是因为一个进程可能加载两个相同名字的模块，如WOW64进程有两个ntdll.dll。
 */
 {
-    GetUserFunctionAddressInfo UserFunctionAddress = {0};
+    GetUserFunctionAddressInfo UserFunctionAddress{};
 
     RtlStringCchCopyW(UserFunctionAddress.DllFullName, ARRAYSIZE(UserFunctionAddress.DllFullName), DllFullName);
     RtlStringCchCopyA(UserFunctionAddress.FunctionName, ARRAYSIZE(UserFunctionAddress.FunctionName), FunctionName);
@@ -485,7 +485,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
     struct {
         OBJECT_NAME_INFORMATION ObjectNameInfo;
         WCHAR FileName[1024]; //MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
-    } s = {0};
+    } s = {};
 
     __try {
         if (!MemoryBasicInfo || !UserFunctionAddress) {
@@ -522,7 +522,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
 
         //Print(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, "FullDllName:%wZ\n", &s.ObjectNameInfo.Name);
 
-        UNICODE_STRING DllFullName = {0};
+        UNICODE_STRING DllFullName{};
         RtlInitUnicodeString(&DllFullName, UserFunctionAddress->DllFullName);
         if (0 != RtlCompareUnicodeString(&s.ObjectNameInfo.Name, &DllFullName, TRUE)) {
             Status = STATUS_UNSUCCESSFUL;
@@ -532,7 +532,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
         KAPC_STATE ApcState;
         KeStackAttachProcess(Process, &ApcState);
 
-        ANSI_STRING FunctionName = {0};
+        ANSI_STRING FunctionName{};
         RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
         UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress,
                                                                                &FunctionName);
@@ -565,7 +565,7 @@ DllFullName：模块的全路径。
 注释：之所以用全路径，是因为一个进程可能加载两个相同名字的模块，如WOW64进程有两个ntdll.dll。
 */
 {
-    GetUserFunctionAddressInfo UserFunctionAddress = {0};
+    GetUserFunctionAddressInfo UserFunctionAddress{};
 
     RtlStringCchCopyW(UserFunctionAddress.DllFullName, ARRAYSIZE(UserFunctionAddress.DllFullName), DllFullName);
     RtlStringCchCopyA(UserFunctionAddress.FunctionName, ARRAYSIZE(UserFunctionAddress.FunctionName), FunctionName);
@@ -822,10 +822,10 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob{};
     HANDLE DestinationFileHandle{};
-    IO_STATUS_BLOCK IoStatusBlock = {0};
+    IO_STATUS_BLOCK IoStatusBlock{};
     ULONG CreateDisposition = 0;
-    LARGE_INTEGER ByteOffset = {0};
-    LARGE_INTEGER AllocationSize = {0};
+    LARGE_INTEGER ByteOffset{};
+    LARGE_INTEGER AllocationSize{};
     PVOID BaseAddress{};
 
     ULONG_PTR ResourceIdPath[3]{};
@@ -1000,7 +1000,7 @@ PVOID NTAPI GetRoutineAddress(_In_ PCSTR ModuleName, _In_ PCSTR RoutineName)
         return RoutineAddress;
     }
 
-    ANSI_STRING FunctionName = {0};
+    ANSI_STRING FunctionName{};
     RtlInitAnsiString(&FunctionName, RoutineName);
 
     RoutineAddress = MiFindExportedRoutineByName(ModuleInfo.BasicInfo.ImageBase, &FunctionName);

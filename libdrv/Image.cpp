@@ -129,7 +129,7 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
             struct {
                 OBJECT_NAME_INFORMATION ObjectNameInfo;
                 WCHAR FileName[1024]; //MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
-            } s = {0};
+            } s = {};
 
             NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
                                                                  ULongToPtr(LdrEntry32->DllBase),
@@ -182,7 +182,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
 
             //必须转换一下才能打印。%Z是对STRING32打印不出的。
             //这个路径有的显示的不对，应是WOW64，可用NtQueryVirtualMemory或MmGetFileNameForAddress来解决。
-            UNICODE_STRING ImagePathName = {0};
+            UNICODE_STRING ImagePathName{};
             ImagePathName.Buffer = reinterpret_cast<PWCH>(LdrEntry32->FullDllName.Buffer);
             ImagePathName.Length = LdrEntry32->FullDllName.Length;
             ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
@@ -556,28 +556,28 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     UNICODE_STRING g_SystemRoot = RTL_CONSTANT_STRING(L"\\SystemRoot");
-    wchar_t NtSystemRoot[MAX_PATH] = {0};
-    UNICODE_STRING g_NtSystemRoot = {0};
-    wchar_t DosSystemRoot[MAX_PATH] = {0};
-    UNICODE_STRING g_DosSystemRoot = {0};
+    wchar_t NtSystemRoot[MAX_PATH]{};
+    UNICODE_STRING g_NtSystemRoot{};
+    wchar_t DosSystemRoot[MAX_PATH]{};
+    UNICODE_STRING g_DosSystemRoot{};
 
     UNICODE_STRING g_NTDLL = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\ntdll.dll");
-    wchar_t NtNTDLL[MAX_PATH] = {0};
-    UNICODE_STRING g_NtNTDLL = {0};
-    wchar_t DosNTDLL[MAX_PATH] = {0};
-    UNICODE_STRING g_DosNTDLL = {0};
+    wchar_t NtNTDLL[MAX_PATH]{};
+    UNICODE_STRING g_NtNTDLL{};
+    wchar_t DosNTDLL[MAX_PATH]{};
+    UNICODE_STRING g_DosNTDLL{};
 
     UNICODE_STRING g_Smss = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\smss.exe");
-    wchar_t NtSmss[MAX_PATH] = {0};
-    UNICODE_STRING g_NtSmss = {0};
-    wchar_t DosSmss[MAX_PATH] = {0};
-    UNICODE_STRING g_DosSmss = {0};
+    wchar_t NtSmss[MAX_PATH]{};
+    UNICODE_STRING g_NtSmss{};
+    wchar_t DosSmss[MAX_PATH]{};
+    UNICODE_STRING g_DosSmss{};
 
     UNICODE_STRING g_Csrss = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\csrss.exe");
-    wchar_t NtCsrss[MAX_PATH] = {0};
-    UNICODE_STRING g_NtCsrss = {0};
-    wchar_t DosCsrss[MAX_PATH] = {0};
-    UNICODE_STRING g_DosCsrss = {0};
+    wchar_t NtCsrss[MAX_PATH]{};
+    UNICODE_STRING g_NtCsrss{};
+    wchar_t DosCsrss[MAX_PATH]{};
+    UNICODE_STRING g_DosCsrss{};
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
