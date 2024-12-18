@@ -120,10 +120,7 @@ i的取值可以是0.
 
 NTSTATUS TestIdt()
 {
-    int i = 0;
-
-    for (; i < KeNumberProcessors; i++)//KeQueryMaximumProcessorCount()
-    {
+    for (CCHAR i = 0; i < KeNumberProcessors; i++) { //KeQueryMaximumProcessorCount()
         show_idt(i);
     }
 
