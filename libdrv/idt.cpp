@@ -100,16 +100,19 @@ i的取值可以是0.
     {
         PKIDTENTRY pkidte_t = &pkidte[index];
 
+#pragma warning(push)
+#pragma warning(disable : 6271)
         if (pkidte_t->ExtendedOffset) {
             ISR = pkidte_t->Offset + (pkidte_t->ExtendedOffset << 16);
             KdPrint(("第%d号CPU的第0x%02x中断的地址:0x%p\n", i, index, ISR));
-        } else {//注意：pkidte_t->ExtendedOffset == 0的情况的分析。
+        } else { //注意：pkidte_t->ExtendedOffset == 0的情况的分析。
             if (pkidte_t->Selector == 8) {
                 KdPrint(("第%d号CPU的第0x%02x中断没有使用。Offset:0x%x,Access:0x%x.\n", i, index, pkidte_t->Offset, pkidte_t->Access));
             } else {
                 KdPrint(("第%d号CPU的第0x%02x中断的Task Selector:0x%x, Offset:0x%x, Access:0x%x。\n", i, index, pkidte_t->Selector, pkidte_t->Offset, pkidte_t->Access));
             }
         }
+#pragma warning(pop)
     }
 }
 #endif
