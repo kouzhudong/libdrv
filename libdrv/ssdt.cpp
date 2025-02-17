@@ -141,33 +141,14 @@ IDA中的信息：
 
     // Attempt to open the driver image itself.
     // If this fails, then the driver image cannot be located, so nothing else matters.
-    InitializeObjectAttributes(&ObjectAttributes,
-                               &NTDLL,
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                               nullptr,
-                               nullptr);
-    Status = ZwOpenFile(&ImageFileHandle,
-                        FILE_READ_DATA,// FILE_EXECUTE
-                        &ObjectAttributes,
-                        &IoStatus,
-                        FILE_SHARE_READ | FILE_SHARE_DELETE,
-                        0);
+    InitializeObjectAttributes(&ObjectAttributes, &NTDLL, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
+    Status = ZwOpenFile(&ImageFileHandle, FILE_READ_DATA, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
     if (!NT_SUCCESS(Status)) {
         return index;
     }
 
-    InitializeObjectAttributes(&ObjectAttributes,
-                               nullptr,
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                               nullptr,
-                               nullptr);
-    Status = ZwCreateSection(&Section,
-                             SECTION_MAP_READ,// SECTION_MAP_EXECUTE
-                             &ObjectAttributes,
-                             nullptr,
-                             PAGE_READONLY,// PAGE_EXECUTE
-                             SEC_COMMIT,
-                             ImageFileHandle);
+    InitializeObjectAttributes(&ObjectAttributes, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
+    Status = ZwCreateSection(&Section, SECTION_MAP_READ,  &ObjectAttributes, nullptr, PAGE_READONLY,  SEC_COMMIT, ImageFileHandle);
     if (!NT_SUCCESS(Status)) {
         ZwClose(ImageFileHandle);
         return index;
@@ -180,13 +161,7 @@ IDA中的信息：
     // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
     KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
 
-    Status = ObOpenObjectByPointer(PsInitialSystemProcess,
-                                   OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &Handle);
+    Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     ASSERT(NT_SUCCESS(Status));
 
     Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_READONLY);//PAGE_EXECUTE

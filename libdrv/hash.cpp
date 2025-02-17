@@ -33,12 +33,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/creating-a-hash-with-cng
         }
 
         //calculate the size of the buffer to hold the hash object
-        if (!NT_SUCCESS(Status = BCryptGetProperty(hAlg,
-                                                   BCRYPT_OBJECT_LENGTH,
-                                                   (PBYTE)&cbHashObject,
-                                                   sizeof(DWORD),
-                                                   &cbData,
-                                                   0))) {
+        if (!NT_SUCCESS(Status = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&cbHashObject, sizeof(DWORD), &cbData, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -51,12 +46,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/creating-a-hash-with-cng
         }
 
         //calculate the length of the hash
-        if (!NT_SUCCESS(Status = BCryptGetProperty(hAlg,
-                                                   BCRYPT_HASH_LENGTH,
-                                                   (PBYTE)HashSize,
-                                                   sizeof(DWORD),
-                                                   &cbData,
-                                                   0))) {
+        if (!NT_SUCCESS(Status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PBYTE)HashSize, sizeof(DWORD), &cbData, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -110,12 +100,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/creating-a-hash-with-cng
 }
 
 
-BOOL HashFile(_In_ PFLT_FILTER Filter,
-              __in_opt PFLT_INSTANCE Instance,
-              _In_ PUNICODE_STRING FileName,
-              _In_ LPWSTR algorithm,
-              _Inout_ PUNICODE_STRING lpFileHash
-)
+BOOL HashFile(_In_ PFLT_FILTER Filter, __in_opt PFLT_INSTANCE Instance, _In_ PUNICODE_STRING FileName, _In_ LPWSTR algorithm, _Inout_ PUNICODE_STRING lpFileHash)
 /*
 
 FileName不支持：
@@ -187,12 +172,7 @@ lpFileHash的值由调用者释放。
         Status = BCryptCreateHash(hAlg, &hHash, hashObj, sizeof(hashObj), nullptr, 0, 0);
         ASSERT(NT_SUCCESS(Status));
 
-        Status = ObReferenceObjectByHandle(hFile,
-                                           FILE_LIST_DIRECTORY | SYNCHRONIZE,
-                                           *IoFileObjectType,
-                                           KernelMode,
-                                           (PVOID *)&FileObject,
-                                           nullptr);
+        Status = ObReferenceObjectByHandle(hFile, FILE_LIST_DIRECTORY | SYNCHRONIZE, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, nullptr);
         ASSERT(NT_SUCCESS(Status));
 
         for (;;) {

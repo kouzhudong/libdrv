@@ -4,12 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-VOID PspQueueApcSpecialApc(IN PKAPC Apc,
-                           IN PKNORMAL_ROUTINE * NormalRoutine,
-                           IN PVOID * NormalContext,
-                           IN PVOID * SystemArgument1,
-                           IN PVOID * SystemArgument2
-)
+VOID PspQueueApcSpecialApc(IN PKAPC Apc, IN PKNORMAL_ROUTINE * NormalRoutine, IN PVOID * NormalContext, IN PVOID * SystemArgument1, IN PVOID * SystemArgument2)
 //摘自：\WRK-v1.2\base\ntos\ps\psctx.c
 {
     PAGED_CODE();
@@ -77,9 +72,7 @@ Return Value:
         if (PsGetProcessId(PsInitialSystemProcess) == PsGetThreadProcess(Thread)) {
             st = STATUS_INVALID_HANDLE;
         } else {
-            Apc = (PKAPC)ExAllocatePoolWithQuotaTag(static_cast<POOL_TYPE>(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE),
-                                                    sizeof(*Apc),
-                                                    TAG);
+            Apc = (PKAPC)ExAllocatePoolWithQuotaTag(static_cast<POOL_TYPE>(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE), sizeof(*Apc), TAG);
             if (Apc == nullptr) {
                 st = STATUS_NO_MEMORY;
             } else {
@@ -105,7 +98,7 @@ Return Value:
 }
 
 
-NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
+NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle, 
                                   __in PPS_APC_ROUTINE ApcRoutine,
                                   __in_opt PVOID ApcArgument1,
                                   __in_opt PVOID ApcArgument2,
@@ -124,13 +117,7 @@ NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle,
             Status = STATUS_INVALID_HANDLE;
         } else {
             HANDLE KernelHandle;
-            Status = ObOpenObjectByPointer(Thread,
-                                           OBJ_KERNEL_HANDLE,
-                                           nullptr,
-                                           THREAD_ALERT,
-                                           *PsThreadType,
-                                           KernelMode,
-                                           &KernelHandle);
+            Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, THREAD_ALERT, *PsThreadType, KernelMode, &KernelHandle);
             if (NT_SUCCESS(Status)) {
                 Status = NtQueueApcThread(KernelHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
                 if (!NT_SUCCESS(Status)) {
@@ -181,11 +168,7 @@ Return Value:
 {
     NTSTATUS Status;
 
-    Status = NtQueueApcThread(hThread, 
-                              static_cast<PPS_APC_ROUTINE>(BaseDispatchAPC),
-                              static_cast<PVOID>(pfnAPC),
-                              reinterpret_cast<PVOID>(dwData),
-                              nullptr);
+    Status = NtQueueApcThread(hThread, static_cast<PPS_APC_ROUTINE>(BaseDispatchAPC), static_cast<PVOID>(pfnAPC), reinterpret_cast<PVOID>(dwData), nullptr);
     if (!NT_SUCCESS(Status)) {
         return 0;
     }

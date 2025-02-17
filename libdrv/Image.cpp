@@ -131,10 +131,7 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
                 WCHAR FileName[1024]; //MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {};
 
-            NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
-                                                                 ULongToPtr(LdrEntry32->DllBase),
-                                                                 &s.ObjectNameInfo,
-                                                                 sizeof(s));
+            NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo, sizeof(s));
             if (NT_SUCCESS(Status)) {
                 //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 
@@ -695,17 +692,8 @@ http://correy.webs.com
     __try {
         // Attempt to open the driver image itself.
         // If this fails, then the driver image cannot be located, so nothing else matters.
-        InitializeObjectAttributes(&ObjectAttributes,
-                                   ImageFileName,
-                                   OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   nullptr);
-        Status = ZwOpenFile(&ImageFileHandle,
-                            FILE_ALL_ACCESS, //FILE_EXECUTE
-                            &ObjectAttributes,
-                            &IoStatus,
-                            FILE_SHARE_READ | FILE_SHARE_DELETE,
-                            0);
+        InitializeObjectAttributes(&ObjectAttributes, ImageFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
+        Status = ZwOpenFile(&ImageFileHandle, FILE_ALL_ACCESS,  &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -724,28 +712,13 @@ http://correy.webs.com
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(PsInitialSystemProcess,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_READ,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &Handle);
+        Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
-        Status = ZwMapViewOfSection(Section,
-                                    Handle,
-                                    &ViewBase,
-                                    0L,
-                                    0L,
-                                    nullptr,
-                                    &ViewSize,
-                                    ViewShare,
-                                    0L,
-                                    PAGE_READONLY); //PAGE_EXECUTE
+        Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, nullptr, &ViewSize, ViewShare, 0L, PAGE_READONLY); //PAGE_EXECUTE
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -860,24 +833,10 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 
     PAGED_CODE();
 
-    InitializeObjectAttributes(&ObjectAttributes,
-                               ctx->info.FullImageName,
-                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                               nullptr,
-                               nullptr);
-    ctx->info.Status = ZwOpenFile(&File,
-                                  SYNCHRONIZE | FILE_GENERIC_READ, //FILE_EXECUTE
-                                  &ObjectAttributes,
-                                  &IoStatus,
-                                  FILE_SHARE_READ,
-                                  0);
+    InitializeObjectAttributes(&ObjectAttributes, ctx->info.FullImageName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
+    ctx->info.Status = ZwOpenFile(&File, SYNCHRONIZE | FILE_GENERIC_READ, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
     if (NT_SUCCESS(ctx->info.Status)) {
-        ctx->info.Status = ObReferenceObjectByHandle(File,
-                                                     FILE_READ_ACCESS,
-                                                     *IoFileObjectType,
-                                                     KernelMode,
-                                                     reinterpret_cast<PVOID *>(&FileObject),
-                                                     nullptr);
+        ctx->info.Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, reinterpret_cast<PVOID *>(&FileObject), nullptr);
         if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
             ASSERT(NT_SUCCESS(ctx->info.Status));
@@ -929,7 +888,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 }
 
 
-VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName, 
                                    __in_opt PUNICODE_STRING FullImageName,
                                    __in HANDLE ProcessId,
                                    __in PIMAGE_INFO ImageInfo)

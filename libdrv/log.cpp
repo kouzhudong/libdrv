@@ -100,11 +100,7 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
         RtlAnsiStringToUnicodeString(&usNtStatus, &asNtStatus, TRUE);
         ASSERT(usNtStatus.Buffer);
 
-        ucFinalSize = sizeof(IO_ERROR_LOG_PACKET) +
-            sizeof(ULONG) +
-            usNtStatus.Length +
-            sizeof(WCHAR) +
-            (wcslen(ErroeMessage) + 1) * sizeof(WCHAR);
+        ucFinalSize = sizeof(IO_ERROR_LOG_PACKET) + sizeof(ULONG) + usNtStatus.Length + sizeof(WCHAR) + (wcslen(ErroeMessage) + 1) * sizeof(WCHAR);
         pLogPacket = static_cast<PIO_ERROR_LOG_PACKET>(IoAllocateErrorLogEntry(DriverObject, ucFinalSize));
 
         RtlZeroMemory(pLogPacket, sizeof(IO_ERROR_LOG_PACKET));

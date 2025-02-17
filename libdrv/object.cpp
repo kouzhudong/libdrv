@@ -208,9 +208,7 @@ void GetKnownDllPathEx()
 }
 
 
-void GetSystemRootPathName(PUNICODE_STRING PathName,
-                           PUNICODE_STRING NtPathName,
-                           PUNICODE_STRING DosPathName)
+void GetSystemRootPathName(PUNICODE_STRING PathName, PUNICODE_STRING NtPathName, PUNICODE_STRING DosPathName)
 /*
 功能：主要是获取L"\\SystemRoot"的NT和DOS路径，但是也可以获取以L"\\SystemRoot"开头的任何合法且存在的路径。
 
@@ -261,9 +259,7 @@ void GetSystemRootPathName(PUNICODE_STRING PathName,
 }
 
 
-NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName,
-                           _Inout_ PUNICODE_STRING NtPathName,
-                           _Inout_ PUNICODE_STRING DosPathName)
+NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, _Inout_ PUNICODE_STRING NtPathName, _Inout_ PUNICODE_STRING DosPathName)
 /*
 功能：主要是获取L"\\SystemRoot"的NT和DOS路径，但是也可以获取以L"\\SystemRoot"开头的任何合法且存在的路径。
 
@@ -671,13 +667,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             pchunter没有显示句柄为进程和线程的信息。但是process explorer能。
             process explorer默认的情况下是不显示没有名字的句柄的MAPPINGS的。但是可以设置和修改。
             */
-            Status = ZwDuplicateObject(ProcessHandle,
-                                       (HANDLE)pHandle->HandleValue,
-                                       NtCurrentProcess(),
-                                       &hCopy,
-                                       PROCESS_ALL_ACCESS,
-                                       FALSE,
-                                       DUPLICATE_SAME_ACCESS);
+            Status = ZwDuplicateObject(ProcessHandle, (HANDLE)pHandle->HandleValue, NtCurrentProcess(), &hCopy, PROCESS_ALL_ACCESS, FALSE, DUPLICATE_SAME_ACCESS);
             if (!NT_SUCCESS(Status)) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 continue;
@@ -703,11 +693,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
                 return STATUS_INSUFFICIENT_RESOURCES;
             }
             RtlZeroMemory(ObjectInformation, ObjectInformationLength);
-            Status = ZwQueryObject(hCopy,
-                                   ObjectTypeInformation,
-                                   ObjectInformation,
-                                   ObjectInformationLength,
-                                   &ReturnLength);
+            Status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
             if (!NT_SUCCESS(Status)) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ExFreePoolWithTag(ObjectInformation, TAG);

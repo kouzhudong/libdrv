@@ -67,8 +67,7 @@ void TestRsaEncrypt()
 
     DWORD BlockLength = 0;
     ULONG Result;
-    NtStatus = BCryptGetProperty(
-        hKey, BCRYPT_BLOCK_LENGTH, (PUCHAR)&BlockLength, sizeof(BlockLength), &Result, 0);
+    NtStatus = BCryptGetProperty(hKey, BCRYPT_BLOCK_LENGTH, (PUCHAR)&BlockLength, sizeof(BlockLength), &Result, 0);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 

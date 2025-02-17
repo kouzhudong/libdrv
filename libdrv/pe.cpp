@@ -123,21 +123,18 @@ ULONG Rva2Offset(IN LPVOID Data, IN ULONG Rva)
         return 0;
     }
 
-    FileHeader = reinterpret_cast<IMAGE_FILE_HEADER *>(static_cast<SIZE_T>(DosHeader->e_lfanew) +
-                                                       sizeof(ULONG) + reinterpret_cast<SIZE_T>(Data));
+    FileHeader = reinterpret_cast<IMAGE_FILE_HEADER *>(static_cast<SIZE_T>(DosHeader->e_lfanew) + sizeof(ULONG) + reinterpret_cast<SIZE_T>(Data));
 
     SectionHeader = reinterpret_cast<IMAGE_SECTION_HEADER *>(static_cast<ULONG>(DosHeader->e_lfanew) +
                                                              sizeof(ULONG) +
                                                              sizeof(IMAGE_FILE_HEADER) +
                                                              FileHeader->SizeOfOptionalHeader); //必须加(ULONG),不然出错.
 
-    SectionHeader = reinterpret_cast<IMAGE_SECTION_HEADER *>(reinterpret_cast<SIZE_T>(SectionHeader) + 
-                                                             reinterpret_cast<SIZE_T>(Data));
+    SectionHeader = reinterpret_cast<IMAGE_SECTION_HEADER *>(reinterpret_cast<SIZE_T>(SectionHeader) + reinterpret_cast<SIZE_T>(Data));
 
     for (; i < FileHeader->NumberOfSections; i++) //规范规定是从1开始的.
     {
-        if (Rva >= SectionHeader[i].VirtualAddress &&
-            Rva <= (SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize)) {
+        if (Rva >= SectionHeader[i].VirtualAddress && Rva <= (SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize)) {
             Offset = Rva - SectionHeader[i].VirtualAddress + SectionHeader[i].PointerToRawData;
             break;
         }
@@ -162,8 +159,7 @@ UINT Rva2Va(_In_ PBYTE Data, _In_ UINT Rva)
     //注意：有个宏叫IMAGE_FIRST_SECTION。
 
     for (WORD i = 0; i < FileHeader->NumberOfSections; i++) {
-        if (Rva >= SectionHeader[i].VirtualAddress &&
-            Rva <= SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize) {
+        if (Rva >= SectionHeader[i].VirtualAddress && Rva <= SectionHeader[i].VirtualAddress + SectionHeader[i].Misc.VirtualSize) {
             Offset = Rva - SectionHeader[i].VirtualAddress + SectionHeader[i].PointerToRawData;
             break;
         }
@@ -214,10 +210,7 @@ Return Value:
     }
 
     //确保DllBase可以访问。否则蓝屏。
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
-                                                                            TRUE,
-                                                                            IMAGE_DIRECTORY_ENTRY_EXPORT,
-                                                                            &ExportSize);
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
     if (ExportDirectory == nullptr) {
         return nullptr;
     }
@@ -279,8 +272,7 @@ Return Value:
     FunctionAddress = (PVOID)((PCHAR)DllBase + Offset);
 
     // Forwarders are not used by the kernel and HAL to each other.
-    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) ||
-           (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
+    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) || (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
 
     return FunctionAddress;
 }
@@ -349,10 +341,7 @@ made at 2014.08.18
     }
 
     //确保DllBase可以访问。否则蓝屏。
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
-                                                                            TRUE,
-                                                                            IMAGE_DIRECTORY_ENTRY_EXPORT,
-                                                                            &ExportSize);
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
     if (ExportDirectory == nullptr) {
         return nullptr;
     }
@@ -400,8 +389,7 @@ made at 2014.08.18
     FunctionAddress = (PVOID)((PCHAR)DllBase + Addr[OrdinalNumber]);
 
     // Forwarders are not used by the kernel and HAL to each other.
-    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) ||
-           (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
+    ASSERT((FunctionAddress <= (PVOID)ExportDirectory) || (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
 
     return FunctionAddress;
 }
@@ -410,10 +398,7 @@ made at 2014.08.18
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase,
-                                            _In_ PUNICODE_STRING FullDllName,
-                                            _In_opt_ PVOID Context
-)
+NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase, _In_ PUNICODE_STRING FullDllName, _In_opt_ PVOID Context)
 /*
 枚举用户模块的回调函数。
 
@@ -472,9 +457,7 @@ DllFullName：模块的全路径。
 }
 
 
-NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
-                                       _In_ PMEMORY_BASIC_INFORMATION MemoryBasicInfo,
-                                       _In_opt_ PVOID Context)
+NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid, _In_ PMEMORY_BASIC_INFORMATION MemoryBasicInfo, _In_opt_ PVOID Context)
 {
     NTSTATUS Status = STATUS_SUCCESS;
     PEPROCESS Process = nullptr;
@@ -499,22 +482,13 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_READ,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
         }
 
-        Status = GetMemoryMappedFilenameInformation(KernelHandle,
-                                                    MemoryBasicInfo->BaseAddress,
-                                                    &s.ObjectNameInfo,
-                                                    sizeof(s));
+        Status = GetMemoryMappedFilenameInformation(KernelHandle, MemoryBasicInfo->BaseAddress, &s.ObjectNameInfo, sizeof(s));
         if (!NT_SUCCESS(Status)) { //地址为0会返回STATUS_INVALID_ADDRESS。
             //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
@@ -534,8 +508,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid,
 
         ANSI_STRING FunctionName{};
         RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
-        UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress,
-                                                                               &FunctionName);
+        UserFunctionAddress->UserFunctionAddress = MiFindExportedRoutineByName(MemoryBasicInfo->BaseAddress, &FunctionName);
         if (UserFunctionAddress->UserFunctionAddress) {
             Status = STATUS_SUCCESS; //结束上层的枚举。
         }
@@ -646,17 +619,11 @@ wdk编译的驱动入口是添加的，非真正的入口，汇编写的驱动�
 
     #pragma prefast(push)
     #pragma prefast(disable : 28145, "The opaque MDL structure should not be modified by a driver.")
-        ClearFlag(pmdl->MdlFlags,
-                  MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
+        ClearFlag(pmdl->MdlFlags, MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
         SetFlag(pmdl->MdlFlags, MDL_PAGES_LOCKED);
     #pragma prefast(pop)
 
-        EntryPoint = static_cast<PSIZE_T>(MmMapLockedPagesSpecifyCache(pmdl,
-                                                                       KernelMode,
-                                                                       MmCached,
-                                                                       nullptr,
-                                                                       FALSE,
-                                                                       NormalPagePriority));
+        EntryPoint = static_cast<PSIZE_T>(MmMapLockedPagesSpecifyCache(pmdl, KernelMode, MmCached, nullptr, FALSE, NormalPagePriority));
         if (!EntryPoint) {
             __leave;
         }
@@ -749,18 +716,12 @@ BOOL ModifyPe64Entry(_In_ PVOID ImageBase)
 
     #pragma prefast(push)
     #pragma prefast(disable : 28145, "The opaque MDL structure should not be modified by a driver.")
-        ClearFlag(pmdl->MdlFlags,
-                  MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
+        ClearFlag(pmdl->MdlFlags, MDL_MAPPED_TO_SYSTEM_VA | MDL_SOURCE_IS_NONPAGED_POOL | MDL_PARTIAL_HAS_BEEN_MAPPED);
         SetFlag(pmdl->MdlFlags, MDL_PAGES_LOCKED);
     #pragma prefast(pop)
 
         //WIN10验证器下会有系统的断言，说specified an executable MDL mapping。
-        EntryPoint = reinterpret_cast<PSIZE_T>(MmMapLockedPagesSpecifyCache(pmdl,
-                                                                            KernelMode,
-                                                                            MmCached,
-                                                                            nullptr,
-                                                                            FALSE,
-                                                                            NormalPagePriority));
+        EntryPoint = reinterpret_cast<PSIZE_T>(MmMapLockedPagesSpecifyCache(pmdl, KernelMode, MmCached, nullptr, FALSE, NormalPagePriority));
         if (!EntryPoint) {
             __leave;
         }
@@ -863,15 +824,7 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\
     ASSERT(NT_SUCCESS(Status));
 
     //如果要处理大于4G的数据请加个循环。不过大于4G的数据也很难映射成功。
-    Status = ZwWriteFile(DestinationFileHandle,
-                         nullptr,
-                         nullptr,
-                         nullptr,
-                         &IoStatusBlock,
-                         MessageData,
-                         Size,
-                         &ByteOffset,
-                         nullptr);
+    Status = ZwWriteFile(DestinationFileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, MessageData, Size, &ByteOffset, nullptr);
     ASSERT(NT_SUCCESS(Status));
 
     ZwClose(DestinationFileHandle);
@@ -942,10 +895,7 @@ BOOL IsProcessPe64(_In_ HANDLE UniqueProcess)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS CALLBACK GetRoutineAddressCallBack(ULONG numberOfModules,
-                                            PAUX_MODULE_EXTENDED_INFO modules,
-                                            _In_opt_ PVOID Context
-)
+NTSTATUS CALLBACK GetRoutineAddressCallBack(ULONG numberOfModules, PAUX_MODULE_EXTENDED_INFO modules, _In_opt_ PVOID Context)
 /*
 枚举内核模块（EnumAllKernelModule）的回调函数。
 
@@ -961,9 +911,7 @@ NTSTATUS CALLBACK GetRoutineAddressCallBack(ULONG numberOfModules,
         PUCHAR ModuleName = modules[i].FullPathName + modules[i].FileNameOffset;
         PVOID ImageBase = modules[i].BasicInfo.ImageBase;
 
-        if (_strnicmp(reinterpret_cast<char const *>(ModuleInfo->FullPathName),
-                      reinterpret_cast<char const *>(ModuleName),
-                      AUX_KLIB_MODULE_PATH_LEN) == 0) {
+        if (_strnicmp(reinterpret_cast<char const *>(ModuleInfo->FullPathName), reinterpret_cast<char const *>(ModuleName), AUX_KLIB_MODULE_PATH_LEN) == 0) {
             ModuleInfo->BasicInfo.ImageBase = ImageBase;
             break;
         }

@@ -185,7 +185,7 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 
     RtlTimeToTimeFields(st, &tf);
 
-    Status = RtlStringCbPrintfW(TimeString->Buffer,
+    Status = RtlStringCbPrintfW(TimeString->Buffer, 
                                 TimeString->MaximumLength,
                                 L"%04d-%02d-%02d %02d:%02d:%02d",
                                 tf.Year,

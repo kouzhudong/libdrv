@@ -29,13 +29,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
     }
 
     HANDLE  KernelHandle{};
-    Status = ObOpenObjectByPointer(Process,
-                                   OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &KernelHandle);
+    Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ObDereferenceObject(Process);
@@ -51,12 +45,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
 
     for (; Address < HighestUserAddress;) {
         MEMORY_BASIC_INFORMATION MemoryBasicInfo = {};
-        Status = ZwQueryVirtualMemoryFn(KernelHandle,
-                                        (PVOID)Address,
-                                        MemoryBasicInformation,
-                                        &MemoryBasicInfo,
-                                        sizeof(MEMORY_BASIC_INFORMATION),
-                                        &ReturnLength);
+        Status = ZwQueryVirtualMemoryFn(KernelHandle, (PVOID)Address, MemoryBasicInformation, &MemoryBasicInfo, sizeof(MEMORY_BASIC_INFORMATION), &ReturnLength);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             //if (0 == MemoryBasicInfo.RegionSize) {

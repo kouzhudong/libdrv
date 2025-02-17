@@ -22,13 +22,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     }
 
     HANDLE kernelThreadHandle = nullptr;
-    Status = ObOpenObjectByPointer(Thread,
-                                   OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   GENERIC_READ,
-                                   *PsThreadType,
-                                   KernelMode,
-                                   &kernelThreadHandle);//注意要关闭句柄。  
+    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsThreadType, KernelMode, &kernelThreadHandle);//注意要关闭句柄。  
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Thread);
@@ -39,11 +33,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     ULONG ThreadInformationLength = sizeof(PVOID);
     SIZE_T ThreadInformation = 0;
     THREADINFOCLASS ThreadInformationClass = ThreadQuerySetWin32StartAddress;
-    Status = ZwQueryInformationThread(kernelThreadHandle,
-                                      ThreadInformationClass,
-                                      &ThreadInformation,
-                                      ThreadInformationLength,
-                                      &ReturnLength);
+    Status = ZwQueryInformationThread(kernelThreadHandle, ThreadInformationClass, &ThreadInformation, ThreadInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     }
@@ -145,12 +135,7 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
 }
 
 
-void ApcCallback(PKAPC Apc,
-                 PKNORMAL_ROUTINE NormalRoutine,
-                 PVOID NormalContext,
-                 PVOID SystemArgument1,
-                 PVOID SystemArgument2
-)
+void ApcCallback(PKAPC Apc, PKNORMAL_ROUTINE NormalRoutine, PVOID NormalContext, PVOID SystemArgument1, PVOID SystemArgument2)
 /*
 注意这里所在的线程环境和IRQL。
 */
@@ -207,13 +192,7 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
     }
 
     //KernelMode/UserMode获取的都是内核句柄，都可以用，且都可以杀死线程。
-    Status = ObOpenObjectByPointer(Thread,
-                                   OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   GENERIC_ALL,
-                                   *PsThreadType,
-                                   KernelMode,
-                                   &kernelThreadHandle);//注意要关闭句柄。  
+    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsThreadType, KernelMode, &kernelThreadHandle);//注意要关闭句柄。  
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
@@ -438,13 +417,7 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_ALL,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
@@ -525,13 +498,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_ALL,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;

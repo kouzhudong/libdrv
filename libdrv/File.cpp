@@ -77,17 +77,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
         }
         RtlZeroMemory(FileInformation, Length);
 
-        Status = ZwQueryDirectoryFile(FileHandle,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr,
-                                      &IoStatusBlock,
-                                      FileInformation,
-                                      Length,
-                                      FileDirectoryInformation,
-                                      FALSE,
-                                      nullptr,
-                                      TRUE);
+        Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, FALSE, nullptr, TRUE);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
             //return Status;
@@ -174,17 +164,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     }
     RtlZeroMemory(FileInformation, Length);
 
-    Status = ZwQueryDirectoryFile(FileHandle,
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  &IoStatusBlock,
-                                  FileInformation,
-                                  Length,
-                                  FileDirectoryInformation,
-                                  TRUE,
-                                  nullptr,
-                                  TRUE);
+    Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, TRUE);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
         ExFreePoolWithTag(FileInformation, TAG);
@@ -196,17 +176,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
         UNICODE_STRING FileName{};
         FILE_DIRECTORY_INFORMATION * fibdi{};
 
-        Status = ZwQueryDirectoryFile(FileHandle,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr,
-                                      &IoStatusBlock,
-                                      FileInformation,
-                                      Length,
-                                      FileDirectoryInformation,
-                                      TRUE,
-                                      nullptr,
-                                      FALSE);
+        Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, FALSE);
         if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
             break;//这里好像没有走过。
         }
@@ -291,13 +261,7 @@ Length：扇区的倍数。
     partitionTableOffset.QuadPart = StartingOffset;
 
     KeInitializeEvent(&event, NotificationEvent, FALSE);
-    irp = IoBuildSynchronousFsdRequest(IRP_MJ_WRITE,
-                                       DeviceObject,
-                                       Buffer,
-                                       Length,
-                                       &partitionTableOffset,
-                                       &event,
-                                       &ioStatus);
+    irp = IoBuildSynchronousFsdRequest(IRP_MJ_WRITE, DeviceObject, Buffer, Length, &partitionTableOffset, &event, &ioStatus);
     if (!irp) {
         ObDereferenceObject(FileObject);
         return;
@@ -352,13 +316,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
     }
 
     KeInitializeEvent(&event, NotificationEvent, FALSE);
-    irp = IoBuildSynchronousFsdRequest(IRP_MJ_READ,
-                                       DeviceObject,
-                                       readBuffer,
-                                       readSize,
-                                       &partitionTableOffset,
-                                       &event,
-                                       &ioStatus);
+    irp = IoBuildSynchronousFsdRequest(IRP_MJ_READ, DeviceObject, readBuffer, readSize, &partitionTableOffset, &event, &ioStatus);
     if (!irp) {
         ExFreePool(readBuffer);
         return;
@@ -388,10 +346,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
 
 #if (NTDDI_VERSION < NTDDI_WIN7)
 //NTKERNELAPI
-NTSTATUS IoReplaceFileObjectName(_In_ PFILE_OBJECT FileObject,
-                                 _In_reads_bytes_(FileNameLength) PWSTR NewFileName,
-                                 _In_ USHORT FileNameLength
-)
+NTSTATUS IoReplaceFileObjectName(_In_ PFILE_OBJECT FileObject, _In_reads_bytes_(FileNameLength) PWSTR NewFileName, _In_ USHORT FileNameLength)
 /*++
 Routine Description:
     This routine is used to replace a file object's name with a provided name.
@@ -444,10 +399,7 @@ CopyAndReturn:
 #endif
 
 
-NTSTATUS ZwGetDosFileName(_Inout_ PFLT_CALLBACK_DATA Data,
-                          _In_ PCFLT_RELATED_OBJECTS FltObjects,
-                          OUT PUNICODE_STRING DosFileName
-)
+NTSTATUS ZwGetDosFileName(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, OUT PUNICODE_STRING DosFileName)
 /*
 功能：获取文件的DOS名。
 主要用于Create的前后操作，因为后面的操作肯定是从自己保持的上下文中获取的。
@@ -682,12 +634,7 @@ http://correy.webs.com
 {
     FILE_INTERNAL_INFORMATION fileInternalInfo{};
     ULONG LengthReturned = 0;
-    NTSTATUS Status = FltQueryInformationFile(Instance,
-                                              FileObject,
-                                              &fileInternalInfo,
-                                              sizeof(fileInternalInfo),
-                                              FileInternalInformation,
-                                              &LengthReturned);
+    NTSTATUS Status = FltQueryInformationFile(Instance, FileObject, &fileInternalInfo, sizeof(fileInternalInfo), FileInternalInformation, &LengthReturned);
     if (NT_SUCCESS(Status)) {
         ULONGLONG mftIndex = fileInternalInfo.IndexNumber.QuadPart & ~0xF0000000;// Use the name in the metadata name index
         if (mftIndex <= MAX_NTFS_METADATA_FILE) {

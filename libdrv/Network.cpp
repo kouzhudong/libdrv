@@ -105,10 +105,7 @@ made at 2014.12.25
 }
 
 
-NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
-                         IN PFILE_OBJECT FileObject,
-                         OUT PTDI_ADDRESS_INFO LocalAddress
-)
+NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject, IN PFILE_OBJECT FileObject, OUT PTDI_ADDRESS_INFO LocalAddress)
 /*
 功能：此函数用于TDI过滤驱动中获取本地的IP（IPv4/6）地址。
 

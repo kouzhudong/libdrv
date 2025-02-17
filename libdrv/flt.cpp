@@ -9,10 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
-                                     __in PCFLT_RELATED_OBJECTS FltObjects,
-                                     OUT PUNICODE_STRING usFullPath
-)
+NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_RELATED_OBJECTS FltObjects, OUT PUNICODE_STRING usFullPath)
 /*
 写这个函数的原因是：FltGetFileNameInformation对于不存在的路径会返回失败。
 也许不应该这样做，实在是找不到办法了。

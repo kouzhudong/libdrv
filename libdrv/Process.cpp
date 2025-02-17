@@ -208,7 +208,7 @@ ZwQueryInformationToken(TokenUser) + RtlConvertSidToUnicodeString(SeConvertSidTo
             __leave;
         }
 
-        User->MaximumLength = UserInformation->LogonDomainName.Length +
+        User->MaximumLength = UserInformation->LogonDomainName.Length + 
                               UserInformation->UserName.Length + sizeof(wchar_t) + sizeof(wchar_t); //一个是斜杠，一个是NULL宽字符。
         Status = AllocateUnicodeString(User);
         if (!NT_SUCCESS(Status)) {
@@ -288,10 +288,7 @@ made at 2013.11.15
 
 
 //#pragma alloc_text(PAGE, GetFullDosProcessImageFileName)
-BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter,
-                                    _In_opt_ PFLT_INSTANCE Instance,
-                                    _In_ HANDLE Pid,
-                                    _Inout_ PUNICODE_STRING FileName)
+BOOL GetFullDosProcessImageFileName(_In_ PFLT_FILTER Filter, _In_opt_ PFLT_INSTANCE Instance, _In_ HANDLE Pid, _Inout_ PUNICODE_STRING FileName)
 /*
 对于IDLE，system，registry，interrupts，memory compression等是获取不到进程的路径的。
 Registry进程的路径竟然能获取到：Registry，因为存在\Registry对象。
@@ -348,11 +345,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对�
     }
 
     //获取需要的内存。
-    Status = ZwQueryInformationProcess(Handle,
-                                       ProcessImageFileName,
-                                       us_ProcessImageFileName,
-                                       ProcessInformationLength,
-                                       &ReturnLength);
+    Status = ZwQueryInformationProcess(Handle, ProcessImageFileName, us_ProcessImageFileName, ProcessInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(Handle);
@@ -369,11 +362,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对�
     }
     RtlZeroMemory(us_ProcessImageFileName, ReturnLength);
 
-    Status = ZwQueryInformationProcess(Handle,
-                                       ProcessImageFileName,
-                                       us_ProcessImageFileName,
-                                       ProcessInformationLength,
-                                       &ReturnLength);
+    Status = ZwQueryInformationProcess(Handle, ProcessImageFileName, us_ProcessImageFileName, ProcessInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(us_ProcessImageFileName, TAG);
@@ -517,11 +506,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对�
     //获取需要的内存。
     ULONG ProcessInformationLength = 0;
     ULONG ReturnLength = 0;
-    Status = ZwQueryInformationProcess(Handle,
-                                       ProcessImageFileName,
-                                       *ProcessFileName,
-                                       ProcessInformationLength,
-                                       &ReturnLength);
+    Status = ZwQueryInformationProcess(Handle, ProcessImageFileName, *ProcessFileName, ProcessInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(Handle);
@@ -539,11 +524,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对�
 
     //真正的操作。
     BOOL ret = TRUE;
-    Status = ZwQueryInformationProcess(Handle,
-                                       ProcessImageFileName,
-                                       *ProcessFileName,
-                                       ProcessInformationLength,
-                                       &ReturnLength);
+    Status = ZwQueryInformationProcess(Handle, ProcessImageFileName, *ProcessFileName, ProcessInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(*ProcessFileName, TAG);
@@ -845,13 +826,7 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_READ,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -860,11 +835,7 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
         //获取需要的内存。
         ULONG ProcessInformationLength = 0;
         ULONG ReturnLength = 0;
-        Status = ZwQueryInformationProcess(KernelHandle,
-                                           ProcessImageFileName,
-                                           ProcessInformation,
-                                           ProcessInformationLength,
-                                           &ReturnLength);
+        Status = ZwQueryInformationProcess(KernelHandle, ProcessImageFileName, ProcessInformation, ProcessInformationLength, &ReturnLength);
         if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -878,11 +849,7 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
         }
         RtlZeroMemory(ProcessInformation, ReturnLength);
 
-        Status = ZwQueryInformationProcess(KernelHandle,
-                                           ProcessImageFileName,
-                                           ProcessInformation,
-                                           ProcessInformationLength,
-                                           &ReturnLength);
+        Status = ZwQueryInformationProcess(KernelHandle, ProcessImageFileName, ProcessInformation, ProcessInformationLength, &ReturnLength);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -1127,13 +1094,7 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
     ObDereferenceObject(Process); //微软建议加上。
 
     HANDLE KernelHandle{};
-    Status = ObOpenObjectByPointer(Process,
-                                   OBJ_KERNEL_HANDLE,
-                                   nullptr,
-                                   GENERIC_READ,
-                                   *PsProcessType,
-                                   KernelMode,
-                                   &KernelHandle); //注意要关闭句柄。
+    Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle); //注意要关闭句柄。
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ParentsPID;
@@ -1141,11 +1102,7 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
 
     PROCESS_BASIC_INFORMATION ProcessBasicInfo = {0};
     ULONG ReturnLength = 0;
-    Status = ZwQueryInformationProcess(KernelHandle,
-                                       ProcessBasicInformation,
-                                       &ProcessBasicInfo,
-                                       sizeof(PROCESS_BASIC_INFORMATION),
-                                       &ReturnLength);
+    Status = ZwQueryInformationProcess(KernelHandle, ProcessBasicInformation, &ProcessBasicInfo, sizeof(PROCESS_BASIC_INFORMATION), &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ZwClose(KernelHandle);
@@ -1425,11 +1382,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--iu
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle,
-                                       ProcessBasicInformation,
-                                       &extendedInfo,
-                                       sizeof(extendedInfo),
-                                       nullptr);
+    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *SecureProcess = (BOOLEAN)(extendedInfo.IsSecureProcess != 0);
     }
@@ -1455,11 +1408,7 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle,
-                                       ProcessBasicInformation,
-                                       &extendedInfo,
-                                       sizeof(extendedInfo),
-                                       nullptr);
+    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *ProtectedProcess = (BOOLEAN)(extendedInfo.IsProtectedProcess != 0);
     }
@@ -1494,11 +1443,7 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
     extendedInfo.Size = sizeof(extendedInfo);
 
     // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle,
-                                       ProcessBasicInformation,
-                                       &extendedInfo,
-                                       sizeof(extendedInfo),
-                                       nullptr);
+    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *Wow64Process = static_cast<BOOLEAN>(extendedInfo.IsWow64Process != 0);
     }
@@ -1521,13 +1466,7 @@ BOOLEAN IsWow64Process(_In_ HANDLE ProcessHandle)
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process,
-                                       OBJ_KERNEL_HANDLE,
-                                       nullptr,
-                                       GENERIC_READ,
-                                       *PsProcessType,
-                                       KernelMode,
-                                       &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
