@@ -61,12 +61,7 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
         return Status;
     }
 
-    Status = ZwQueryVirtualMemoryFn(KernelProcessHandle, //NtCurrentProcess(),
-                                    DllBase,
-                                    MemoryMappedFilenameInformation,
-                                    MemoryInformation,
-                                    MemoryInformationLength,
-                                    &ReturnLength);
+    Status = ZwQueryVirtualMemoryFn(KernelProcessHandle, DllBase, MemoryMappedFilenameInformation, MemoryInformation, MemoryInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         //Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
     } else {

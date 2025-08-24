@@ -58,17 +58,16 @@ typedef struct _KLDR_DATA_TABLE_ENTRY { //对比发现，和_LDR_DATA_TABLE_ENTR
     UNICODE_STRING BaseDllName;
     ULONG Flags;
     USHORT LoadCount;
-    USHORT __Unused5;//名字不一样而已。
+    USHORT __Unused5; //名字不一样而已。
     PVOID SectionPointer;
-    ULONG CheckSum;//从下面开始有变动。
+    ULONG CheckSum; //从下面开始有变动。
     // ULONG padding on IA64
     PVOID LoadedImports;
     PVOID PatchInformation;
-} KLDR_DATA_TABLE_ENTRY, * PKLDR_DATA_TABLE_ENTRY;
+} KLDR_DATA_TABLE_ENTRY, *PKLDR_DATA_TABLE_ENTRY;
 
 
-typedef struct _KLDR_DATA_TABLE_ENTRY32
-{
+typedef struct _KLDR_DATA_TABLE_ENTRY32 {
     LIST_ENTRY32 InLoadOrderLinks;
     ULONG __Undefined1;
     ULONG __Undefined2;
@@ -82,20 +81,15 @@ typedef struct _KLDR_DATA_TABLE_ENTRY32
     ULONG Flags;
     USHORT LoadCount;
     USHORT __Undefined5;
-    ULONG  __Undefined6;
-    ULONG  CheckSum;
-    ULONG  TimeDateStamp;
+    ULONG __Undefined6;
+    ULONG CheckSum;
+    ULONG TimeDateStamp;
 
-    //
-    // NOTE : Do not grow this structure at the dump files used a packed
-    // array of these structures.
-    //
-
-} KLDR_DATA_TABLE_ENTRY32, * PKLDR_DATA_TABLE_ENTRY32;
+    // NOTE : Do not grow this structure at the dump files used a packed array of these structures.
+} KLDR_DATA_TABLE_ENTRY32, *PKLDR_DATA_TABLE_ENTRY32;
 
 
-typedef struct _KLDR_DATA_TABLE_ENTRY64
-{
+typedef struct _KLDR_DATA_TABLE_ENTRY64 {
     LIST_ENTRY64 InLoadOrderLinks;
     ULONG64 __Undefined1;
     ULONG64 __Undefined2;
@@ -106,30 +100,24 @@ typedef struct _KLDR_DATA_TABLE_ENTRY64
     ULONG SizeOfImage;
     UNICODE_STRING64 FullDllName;
     UNICODE_STRING64 BaseDllName;
-    ULONG   Flags;
-    USHORT  LoadCount;
-    USHORT  __Undefined5;
+    ULONG Flags;
+    USHORT LoadCount;
+    USHORT __Undefined5;
     ULONG64 __Undefined6;
-    ULONG   CheckSum;
-    ULONG   __padding1;
-    ULONG   TimeDateStamp;
-    ULONG   __padding2;
+    ULONG CheckSum;
+    ULONG __padding1;
+    ULONG TimeDateStamp;
+    ULONG __padding2;
 
-    //
-    // NOTE : Do not grow this structure at the dump files used a packed
-    // array of these structures.
-    //
-
-} KLDR_DATA_TABLE_ENTRY64, * PKLDR_DATA_TABLE_ENTRY64;
+    // NOTE : Do not grow this structure at the dump files used a packed array of these structures.
+} KLDR_DATA_TABLE_ENTRY64, *PKLDR_DATA_TABLE_ENTRY64;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //这些数据都是系统定义的，而不是自己定义的。
 
 
-//\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntldr.h
-typedef struct _LDR_DATA_TABLE_ENTRY32
-{
+typedef struct _LDR_DATA_TABLE_ENTRY32 {//\WRK-v1.2\public\sdk\inc\ntldr.h
     LIST_ENTRY32 InLoadOrderLinks;
     LIST_ENTRY32 InMemoryOrderLinks;
     LIST_ENTRY32 InInitializationOrderLinks;
@@ -141,20 +129,18 @@ typedef struct _LDR_DATA_TABLE_ENTRY32
     ULONG Flags;
     USHORT LoadCount;
     USHORT TlsIndex;
-    union
-    {
+    union {
         LIST_ENTRY32 HashLinks;
         struct
         {
             ULONG SectionPointer;
-            ULONG  CheckSum;
+            ULONG CheckSum;
         };
     };
-    union
-    {
+    union {
         struct
         {
-            ULONG  TimeDateStamp;
+            ULONG TimeDateStamp;
         };
         struct
         {
@@ -163,39 +149,36 @@ typedef struct _LDR_DATA_TABLE_ENTRY32
     };
 
     // NOTE : Do not grow this structure at the dump files used a packed array of these structures.
-} LDR_DATA_TABLE_ENTRY32, * PLDR_DATA_TABLE_ENTRY32;
+} LDR_DATA_TABLE_ENTRY32, *PLDR_DATA_TABLE_ENTRY32;
 
 
 //\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\internal\base\inc\wow64t.h
-#define TYPE32(x)   ULONG
-#define TYPE64(x)   ULONGLONG
+#define TYPE32(x) ULONG
+#define TYPE64(x) ULONGLONG
 
 
-//\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\internal\base\inc\wow64t.h
-typedef struct _PEB_LDR_DATA32
-{
+typedef struct _PEB_LDR_DATA32 {//WRK-v1.2\public\internal\base\inc\wow64t.h
     ULONG Length;
     BOOLEAN Initialized;
-    TYPE32(HANDLE) SsHandle;
+    TYPE32(HANDLE)
+    SsHandle;
     LIST_ENTRY32 InLoadOrderModuleList;
     LIST_ENTRY32 InMemoryOrderModuleList;
     LIST_ENTRY32 InInitializationOrderModuleList;
-    TYPE32(PVOID) EntryInProgress;
-} PEB_LDR_DATA32, * PPEB_LDR_DATA32;
+    TYPE32(PVOID)
+    EntryInProgress;
+} PEB_LDR_DATA32, *PPEB_LDR_DATA32;
 
 
-//摘自WRK的ps.h。
-typedef struct _WOW64_PROCESS
-{
+typedef struct _WOW64_PROCESS {//摘自WRK的ps.h。
     PVOID Wow64;
-} WOW64_PROCESS, * PWOW64_PROCESS;
+} WOW64_PROCESS, *PWOW64_PROCESS;
 
 
 /*
 摘自：http://msdn.microsoft.com/en-us/library/windows/desktop/aa813708(v=vs.85).aspx
 */
-typedef struct _LDR_DATA_TABLE_ENTRY
-{
+typedef struct _LDR_DATA_TABLE_ENTRY {
     PVOID Reserved1[2];
     LIST_ENTRY InMemoryOrderLinks;
     PVOID Reserved2[2];
@@ -205,13 +188,12 @@ typedef struct _LDR_DATA_TABLE_ENTRY
     UNICODE_STRING FullDllName;
     BYTE Reserved4[8];
     PVOID Reserved5[3];
-    union
-    {
+    union {
         ULONG CheckSum;
         PVOID Reserved6;
     };
     ULONG TimeDateStamp;
-} LDR_DATA_TABLE_ENTRY, * PLDR_DATA_TABLE_ENTRY;
+} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
 
 
 //https://www.nirsoft.net/kernel_struct/vista/LDR_DATA_TABLE_ENTRY.html
@@ -253,9 +235,8 @@ typedef struct _LDR_DATA_TABLE_ENTRY
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntldr.h
-typedef struct _RTL_PROCESS_MODULE_INFORMATION {
-    HANDLE Section;                 // Not filled in
+typedef struct _RTL_PROCESS_MODULE_INFORMATION {//WRK-v1.2\public\sdk\inc\ntldr.h
+    HANDLE Section; // Not filled in
     PVOID MappedBase;
     PVOID ImageBase;
     ULONG ImageSize;
@@ -264,15 +245,14 @@ typedef struct _RTL_PROCESS_MODULE_INFORMATION {
     USHORT InitOrderIndex;
     USHORT LoadCount;
     USHORT OffsetToFileName;
-    UCHAR  FullPathName[256];//注意结构对齐。发现这里的前四个字节应该是前面几个签名成员的值。
-} RTL_PROCESS_MODULE_INFORMATION, * PRTL_PROCESS_MODULE_INFORMATION;
+    UCHAR FullPathName[256]; //注意结构对齐。发现这里的前四个字节应该是前面几个签名成员的值。
+} RTL_PROCESS_MODULE_INFORMATION, *PRTL_PROCESS_MODULE_INFORMATION;
 
 
-//\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntldr.h
-typedef struct _RTL_PROCESS_MODULES {
+typedef struct _RTL_PROCESS_MODULES {//WRK-v1.2\public\sdk\inc\ntldr.h
     ULONG NumberOfModules;
     RTL_PROCESS_MODULE_INFORMATION Modules[1];
-} RTL_PROCESS_MODULES, * PRTL_PROCESS_MODULES;
+} RTL_PROCESS_MODULES, *PRTL_PROCESS_MODULES;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,28 +264,26 @@ typedef struct _ImageContext {
 
     OUT UNICODE_STRING ImageLoaded;
 
-    IN HANDLE  ProcessId;
-    IN PUNICODE_STRING  FullImageName;
+    IN HANDLE ProcessId;
+    IN PUNICODE_STRING FullImageName;
 
-    IN PIMAGE_INFO  ImageInfo;
+    IN PIMAGE_INFO ImageInfo;
     IN PIMAGE_INFO_EX ImageInfoEx;
-}ImageContext, * PImageContext;
+} ImageContext, *PImageContext;
 
 
 typedef struct _LOAD_IMAGE_CONTEXT {
     WORK_QUEUE_ITEM hdr;
     ImageContext info;
     PKEVENT Event;
-}LOAD_IMAGE_CONTEXT, * PLOAD_IMAGE_CONTEXT;
+} LOAD_IMAGE_CONTEXT, *PLOAD_IMAGE_CONTEXT;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 typedef NTSTATUS(WINAPI * HandleKernelModule)(_In_ ULONG numberOfModules, _In_ PAUX_MODULE_EXTENDED_INFO ModuleInfo, _In_opt_ PVOID Context);
-
 typedef NTSTATUS(WINAPI * HandleUserModule)(_In_ PVOID DllBase, _In_ PUNICODE_STRING FullDllName, _In_opt_ PVOID Context);
-
 typedef NTSTATUS(NTAPI * HandleSection)(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_opt_ PVOID Context);
 
 
@@ -329,7 +307,7 @@ PVOID GetNtdllImageBase(PEPROCESS Process);
 
 BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, _In_opt_ HandleSection CallBack, _In_opt_ PVOID Context);
 
-NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
+NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle,
                                             _In_opt_ PVOID DllBase,
                                             _Out_writes_bytes_(MemoryInformationLength) PVOID MemoryInformation,
                                             _In_ SIZE_T MemoryInformationLength);
@@ -337,9 +315,9 @@ NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle,
 NTSTATUS ZwGetSystemModuleInformation();
 
 VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
-                                   __in_opt PUNICODE_STRING  FullImageName,
-                                   __in HANDLE  ProcessId,
-                                   __in PIMAGE_INFO  ImageInfo);
+                                   __in_opt PUNICODE_STRING FullImageName,
+                                   __in HANDLE ProcessId,
+                                   __in PIMAGE_INFO ImageInfo);
 
 VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject);
 
