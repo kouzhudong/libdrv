@@ -567,12 +567,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     LARGE_INTEGER file_size{};
 
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&FileHandle,
-                        GENERIC_READ | SYNCHRONIZE,
-                        &ob,
-                        &IoStatusBlock,
-                        FILE_SHARE_READ,
-                        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
+    Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
     if (!NT_SUCCESS(Status)) {
         //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND) {
@@ -1292,15 +1287,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
             return b;
         }
 
-        Status = ZwWriteFile(DestinationFileHandle,
-                             nullptr,
-                             nullptr,
-                             nullptr,
-                             &IoStatusBlock,
-                             Buffer,
-                             BytesRead,
-                             nullptr /*&ByteOffset*/,
-                             nullptr);
+        Status = ZwWriteFile(DestinationFileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, Buffer, BytesRead, nullptr, nullptr);
         //Status = FltWriteFile(
         //    Data->Iopb->TargetInstance,
         //    source_FileObject,

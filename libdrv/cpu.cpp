@@ -301,19 +301,12 @@ made at 2014.08.20
         if (nAPICPhysicalID)
             printf_s("APIC Physical ID = %d\n", nAPICPhysicalID);
 
-        if (nFeatureInfo || bSSE3Instructions ||
-            bMONITOR_MWAIT || bCPLQualifiedDebugStore ||
-            bVirtualMachineExtensions || bEnhancedIntelSpeedStepTechnology ||
-            bThermalMonitor2 || bSupplementalSSE3 || bL1ContextID ||
-            bCMPXCHG16B || bxTPRUpdateControl || bPerfDebugCapabilityMSR ||
-            bSSE41Extensions || bSSE42Extensions || bPOPCNT ||
-            bLAHF_SAHFAvailable || bCmpLegacy || bSVM ||
-            bExtApicSpace || bAltMovCr8 ||
-            bLZCNT || bSSE4A || bMisalignedSSE ||
-            bPREFETCH || bSKINITandDEV || bSYSCALL_SYSRETAvailable ||
+        if (nFeatureInfo || bSSE3Instructions || bMONITOR_MWAIT || bCPLQualifiedDebugStore || bVirtualMachineExtensions || bEnhancedIntelSpeedStepTechnology ||
+            bThermalMonitor2 || bSupplementalSSE3 || bL1ContextID || bCMPXCHG16B || bxTPRUpdateControl || bPerfDebugCapabilityMSR ||
+            bSSE41Extensions || bSSE42Extensions || bPOPCNT || bLAHF_SAHFAvailable || bCmpLegacy || bSVM || bExtApicSpace || bAltMovCr8 ||
+            bLZCNT || bSSE4A || bMisalignedSSE || bPREFETCH || bSKINITandDEV || bSYSCALL_SYSRETAvailable ||
             bExecuteDisableBitAvailable || bMMXExtensions || bFFXSR || b1GBSupport ||
-            bRDTSCP || b64Available || b3DNowExt || b3DNow || bNestedPaging ||
-            bLBRVisualization || bFP128 || bMOVOptimization) {
+            bRDTSCP || b64Available || b3DNowExt || b3DNow || bNestedPaging || bLBRVisualization || bFP128 || bMOVOptimization) {
             printf_s("\nThe following features are supported:\n");
 
             if (bSSE3Instructions)

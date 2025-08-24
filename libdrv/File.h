@@ -12,12 +12,7 @@ XP下运行要用XP编译环境。
 先运行个FILEMON，也是获取到的为空。
 */
 #if (NTDDI_VERSION < NTDDI_WS03SP1)
-NTSTATUS
-IoEnumerateRegisteredFiltersList(
-    IN PDRIVER_OBJECT * DriverObjectList,
-    IN ULONG  DriverObjectListSize,
-    OUT PULONG  ActualNumberDriverObjects
-);
+NTSTATUS IoEnumerateRegisteredFiltersList(IN PDRIVER_OBJECT * DriverObjectList, IN ULONG  DriverObjectListSize, OUT PULONG  ActualNumberDriverObjects);
 #endif
 
 
@@ -34,15 +29,11 @@ VOID NTAPI WriteDiskSector(INT DiskIndex, LONGLONG StartingOffset, PVOID Buffer,
 VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer);
 
 #if (NTDDI_VERSION < NTDDI_WIN7)
-NTSTATUS IoReplaceFileObjectName(_In_ PFILE_OBJECT FileObject,
-                                 _In_reads_bytes_(FileNameLength) PWSTR NewFileName,
-                                 _In_ USHORT FileNameLength);
+NTSTATUS IoReplaceFileObjectName(_In_ PFILE_OBJECT FileObject, _In_reads_bytes_(FileNameLength) PWSTR NewFileName, _In_ USHORT FileNameLength);
 #endif
 
 
-NTSTATUS ZwGetDosFileName(_Inout_ PFLT_CALLBACK_DATA Data,
-                          _In_ PCFLT_RELATED_OBJECTS FltObjects,
-                          OUT PUNICODE_STRING DosFileName);
+NTSTATUS ZwGetDosFileName(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, OUT PUNICODE_STRING DosFileName);
 
 NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_STRING  ExistingFileName);
 

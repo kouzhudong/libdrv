@@ -128,9 +128,7 @@ int UTF8ToUnicode(unsigned char * ch, int * unicode)
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Must_inspect_result_
 //NTSYSAPI
-NTSTATUS
-NTAPI
-RtlUnicodeToUTF8N(
+NTSTATUS NTAPI RtlUnicodeToUTF8N(
     _Out_writes_bytes_to_(UTF8StringMaxByteCount, *UTF8StringActualByteCount) PCHAR  UTF8StringDestination,
     _In_                                ULONG  UTF8StringMaxByteCount,
     _Out_                               PULONG UTF8StringActualByteCount,
@@ -150,7 +148,6 @@ RtlUnicodeToUTF8N(
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
-
 
     rturn Status;
 }
@@ -193,18 +190,11 @@ RtlUTF8ToUnicodeN(
 #if (NTDDI_VERSION < NTDDI_WIN10_VB)
 
 
-_When_(AllocateDestinationString,
-       _At_(DestinationString->MaximumLength,
-            _Out_range_(<= , (SourceString->MaximumLength / sizeof(WCHAR)))))
-    _When_(!AllocateDestinationString,
-           _At_(DestinationString->Buffer, _Const_)
-           _At_(DestinationString->MaximumLength, _Const_))
-    _IRQL_requires_max_(PASSIVE_LEVEL)
-    _When_(AllocateDestinationString, _Must_inspect_result_)
+_When_(AllocateDestinationString, _At_(DestinationString->MaximumLength, _Out_range_(<= , (SourceString->MaximumLength / sizeof(WCHAR)))))
+    _When_(!AllocateDestinationString, _At_(DestinationString->Buffer, _Const_) _At_(DestinationString->MaximumLength, _Const_))
+    _IRQL_requires_max_(PASSIVE_LEVEL) _When_(AllocateDestinationString, _Must_inspect_result_)
     //NTSYSAPI
-    NTSTATUS
-    NTAPI
-    RtlUnicodeStringToUTF8String(
+    NTSTATUS NTAPI RtlUnicodeStringToUTF8String(
         _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem)))
         _When_(!AllocateDestinationString, _Inout_)
         PUTF8_STRING DestinationString,
@@ -228,11 +218,8 @@ _When_(AllocateDestinationString,
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Must_inspect_result_
 //NTSYSAPI
-NTSTATUS
-NTAPI
-RtlUTF8StringToUnicodeString(
-    _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem)))
-    _When_(!AllocateDestinationString, _Inout_)
+NTSTATUS NTAPI RtlUTF8StringToUnicodeString(
+    _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem))) _When_(!AllocateDestinationString, _Inout_)
     PUNICODE_STRING DestinationString,
     _In_ PUTF8_STRING SourceString,
     _In_ BOOLEAN AllocateDestinationString

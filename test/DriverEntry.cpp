@@ -48,8 +48,7 @@ EXTERN_C NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_ST
 
     PAGED_CODE();
 
-    DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, 
-               "FILE:%s, LINE:%d, DATE:%s, TIME:%s.\r\n", __FILE__, __LINE__, __DATE__, __TIME__);
+    DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, "FILE:%s, LINE:%d, DATE:%s, TIME:%s.\r\n", __FILE__, __LINE__, __DATE__, __TIME__);
 
     DriverObject->DriverUnload = Unload;
 

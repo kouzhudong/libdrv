@@ -257,20 +257,20 @@ typedef struct _NT_TIB {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#define PEBTEB_PRIVATE_PASTE(x,y)       x##y
-#define PEBTEB_PASTE(x,y)               PEBTEB_PRIVATE_PASTE(x,y)
+#define PEBTEB_PRIVATE_PASTE(x, y) x##y
+#define PEBTEB_PASTE(x, y) PEBTEB_PRIVATE_PASTE(x, y)
 
 #if defined(PEBTEB_BITS) /* This is defined by wow64t.h. */
 
 #if PEBTEB_BITS == 32
 
-#define PEBTEB_STRUCT(x)    PEBTEB_PASTE(x, 32) /* FOO32 */
-#define PEBTEB_POINTER(x)   TYPE32(x) /* ULONG, defined in wow64t.h */
+#define PEBTEB_STRUCT(x) PEBTEB_PASTE(x, 32) /* FOO32 */
+#define PEBTEB_POINTER(x) TYPE32(x)          /* ULONG, defined in wow64t.h */
 
 #elif PEBTEB_BITS == 64
 
-#define PEBTEB_STRUCT(x)    PEBTEB_PASTE(x, 64) /* FOO64 */
-#define PEBTEB_POINTER(x)   TYPE64(x) /* ULONGLONG, defined in wow64t.h */
+#define PEBTEB_STRUCT(x) PEBTEB_PASTE(x, 64) /* FOO64 */
+#define PEBTEB_POINTER(x) TYPE64(x)          /* ULONGLONG, defined in wow64t.h */
 
 #else
 
@@ -284,48 +284,49 @@ typedef struct _NT_TIB {
 // Declare and use regular native types.
 //
 #define PEBTEB_POINTER(x) x
-#define PEBTEB_STRUCT(x)  x
+#define PEBTEB_STRUCT(x) x
 
 #endif
 
 #define STATIC_UNICODE_BUFFER_LENGTH 261
 #define WIN32_CLIENT_INFO_LENGTH 62
 
-#define TLS_MINIMUM_AVAILABLE 64    // winnt
+#define TLS_MINIMUM_AVAILABLE 64 // winnt
 
-typedef struct PEBTEB_STRUCT(_ACTIVATION_CONTEXT_STACK)
-{
-    PEBTEB_POINTER(struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME *) ActiveFrame;
-    PEBTEB_STRUCT(LIST_ENTRY) FrameListCache;
+typedef struct PEBTEB_STRUCT(_ACTIVATION_CONTEXT_STACK) {
+    PEBTEB_POINTER(struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME *)
+    ActiveFrame;
+    PEBTEB_STRUCT(LIST_ENTRY)
+    FrameListCache;
     ULONG Flags;
     ULONG NextCookieSequenceNumber;
     ULONG StackId;
-} PEBTEB_STRUCT(ACTIVATION_CONTEXT_STACK), * PEBTEB_STRUCT(PACTIVATION_CONTEXT_STACK);
+} PEBTEB_STRUCT(ACTIVATION_CONTEXT_STACK), *PEBTEB_STRUCT(PACTIVATION_CONTEXT_STACK);
 
 
 #define GDI_BATCH_BUFFER_SIZE 310
 
-typedef struct _GDI_TEB_BATCH
-{
-    ULONG    Offset;
+typedef struct _GDI_TEB_BATCH {
+    ULONG Offset;
     ULONG_PTR HDC;
-    ULONG    Buffer[GDI_BATCH_BUFFER_SIZE];
-} GDI_TEB_BATCH, * PGDI_TEB_BATCH;
+    ULONG Buffer[GDI_BATCH_BUFFER_SIZE];
+} GDI_TEB_BATCH, *PGDI_TEB_BATCH;
 
-typedef struct PEBTEB_STRUCT(_TEB_ACTIVE_FRAME_CONTEXT)
-{
+typedef struct PEBTEB_STRUCT(_TEB_ACTIVE_FRAME_CONTEXT) {
     ULONG Flags;
-    PEBTEB_POINTER(PCSTR) FrameName;
-} PEBTEB_STRUCT(TEB_ACTIVE_FRAME_CONTEXT), * PEBTEB_STRUCT(PTEB_ACTIVE_FRAME_CONTEXT);
+    PEBTEB_POINTER(PCSTR)
+    FrameName;
+} PEBTEB_STRUCT(TEB_ACTIVE_FRAME_CONTEXT), *PEBTEB_STRUCT(PTEB_ACTIVE_FRAME_CONTEXT);
 
 typedef const PEBTEB_STRUCT(TEB_ACTIVE_FRAME_CONTEXT) * PEBTEB_STRUCT(PCTEB_ACTIVE_FRAME_CONTEXT);
 
-typedef struct PEBTEB_STRUCT(_TEB_ACTIVE_FRAME)
-{
+typedef struct PEBTEB_STRUCT(_TEB_ACTIVE_FRAME) {
     ULONG Flags;
-    PEBTEB_POINTER(struct _TEB_ACTIVE_FRAME *) Previous;
-    PEBTEB_POINTER(PCTEB_ACTIVE_FRAME_CONTEXT) Context;
-} PEBTEB_STRUCT(TEB_ACTIVE_FRAME), * PEBTEB_STRUCT(PTEB_ACTIVE_FRAME);
+    PEBTEB_POINTER(struct _TEB_ACTIVE_FRAME *)
+    Previous;
+    PEBTEB_POINTER(PCTEB_ACTIVE_FRAME_CONTEXT)
+    Context;
+} PEBTEB_STRUCT(TEB_ACTIVE_FRAME), *PEBTEB_STRUCT(PTEB_ACTIVE_FRAME);
 
 
 //typedef PVOID * PPVOID;
@@ -335,93 +336,140 @@ typedef struct _TEB
 typedef struct _TEB32
 typedef struct _TEB64
 */
-typedef struct PEBTEB_STRUCT(_TEB)
-{
-    PEBTEB_STRUCT(NT_TIB) NtTib;//这个结构倒是公开了，包括_NT_TIB32，_NT_TIB64。
-    PEBTEB_POINTER(PVOID) EnvironmentPointer;
-    PEBTEB_STRUCT(CLIENT_ID) ClientId;
-    PEBTEB_POINTER(PVOID) ActiveRpcHandle;
-    PEBTEB_POINTER(PVOID) ThreadLocalStoragePointer;
-    PEBTEB_POINTER(PPEB) ProcessEnvironmentBlock;
+typedef struct PEBTEB_STRUCT(_TEB) {
+    PEBTEB_STRUCT(NT_TIB)
+    NtTib; //这个结构倒是公开了，包括_NT_TIB32，_NT_TIB64。
+    PEBTEB_POINTER(PVOID)
+    EnvironmentPointer;
+    PEBTEB_STRUCT(CLIENT_ID)
+    ClientId;
+    PEBTEB_POINTER(PVOID)
+    ActiveRpcHandle;
+    PEBTEB_POINTER(PVOID)
+    ThreadLocalStoragePointer;
+    PEBTEB_POINTER(PPEB)
+    ProcessEnvironmentBlock;
     ULONG LastErrorValue;
     ULONG CountOfOwnedCriticalSections;
-    PEBTEB_POINTER(PVOID) CsrClientThread;
-    PEBTEB_POINTER(PVOID) Win32ThreadInfo;          // PtiCurrent
-    ULONG User32Reserved[26];       // user32.dll items
-    ULONG UserReserved[5];          // Winsrv SwitchStack
-    PEBTEB_POINTER(PVOID) WOW32Reserved;            // used by WOW
+    PEBTEB_POINTER(PVOID)
+    CsrClientThread;
+    PEBTEB_POINTER(PVOID)
+    Win32ThreadInfo;          // PtiCurrent
+    ULONG User32Reserved[26]; // user32.dll items
+    ULONG UserReserved[5];    // Winsrv SwitchStack
+    PEBTEB_POINTER(PVOID)
+    WOW32Reserved; // used by WOW
     LCID CurrentLocale;
     ULONG FpSoftwareStatusRegister; // offset known by outsiders!
-    PEBTEB_POINTER(PVOID) SystemReserved1[54];      // Used by FP emulator
-    NTSTATUS ExceptionCode;         // for RaiseUserException
+    PEBTEB_POINTER(PVOID)
+    SystemReserved1[54];    // Used by FP emulator
+    NTSTATUS ExceptionCode; // for RaiseUserException
     // 4 bytes of padding here on native 64bit TEB and TEB64
-    PEBTEB_POINTER(PACTIVATION_CONTEXT_STACK) ActivationContextStackPointer; // Fusion activation stack
+    PEBTEB_POINTER(PACTIVATION_CONTEXT_STACK)
+    ActivationContextStackPointer; // Fusion activation stack
 #if (defined(PEBTEB_BITS) && (PEBTEB_BITS == 64)) || (!defined(PEBTEB_BITS) && defined(_WIN64))
     UCHAR SpareBytes1[28]; // native 64bit TEB and TEB64
 #else
     UCHAR SpareBytes1[40]; // native 32bit TEB and TEB32
 #endif
-    PEBTEB_STRUCT(GDI_TEB_BATCH) GdiTebBatch;      // Gdi batching
-    PEBTEB_STRUCT(CLIENT_ID) RealClientId;
-    PEBTEB_POINTER(HANDLE) GdiCachedProcessHandle;
+    PEBTEB_STRUCT(GDI_TEB_BATCH)
+    GdiTebBatch; // Gdi batching
+    PEBTEB_STRUCT(CLIENT_ID)
+    RealClientId;
+    PEBTEB_POINTER(HANDLE)
+    GdiCachedProcessHandle;
     ULONG GdiClientPID;
     ULONG GdiClientTID;
-    PEBTEB_POINTER(PVOID) GdiThreadLocalInfo;
-    PEBTEB_POINTER(ULONG_PTR) Win32ClientInfo[WIN32_CLIENT_INFO_LENGTH]; // User32 Client Info
-    PEBTEB_POINTER(PVOID) glDispatchTable[233];     // OpenGL
-    PEBTEB_POINTER(ULONG_PTR) glReserved1[29];      // OpenGL
-    PEBTEB_POINTER(PVOID) glReserved2;              // OpenGL
-    PEBTEB_POINTER(PVOID) glSectionInfo;            // OpenGL
-    PEBTEB_POINTER(PVOID) glSection;                // OpenGL
-    PEBTEB_POINTER(PVOID) glTable;                  // OpenGL
-    PEBTEB_POINTER(PVOID) glCurrentRC;              // OpenGL
-    PEBTEB_POINTER(PVOID) glContext;                // OpenGL
+    PEBTEB_POINTER(PVOID)
+    GdiThreadLocalInfo;
+    PEBTEB_POINTER(ULONG_PTR)
+    Win32ClientInfo[WIN32_CLIENT_INFO_LENGTH]; // User32 Client Info
+    PEBTEB_POINTER(PVOID)
+    glDispatchTable[233]; // OpenGL
+    PEBTEB_POINTER(ULONG_PTR)
+    glReserved1[29]; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glReserved2; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glSectionInfo; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glSection; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glTable; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glCurrentRC; // OpenGL
+    PEBTEB_POINTER(PVOID)
+    glContext; // OpenGL
     ULONG LastStatusValue;
-    PEBTEB_STRUCT(UNICODE_STRING) StaticUnicodeString;
+    PEBTEB_STRUCT(UNICODE_STRING)
+    StaticUnicodeString;
     WCHAR StaticUnicodeBuffer[STATIC_UNICODE_BUFFER_LENGTH];
-    PEBTEB_POINTER(PVOID) DeallocationStack;
-    PEBTEB_POINTER(PVOID) TlsSlots[TLS_MINIMUM_AVAILABLE];
-    PEBTEB_STRUCT(LIST_ENTRY) TlsLinks;
-    PEBTEB_POINTER(PVOID) Vdm;
-    PEBTEB_POINTER(PVOID) ReservedForNtRpc;
-    PEBTEB_POINTER(PVOID) DbgSsReserved[2];
+    PEBTEB_POINTER(PVOID)
+    DeallocationStack;
+    PEBTEB_POINTER(PVOID)
+    TlsSlots[TLS_MINIMUM_AVAILABLE];
+    PEBTEB_STRUCT(LIST_ENTRY)
+    TlsLinks;
+    PEBTEB_POINTER(PVOID)
+    Vdm;
+    PEBTEB_POINTER(PVOID)
+    ReservedForNtRpc;
+    PEBTEB_POINTER(PVOID)
+    DbgSsReserved[2];
     ULONG HardErrorMode;
-    PEBTEB_POINTER(PVOID) Instrumentation[14];
-    PEBTEB_POINTER(PVOID) SubProcessTag;
-    PEBTEB_POINTER(PVOID) EtwTraceData;
-    PEBTEB_POINTER(PVOID) WinSockData;              // WinSock
+    PEBTEB_POINTER(PVOID)
+    Instrumentation[14];
+    PEBTEB_POINTER(PVOID)
+    SubProcessTag;
+    PEBTEB_POINTER(PVOID)
+    EtwTraceData;
+    PEBTEB_POINTER(PVOID)
+    WinSockData; // WinSock
     ULONG GdiBatchCount;
     BOOLEAN InDbgPrint;
     BOOLEAN FreeStackOnTermination;
     BOOLEAN HasFiberData;
     BOOLEAN IdealProcessor;
     ULONG GuaranteedStackBytes;
-    PEBTEB_POINTER(PVOID) ReservedForPerf;
-    PEBTEB_POINTER(PVOID) ReservedForOle;
+    PEBTEB_POINTER(PVOID)
+    ReservedForPerf;
+    PEBTEB_POINTER(PVOID)
+    ReservedForOle;
     ULONG WaitingOnLoaderLock;
-    PEBTEB_POINTER(ULONG_PTR) SparePointer1;
-    PEBTEB_POINTER(ULONG_PTR) SoftPatchPtr1;
-    PEBTEB_POINTER(ULONG_PTR) SoftPatchPtr2;
-    PEBTEB_POINTER(PVOID *) TlsExpansionSlots;
+    PEBTEB_POINTER(ULONG_PTR)
+    SparePointer1;
+    PEBTEB_POINTER(ULONG_PTR)
+    SoftPatchPtr1;
+    PEBTEB_POINTER(ULONG_PTR)
+    SoftPatchPtr2;
+    PEBTEB_POINTER(PVOID *)
+    TlsExpansionSlots;
 #if (defined(_WIN64) && !defined(PEBTEB_BITS)) || ((defined(_WIN64) || defined(_X86_)) && defined(PEBTEB_BITS) && PEBTEB_BITS == 64)
     //
     // These are in native Win64 TEB, Win64 TEB64, and x86 TEB64.
     //
-    PEBTEB_POINTER(PVOID) DeallocationBStore;
-    PEBTEB_POINTER(PVOID) BStoreLimit;
-#endif    
-    LCID ImpersonationLocale;       // Current locale of impersonated user
-    ULONG IsImpersonating;          // Thread impersonation Status
-    PEBTEB_POINTER(PVOID) NlsCache;                 // NLS thread cache
-    PEBTEB_POINTER(PVOID) pShimData;                // Per thread data used in the shim
+    PEBTEB_POINTER(PVOID)
+    DeallocationBStore;
+    PEBTEB_POINTER(PVOID)
+    BStoreLimit;
+#endif
+    LCID ImpersonationLocale; // Current locale of impersonated user
+    ULONG IsImpersonating;    // Thread impersonation Status
+    PEBTEB_POINTER(PVOID)
+    NlsCache; // NLS thread cache
+    PEBTEB_POINTER(PVOID)
+    pShimData; // Per thread data used in the shim
     ULONG HeapVirtualAffinity;
-    PEBTEB_POINTER(HANDLE) CurrentTransactionHandle;// reserved for TxF transaction context
-    PEBTEB_POINTER(PTEB_ACTIVE_FRAME) ActiveFrame;
-    PEBTEB_POINTER(PVOID) FlsData;
+    PEBTEB_POINTER(HANDLE)
+    CurrentTransactionHandle; // reserved for TxF transaction context
+    PEBTEB_POINTER(PTEB_ACTIVE_FRAME)
+    ActiveFrame;
+    PEBTEB_POINTER(PVOID)
+    FlsData;
     BOOLEAN SafeThunkCall;
     BOOLEAN BooleanSpare[3];
 
-} PEBTEB_STRUCT(TEB), * PEBTEB_STRUCT(PTEB);
+} PEBTEB_STRUCT(TEB), *PEBTEB_STRUCT(PTEB);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

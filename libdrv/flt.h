@@ -9,9 +9,7 @@
 EXTERN_C_START
 
 
-NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd,
-                                     __in PCFLT_RELATED_OBJECTS FltObjects,
-                                     OUT PUNICODE_STRING usFullPath);
+NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_RELATED_OBJECTS FltObjects, OUT PUNICODE_STRING usFullPath);
 
 
 #if (NTDDI_VERSION < NTDDI_VISTA)

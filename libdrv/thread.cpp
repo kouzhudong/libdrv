@@ -536,12 +536,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         ClientId->UniqueProcess = *ThreadHandleReturn;
 
         //PETHREAD Thread = nullptr;
-        //Status = ObReferenceObjectByHandle(*ThreadHandleReturn,  
-        //                                   THREAD_ALL_ACCESS, 
-        //                                   *PsThreadType, 
-        //                                   UserMode,
-        //                                   (PVOID *)&Thread,
-        //                                   nullptr);
+        //Status = ObReferenceObjectByHandle(*ThreadHandleReturn, THREAD_ALL_ACCESS, *PsThreadType, UserMode, (PVOID *)&Thread, nullptr);
         //if (!NT_SUCCESS(Status)) {
         //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         //    __leave;
@@ -550,8 +545,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         //ObDereferenceObject(Thread);
         ////ZwClose(*ThreadHandleReturn);
 
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
-                *ThreadHandleReturn, ClientId->UniqueThread, Pid);
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p", *ThreadHandleReturn, ClientId->UniqueThread, Pid);
     } __finally {
         if (KernelHandle) {
             ZwClose(KernelHandle);

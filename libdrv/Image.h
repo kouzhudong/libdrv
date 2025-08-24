@@ -302,13 +302,9 @@ typedef struct _LOAD_IMAGE_CONTEXT {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-typedef NTSTATUS(WINAPI * HandleKernelModule)(_In_ ULONG numberOfModules,
-                                              _In_ PAUX_MODULE_EXTENDED_INFO ModuleInfo,
-                                              _In_opt_ PVOID Context);
+typedef NTSTATUS(WINAPI * HandleKernelModule)(_In_ ULONG numberOfModules, _In_ PAUX_MODULE_EXTENDED_INFO ModuleInfo, _In_opt_ PVOID Context);
 
-typedef NTSTATUS(WINAPI * HandleUserModule)(_In_ PVOID DllBase,
-                                            _In_ PUNICODE_STRING FullDllName,
-                                            _In_opt_ PVOID Context);
+typedef NTSTATUS(WINAPI * HandleUserModule)(_In_ PVOID DllBase, _In_ PUNICODE_STRING FullDllName, _In_opt_ PVOID Context);
 
 typedef NTSTATUS(NTAPI * HandleSection)(_In_ PVOID ViewBase, _In_ SIZE_T ViewSize, _In_opt_ PVOID Context);
 
@@ -331,9 +327,7 @@ NTSTATUS ExtraFile(_In_ PCSTR FileName, _In_ ULONG_PTR Type, _In_ ULONG_PTR Id, 
 
 PVOID GetNtdllImageBase(PEPROCESS Process);
 
-BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, 
-                         _In_opt_ HandleSection CallBack,
-                         _In_opt_ PVOID Context);
+BOOLEAN MapViewOfSection(_In_ PUNICODE_STRING ImageFileName, _In_opt_ HandleSection CallBack, _In_opt_ PVOID Context);
 
 NTSTATUS GetMemoryMappedFilenameInformation(_In_ HANDLE KernelProcessHandle, 
                                             _In_opt_ PVOID DllBase,

@@ -21,7 +21,7 @@ VOID PspQueueApcSpecialApc(IN PKAPC Apc, IN PKNORMAL_ROUTINE * NormalRoutine, IN
 
 
 //NTSYSAPI 
-NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle,
+NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle, 
                                 __in PPS_APC_ROUTINE ApcRoutine,
                                 __in_opt PVOID ApcArgument1,
                                 __in_opt PVOID ApcArgument2,

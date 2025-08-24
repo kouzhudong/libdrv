@@ -9,8 +9,7 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
                          _In_reads_bytes_(DataSize) PUCHAR Data,
                          _In_ ULONG DataSize,
                          _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
-                         _In_ ULONG * SignSize
-)
+                         _In_ ULONG * SignSize)
 /*
 参数越多，功能越强大。
 */
@@ -20,8 +19,8 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
     BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
-    NTSTATUS                status = STATUS_UNSUCCESSFUL;
-    BCRYPT_ALG_HANDLE       hSignAlg = nullptr;
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    BCRYPT_ALG_HANDLE hSignAlg = nullptr;
     status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
     ASSERT(NT_SUCCESS(status));
 
@@ -53,8 +52,7 @@ BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
                             _In_reads_bytes_(DataSize) PUCHAR Data,
                             _In_ ULONG DataSize,
                             _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
-                            _In_ ULONG SignSize
-)
+                            _In_ ULONG SignSize)
 /*
 注意：不是所有的组合，Windows都支持。
 */
@@ -65,8 +63,8 @@ BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
     BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
     ASSERT(ret);
 
-    NTSTATUS                status = STATUS_UNSUCCESSFUL;
-    BCRYPT_ALG_HANDLE       hSignAlg = nullptr;
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    BCRYPT_ALG_HANDLE hSignAlg = nullptr;
     status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
     ASSERT(NT_SUCCESS(status));
 
@@ -92,8 +90,7 @@ NTSTATUS WINAPI SignHashByEcdsa(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKe
                                 _In_reads_bytes_(DataSize) PUCHAR Data,
                                 _In_ ULONG DataSize,
                                 _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
-                                _In_ ULONG * SignSize
-)
+                                _In_ ULONG * SignSize)
 {
     return SignHash(BCRYPT_SHA512_ALGORITHM, BCRYPT_ECDSA_P521_ALGORITHM, PrivateKey, PrivateKeyLen, Data, DataSize, Sign, SignSize);
 }
@@ -104,8 +101,7 @@ BOOL WINAPI VerifySignatureByEcdsa(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicK
                                    _In_reads_bytes_(DataSize) PUCHAR Data,
                                    _In_ ULONG DataSize,
                                    _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
-                                   _In_ ULONG SignSize
-)
+                                   _In_ ULONG SignSize)
 {
     return VerifySignature(BCRYPT_SHA512_ALGORITHM, BCRYPT_ECDSA_P521_ALGORITHM, PublicKey, PublicKeyLen, Data, DataSize, Sign, SignSize);
 }

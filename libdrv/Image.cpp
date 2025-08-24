@@ -205,10 +205,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     //            OBJECT_NAME_INFORMATION ObjectNameInfo;
     //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
     //        } s = {0};
-    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
-    //                                                             ULongToPtr(DataTableEntry->DllBase),
-    //                                                             &s.ObjectNameInfo,
-    //                                                             sizeof(s));
+    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo, sizeof(s));
     //        if (NT_SUCCESS(Status)) {
     //            //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
     //            if (CallBack) {
@@ -254,10 +251,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
     //        } s = {0};
 
-    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(),
-    //                                                             ULongToPtr(LdrEntry32->DllBase),
-    //                                                             &s.ObjectNameInfo,
-    //                                                             sizeof(s));
+    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo, sizeof(s));
     //        if (NT_SUCCESS(Status)) {
     //            //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 

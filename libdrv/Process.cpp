@@ -1341,11 +1341,9 @@ The clear security benefit is isolation of trustlet user mode pages in VTL1 from
 Even if kernel mode of VTL0 is compromised by malware, it will not have access to the IUM process pages.
 
 With VSM enabled, the Local Security Authority (LSASS) environment runs as a trustlet.
-LSASS manages the local system policy, user authentication,
-and auditing while handling sensitive security data such as password hashes and Kerberos keys.
+LSASS manages the local system policy, user authentication, and auditing while handling sensitive security data such as password hashes and Kerberos keys.
 To leverage the security benefits of VSM,
-a trustlet named LSAISO.exe (LSA Isolated) runs in VTL1 and
-communicates with LSASS.exe running in VTL0 through an RPC channel.
+a trustlet named LSAISO.exe (LSA Isolated) runs in VTL1 and communicates with LSASS.exe running in VTL0 through an RPC channel.
 The LSAISO secrets are encrypted before sending them over to LSASS running in VSM Normal Mode and
 the pages of LSAISO are protected from malicious code running in VTL0.
 
@@ -1357,8 +1355,7 @@ to inject a thread, or deliver a user-mode APC. Such attempts may result in dest
 Windows APIs that would compromise the security of a Trustlet may fail in unexpected ways.
 For example, loading a DLL into a Trustlet will make it available in VTL0 but not VTL1.
 QueueUserApc may silently fail if the target thread is in a Trustlet.
-Other APIs, such as CreateRemoteThread, VirtualAllocEx,
-and Read/WriteProcessMemory will also not work as expected when used against Trustlets.
+Other APIs, such as CreateRemoteThread, VirtualAllocEx, and Read/WriteProcessMemory will also not work as expected when used against Trustlets.
 
 Use the sample code below to prevent calling any functions which attempt to attach or inject code into an IUM process.
 This includes kernel drivers that queue APCs for execution of code in a trustlet.
@@ -1367,8 +1364,7 @@ If the return Status of IsSecureProcess is success, examine the SecureProcess _O
 IUM processes are marked by the system to be “Secure Processes”.
 A Boolean result of TRUE means the target process is of type IUM.
 
-The WDK for Windows 10, “Windows Driver Kit - Windows 10.0.15063.0”,
-contains the required definition of the PROCESS_EXTENDED_BASIC_INFORMATION structure.
+The WDK for Windows 10, “Windows Driver Kit - Windows 10.0.15063.0”, contains the required definition of the PROCESS_EXTENDED_BASIC_INFORMATION structure.
 The updated version of the structure is defined in ntddk.h with the new IsSecureProcess field.
 
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes

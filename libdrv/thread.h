@@ -10,8 +10,7 @@
 
 
 //摘自：http://msdn.microsoft.com/en-us/library/gg750724.aspx 这个WRK也有的。
-typedef struct
-{
+typedef struct {
     LARGE_INTEGER KernelTime;
     LARGE_INTEGER UserTime;
     LARGE_INTEGER CreateTime;
@@ -23,7 +22,7 @@ typedef struct
     ULONG ContextSwitches;
     ULONG ThreadState;
     ULONG WaitReason;
-} SYSTEM_THREAD_INFORMATION, * PSYSTEM_THREAD_INFORMATION;
+} SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 
 
 //https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
@@ -52,18 +51,17 @@ typedef struct
 https://chromium.googlesource.com/chromium/chromium/+/1a9d8d9f3355e8b9f35591c8a678940bd264f412/third_party/psutil/psutil/arch/mswindows/ntextapi.h
 的这个的定义也不错。
 */
-typedef struct _SYSTEM_PROCESS_INFORMATION_EX
-{
+typedef struct _SYSTEM_PROCESS_INFORMATION_EX {
     ULONG NextEntryOffset;
     ULONG NumberOfThreads;
     LARGE_INTEGER WorkingSetPrivateSize; //VISTA
-    ULONG HardFaultCount; //WIN7
-    ULONG NumberOfThreadsHighWatermark; //WIN7
-    ULONGLONG CycleTime; //WIN7
+    ULONG HardFaultCount;                //WIN7
+    ULONG NumberOfThreadsHighWatermark;  //WIN7
+    ULONGLONG CycleTime;                 //WIN7
     LARGE_INTEGER CreateTime;
     LARGE_INTEGER UserTime;
     LARGE_INTEGER KernelTime;
-    UNICODE_STRING ImageName;//这个名字好像不超过15-16个字符。
+    UNICODE_STRING ImageName; //这个名字好像不超过15-16个字符。
     KPRIORITY BasePriority;
     HANDLE UniqueProcessId;
     HANDLE InheritedFromUniqueProcessId;
@@ -97,46 +95,34 @@ typedef struct _SYSTEM_PROCESS_INFORMATION_EX
     LARGE_INTEGER ReadTransferCount;
     LARGE_INTEGER WriteTransferCount;
     LARGE_INTEGER OtherTransferCount;
-    SYSTEM_THREAD_INFORMATION TH[1];//这个本来是注释掉的。
-} SYSTEM_PROCESS_INFORMATION_EX, * PSYSTEM_PROCESS_INFORMATION_EX;
+    SYSTEM_THREAD_INFORMATION TH[1]; //这个本来是注释掉的。
+} SYSTEM_PROCESS_INFORMATION_EX, *PSYSTEM_PROCESS_INFORMATION_EX;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-typedef
-NTSTATUS
-(WINAPI * ZwTerminateThread_pfn)(
-    __in_opt HANDLE ThreadHandle,
-    __in NTSTATUS ExitStatus
-    );
+typedef NTSTATUS(WINAPI * ZwTerminateThread_pfn)(__in_opt HANDLE ThreadHandle, __in NTSTATUS ExitStatus);
 
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms684283(v=vs.85).aspx
 EXTERN_C NTSTATUS WINAPI ZwQueryInformationThread(
-    _In_      HANDLE          ThreadHandle,
-    _In_      THREADINFOCLASS ThreadInformationClass,
-    _Inout_   PVOID           ThreadInformation,
-    _In_      ULONG           ThreadInformationLength,
-    _Out_opt_ PULONG          ReturnLength
-);
+    _In_ HANDLE ThreadHandle,
+    _In_ THREADINFOCLASS ThreadInformationClass,
+    _Inout_ PVOID ThreadInformation,
+    _In_ ULONG ThreadInformationLength,
+    _Out_opt_ PULONG ReturnLength);
 
 
 //摘自：WRK。
-EXTERN_C
-BOOLEAN
-PsIsThreadImpersonating(
-    __in PETHREAD Thread
-);
+EXTERN_C BOOLEAN PsIsThreadImpersonating(__in PETHREAD Thread);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 //Win2K3\NT\base\published\winbase.w
-typedef DWORD(WINAPI * PTHREAD_START_ROUTINE)(
-    LPVOID lpThreadParameter
-    );
+typedef DWORD(WINAPI * PTHREAD_START_ROUTINE)(LPVOID lpThreadParameter);
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
 
 
@@ -156,9 +142,7 @@ typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
 //    PCLIENT_ID ClientId);
 
 //Win2K3\NT\public\sdk\inc\ntrtl.h
-typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(
-    PVOID ThreadParameter
-    );
+typedef NTSTATUS (*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
 
 //Win2K3\NT\base\ntos\rtl\rtlexec.c
 //NTSTATUS NTAPI
@@ -177,20 +161,17 @@ typedef NTSTATUS(*PUSER_THREAD_START_ROUTINE)(
 
 //此函数已经导出，但是编译环境（二进制和文本）没有这个定义。
 //只需用MmGetSystemRoutineAddress获取即可。
-typedef
-NTSTATUS(NTAPI *
-         RtlCreateUserThreadFn)(
-             IN HANDLE Process,
-             IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
-             IN BOOLEAN CreateSuspended,
-             IN ULONG ZeroBits OPTIONAL,
-             IN SIZE_T MaximumStackSize OPTIONAL,
-             IN SIZE_T CommittedStackSize OPTIONAL,
-             IN PUSER_THREAD_START_ROUTINE StartAddress,
-             IN PVOID Parameter OPTIONAL,
-             OUT PHANDLE Thread OPTIONAL,
-             OUT PCLIENT_ID ClientId OPTIONAL
-             );
+typedef NTSTATUS(NTAPI * RtlCreateUserThreadFn)(
+    IN HANDLE Process,
+    IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
+    IN BOOLEAN CreateSuspended,
+    IN ULONG ZeroBits OPTIONAL,
+    IN SIZE_T MaximumStackSize OPTIONAL,
+    IN SIZE_T CommittedStackSize OPTIONAL,
+    IN PUSER_THREAD_START_ROUTINE StartAddress,
+    IN PVOID Parameter OPTIONAL,
+    OUT PHANDLE Thread OPTIONAL,
+    OUT PCLIENT_ID ClientId OPTIONAL);
 
 //Win2K3\NT\public\sdk\inc\ntrtl.h
 //NTSYSAPI
@@ -225,25 +206,22 @@ RtlCreateUserThread在XP已经有了，估计没有导出。
 
 
 //\systeminformer\phnt\include\ntpsapi.h
-typedef struct _PS_ATTRIBUTE
-{
+typedef struct _PS_ATTRIBUTE {
     ULONG_PTR Attribute;
     SIZE_T Size;
-    union
-    {
+    union {
         ULONG_PTR Value;
         PVOID ValuePtr;
     };
     PSIZE_T ReturnLength;
-} PS_ATTRIBUTE, * PPS_ATTRIBUTE;
+} PS_ATTRIBUTE, *PPS_ATTRIBUTE;
 
 
 //\systeminformer\phnt\include\ntpsapi.h
-typedef struct _PS_ATTRIBUTE_LIST
-{
+typedef struct _PS_ATTRIBUTE_LIST {
     SIZE_T TotalLength;
     PS_ATTRIBUTE Attributes[1];
-} PS_ATTRIBUTE_LIST, * PPS_ATTRIBUTE_LIST;
+} PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
 
 
 //https://processhacker.sourceforge.io/doc/ntpsapi_8h_source.html
@@ -251,7 +229,7 @@ typedef struct _PS_ATTRIBUTE_LIST
 #define THREAD_CREATE_FLAGS_SKIP_THREAD_ATTACH 0x00000002 // ?
 #define THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER 0x00000004
 #define THREAD_CREATE_FLAGS_HAS_SECURITY_DESCRIPTOR 0x00000010 // ?
-#define THREAD_CREATE_FLAGS_ACCESS_CHECK_IN_TARGET 0x00000020 // ?
+#define THREAD_CREATE_FLAGS_ACCESS_CHECK_IN_TARGET 0x00000020  // ?
 #define THREAD_CREATE_FLAGS_INITIAL_THREAD 0x00000080
 
 
@@ -264,7 +242,7 @@ typedef struct _PS_ATTRIBUTE_LIST
 //    _In_ ACCESS_MASK DesiredAccess,
 //    _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
 //    _In_ HANDLE ProcessHandle,
-//    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
+//    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID
 //    _In_opt_ PVOID Argument,
 //    _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
 //    _In_ SIZE_T ZeroBits,
@@ -274,28 +252,24 @@ typedef struct _PS_ATTRIBUTE_LIST
 //);
 
 
-typedef
-NTSTATUS
-(NTAPI *
- ZwCreateThreadExFn)(
-     _Out_ PHANDLE ThreadHandle,
-     _In_ ACCESS_MASK DesiredAccess,
-     _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
-     _In_ HANDLE ProcessHandle,
-     _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID 
-     _In_opt_ PVOID Argument,
-     _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
-     _In_ SIZE_T ZeroBits,
-     _In_ SIZE_T StackSize,
-     _In_ SIZE_T MaximumStackSize,
-     _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
-     );
+typedef NTSTATUS(NTAPI * ZwCreateThreadExFn)(
+    _Out_ PHANDLE ThreadHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ HANDLE ProcessHandle,
+    _In_ PUSER_THREAD_START_ROUTINE StartRoutine, // PVOID
+    _In_opt_ PVOID Argument,
+    _In_ ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+    _In_ SIZE_T ZeroBits,
+    _In_ SIZE_T StackSize,
+    _In_ SIZE_T MaximumStackSize,
+    _In_opt_ PPS_ATTRIBUTE_LIST AttributeList);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-typedef NTSTATUS(WINAPI * HandleThread) (_In_ PCLIENT_ID Cid, _In_opt_ PVOID Context);
+typedef NTSTATUS(WINAPI * HandleThread)(_In_ PCLIENT_ID Cid, _In_opt_ PVOID Context);
 
 
 extern volatile RtlCreateUserThreadFn RtlCreateUserThread;
@@ -304,8 +278,8 @@ extern volatile RtlCreateUserThreadFn RtlCreateUserThread;
 EXTERN_C_START
 
 
-NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddress);
-NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number);
+NTSTATUS GetThreadStartAddress(_In_ HANDLE ThreadId, _Inout_ PVOID * StartAddress);
+NTSTATUS GetThreadNumbers(_In_ HANDLE ProcessId, _Inout_ PINT thread_number);
 
 NTSTATUS KillSystemThread(_In_ PETHREAD Thread);
 NTSTATUS KillUserThread(_In_ PETHREAD Thread);
@@ -318,15 +292,13 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
                           _In_ PUSER_THREAD_START_ROUTINE Function,
                           _In_ PVOID Parameter,
                           _Inout_ PHANDLE ThreadHandleReturn,
-                          _Inout_ PCLIENT_ID ClientId
-);
+                          _Inout_ PCLIENT_ID ClientId);
 
 NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
                             _In_ PUSER_THREAD_START_ROUTINE Function,
                             _In_ PVOID Parameter,
                             _Inout_ PHANDLE ThreadHandleReturn,
-                            _Inout_ PCLIENT_ID ClientId
-);
+                            _Inout_ PCLIENT_ID ClientId);
 
 
 EXTERN_C_END

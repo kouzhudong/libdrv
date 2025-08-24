@@ -15,9 +15,7 @@ EXTERN_C_START
 
 VOID EnumerateFilterModules(NDIS_HANDLE  NdisHandle);
 
-NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject,
-                         IN PFILE_OBJECT FileObject,
-                         OUT PTDI_ADDRESS_INFO LocalAddress);
+NTSTATUS TdiQueryAddress(IN PDEVICE_OBJECT DeviceObject, IN PFILE_OBJECT FileObject, OUT PTDI_ADDRESS_INFO LocalAddress);
 
 NTSTATUS EnumUnicastIpAddressTable();
 

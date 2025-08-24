@@ -36,8 +36,7 @@ made at 2014.07.24
     /*
     注意ZwQueryKey的第一个参数。
     The KeyHandle passed to ZwQueryKey must have been opened with KEY_QUERY_VALUE access.
-    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ,
-    or KEY_ALL_ACCESS as the DesiredAccess parameter to ZwCreateKey or ZwOpenKey.
+    This is accomplished by passing KEY_QUERY_VALUE, KEY_READ, or KEY_ALL_ACCESS as the DesiredAccess parameter to ZwCreateKey or ZwOpenKey.
     */
 
     // 第一次调用是为了获取需要的长度

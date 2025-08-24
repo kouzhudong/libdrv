@@ -43,12 +43,10 @@ const wchar_t * GetProtocolName(UINT8 protocol)
 VOID EnumerateFilterModules(NDIS_HANDLE  NdisHandle)
 /*
 If the handle is an NDIS miniport adapter handle,
-NDIS returns information about all the interface modules that are currently attached to the miniport adapter,
-starting with the top-most filter module.
+NDIS returns information about all the interface modules that are currently attached to the miniport adapter, starting with the top-most filter module.
 
 If the handle is an NDIS binding handle,
-NDIS returns information about all the filter modules that are currently attached to the underlying miniport adapter,
-starting with the top-most filter module.
+NDIS returns information about all the filter modules that are currently attached to the underlying miniport adapter, starting with the top-most filter module.
 
 If the handle is an NDIS filter module handle,
 NDIS returns information about all the filter modules that are currently attached to the underlying miniport adapter to which the specified filter module is attached,

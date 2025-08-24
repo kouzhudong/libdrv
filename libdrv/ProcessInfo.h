@@ -13,8 +13,7 @@
 
 
 //https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
-typedef struct _SYSTEM_PROCESS_INFORMATION
-{
+typedef struct _SYSTEM_PROCESS_INFORMATION {
     ULONG NextEntryOffset;
     ULONG NumberOfThreads;
     BYTE Reserved1[48];
@@ -38,7 +37,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION
     SIZE_T PeakPagefileUsage;
     SIZE_T PrivatePageCount;
     LARGE_INTEGER Reserved7[6];
-} SYSTEM_PROCESS_INFORMATION, * PSYSTEM_PROCESS_INFORMATION;
+} SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
 
 
 /*
@@ -274,11 +273,10 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms724509(v=vs.85).aspx
 
 
 //http://msdn.microsoft.com/en-us/library/cc248685.aspx
-typedef struct _NT6_TS_UNICODE_STRING
-{
+typedef struct _NT6_TS_UNICODE_STRING {
     USHORT Length;
     USHORT MaximumLength;
-    //[size_is(MaximumLength/2), length_is(Length/2)] 
+    //[size_is(MaximumLength/2), length_is(Length/2)]
     PWSTR Buffer;
 } NT6_TS_UNICODE_STRING;
 
@@ -287,8 +285,7 @@ typedef struct _NT6_TS_UNICODE_STRING
 http://msdn.microsoft.com/en-us/library/cc248684.aspx
 http://msdn.microsoft.com/en-us/library/cc248873.aspx 这是allproc.h，但是WDK和WRK里面都没有，注释wdk8.1我没有安装。
 */
-typedef struct _TS_SYS_PROCESS_INFORMATION_NT6
-{
+typedef struct _TS_SYS_PROCESS_INFORMATION_NT6 {
     ULONG NextEntryOffset;
     ULONG NumberOfThreads;
     LARGE_INTEGER SpareLi1;
@@ -318,7 +315,7 @@ typedef struct _TS_SYS_PROCESS_INFORMATION_NT6
     SIZE_T PrivatePageCount;
 
     //这个结构和SYSTEM_PROCESS_INFORMATION差不多，不过后面少了些。
-} TS_SYS_PROCESS_INFORMATION_NT6, * PTS_SYS_PROCESS_INFORMATION_NT6;
+} TS_SYS_PROCESS_INFORMATION_NT6, *PTS_SYS_PROCESS_INFORMATION_NT6;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,12 +325,11 @@ typedef struct _TS_SYS_PROCESS_INFORMATION_NT6
 //http://msdn.microsoft.com/en-us/library/windows/desktop/ms687420(v=vs.85).aspx
 //上面的一些标注在低版本上的WDK出错。
 EXTERN_C NTSTATUS /* WINAPI */ ZwQueryInformationProcess(
-    __in          HANDLE ProcessHandle,
-    __in          PROCESSINFOCLASS ProcessInformationClass,
-    __out         PVOID ProcessInformation,
-    __in          ULONG ProcessInformationLength,
-    __out_opt     PULONG ReturnLength
-);
+    __in HANDLE ProcessHandle,
+    __in PROCESSINFOCLASS ProcessInformationClass,
+    __out PVOID ProcessInformation,
+    __in ULONG ProcessInformationLength,
+    __out_opt PULONG ReturnLength);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

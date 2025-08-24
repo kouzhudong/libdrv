@@ -48,12 +48,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     FILE_DIRECTORY_INFORMATION * fibdi{};
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&FileHandle,
-                        GENERIC_READ | SYNCHRONIZE,
-                        &ob,
-                        &IoStatusBlock,
-                        FILE_SHARE_READ,
-                        FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
+    Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND || IoStatusBlock.Information == FILE_DOES_NOT_EXIST) {
@@ -140,12 +135,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&FileHandle,
-                        GENERIC_READ | SYNCHRONIZE,
-                        &ob,
-                        &IoStatusBlock,
-                        FILE_SHARE_READ,
-                        FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
+    Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND || IoStatusBlock.Information == FILE_DOES_NOT_EXIST) {
@@ -193,7 +183,6 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
         FileName.MaximumLength = FileName.Length + 2;
 
         KdPrint(("FileName %wZ\n", &FileName));
-
     } while (Status != STATUS_NO_MORE_FILES);
 
     if (FileInformation) {
@@ -389,11 +378,9 @@ Return Value:
     fileName->MaximumLength = newMaxLength;
 
 CopyAndReturn:
-
     fileName->Length = FileNameLength;
     RtlZeroMemory(fileName->Buffer, fileName->MaximumLength);
     RtlCopyMemory(fileName->Buffer, NewFileName, FileNameLength);
-
     return STATUS_SUCCESS;
 }
 #endif
@@ -444,12 +431,10 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
             Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
             ASSERT(NT_SUCCESS(Status));
         } else {
-            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
-                    Status, &FltObjects->FileObject->FileName);
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
         }
     } else {//走这里的不少。
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ",
-                Status, &FltObjects->FileObject->FileName);//STATUS_FLT_NO_DEVICE_OBJECT
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);//STATUS_FLT_NO_DEVICE_OBJECT
     }
 
     FltReleaseFileNameInformation(nameInfo);

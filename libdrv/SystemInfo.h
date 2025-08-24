@@ -81,10 +81,9 @@ http://doxygen.reactos.org/d2/d5c/ntddk__ex_8h_source.html
 
 //摘自：\wrk\WindowsResearchKernel-WRK\WRK-v1.2\public\sdk\inc\ntexapi.h
 // System Information Classes.
-typedef enum _SYSTEM_INFORMATION_CLASS
-{
+typedef enum _SYSTEM_INFORMATION_CLASS {
     SystemBasicInformation,
-    SystemProcessorInformation,             // obsolete...delete
+    SystemProcessorInformation, // obsolete...delete
     SystemPerformanceInformation,
     SystemTimeOfDayInformation,
     SystemPathInformation,
@@ -99,7 +98,7 @@ typedef enum _SYSTEM_INFORMATION_CLASS
     SystemStackTraceInformation,
     SystemPagedPoolInformation,
     SystemNonPagedPoolInformation,
-    SystemHandleInformation,//ExpGetHandleInformation处理的。
+    SystemHandleInformation, //ExpGetHandleInformation处理的。
     SystemObjectInformation,
     SystemPageFileInformation,
     SystemVdmInstemulInformation,
@@ -165,7 +164,7 @@ typedef enum _SYSTEM_INFORMATION_CLASS
     SystemSuperfetchInformation,
     SystemMemoryListInformation,
     SystemFileCacheInformationEx,
-    MaxSystemInfoClass  // MaxSystemInfoClass should always be the last enum
+    MaxSystemInfoClass // MaxSystemInfoClass should always be the last enum
 } SYSTEM_INFORMATION_CLASS;
 
 
@@ -178,10 +177,10 @@ typedef enum _SYSTEM_INFORMATION_CLASS
 */
 EXTERN_C
 NTSTATUS /* WINAPI NtQuerySystemInformation */ ZwQuerySystemInformation(
-    _In_       SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    _Inout_    PVOID SystemInformation,
-    _In_       ULONG SystemInformationLength,
-    _Out_opt_  PULONG ReturnLength);
+    _In_ SYSTEM_INFORMATION_CLASS SystemInformationClass,
+    _Inout_ PVOID SystemInformation,
+    _In_ ULONG SystemInformationLength,
+    _Out_opt_ PULONG ReturnLength);
 
 
 //下面的摘自:http://undocumented.ntinternals.net/UserMode/Undocumented%20Functions/System%20Information/NtQuerySystemInformation.html

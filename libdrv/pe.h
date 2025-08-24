@@ -24,10 +24,7 @@ PIMAGE_NT_HEADERS
 NTAPI RtlImageNtHeader(PVOID Base);
 
 
-EXTERN_C PVOID RtlImageDirectoryEntryToData(IN PVOID Base,
-                                            IN BOOLEAN MappedAsImage,
-                                            IN USHORT DirectoryEntry,
-                                            OUT PULONG Size);
+EXTERN_C PVOID RtlImageDirectoryEntryToData(IN PVOID Base, IN BOOLEAN MappedAsImage, IN USHORT DirectoryEntry, OUT PULONG Size);
 
 
 EXTERN_C
