@@ -103,7 +103,8 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
     PPEB32 Peb32 = reinterpret_cast<PPEB32>(pwp);
 
     __try {
-        auto Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Peb32->Ldr));
+        ULONG Tmp = *(PULONG)(Peb32->Ldr);
+        auto Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Tmp));
         auto LdrHead32 = &Ldr32->InLoadOrderModuleList;
         for (auto LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrHead32->Flink));
              LdrNext32 != LdrHead32;
@@ -161,9 +162,10 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     UNREFERENCED_PARAMETER(CallBack);
     UNREFERENCED_PARAMETER(Context);
 
-    //方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了。
+    //方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了，修正一下，又测试（2025/8/25）通过了。。
     __try {
-        Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Peb32->Ldr));
+        ULONG Tmp = *(PULONG)(Peb32->Ldr);
+        Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Tmp));
         LdrHead32 = &Ldr32->InLoadOrderModuleList;
 
         for (LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrHead32->Flink));
