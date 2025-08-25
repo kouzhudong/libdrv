@@ -313,7 +313,7 @@ homepage:http://correy.webs.com
                 PLIST_ENTRY le2 = le1;
                 do {
                     auto pldte = CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-                    if (pldte->FullDllName.Length) //过滤掉最后一个，多余的。
+                    if (pldte->FullDllName.Length && pldte->DllBase) //过滤掉最后一个，多余的。
                     {
                         KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
