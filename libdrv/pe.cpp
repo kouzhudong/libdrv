@@ -436,7 +436,7 @@ NTSTATUS WINAPI GetUserFunctionAddressByPeb(_In_ PVOID DllBase, _In_ PUNICODE_ST
 }
 
 
-PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
+PVOID GetUserFunctionAddressByPeb(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PCSTR FunctionName)
 /*
 功能：获取某个进程的某个模块的某个(导出)函数的地址。
 
@@ -528,7 +528,7 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid, _In_ PMEMORY_BASIC_INFOR
 }
 
 
-PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PSTR FunctionName)
+PVOID GetUserFunctionAddress(_In_ HANDLE ProcessId, _In_ PWSTR DllFullName, _In_ PCSTR FunctionName)
 /*
 功能：获取某个进程的某个模块的某个(导出)函数的地址。
 

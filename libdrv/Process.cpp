@@ -909,7 +909,7 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
 }
 
 
-NTSTATUS GetPidFromProcessName(_In_ PWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId)
+NTSTATUS GetPidFromProcessName(_In_ PCWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId)
 /*
 功能：根据进程名获取PID。
 作用：1.测试常用。

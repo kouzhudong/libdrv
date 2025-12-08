@@ -306,7 +306,7 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess);
 
 DWORD GetSessionId(_In_ PEPROCESS Process);
 
-NTSTATUS GetPidFromProcessName(_In_ PWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId);
+NTSTATUS GetPidFromProcessName(_In_ PCWSTR ProcessName, _Inout_ PHANDLE UniqueProcessId);
 
 NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context);
 
