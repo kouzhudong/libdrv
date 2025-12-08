@@ -53,9 +53,8 @@ unsigned char * UnicodeToUTF8(int unicode, unsigned char * p)
             *e++ = (unicode & 0x3f) | 0x80;
         }
     }
-
-    /* Return One step over the end of the utf-8 character buffer */
-    return e;
+    
+    return e;/* Return One step over the end of the utf-8 character buffer */
 }
 
 
@@ -65,8 +64,7 @@ int UTF8ToUnicode(unsigned char * ch, int * unicode)
  * @ch: A buffer contain a utf-8 character
  * @unicode: Contain the converted utf-16 character
  *
- * @return: Bytes count of the utf-8 character (1 ~ 6),
- *          can be used to step to next utf-8 character when convert a utf-8 string to a utf-16 string
+ * @return: Bytes count of the utf-8 character (1 ~ 6), can be used to step to next utf-8 character when convert a utf-8 string to a utf-16 string
  */
 {
     unsigned char * p = nullptr;
@@ -115,9 +113,8 @@ int UTF8ToUnicode(unsigned char * ch, int * unicode)
 
         *unicode = e;
     }
-
-    /* Return bytes count of this utf-8 character */
-    return n;
+    
+    return n;/* Return bytes count of this utf-8 character */
 }
 
 
@@ -127,14 +124,13 @@ int UTF8ToUnicode(unsigned char * ch, int * unicode)
 #if (NTDDI_VERSION < NTDDI_WIN7)
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Must_inspect_result_
-//NTSYSAPI
+// NTSYSAPI
 NTSTATUS NTAPI RtlUnicodeToUTF8N(
-    _Out_writes_bytes_to_(UTF8StringMaxByteCount, *UTF8StringActualByteCount) PCHAR  UTF8StringDestination,
-    _In_                                ULONG  UTF8StringMaxByteCount,
-    _Out_                               PULONG UTF8StringActualByteCount,
+    _Out_writes_bytes_to_(UTF8StringMaxByteCount, *UTF8StringActualByteCount) PCHAR UTF8StringDestination,
+    _In_ ULONG UTF8StringMaxByteCount,
+    _Out_ PULONG UTF8StringActualByteCount,
     _In_reads_bytes_(UnicodeStringByteCount) PCWCH UnicodeStringSource,
-    _In_                                ULONG  UnicodeStringByteCount
-)
+    _In_ ULONG UnicodeStringByteCount)
 /*
 调用UnicodeToUTF8实现。
 
@@ -157,16 +153,15 @@ NTSTATUS NTAPI RtlUnicodeToUTF8N(
 #if (NTDDI_VERSION < NTDDI_WIN7)
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Must_inspect_result_
-//NTSYSAPI
+// NTSYSAPI
 NTSTATUS
 NTAPI
 RtlUTF8ToUnicodeN(
-    _Out_writes_bytes_to_(UnicodeStringMaxByteCount, *UnicodeStringActualByteCount) PWSTR  UnicodeStringDestination,
-    _In_                             ULONG  UnicodeStringMaxByteCount,
-    _Out_                            PULONG UnicodeStringActualByteCount,
-    _In_reads_bytes_(UTF8StringByteCount) PCCH   UTF8StringSource,
-    _In_                             ULONG  UTF8StringByteCount
-)
+    _Out_writes_bytes_to_(UnicodeStringMaxByteCount, *UnicodeStringActualByteCount) PWSTR UnicodeStringDestination,
+    _In_ ULONG UnicodeStringMaxByteCount,
+    _Out_ PULONG UnicodeStringActualByteCount,
+    _In_reads_bytes_(UTF8StringByteCount) PCCH UTF8StringSource,
+    _In_ ULONG UTF8StringByteCount)
 /*
 调用UTF8ToUnicode实现。
 
@@ -181,7 +176,6 @@ RtlUTF8ToUnicodeN(
     UNREFERENCED_PARAMETER(UTF8StringDestination);
     UNREFERENCED_PARAMETER(UTF8StringDestination);
 
-
     rturn Status;
 }
 #endif
@@ -190,20 +184,19 @@ RtlUTF8ToUnicodeN(
 #if (NTDDI_VERSION < NTDDI_WIN10_VB)
 
 
-_When_(AllocateDestinationString, _At_(DestinationString->MaximumLength, _Out_range_(<= , (SourceString->MaximumLength / sizeof(WCHAR)))))
-    _When_(!AllocateDestinationString, _At_(DestinationString->Buffer, _Const_) _At_(DestinationString->MaximumLength, _Const_))
-    _IRQL_requires_max_(PASSIVE_LEVEL) _When_(AllocateDestinationString, _Must_inspect_result_)
-    //NTSYSAPI
-    NTSTATUS NTAPI RtlUnicodeStringToUTF8String(
-        _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem)))
-        _When_(!AllocateDestinationString, _Inout_)
-        PUTF8_STRING DestinationString,
-        _In_ PCUNICODE_STRING SourceString,
-        _In_ BOOLEAN AllocateDestinationString
-    )
-    /*
-    调用RtlUnicodeToUTF8N实现。
-    */
+_When_(AllocateDestinationString, _At_(DestinationString->MaximumLength, _Out_range_(<=, (SourceString->MaximumLength / sizeof(WCHAR)))))
+_When_(!AllocateDestinationString, _At_(DestinationString->Buffer, _Const_) _At_(DestinationString->MaximumLength, _Const_))
+_IRQL_requires_max_(PASSIVE_LEVEL)
+_When_(AllocateDestinationString, _Must_inspect_result_)
+// NTSYSAPI
+NTSTATUS NTAPI RtlUnicodeStringToUTF8String(
+    _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem))) 
+    _When_(!AllocateDestinationString, _Inout_) PUTF8_STRING DestinationString,
+    _In_ PCUNICODE_STRING SourceString,
+    _In_ BOOLEAN AllocateDestinationString)
+/*
+调用RtlUnicodeToUTF8N实现。
+*/
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
@@ -217,13 +210,12 @@ _When_(AllocateDestinationString, _At_(DestinationString->MaximumLength, _Out_ra
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Must_inspect_result_
-//NTSYSAPI
+// NTSYSAPI
 NTSTATUS NTAPI RtlUTF8StringToUnicodeString(
     _When_(AllocateDestinationString, _Out_ _At_(DestinationString->Buffer, __drv_allocatesMem(Mem))) _When_(!AllocateDestinationString, _Inout_)
-    PUNICODE_STRING DestinationString,
+        PUNICODE_STRING DestinationString,
     _In_ PUTF8_STRING SourceString,
-    _In_ BOOLEAN AllocateDestinationString
-)
+    _In_ BOOLEAN AllocateDestinationString)
 /*
 调用RtlUTF8ToUnicodeN实现。
 */

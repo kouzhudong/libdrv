@@ -34,7 +34,7 @@ Name是被搜索的字符串。
 
 注意：不用再把Name转换成大写，因为FsRtlIsNameInExpression支持不区分大小写。
 
-在资源不足的情况下， FsRtlIsNameInExpression 可能会引发具有STATUS_NO_MEMORY代码的结构化异常，调用方应准备好处理该异常。 
+在资源不足的情况下， FsRtlIsNameInExpression 可能会引发具有STATUS_NO_MEMORY代码的结构化异常，调用方应准备好处理该异常。
 有关详细信息，请参阅 结构化异常处理。
 
  备注
@@ -45,7 +45,7 @@ https://learn.microsoft.com/zh-cn/windows-hardware/drivers/ddi/ntifs/nf-ntifs-_f
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    UNICODE_STRING  DestinationString{};
+    UNICODE_STRING DestinationString{};
     BOOLEAN B{};
 
     PAGED_CODE();
@@ -132,8 +132,8 @@ EXCEPTION_CONTINUE_SEARCH - If a higher exception handler should take care of th
 --*/
 {
 #pragma warning(push)
-#pragma warning(disable:4065) //switch 语句包含“default”但是未包含“case”标签
-#pragma warning(disable:4189) //局部变量已初始化但不引用
+#pragma warning(disable : 4065) // switch 语句包含“default”但是未包含“case”标签
+#pragma warning(disable : 4189) // 局部变量已初始化但不引用
 
     NTSTATUS Status = ExceptionPointer->ExceptionRecord->ExceptionCode;
     BOOLEAN IsNtstatusExpected = FsRtlIsNtstatusExpected(Status);
@@ -185,7 +185,7 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 
     RtlTimeToTimeFields(st, &tf);
 
-    Status = RtlStringCbPrintfW(TimeString->Buffer, 
+    Status = RtlStringCbPrintfW(TimeString->Buffer,
                                 TimeString->MaximumLength,
                                 L"%04d-%02d-%02d %02d:%02d:%02d",
                                 tf.Year,
@@ -288,7 +288,7 @@ Return Value:
     DestString->MaximumLength = SourceString->Length + sizeof(WCHAR);
     DestString->Buffer = (PWSTR)ExAllocatePoolWithTag(NonPagedPool, DestString->MaximumLength, TAG);
     if (DestString->Buffer != NULL) {
-        // It's a good practice to keep the contents of a try-except block to the bare minimum. 
+        // It's a good practice to keep the contents of a try-except block to the bare minimum.
         // By keeping the pool allocation call outside of the try-except block we don't mask possible pool corruptions.
         __try {
             RtlZeroMemory(DestString->Buffer, DestString->MaximumLength);

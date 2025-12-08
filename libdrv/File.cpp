@@ -4,12 +4,12 @@
 #include "object.h"
 
 
-#pragma warning(disable:6386)
-#pragma warning(disable:6387)
-#pragma warning(disable:6011)
-#pragma warning(disable:6385)
-#pragma warning(disable:28175)
-#pragma warning(disable:4996)
+#pragma warning(disable : 6386)
+#pragma warning(disable : 6387)
+#pragma warning(disable : 6011)
+#pragma warning(disable : 6385)
+#pragma warning(disable : 28175)
+#pragma warning(disable : 4996)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,9 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
-    IO_STATUS_BLOCK  IoStatusBlock{};
+    IO_STATUS_BLOCK IoStatusBlock{};
     PVOID FileInformation{};
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION); // 这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
     FILE_DIRECTORY_INFORMATION * fibdi{};
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
@@ -74,8 +74,8 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
 
         Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, FALSE, nullptr, TRUE);
         if (!NT_SUCCESS(Status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
-            //return Status;
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
+            // return Status;
         }
 
         Length *= 2;
@@ -87,7 +87,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
         UNICODE_STRING FileName{};
 
         if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
-            //这里可以考虑递归。这里放弃了文件夹的显示。
+            // 这里可以考虑递归。这里放弃了文件夹的显示。
             continue;
         }
 
@@ -130,9 +130,9 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
-    IO_STATUS_BLOCK  IoStatusBlock{};
+    IO_STATUS_BLOCK IoStatusBlock{};
     PVOID FileInformation{};
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION);//这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION); // 这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
 
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
@@ -144,7 +144,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
         return Status;
     }
 
-    Length = Length + 520;//为何加这个数字，请看ZwEnumerateFile1的说明。
+    Length = Length + 520; // 为何加这个数字，请看ZwEnumerateFile1的说明。
     FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
@@ -156,7 +156,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 
     Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, TRUE);
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
         ExFreePoolWithTag(FileInformation, TAG);
         ZwClose(FileHandle);
         return Status;
@@ -168,13 +168,13 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 
         Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, FALSE);
         if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
-            break;//这里好像没有走过。
+            break; // 这里好像没有走过。
         }
 
         fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;
 
         if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
-            //这里可以考虑递归。这里放弃了文件夹的显示。
+            // 这里可以考虑递归。这里放弃了文件夹的显示。
             continue;
         }
 
@@ -236,7 +236,7 @@ Length：扇区的倍数。
     NTSTATUS Status = STATUS_SUCCESS;
     wchar_t deviceNameBuffer[128]{};
     UNICODE_STRING ObjectName{};
-    PDEVICE_OBJECT DeviceObject{};//设备L"\\Device\\Harddisk%d\\DR%d" 或者 符号连接L"\\Device\\Harddisk%d\\Partition0" 所代表的对象。
+    PDEVICE_OBJECT DeviceObject{}; // 设备L"\\Device\\Harddisk%d\\DR%d" 或者 符号连接L"\\Device\\Harddisk%d\\Partition0" 所代表的对象。
     PFILE_OBJECT FileObject{};
 
     _swprintf(deviceNameBuffer, L"\\Device\\Harddisk%d\\Partition0", DiskIndex);
@@ -257,18 +257,17 @@ Length：扇区的倍数。
     } else {
         PIO_STACK_LOCATION irpStack;
         irpStack = IoGetNextIrpStackLocation(irp);
-        irpStack->FileObject = FileObject;//https://community.osr.com/discussion/34920/how-to-use-iobuildsynchronousfsdrequest-to-read-a-disk-file
+        irpStack->FileObject = FileObject; // https://community.osr.com/discussion/34920/how-to-use-iobuildsynchronousfsdrequest-to-read-a-disk-file
         irpStack->Flags |= SL_OVERRIDE_VERIFY_VOLUME;
     }
 
     Status = IoCallDriver(DeviceObject, irp);
     if (Status == STATUS_PENDING) {
-        (VOID)KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)nullptr);
+        (VOID) KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) nullptr);
         Status = ioStatus.Status;
     }
 
     if (!NT_SUCCESS(Status)) {
-
     }
 
     ObDereferenceObject(FileObject);
@@ -278,7 +277,7 @@ Length：扇区的倍数。
 VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOID * Buffer)
 {
     LARGE_INTEGER partitionTableOffset{};
-    PUCHAR readBuffer = (PUCHAR)nullptr;
+    PUCHAR readBuffer = (PUCHAR) nullptr;
     KEVENT event{};
     IO_STATUS_BLOCK ioStatus{};
     PIRP irp{};
@@ -294,12 +293,12 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
     }
 
 #pragma warning(push)
-#pragma warning(disable:4996)//被声明为已否决
-    partitionTableOffset = RtlConvertUlongToLargeInteger(0);// Start at sector 0 of the device.    
-#pragma warning(pop)    
+#pragma warning(disable : 4996)                              // 被声明为已否决
+    partitionTableOffset = RtlConvertUlongToLargeInteger(0); // Start at sector 0 of the device.
+#pragma warning(pop)
     readBuffer = (PUCHAR)ExAllocatePoolWithTag(NonPagedPoolCacheAligned,
                                                PAGE_SIZE > readSize ? PAGE_SIZE : readSize,
-                                               'btsF');// Allocate a buffer that will hold the reads.
+                                               'btsF'); // Allocate a buffer that will hold the reads.
     if (readBuffer == nullptr) {
         return;
     }
@@ -317,7 +316,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
 
     Status = IoCallDriver(DeviceObject, irp);
     if (Status == STATUS_PENDING) {
-        (VOID)KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)nullptr);
+        (VOID) KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) nullptr);
         Status = ioStatus.Status;
     }
 
@@ -334,7 +333,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
 
 
 #if (NTDDI_VERSION < NTDDI_WIN7)
-//NTKERNELAPI
+// NTKERNELAPI
 NTSTATUS IoReplaceFileObjectName(_In_ PFILE_OBJECT FileObject, _In_reads_bytes_(FileNameLength) PWSTR NewFileName, _In_ USHORT FileNameLength)
 /*++
 Routine Description:
@@ -365,7 +364,7 @@ Return Value:
 
     // Use an optimal buffer size
     newMaxLength = FileNameLength;
-    buffer = ExAllocatePoolWithTag(NonPagedPool, newMaxLength, TAG);//PagedPool
+    buffer = ExAllocatePoolWithTag(NonPagedPool, newMaxLength, TAG); // PagedPool
     if (!buffer) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -406,8 +405,8 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
 
     Status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &nameInfo);
     if (!NT_SUCCESS(Status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);//信息太多。
-        return Status;//这里有返回STATUS_OBJECT_PATH_NOT_FOUND
+        // Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);//信息太多。
+        return Status; // 这里有返回STATUS_OBJECT_PATH_NOT_FOUND
     }
 
     Status = FltParseFileNameInformation(nameInfo);
@@ -415,7 +414,7 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
 
     Status = FltGetDiskDeviceObject(FltObjects->Volume, &DiskDeviceObject);
     if (NT_SUCCESS(Status)) {
-        Status = IoVolumeDeviceToDosName(DiskDeviceObject, &VolumeName);//后面有冒号。
+        Status = IoVolumeDeviceToDosName(DiskDeviceObject, &VolumeName); // 后面有冒号。
         if (NT_SUCCESS(Status)) {
             DosFileName->MaximumLength = VolumeName.MaximumLength + nameInfo->Name.MaximumLength;
             DosFileName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, DosFileName->MaximumLength, TAG);
@@ -424,17 +423,17 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
             RtlZeroMemory(DosFileName->Buffer, DosFileName->MaximumLength);
 
             RtlCopyUnicodeString(DosFileName, &VolumeName);
-            //Status = RtlAppendUnicodeToString(DosFileName, L":");
-            //ASSERT(NT_SUCCESS(Status));
-            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); //前后都有\. 
+            // Status = RtlAppendUnicodeToString(DosFileName, L":");
+            // ASSERT(NT_SUCCESS(Status));
+            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); // 前后都有\.
             ASSERT(NT_SUCCESS(Status));
             Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
             ASSERT(NT_SUCCESS(Status));
         } else {
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
         }
-    } else {//走这里的不少。
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);//STATUS_FLT_NO_DEVICE_OBJECT
+    } else {                                                                                                                    // 走这里的不少。
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName); // STATUS_FLT_NO_DEVICE_OBJECT
     }
 
     FltReleaseFileNameInformation(nameInfo);
@@ -443,7 +442,7 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
 }
 
 
-NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_STRING  ExistingFileName)
+NTSTATUS ZwCreateHardLink(__in PUNICODE_STRING HardLinkFileName, __in PUNICODE_STRING ExistingFileName)
 /*
 功能：创建硬链接。
 注意：1.在同一个卷，
@@ -459,10 +458,10 @@ homepage:https://correy.webs.com
 {
     NTSTATUS Status = STATUS_SUCCESS;
     OBJECT_ATTRIBUTES ob{};
-    IO_STATUS_BLOCK  IoStatusBlock{};
+    IO_STATUS_BLOCK IoStatusBlock{};
     HANDLE FileHandle{};
     PFILE_LINK_INFORMATION FILELINKINFORMATION = nullptr;
-    ULONG  Length = 0;
+    ULONG Length = 0;
 
     /*
     一些参数的检查。
@@ -474,14 +473,14 @@ homepage:https://correy.webs.com
                         &ob,
                         &IoStatusBlock,
                         FILE_SHARE_VALID_FLAGS,
-                        FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT);//FILE_NON_DIRECTORY_FILE
+                        FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT); // FILE_NON_DIRECTORY_FILE
     if (!NT_SUCCESS(Status)) {
         KdPrint(("ZwOpenFile fail %d\n", Status));
         return Status;
     }
 
-    //建议申请内存，因为FILELINKINFORMATION->FileName的后面是秘密的内存。
-    Length = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + HardLinkFileName->Length;//sizeof(FILE_RENAME_INFORMATION)        
+    // 建议申请内存，因为FILELINKINFORMATION->FileName的后面是秘密的内存。
+    Length = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + HardLinkFileName->Length; // sizeof(FILE_RENAME_INFORMATION)
     FILELINKINFORMATION = (PFILE_LINK_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FILELINKINFORMATION == nullptr) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -522,12 +521,12 @@ homepage:http://correy.webs.com
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    PDRIVER_OBJECT * DriverObjectList{};//*
+    PDRIVER_OBJECT * DriverObjectList{}; //*
     ULONG DriverObjectListSize = 0;
     ULONG ActualNumberDriverObjects = 0;
     ULONG i = 0;
 
-    //XP下调用此函数没有反应。就是各个参数及返回值依旧是原来的样子。
+    // XP下调用此函数没有反应。就是各个参数及返回值依旧是原来的样子。
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -535,7 +534,7 @@ homepage:http://correy.webs.com
         }
     }
 
-    //XP下申请大小为0的内存竟然成功，而且还可以读写。
+    // XP下申请大小为0的内存竟然成功，而且还可以读写。
     DriverObjectListSize = ActualNumberDriverObjects * sizeof(DRIVER_OBJECT);
     DriverObjectList = static_cast<PDRIVER_OBJECT *>(ExAllocatePoolWithTag(NonPagedPool, DriverObjectListSize, TAG));
     if (DriverObjectList == nullptr) {
@@ -543,7 +542,7 @@ homepage:http://correy.webs.com
     }
     RtlZeroMemory(DriverObjectList, DriverObjectListSize);
 
-    //XP下调用此函数仍然没有反应。就是各个参数及返回值依旧是原来的样子。
+    // XP下调用此函数仍然没有反应。就是各个参数及返回值依旧是原来的样子。
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
         return Status;
@@ -581,8 +580,7 @@ const CHAR * NtfsMetadataFileNames[] = {
     "$BadClus",
     "$Secure",
     "$UpCase",
-    "$Extend"
-};
+    "$Extend"};
 
 
 void PrintNtfsMetadataFileName(_In_ PFLT_INSTANCE Instance, _In_ PFILE_OBJECT FileObject)
@@ -621,7 +619,7 @@ http://correy.webs.com
     ULONG LengthReturned = 0;
     NTSTATUS Status = FltQueryInformationFile(Instance, FileObject, &fileInternalInfo, sizeof(fileInternalInfo), FileInternalInformation, &LengthReturned);
     if (NT_SUCCESS(Status)) {
-        ULONGLONG mftIndex = fileInternalInfo.IndexNumber.QuadPart & ~0xF0000000;// Use the name in the metadata name index
+        ULONGLONG mftIndex = fileInternalInfo.IndexNumber.QuadPart & ~0xF0000000; // Use the name in the metadata name index
         if (mftIndex <= MAX_NTFS_METADATA_FILE) {
             KdPrint(("NtfsMetadataFileName:%s.\r\n", NtfsMetadataFileNames[mftIndex]));
         }
@@ -646,7 +644,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
     PFLT_FILE_NAME_INFORMATION NameInfo = nullptr;
 
     if (IRP_MJ_CREATE != Data->Iopb->MajorFunction) {
-        return B;//只支持这个操作。
+        return B; // 只支持这个操作。
     }
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
@@ -655,8 +653,8 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
 
     do {
         Status = FltGetFileNameInformation(Data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &NameInfo);
-        if (!NT_SUCCESS(Status)) {//STATUS_OBJECT_PATH_NOT_FOUND
-            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+        if (!NT_SUCCESS(Status)) { // STATUS_OBJECT_PATH_NOT_FOUND
+            // PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             break;
         }
 
@@ -668,7 +666,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
 
         InitializeObjectAttributes(&objAttributes, &NameInfo->Name, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, nullptr);
         Status = FltCreateFile(nullptr,
-                               Data->Iopb->TargetInstance,//FltObjects->Instance,
+                               Data->Iopb->TargetInstance, // FltObjects->Instance,
                                &FileHandle,
                                FILE_GENERIC_READ | SYNCHRONIZE,
                                &objAttributes,
@@ -682,7 +680,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
                                0,
                                IO_IGNORE_SHARE_ACCESS_CHECK);
         if (!NT_SUCCESS(Status)) {
-            //PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+            // PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             break;
         }
 
@@ -690,7 +688,7 @@ BOOL IsFileExist(__inout PFLT_CALLBACK_DATA Data)
     } while (FALSE);
 
     if (FileHandle) {
-        Status = FltClose(FileHandle);//严禁使用ZwClose，否者资源泄露，驱动程序验证器下会检测到。
+        Status = FltClose(FileHandle); // 严禁使用ZwClose，否者资源泄露，驱动程序验证器下会检测到。
     }
 
     if (NameInfo) {
@@ -726,33 +724,33 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
     UCHAR CreateDisposition = static_cast<UCHAR>(Data->Iopb->Parameters.Create.Options >> 24);
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE)) {
-        return;//对于目录不处理，放过。
+        return; // 对于目录不处理，放过。
     }
 
     if (FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
         return;
     }
 
-    //对于文件不存在的，不处理，只处理文件已经存在的。
+    // 对于文件不存在的，不处理，只处理文件已经存在的。
     if (IsFileExist(Data)) {
         switch (CreateDisposition) {
         case FILE_SUPERSEDE:
-            //ret = CREATE;// FILE_CREATED;
+            // ret = CREATE;// FILE_CREATED;
             break;
         case FILE_CREATE:
-            //ret = CREATE;// FILE_EXISTS;
+            // ret = CREATE;// FILE_EXISTS;
             break;
         case FILE_OPEN:
-            //ret = OPEN;
+            // ret = OPEN;
             break;
         case FILE_OPEN_IF:
-            //ret = OPEN;
+            // ret = OPEN;
             break;
         case FILE_OVERWRITE:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         case FILE_OVERWRITE_IF:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         default:
             ASSERT(FALSE);
@@ -761,22 +759,22 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
     } else {
         switch (CreateDisposition) {
         case FILE_SUPERSEDE:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         case FILE_CREATE:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         case FILE_OPEN:
-            //ret = OPEN;
+            // ret = OPEN;
             break;
         case FILE_OPEN_IF:
-            ///ret = CREATE;
+            /// ret = CREATE;
             break;
         case FILE_OVERWRITE:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         case FILE_OVERWRITE_IF:
-            //ret = CREATE;
+            // ret = CREATE;
             break;
         default:
             ASSERT(FALSE);
@@ -784,9 +782,9 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
         }
     }
 
-    //再来个安全检查。
+    // 再来个安全检查。
 
-    return;//ret
+    return; // ret
 }
 
 

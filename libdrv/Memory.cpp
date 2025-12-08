@@ -15,7 +15,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
 */
 {
     SIZE_T ReturnLength = {0};
-    SIZE_T Address = 0;//LPCVOID    
+    SIZE_T Address = 0; // LPCVOID
 
     if (nullptr == ZwQueryVirtualMemoryFn) {
         return STATUS_UNSUCCESSFUL;
@@ -28,7 +28,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
         return Status;
     }
 
-    HANDLE  KernelHandle{};
+    HANDLE KernelHandle{};
     Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
@@ -39,7 +39,7 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
     SIZE_T HighestUserAddress = (SIZE_T)MmHighestUserAddress;
 #if defined(_WIN64)
     if (PsGetProcessWow64Process(Process)) {
-        HighestUserAddress = 0x7ffeffff;//32位的系统有3GB的配置，PE文件有大内存的配置，WOW64是否有3GB支持？
+        HighestUserAddress = 0x7ffeffff; // 32位的系统有3GB的配置，PE文件有大内存的配置，WOW64是否有3GB支持？
     }
 #endif
 
@@ -48,9 +48,9 @@ NTSTATUS WINAPI EnumVirtualMemory(_In_ HANDLE Pid, _In_opt_ VirtualMemoryCallBac
         Status = ZwQueryVirtualMemoryFn(KernelHandle, (PVOID)Address, MemoryBasicInformation, &MemoryBasicInfo, sizeof(MEMORY_BASIC_INFORMATION), &ReturnLength);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-            //if (0 == MemoryBasicInfo.RegionSize) {
-            //    Address += PAGE_SIZE;
-            //}
+            // if (0 == MemoryBasicInfo.RegionSize) {
+            //     Address += PAGE_SIZE;
+            // }
             break;
         } else {
             if (CallBack) {
@@ -95,9 +95,9 @@ https://learn.microsoft.com/zh-cn/windows-hardware/drivers/kernel/single-binary-
 {
 #define POOL_NX_OPTIN 1
 #define POOL_NX_OPTOUT 0
-    //上面两个定义确保ExInitializeDriverRuntime可以执行。
+    // 上面两个定义确保ExInitializeDriverRuntime可以执行。
 
 #if (NTDDI_VERSION >= NTDDI_VISTA)
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
-#endif    
+#endif
 }

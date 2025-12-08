@@ -1,49 +1,48 @@
 #include "cpu.h"
 
 
-#pragma warning(disable:6328)
-#pragma warning(disable:26451)
-#pragma warning(disable:4189)
+#pragma warning(disable : 6328)
+#pragma warning(disable : 26451)
+#pragma warning(disable : 4189)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 const char * szFeatures[] =
-{
-    "x87 FPU On Chip",
-    "Virtual-8086 Mode Enhancement",
-    "Debugging Extensions",
-    "Page Size Extensions",
-    "Time Stamp Counter",
-    "RDMSR and WRMSR Support",
-    "Physical Address Extensions",
-    "Machine Check Exception",
-    "CMPXCHG8B Instruction",
-    "APIC On Chip",
-    "Unknown1",
-    "SYSENTER and SYSEXIT",
-    "Memory Type Range Registers",
-    "PTE Global Bit",
-    "Machine Check Architecture",
-    "Conditional Move/Compare Instruction",
-    "Page Attribute Table",
-    "36-bit Page Size Extension",
-    "Processor Serial Number",
-    "CFLUSH Extension",
-    "Unknown2",
-    "Debug Store",
-    "Thermal Monitor and Clock Ctrl",
-    "MMX Technology",
-    "FXSAVE/FXRSTOR",
-    "SSE Extensions",
-    "SSE2 Extensions",
-    "Self Snoop",
-    "Multithreading Technology",
-    "Thermal Monitor",
-    "Unknown4",
-    "Pending Break Enable"
-};
+    {
+        "x87 FPU On Chip",
+        "Virtual-8086 Mode Enhancement",
+        "Debugging Extensions",
+        "Page Size Extensions",
+        "Time Stamp Counter",
+        "RDMSR and WRMSR Support",
+        "Physical Address Extensions",
+        "Machine Check Exception",
+        "CMPXCHG8B Instruction",
+        "APIC On Chip",
+        "Unknown1",
+        "SYSENTER and SYSEXIT",
+        "Memory Type Range Registers",
+        "PTE Global Bit",
+        "Machine Check Architecture",
+        "Conditional Move/Compare Instruction",
+        "Page Attribute Table",
+        "36-bit Page Size Extension",
+        "Processor Serial Number",
+        "CFLUSH Extension",
+        "Unknown2",
+        "Debug Store",
+        "Thermal Monitor and Clock Ctrl",
+        "MMX Technology",
+        "FXSAVE/FXRSTOR",
+        "SSE Extensions",
+        "SSE2 Extensions",
+        "Self Snoop",
+        "Multithreading Technology",
+        "Thermal Monitor",
+        "Unknown4",
+        "Pending Break Enable"};
 
 
 NTSTATUS CPUIDTTEST()
@@ -84,7 +83,7 @@ made at 2014.08.20
     int nCacheSizeK = 0;
     int nPhysicalAddress = 0;
     int nVirtualAddress = 0;
-    //int nRet = 0;
+    // int nRet = 0;
 
     int nCores = 0;
     int nCacheType = 0;
@@ -518,7 +517,7 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
         printf_s("No support CPU Brand String.\n");
     }
 
-    //具体的原理为啥这样做，请看intel和amd的资料。
+    // 具体的原理为啥这样做，请看intel和amd的资料。
     for (unsigned i = 0x80000000; i <= nExIds; ++i) {
         __cpuid(CPUInfo, i);
 
@@ -529,12 +528,12 @@ https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
         } else if (i == 0x80000004) {
             memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
         } else {
-            //啥也不做。
+            // 啥也不做。
         }
     }
 
-    if (nExIds >= 0x80000004) { //这个必定成立。
-        //CPUBrandString的值为：        Intel(R) Core(TM) i3-3240 CPU @ 3.40GHz 注意前面有空格。
+    if (nExIds >= 0x80000004) { // 这个必定成立。
+        // CPUBrandString的值为：        Intel(R) Core(TM) i3-3240 CPU @ 3.40GHz 注意前面有空格。
         printf_s("CPU Brand String: %s.\n", CPUBrandString);
     }
 
@@ -661,7 +660,7 @@ BOOL is_support_intel()
     *(reinterpret_cast<int *>(CPUString + 4)) = CPUInfo[3];
     *(reinterpret_cast<int *>(CPUString + 8)) = CPUInfo[2];
 
-    //printf_s("\n\nCPU String: %s\n", CPUString);//GenuineIntel
+    // printf_s("\n\nCPU String: %s\n", CPUString);//GenuineIntel
     if (_stricmp(CPUString, "GenuineIntel") == 0) {
         B = TRUE;
     }
@@ -729,19 +728,19 @@ This instruction operates the same in non-64-bit modes and 64-bit mode.
     SIZE_T result{};
     SIZE_T temp{};
 
-    original = __readeflags(); //读取
-    //ASSERT(_bittest(&original, 21) == 0);//断言这个位为0.
+    original = __readeflags(); // 读取
+    // ASSERT(_bittest(&original, 21) == 0);//断言这个位为0.
 
     temp = original;
-    _bittestandset(reinterpret_cast<LONG *>(&temp), 21); //设置这一位为1. 另一个办法是和0x200000进行或操作。
+    _bittestandset(reinterpret_cast<LONG *>(&temp), 21); // 设置这一位为1. 另一个办法是和0x200000进行或操作。
 
-    __writeeflags(temp); //写入测试。
+    __writeeflags(temp); // 写入测试。
 
-    result = __readeflags(); //读取结果。
+    result = __readeflags(); // 读取结果。
 
-    __writeeflags(original); //恢复。
+    __writeeflags(original); // 恢复。
 
-    //判断
+    // 判断
     if (_bittest(reinterpret_cast<const LONG *>(&result), 21) == 0) {
         B = FALSE;
     } else {
@@ -773,7 +772,7 @@ int is_support_ne()
     __cpuid(CPUInfo, 0x80000001);
     LONG edx = CPUInfo[3];
 
-    //即NX：No Execute。
+    // 即NX：No Execute。
     unsigned char b = _bittest(&edx, 20);
     if (b) {
         printf_s("Execute Disable Bit available.\n");
@@ -807,7 +806,7 @@ int Intel64ArchitectureAvailable()
     __cpuid(CPUInfo, 0x80000001);
     LONG edx = CPUInfo[3];
 
-    //即NX：No Execute。
+    // 即NX：No Execute。
     unsigned char b = _bittest(&edx, 29);
     if (b) {
         printf_s("Intel 64 Architecture available if 1.\n");
@@ -841,8 +840,8 @@ int is_support_msr()
         return 0;
     }
 
-    //Table 3-17. Information Returned by CPUID Instruction
-    //Feature Information(see Figure 3 - 8 and Table 3 - 20)
+    // Table 3-17. Information Returned by CPUID Instruction
+    // Feature Information(see Figure 3 - 8 and Table 3 - 20)
     __cpuid(CPUInfo, 1);
     int edx = CPUInfo[3];
 
@@ -879,8 +878,8 @@ int is_support_sysenter()
         return 0;
     }
 
-    //Table 3-17. Information Returned by CPUID Instruction
-    //Feature Information(see Figure 3 - 8 and Table 3 - 20)
+    // Table 3-17. Information Returned by CPUID Instruction
+    // Feature Information(see Figure 3 - 8 and Table 3 - 20)
     __cpuid(CPUInfo, 1);
     int edx = CPUInfo[3];
 
@@ -909,8 +908,7 @@ made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PINBASED_CTLS ivpc {
-    }; //在VS2012上，前面必须加个union。
+    union IA32_VMX_PINBASED_CTLS ivpc{}; // 在VS2012上，前面必须加个union。
     unsigned __int64 t = 0;
 
     t = __readmsr(0x481);
@@ -990,8 +988,8 @@ int is_support_syscall()
     __cpuid(CPUInfo, 0x80000001);
     int edx = CPUInfo[3];
 
-    //如果在64位的系统上测试，编译为32的程序，这个获取是失败的，编译为64位程序，这个运行是成功的。
-    //但是看说明，也是这样：SYSCALL/SYSRET available in 64-bit mode。
+    // 如果在64位的系统上测试，编译为32的程序，这个获取是失败的，编译为64位程序，这个运行是成功的。
+    // 但是看说明，也是这样：SYSCALL/SYSRET available in 64-bit mode。
     unsigned char b = _bittest(reinterpret_cast<const LONG *>(&edx), 11);
     if (b) {
         printf_s("SYSCALL/SYSRET available in 64-bit mode.\n");
@@ -1018,8 +1016,7 @@ made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PROCBASED_CTLS ivpc {
-    }; //在VS2012上，前面必须加个union。
+    union IA32_VMX_PROCBASED_CTLS ivpc{}; // 在VS2012上，前面必须加个union。
     unsigned __int64 t = 0;
 
     t = __readmsr(0x482);
@@ -1049,8 +1046,7 @@ made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_PROCBASED_CTLS2 ivpc2 {
-    }; //在VS2012上，前面必须加个union。
+    union IA32_VMX_PROCBASED_CTLS2 ivpc2{}; // 在VS2012上，前面必须加个union。
     unsigned __int64 t = 0;
 
     t = __readmsr(0x482);
@@ -1115,31 +1111,31 @@ PROCHOT# activation temperature from the default target specified in TEMPERATURE
     int CPUInfo[4] = {-1};
     unsigned int t = 0;
 
-    //识别是否支持CPUID指令。
+    // 识别是否支持CPUID指令。
 
-    //识别是不是Intel处理器。
+    // 识别是不是Intel处理器。
 
-    //识别是否支持查询CPU的温度。
+    // 识别是否支持查询CPU的温度。
     __cpuid(CPUInfo, 6);
     t = CPUInfo[0];
-    //CPUID.06H:EAX[bit0] == 1
-    //可是下面的两个值获取的都为零。
+    // CPUID.06H:EAX[bit0] == 1
+    // 可是下面的两个值获取的都为零。
 
-    tt = __readmsr(MSR_TEMPERATURE_TARGET); //如果这个数字为0，可以认为是在虚拟机中，有的软件叫：耐热，可能是极限。
+    tt = __readmsr(MSR_TEMPERATURE_TARGET); // 如果这个数字为0，可以认为是在虚拟机中，有的软件叫：耐热，可能是极限。
     ts = __readmsr(IA32_THERM_STATUS);
 
-    //KdPrint(("MSR_TEMPERATURE_TARGET:0x%x.\r\n", tt));
-    //KdPrint(("IA32_THERM_STATUS:0x%x.\r\n", ts));
+    // KdPrint(("MSR_TEMPERATURE_TARGET:0x%x.\r\n", tt));
+    // KdPrint(("IA32_THERM_STATUS:0x%x.\r\n", ts));
 
-    x = tt & (0xFF0000);  //23:16 Temperature Target (R)
-    to = ts & (0x7F0000); //22:16 Digital Readout (RO)
+    x = tt & (0xFF0000);  // 23:16 Temperature Target (R)
+    to = ts & (0x7F0000); // 22:16 Digital Readout (RO)
 
     i = x - to;
     i = i / 0x10000;
 
     KdPrint(("TEMPERATURE:%d.\r\n", i));
-    //这个数字和别的软件有1-2度的差别。
-    //不过Core-Temp和hwmonitor也是相差1-2度。
+    // 这个数字和别的软件有1-2度的差别。
+    // 不过Core-Temp和hwmonitor也是相差1-2度。
 
     return Status;
 }
@@ -1160,8 +1156,7 @@ made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union BASIC_VMX_INFORMATION bvi {
-    }; //在VS2012上，前面必须加个union。
+    union BASIC_VMX_INFORMATION bvi{}; // 在VS2012上，前面必须加个union。
     unsigned __int64 t = 0;
 
     t = __readmsr(0x480);
@@ -1197,11 +1192,11 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
     unsigned __int64 VMX_BASIC_MSR = 0;
     PMSR_IA32_VMX_BASIC vmx_basic{};
 
-    //1.识别是否支持CPUID指令。省略。
+    // 1.识别是否支持CPUID指令。省略。
 
-    //2.识别是不是Intel处理器。省略。
+    // 2.识别是不是Intel处理器。省略。
 
-    //3.检测是否支持RDMSR/WRMSR指令。 省略。
+    // 3.检测是否支持RDMSR/WRMSR指令。 省略。
 
     /*
     4.判断CPU是否支持虚拟化:CPUID.1:ECX.VMX[bit 5] = 1,因为：
@@ -1211,9 +1206,9 @@ https://www.yumpu.com/en/document/view/53246903/david-weinstein-dweinstinsitusec
     省略。
     */
 
-    //5.读取并显示信息。
+    // 5.读取并显示信息。
 
-    VMX_BASIC_MSR = __readmsr(IA32_VMX_BASIC); //如果这个数字为0，可以认为是在虚拟机中，有的软件叫：耐热，可能是极限。
+    VMX_BASIC_MSR = __readmsr(IA32_VMX_BASIC); // 如果这个数字为0，可以认为是在虚拟机中，有的软件叫：耐热，可能是极限。
 
     vmx_basic = reinterpret_cast<PMSR_IA32_VMX_BASIC>(&VMX_BASIC_MSR);
 
@@ -1250,8 +1245,7 @@ made at 2017.07.07
 http://correy.webs.com
 */
 {
-    union IA32_VMX_EPT_VPID_CAP ivevc {
-    }; //在VS2012上，前面必须加个union。
+    union IA32_VMX_EPT_VPID_CAP ivevc{}; // 在VS2012上，前面必须加个union。
     unsigned __int64 t = 0;
 
     t = __readmsr(IA32_VMX_PROCBASED_CTLS_MSR);
@@ -1271,20 +1265,20 @@ http://correy.webs.com
     ivevc.all = t;
 
     KdPrint(("support_execute_only_pages:0x%x.\r\n", ivevc.fields.support_execute_only_pages));
-    KdPrint(("support_page_walk_length4:0x%x.\r\n", ivevc.fields.support_page_walk_length4)); //XXX
+    KdPrint(("support_page_walk_length4:0x%x.\r\n", ivevc.fields.support_page_walk_length4)); // XXX
     KdPrint(("support_uncacheble_memory_type:0x%x.\r\n", ivevc.fields.support_uncacheble_memory_type));
-    KdPrint(("support_write_back_memory_type:0x%x.\r\n", ivevc.fields.support_write_back_memory_type)); //XXX
+    KdPrint(("support_write_back_memory_type:0x%x.\r\n", ivevc.fields.support_write_back_memory_type)); // XXX
     KdPrint(("support_pde_2mb_pages:0x%x.\r\n", ivevc.fields.support_pde_2mb_pages));
     KdPrint(("support_pdpte_1_gb_pages:0x%x.\r\n", ivevc.fields.support_pdpte_1_gb_pages));
-    KdPrint(("support_invept:0x%x.\r\n", ivevc.fields.support_invept)); //XXX
+    KdPrint(("support_invept:0x%x.\r\n", ivevc.fields.support_invept)); // XXX
     KdPrint(("support_accessed_and_dirty_flag:0x%x.\r\n", ivevc.fields.support_accessed_and_dirty_flag));
-    KdPrint(("support_single_context_invept:0x%x.\r\n", ivevc.fields.support_single_context_invept));                                       //XXX
-    KdPrint(("support_all_context_invept:0x%x.\r\n", ivevc.fields.support_all_context_invept));                                             //XXX
-    KdPrint(("support_invvpid:0x%x.\r\n", ivevc.fields.support_invvpid));                                                                   //XXX
-    KdPrint(("support_individual_address_invvpid:0x%x.\r\n", ivevc.fields.support_individual_address_invvpid));                             //XXX
-    KdPrint(("support_single_context_invvpid:0x%x.\r\n", ivevc.fields.support_single_context_invvpid));                                     //XXX
-    KdPrint(("support_all_context_invvpid:0x%x.\r\n", ivevc.fields.support_all_context_invvpid));                                           //XXX
-    KdPrint(("support_single_context_retaining_globals_invvpid:0x%x.\r\n", ivevc.fields.support_single_context_retaining_globals_invvpid)); //XXX
+    KdPrint(("support_single_context_invept:0x%x.\r\n", ivevc.fields.support_single_context_invept));                                       // XXX
+    KdPrint(("support_all_context_invept:0x%x.\r\n", ivevc.fields.support_all_context_invept));                                             // XXX
+    KdPrint(("support_invvpid:0x%x.\r\n", ivevc.fields.support_invvpid));                                                                   // XXX
+    KdPrint(("support_individual_address_invvpid:0x%x.\r\n", ivevc.fields.support_individual_address_invvpid));                             // XXX
+    KdPrint(("support_single_context_invvpid:0x%x.\r\n", ivevc.fields.support_single_context_invvpid));                                     // XXX
+    KdPrint(("support_all_context_invvpid:0x%x.\r\n", ivevc.fields.support_all_context_invvpid));                                           // XXX
+    KdPrint(("support_single_context_retaining_globals_invvpid:0x%x.\r\n", ivevc.fields.support_single_context_retaining_globals_invvpid)); // XXX
 
     if (!ivevc.fields.support_page_walk_length4 ||
         !ivevc.fields.support_write_back_memory_type ||
@@ -1333,11 +1327,11 @@ homepage:http://correy.webs.com
         return 0;
     }
 
-    //下面的算法参照WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ke\amd64\initkr.c文件中的
-    //KiSetCacheInformationIntel函数，当然还有INTEL的文档。
+    // 下面的算法参照WindowsResearchKernel-WRK\WRK-v1.2\base\ntos\ke\amd64\initkr.c文件中的
+    // KiSetCacheInformationIntel函数，当然还有INTEL的文档。
     INTEL_CACHE_INFO_EAX CacheInfoEax{};
     INTEL_CACHE_INFO_EBX CacheInfoEbx{};
-    ULONG Index = 0; //Valid index values start from 0.
+    ULONG Index = 0; // Valid index values start from 0.
     ULONGLONG CacheSize{};
 
     int nCores = 0;
@@ -1352,21 +1346,21 @@ homepage:http://correy.webs.com
     int bFullyAssociative = false;
 
     for (;; Index += 1) {
-        __cpuidex(CPUInfo, 4, Index); //注意：80000006H还有个信息。
+        __cpuidex(CPUInfo, 4, Index); // 注意：80000006H还有个信息。
         CacheInfoEax.Ulong = CPUInfo[0];
         CacheInfoEbx.Ulong = CPUInfo[1];
 
         if (CacheInfoEax.Type == IntelCacheNull) {
-            break; //下面INTEL也说出了结束的标志。
+            break; // 下面INTEL也说出了结束的标志。
         }
 
-        //另一种退出方式是：https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
+        // 另一种退出方式是：https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx
         if (!(CPUInfo[0] & 0xf0))
             break;
 
         if (Index == 0) {
             nCores = CPUInfo[0] >> 26;
-            printf_s("\n\nNumber of Cores = %d\n", nCores + 1); //感觉这个是错的。
+            printf_s("\n\nNumber of Cores = %d\n", nCores + 1); // 感觉这个是错的。
         }
 
         nCacheType = (CPUInfo[0] & 0x1f);
@@ -1398,7 +1392,7 @@ homepage:http://correy.webs.com
             printf_s("   Type: Unknown\n");
         }
 
-        printf_s("   Level = %d\n", nCacheLevel + 1); //感觉无须加一。INTEL说了：starts at 1。估计微软的人还认为：starts at 0。
+        printf_s("   Level = %d\n", nCacheLevel + 1); // 感觉无须加一。INTEL说了：starts at 1。估计微软的人还认为：starts at 0。
         if (bSelfInit) {
             printf_s("   Self Initializing\n");
         } else {
@@ -1412,18 +1406,18 @@ homepage:http://correy.webs.com
         }
 
         printf_s("   Max Threads = %d\n", nMaxThread + 1);
-        //printf_s("   System Line Size = %d\n", nSysLineSize + 1);
-        //printf_s("   Physical Line Partions = %d\n", nPhysicalLinePartitions + 1);
-        //printf_s("   Ways of Associativity = %d\n", nWaysAssociativity + 1);
-        //printf_s("   Number of Sets = %d\n", nNumberSets + 1);
+        // printf_s("   System Line Size = %d\n", nSysLineSize + 1);
+        // printf_s("   Physical Line Partions = %d\n", nPhysicalLinePartitions + 1);
+        // printf_s("   Ways of Associativity = %d\n", nWaysAssociativity + 1);
+        // printf_s("   Number of Sets = %d\n", nNumberSets + 1);
 
-        //微软网站上的几个CPUID例子是没有计算CPU cache大小的，
-        //如：https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx ，这只是简单的列出值而已。
+        // 微软网站上的几个CPUID例子是没有计算CPU cache大小的，
+        // 如：https://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx ，这只是简单的列出值而已。
 
-        //WRK如是说：
-        // Cache size = Ways x Partitions x LineSize x Sets.
-        // N.B. For fully-associative cache, the "Sets" returned from cpuid is actually the number of entries, not the "Ways".
-        // Therefore the formula of evaluating the cache size below will still hold.
+        // WRK如是说：
+        //  Cache size = Ways x Partitions x LineSize x Sets.
+        //  N.B. For fully-associative cache, the "Sets" returned from cpuid is actually the number of entries, not the "Ways".
+        //  Therefore the formula of evaluating the cache size below will still hold.
 
         /*
         INTEL如是说：
@@ -1452,7 +1446,7 @@ homepage:http://correy.webs.com
         CacheSize = (CacheInfoEbx.Associativity + 1) * (CacheInfoEbx.Partitions + 1) * (CacheInfoEbx.LineSize + 1) * (CPUInfo[2] + 1);
 
         ULONGLONG Cache_Size = (nWaysAssociativity + 1) * (nPhysicalLinePartitions + 1) * (nSysLineSize + 1) * (nNumberSets + 1);
-        //assert(Cache_Size == CacheSize);
+        // assert(Cache_Size == CacheSize);
         ASSERT(Cache_Size == CacheSize);
         /*
         其实：
@@ -1489,15 +1483,15 @@ SMEP机制是全局机制，不是限定某个进程的。
 
     if (_bittest64((LONG64 const *)&cr4, 20)) {
         unsigned __int64 temp = cr4;
-        InterlockedBitTestAndReset64((LONG64 volatile *)&temp, 20); //第20位设置为零。
+        InterlockedBitTestAndReset64((LONG64 volatile *)&temp, 20); // 第20位设置为零。
 
-        //unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
+        // unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
 
         __writecr4(temp); // disable SMEP
     } else {
     }
 
-    //在驱动层执行用户态的代码（shellcode)了。
+    // 在驱动层执行用户态的代码（shellcode)了。
 
     //__writecr4(cr4);//恢复。
 #else
@@ -1506,15 +1500,15 @@ SMEP机制是全局机制，不是限定某个进程的。
 
     if (_bittest((LONG const *)&cr4, 20)) {
         unsigned int temp = cr4;
-        InterlockedBitTestAndReset((LONG volatile *)&temp, 20); //第20位设置为零。
+        InterlockedBitTestAndReset((LONG volatile *)&temp, 20); // 第20位设置为零。
 
-        //unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
+        // unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
 
         __writecr4(temp); // disable SMEP
     } else {
     }
 
-    //在驱动层执行用户态的代码（shellcode)了。
+    // 在驱动层执行用户态的代码（shellcode)了。
 
     //__writecr4(cr4);//恢复。
 

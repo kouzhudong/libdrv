@@ -32,7 +32,7 @@ const wchar_t * GetProtocolName(UINT8 protocol)
         protocol_name = L"ICMPV6";
         break;
     default:
-        protocol_name = L"未知";//也可打印一个数值。
+        protocol_name = L"未知"; // 也可打印一个数值。
         break;
     }
 
@@ -40,7 +40,7 @@ const wchar_t * GetProtocolName(UINT8 protocol)
 }
 
 
-VOID EnumerateFilterModules(NDIS_HANDLE  NdisHandle)
+VOID EnumerateFilterModules(NDIS_HANDLE NdisHandle)
 /*
 If the handle is an NDIS miniport adapter handle,
 NDIS returns information about all the interface modules that are currently attached to the miniport adapter, starting with the top-most filter module.
@@ -63,10 +63,10 @@ made at 2014.12.25
 */
 {
     NDIS_STATUS Status = STATUS_UNSUCCESSFUL;
-    PVOID  InterfaceBuffer{};
-    ULONG  InterfaceBufferLength = 0;
-    ULONG  BytesNeeded = 0;//sizeof(NDIS_ENUM_FILTERS) + sizeof(NDIS_FILTER_INTERFACE) * 9;//其实还可以设置更小点。
-    ULONG  BytesWritten = 0;
+    PVOID InterfaceBuffer{};
+    ULONG InterfaceBufferLength = 0;
+    ULONG BytesNeeded = 0; // sizeof(NDIS_ENUM_FILTERS) + sizeof(NDIS_FILTER_INTERFACE) * 9;//其实还可以设置更小点。
+    ULONG BytesWritten = 0;
     PNDIS_ENUM_FILTERS pefs{};
     PNDIS_FILTER_INTERFACE pfi{};
     ULONG i = 0;
@@ -78,7 +78,7 @@ made at 2014.12.25
 
     InterfaceBuffer = ExAllocatePoolWithTag(NonPagedPool, BytesNeeded, TAG);
     if (InterfaceBuffer == nullptr) {
-        return;// STATUS_INSUFFICIENT_RESOURCES ;
+        return; // STATUS_INSUFFICIENT_RESOURCES ;
     }
     RtlZeroMemory(InterfaceBuffer, BytesNeeded);
 
@@ -174,25 +174,21 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
         PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
 
         Status = GetUnicastIpAddressEntry(pTable);
-        //Status = SetUnicastIpAddressEntry(pTable);        
+        // Status = SetUnicastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;
@@ -224,44 +220,36 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
         Status = GetIpPathEntry(pTable);
 
         switch (pTable->Source.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Source.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Source.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;
         }
 
         switch (pTable->Destination.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Destination.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Destination.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;
@@ -293,22 +281,18 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
         Status = GetAnycastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;
@@ -387,7 +371,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    PMIB_IPINTERFACE_TABLE  Table = nullptr;
+    PMIB_IPINTERFACE_TABLE Table = nullptr;
 
     Status = GetIpInterfaceTable(AF_UNSPEC, &Table);
     ASSERT(NT_SUCCESS(Status));
@@ -414,7 +398,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    PMIB_IPFORWARD_TABLE2   Table = nullptr;
+    PMIB_IPFORWARD_TABLE2 Table = nullptr;
 
     Status = GetIpForwardTable2(AF_UNSPEC, &Table);
     ASSERT(NT_SUCCESS(Status));
@@ -440,7 +424,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    PMIB_IFSTACK_TABLE    Table = nullptr;
+    PMIB_IFSTACK_TABLE Table = nullptr;
 
     Status = GetIfStackTable(&Table);
     ASSERT(NT_SUCCESS(Status));
@@ -449,9 +433,9 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IFSTACK_ROW pTable = &Table->Table[i];
 
-    #if !DBG 
+#if !DBG
         DBG_UNREFERENCED_LOCAL_VARIABLE(pTable);
-    #endif
+#endif
 
         KdPrint(("HigherLayerInterfaceIndex:%u.\r\n", pTable->HigherLayerInterfaceIndex));
         KdPrint(("LowerLayerInterfaceIndex:%u.\r\n", pTable->LowerLayerInterfaceIndex));
@@ -482,22 +466,18 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
         Status = GetIpNetEntry2(pTable);
 
         switch (pTable->Address.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;
@@ -517,7 +497,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
 */
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    PMIB_MULTICASTIPADDRESS_TABLE  Table = nullptr;
+    PMIB_MULTICASTIPADDRESS_TABLE Table = nullptr;
 
     Status = GetMulticastIpAddressTable(AF_UNSPEC, &Table);
     ASSERT(NT_SUCCESS(Status));
@@ -529,22 +509,18 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
         Status = GetMulticastIpAddressEntry(pTable);
 
         switch (pTable->Address.si_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             WCHAR S[32 + 1] = {0};
             (void)RtlIpv4AddressToString(&pTable->Address.Ipv4.sin_addr, S);
 
             KdPrint(("ipv4:%ls.\r\n", S));
-        }
-        break;
-        case AF_INET6:
-        {
+        } break;
+        case AF_INET6: {
             WCHAR S[MAX_ADDRESS_STRING_LENGTH + 1] = {0};
             (void)RtlIpv6AddressToStringW(&pTable->Address.Ipv6.sin6_addr, S);
 
             KdPrint(("ipv6:%ws.\r\n", S));
-        }
-        break;
+        } break;
         default:
             ASSERT(FALSE);
             break;

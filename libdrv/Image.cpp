@@ -7,7 +7,7 @@
 
 
 #pragma warning(disable : 4996)
-#pragma warning(disable : 4366) //一元“&”运算符的结果可能是未对齐的
+#pragma warning(disable : 4366) // 一元“&”运算符的结果可能是未对齐的
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,30 +63,30 @@ fffff804`655c95d0 nt!RtlPcToFileName (RtlPcToFileName)
 
     Status = ZwQueryVirtualMemoryFn(KernelProcessHandle, DllBase, MemoryMappedFilenameInformation, MemoryInformation, MemoryInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+        // Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
     } else {
-        //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
+        // KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
     }
 
     return Status;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
-    //PIMAGE_NT_HEADERS NtHeaders = nullptr;
-    //UNICODE_STRING Name = {0};
+    // PIMAGE_NT_HEADERS NtHeaders = nullptr;
+    // UNICODE_STRING Name = {0};
 
-    //NtHeaders = RtlImageNtHeader ((PVOID)DllBase);
-    //if (NtHeaders)
+    // NtHeaders = RtlImageNtHeader ((PVOID)DllBase);
+    // if (NtHeaders)
     //{
 
     //}
 
-    //Status = MmGetFileNameForAddress (NtHeaders, &Name);
-    //if (NT_SUCCESS (Status))
+    // Status = MmGetFileNameForAddress (NtHeaders, &Name);
+    // if (NT_SUCCESS (Status))
     //{
-    //    KdPrint(("FullDllName:%wZ\n", &Name));
-    //    ExFreePool (Name.Buffer);
-    //}
+    //     KdPrint(("FullDllName:%wZ\n", &Name));
+    //     ExFreePool (Name.Buffer);
+    // }
 }
 
 
@@ -109,27 +109,27 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
         for (auto LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrHead32->Flink));
              LdrNext32 != LdrHead32;
              LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrNext32->Flink))) {
-            auto LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks); //非法地址。
+            auto LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks); // 非法地址。
 
-            //必须转换一下才能打印。%Z是对STRING32打印不出的。
-            //这个路径有的显示的不对，应是WOW64。
-            //解决思路：可用NtQueryVirtualMemory或MmGetFileNameForAddress或者RtlPcToFileName来解决。
-            //UNICODE_STRING ImagePathName = {0};
-            //ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
-            //ImagePathName.Length = LdrEntry32->FullDllName.Length;
-            //ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
-            //KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//因为是32位的地址，就不用0x%p了。
-            //         LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
+            // 必须转换一下才能打印。%Z是对STRING32打印不出的。
+            // 这个路径有的显示的不对，应是WOW64。
+            // 解决思路：可用NtQueryVirtualMemory或MmGetFileNameForAddress或者RtlPcToFileName来解决。
+            // UNICODE_STRING ImagePathName = {0};
+            // ImagePathName.Buffer = (PWCH)LdrEntry32->FullDllName.Buffer;
+            // ImagePathName.Length = LdrEntry32->FullDllName.Length;
+            // ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
+            // KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n",//因为是32位的地址，就不用0x%p了。
+            //          LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
 
             //\nt4\private\sdktools\psapi\mapfile.c
             struct {
                 OBJECT_NAME_INFORMATION ObjectNameInfo;
-                WCHAR FileName[1024]; //MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+                WCHAR FileName[1024]; // MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
             } s = {};
 
             NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo, sizeof(s));
             if (NT_SUCCESS(Status)) {
-                //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
+                // KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
 
                 if (CallBack) {
                     Status = CallBack(ULongToPtr(LdrEntry32->DllBase), &s.ObjectNameInfo.Name, Context);
@@ -162,7 +162,7 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
     UNREFERENCED_PARAMETER(CallBack);
     UNREFERENCED_PARAMETER(Context);
 
-    //方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了，修正一下，又测试（2025/8/25）通过了。。
+    // 方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了，修正一下，又测试（2025/8/25）通过了。。
     __try {
         ULONG Tmp = *(PULONG)(Peb32->Ldr);
         Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Tmp));
@@ -174,54 +174,54 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
 
             LdrEntry32 = CONTAINING_RECORD(LdrNext32, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
 
-            //必须转换一下才能打印。%Z是对STRING32打印不出的。
-            //这个路径有的显示的不对，应是WOW64，可用NtQueryVirtualMemory或MmGetFileNameForAddress来解决。
+            // 必须转换一下才能打印。%Z是对STRING32打印不出的。
+            // 这个路径有的显示的不对，应是WOW64，可用NtQueryVirtualMemory或MmGetFileNameForAddress来解决。
             UNICODE_STRING ImagePathName{};
             ImagePathName.Buffer = reinterpret_cast<PWCH>(LdrEntry32->FullDllName.Buffer);
             ImagePathName.Length = LdrEntry32->FullDllName.Length;
             ImagePathName.MaximumLength = LdrEntry32->FullDllName.MaximumLength;
 
-            //因为是32位的地址，就不用0x%p了。
+            // 因为是32位的地址，就不用0x%p了。
             KdPrint(("DllBase:0x%x, Length:0x%08x, FullDllName:%wZ\n", LdrEntry32->DllBase, LdrEntry32->SizeOfImage, &ImagePathName));
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
 
-    //方法二。
+    // 方法二。
     //__try {
-    //    PPEB32 peb32 = (PPEB32)pwp;
-    //    if (!peb32 || !peb32->Ldr) {
-    //        return;
-    //    }
-    //    for (PLIST_ENTRY32 Entry = (PLIST_ENTRY32)((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList.Flink;
-    //         Entry != &((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList;
-    //         Entry = (PLIST_ENTRY32)Entry->Flink) {
-    //        PLDR_DATA_TABLE_ENTRY32 DataTableEntry = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
-    //        struct{//\nt4\private\sdktools\psapi\mapfile.c
-    //            OBJECT_NAME_INFORMATION ObjectNameInfo;
-    //            WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
-    //        } s = {0};
-    //        NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo, sizeof(s));
-    //        if (NT_SUCCESS(Status)) {
-    //            //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
-    //            if (CallBack) {
-    //                Status = CallBack(ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo.Name, Context);
-    //                if (NT_SUCCESS(Status)) {
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //    }
-    //} __except (EXCEPTION_EXECUTE_HANDLER) {
-    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
-    //}
+    //     PPEB32 peb32 = (PPEB32)pwp;
+    //     if (!peb32 || !peb32->Ldr) {
+    //         return;
+    //     }
+    //     for (PLIST_ENTRY32 Entry = (PLIST_ENTRY32)((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList.Flink;
+    //          Entry != &((PPEB_LDR_DATA32)peb32->Ldr)->InLoadOrderModuleList;
+    //          Entry = (PLIST_ENTRY32)Entry->Flink) {
+    //         PLDR_DATA_TABLE_ENTRY32 DataTableEntry = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
+    //         struct{//\nt4\private\sdktools\psapi\mapfile.c
+    //             OBJECT_NAME_INFORMATION ObjectNameInfo;
+    //             WCHAR FileName[1024];//MAX_PATH 必须为1024，否则失败，原因看：ObQueryNameString。
+    //         } s = {0};
+    //         NTSTATUS Status = GetMemoryMappedFilenameInformation(NtCurrentProcess(), ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo, sizeof(s));
+    //         if (NT_SUCCESS(Status)) {
+    //             //KdPrint(("FullDllName:%wZ\n", &s.ObjectNameInfo.Name));
+    //             if (CallBack) {
+    //                 Status = CallBack(ULongToPtr(DataTableEntry->DllBase), &s.ObjectNameInfo.Name, Context);
+    //                 if (NT_SUCCESS(Status)) {
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // } __except (EXCEPTION_EXECUTE_HANDLER) {
+    //     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+    // }
 
-    //方法一。
-    //PPEB32 Peb32 = (PPEB32)pwp;
-    //PPEB_LDR_DATA32 Ldr32;
-    //PLIST_ENTRY32 LdrHead32, LdrNext32;
-    //PLDR_DATA_TABLE_ENTRY32 LdrEntry32;
+    // 方法一。
+    // PPEB32 Peb32 = (PPEB32)pwp;
+    // PPEB_LDR_DATA32 Ldr32;
+    // PLIST_ENTRY32 LdrHead32, LdrNext32;
+    // PLDR_DATA_TABLE_ENTRY32 LdrEntry32;
 
     //__try {
     //    Ldr32 = (PPEB_LDR_DATA32)UlongToPtr(Peb32->Ldr);
@@ -289,23 +289,23 @@ homepage:http://correy.webs.com
 */
 {
     if (nullptr == Pid) {
-        return; //IDLE
+        return; // IDLE
     }
 
-    if (PsGetProcessId(PsInitialSystemProcess) == Pid) { //PsIsSystemThread
-        return;                                          //system
+    if (PsGetProcessId(PsInitialSystemProcess) == Pid) { // PsIsSystemThread
+        return;                                          // system
     }
 
     PEPROCESS Process{};
     NTSTATUS Status = PsLookupProcessByProcessId(Pid, &Process);
     if (!NT_SUCCESS(Status)) {
-        return; //无效进程。
+        return; // 无效进程。
     }
 
     KAPC_STATE ApcState{};
     KeStackAttachProcess(Process, &ApcState);
 
-    PPEB peb = PsGetProcessPeb(Process); //注意：IDLE和system这两个应该获取不到。
+    PPEB peb = PsGetProcessPeb(Process); // 注意：IDLE和system这两个应该获取不到。
     if (peb) {
         __try {
             if (peb->Ldr) {
@@ -313,7 +313,7 @@ homepage:http://correy.webs.com
                 PLIST_ENTRY le2 = le1;
                 do {
                     auto pldte = CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-                    if (pldte->FullDllName.Length && pldte->DllBase) //过滤掉最后一个，多余的。
+                    if (pldte->FullDllName.Length && pldte->DllBase) // 过滤掉最后一个，多余的。
                     {
                         KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
@@ -333,14 +333,14 @@ homepage:http://correy.webs.com
         }
 
 #if defined(_WIN64)
-        //如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
-        //ZwQueryInformationProcess +　ProcessWow64Information
+        // 如果是WOW64进程需要执行下面的代码，所以要添加判断WOW64的代码。
+        // ZwQueryInformationProcess +　ProcessWow64Information
         PWOW64_PROCESS pwp = (PWOW64_PROCESS)PsGetProcessWow64Process(Process);
         if (pwp) {
             EnumWow64Module(pwp, CallBack, Context);
         }
 #endif
-    } else { //win10上有不少进程是没有用户空间的，也没有命令行。
+    } else { // win10上有不少进程是没有用户空间的，也没有命令行。
         KdPrint(("进程:%d没有PEB(用户层空间).\n", HandleToLong(Pid)));
     }
 
@@ -399,7 +399,7 @@ PVOID GetNtBase()
     }
 
     for (ULONG i = 0; i < numberOfModules; i++) {
-        //UCHAR * FileName = modules[i].FullPathName + modules[i].FileNameOffset;
+        // UCHAR * FileName = modules[i].FullPathName + modules[i].FileNameOffset;
 
         if (i == 0) {
             ImageBase = modules[i].BasicInfo.ImageBase;
@@ -601,8 +601,8 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     PLIST_ENTRY le1{}, le2{};
     PVOID ImageBase{};
 
-    ppeb = PsGetProcessPeb(Process);    //注意：IDLE和system这两个应该获取不到。
-#if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_)
+    ppeb = PsGetProcessPeb(Process);    // 注意：IDLE和system这两个应该获取不到。
+#if defined(_AMD64_) || defined(_IA64_) // defined(_WIN64_)
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
 #else
     le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
@@ -611,14 +611,14 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 
     do {
         pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-        if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) //过滤掉最后一个，多余的。
+        if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) // 过滤掉最后一个，多余的。
         {
-            //KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
+            // KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
             if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
                 RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
                 RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0
-                //内核里没见过以环境变量开头的路径，如：%systemroot%.
+                // 内核里没见过以环境变量开头的路径，如：%systemroot%.
             ) {
                 ImageBase = pldte->DllBase;
                 break;
@@ -684,7 +684,7 @@ http://correy.webs.com
         // Attempt to open the driver image itself.
         // If this fails, then the driver image cannot be located, so nothing else matters.
         InitializeObjectAttributes(&ObjectAttributes, ImageFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-        Status = ZwOpenFile(&ImageFileHandle, FILE_ALL_ACCESS,  &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
+        Status = ZwOpenFile(&ImageFileHandle, FILE_ALL_ACCESS, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -709,7 +709,7 @@ http://correy.webs.com
             __leave;
         }
 
-        Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, nullptr, &ViewSize, ViewShare, 0L, PAGE_READONLY); //PAGE_EXECUTE
+        Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, nullptr, &ViewSize, ViewShare, 0L, PAGE_READONLY); // PAGE_EXECUTE
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -833,11 +833,11 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
             ASSERT(NT_SUCCESS(ctx->info.Status));
 
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); //由调用者释放。
+            ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); // 由调用者释放。
             if (ctx->info.ImageLoaded.Buffer) {
                 RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
 
-                //KdPrint(("DOS name:%wZ.\r\n", &FullName));
+                // KdPrint(("DOS name:%wZ.\r\n", &FullName));
                 RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
             } else {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
@@ -859,7 +859,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
         if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); //由调用者释放。
+            ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); // 由调用者释放。
             if (ctx->info.ImageLoaded.Buffer) {
                 RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
                 RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
@@ -879,7 +879,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 }
 
 
-VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName, 
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
                                    __in_opt PUNICODE_STRING FullImageName,
                                    __in HANDLE ProcessId,
                                    __in PIMAGE_INFO ImageInfo)
@@ -925,7 +925,7 @@ FreeUnicodeString(&LoadImageFullName);
         ASSERT(ImageInfoEx);
         ctx->info.ImageInfoEx = ImageInfoEx;
         ExInitializeWorkItem(&ctx->hdr, ImageLoadedThreadEx, ctx);
-    } else { //此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。
+    } else { // 此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。
         ctx->info.ImageInfo = ImageInfo;
         ctx->info.ProcessId = ProcessId;
         ctx->info.FullImageName = FullImageName;
@@ -937,7 +937,7 @@ FreeUnicodeString(&LoadImageFullName);
     if (NT_SUCCESS(Status) && NT_SUCCESS(ctx->info.Status)) {
         if (ctx->info.ImageLoaded.Buffer != nullptr) {
             LoadImageFullName->MaximumLength = ctx->info.ImageLoaded.MaximumLength + sizeof(wchar_t);
-            LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG); //由调用者释放。
+            LoadImageFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, LoadImageFullName->MaximumLength, TAG); // 由调用者释放。
             if (LoadImageFullName->Buffer) {
                 RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
                 RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
@@ -978,28 +978,28 @@ VOID NTAPI HideDriver(_In_ PDRIVER_OBJECT DriverObject)
     auto DriverSection = (PKLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
 #pragma warning(pop)
 
-    if (DriverSection) { //从驱动链表中摘除，隐藏驱动。
+    if (DriverSection) { // 从驱动链表中摘除，隐藏驱动。
         PLIST_ENTRY InLoadOrderLinks = &DriverSection->InLoadOrderLinks;
-        //RemoveHeadList(&DriverSection->InLoadOrderLinks);
+        // RemoveHeadList(&DriverSection->InLoadOrderLinks);
 
         *((SIZE_T *)InLoadOrderLinks->Blink) = (SIZE_T)InLoadOrderLinks->Flink;
         InLoadOrderLinks->Flink->Blink = InLoadOrderLinks->Blink;
 
-        //这两句防止蓝屏。
+        // 这两句防止蓝屏。
         InLoadOrderLinks->Flink = (PLIST_ENTRY) & (InLoadOrderLinks->Flink);
         InLoadOrderLinks->Blink = (PLIST_ENTRY) & (InLoadOrderLinks->Flink);
 
         ////隐藏驱动的全路径。隐藏这两项重新加载可能有点问题。
-        //DriverSection->FullDllName.Length = 0;
-        //DriverSection->FullDllName.MaximumLength = 0;
-        //DriverSection->FullDllName.Buffer = 0;
+        // DriverSection->FullDllName.Length = 0;
+        // DriverSection->FullDllName.MaximumLength = 0;
+        // DriverSection->FullDllName.Buffer = 0;
 
         ////隐藏驱动的文件名。
-        //DriverSection->BaseDllName.Length = 0;
-        //DriverSection->BaseDllName.MaximumLength = 0;
-        //DriverSection->BaseDllName.Buffer = 0;
+        // DriverSection->BaseDllName.Length = 0;
+        // DriverSection->BaseDllName.MaximumLength = 0;
+        // DriverSection->BaseDllName.Buffer = 0;
 
-        //别的项在这里隐藏会蓝屏哟！
+        // 别的项在这里隐藏会蓝屏哟！
     }
 
     KeLowerIrql(Irql);

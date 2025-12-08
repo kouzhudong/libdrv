@@ -2,8 +2,8 @@
 #include "misc.h"
 #include "object.h"
 
-#pragma warning(disable:6385)
-#pragma warning(disable:6386)
+#pragma warning(disable : 6385)
+#pragma warning(disable : 6386)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,12 +26,9 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
     FltGetFileNameInformation cannot get file name information in the post-close path.
     FltGetFileNameInformation cannot get the short name of a file in the pre-create path.
     */
-    if (FlagOn(Cbd->Iopb->IrpFlags, IRP_PAGING_IO) ||
-        FlagOn(Cbd->Iopb->IrpFlags, IRP_SYNCHRONOUS_PAGING_IO) ||
-        IoGetTopLevelIrp()) //IRP_NOCACHE
+    if (FlagOn(Cbd->Iopb->IrpFlags, IRP_PAGING_IO) || FlagOn(Cbd->Iopb->IrpFlags, IRP_SYNCHRONOUS_PAGING_IO) || IoGetTopLevelIrp()) // IRP_NOCACHE
     {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%wZ, IrpFlags:0x%#x",
-              &FltObjects->FileObject->FileName, Cbd->Iopb->IrpFlags);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%wZ, IrpFlags:0x%#x", &FltObjects->FileObject->FileName, Cbd->Iopb->IrpFlags);
         return Status;
     }
 
@@ -39,13 +36,13 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
         ClearFlag(Cbd->Iopb->OperationFlags, SL_OPEN_TARGET_DIRECTORY);
         Status = FltGetFileNameInformation(Cbd, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_FILESYSTEM_ONLY, &pfni);
         if (!NT_SUCCESS(Status)) {
-            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);          
+            // Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);
         }
         SetFlag(Cbd->Iopb->OperationFlags, SL_OPEN_TARGET_DIRECTORY);
     } else {
         Status = FltGetFileNameInformation(Cbd, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pfni);
         if (!NT_SUCCESS(Status)) {
-            //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);
+            // Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "文件/目录:%wZ，status:0x%#x", &FltObjects->FileObject->FileName, Status);
         }
     }
 
@@ -55,17 +52,17 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
     }
 
     if (!NT_SUCCESS(Status)) {
-        UNICODE_STRING  VolumeName{};
-        ULONG  BufferSizeNeeded = 0;
+        UNICODE_STRING VolumeName{};
+        ULONG BufferSizeNeeded = 0;
 
         Status = FltGetVolumeName(FltObjects->Volume, nullptr, &BufferSizeNeeded);
-        ASSERT(!NT_SUCCESS(Status));//STATUS_BUFFER_TOO_SMALL
+        ASSERT(!NT_SUCCESS(Status)); // STATUS_BUFFER_TOO_SMALL
 
-        //函数成功了，函数外释放。
+        // 函数成功了，函数外释放。
         usFullPath->Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, BufferSizeNeeded, TAG);
         ASSERT(usFullPath->Buffer);
         RtlZeroMemory(usFullPath->Buffer, BufferSizeNeeded);
-        RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, (USHORT)BufferSizeNeeded);//效果是只是改变最大值,这个结构成员.
+        RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, (USHORT)BufferSizeNeeded); // 效果是只是改变最大值,这个结构成员.
 
         Status = FltGetVolumeName(FltObjects->Volume, usFullPath, &BufferSizeNeeded);
         if (!NT_SUCCESS(Status)) {
@@ -85,7 +82,8 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
             return Status;
         }
 
-        return Status;;
+        return Status;
+        ;
     }
 
     return Status;
@@ -101,8 +99,7 @@ NTSTATUS FltQueryDirectoryFile(_In_ PFLT_INSTANCE Instance,
                                _In_ BOOLEAN ReturnSingleEntry,
                                _In_opt_ PUNICODE_STRING FileName,
                                _In_ BOOLEAN RestartScan,
-                               _Out_opt_ PULONG LengthReturned
-)
+                               _Out_opt_ PULONG LengthReturned)
 /*++
 Routine Description:
     为XP量身打造的FltQueryDirectoryFile
@@ -151,7 +148,7 @@ Return Value:
         data->Iopb->OperationFlags |= SL_RETURN_SINGLE_ENTRY;
     }
 
-    FltPerformSynchronousIo(data);//  Perform a synchronous operation.
+    FltPerformSynchronousIo(data); //  Perform a synchronous operation.
 
     Status = data->IoStatus.Status;
 
@@ -247,11 +244,11 @@ made at 2013.10.23
 
 void PrintFilterFullInformation(PFLT_FILTER Filter)
 {
-    //另一个思路是使用:FltEnumerateFilterInformation
+    // 另一个思路是使用:FltEnumerateFilterInformation
 
-    PVOID  Buffer{};
-    ULONG  BufferSize = 0;
-    ULONG  BytesReturned = 0;
+    PVOID Buffer{};
+    ULONG BufferSize = 0;
+    ULONG BytesReturned = 0;
     NTSTATUS Status = FltGetFilterInformation(Filter, FilterFullInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -259,7 +256,7 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//多申请一倍.
+    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2; // 多申请一倍.
     Buffer = static_cast<PFLT_FILTER *>(ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG));
     if (Buffer == nullptr) {
         return;
@@ -277,10 +274,10 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
     UNICODE_STRING FilterName{};
     FilterName.Buffer = pfi->FilterNameBuffer;
     FilterName.Length = pfi->FilterNameLength;
-    FilterName.MaximumLength = pfi->FilterNameLength;//不再加2.
+    FilterName.MaximumLength = pfi->FilterNameLength; // 不再加2.
 
-    //DbgPrint("FrameID:%d\n", pfi->FrameID);
-    //DbgPrint("NumberOfInstances:%d\n", pfi->NumberOfInstances);
+    // DbgPrint("FrameID:%d\n", pfi->FrameID);
+    // DbgPrint("NumberOfInstances:%d\n", pfi->NumberOfInstances);
     DbgPrint("FilterName:%wZ\n", &FilterName);
 
     /*
@@ -303,9 +300,9 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
 void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    PVOID  Buffer{};
-    ULONG  BufferSize = 0;
-    ULONG  BytesReturned = 0;
+    PVOID Buffer{};
+    ULONG BufferSize = 0;
+    ULONG BytesReturned = 0;
     Status = FltGetVolumeInformation(Volume, FilterVolumeStandardInformation, Buffer, BufferSize, &BytesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -313,7 +310,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;//多申请一倍.
+    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2; // 多申请一倍.
     Buffer = static_cast<PFLT_FILTER *>(ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG));
     if (Buffer == nullptr) {
         return;
@@ -331,10 +328,10 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
     UNICODE_STRING VolumeName{};
     VolumeName.Buffer = pvsi->FilterVolumeName;
     VolumeName.Length = pvsi->FilterVolumeNameLength;
-    VolumeName.MaximumLength = pvsi->FilterVolumeNameLength;//不再加2.
+    VolumeName.MaximumLength = pvsi->FilterVolumeNameLength; // 不再加2.
 
-    //DbgPrint("Flags:%d\n", pvsi->Flags);
-    //DbgPrint("FrameID:%d\n", pvsi->FrameID);
+    // DbgPrint("Flags:%d\n", pvsi->Flags);
+    // DbgPrint("FrameID:%d\n", pvsi->FrameID);
     DbgPrint("VolumeName:%wZ\n", &VolumeName);
 
     switch (pvsi->FileSystemType) {
@@ -433,7 +430,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
         break;
     }
 
-    //这里也要用FltObjectDereference再释放一下?
+    // 这里也要用FltObjectDereference再释放一下?
     FltObjectDereference(Volume);
 
     ExFreePoolWithTag(Buffer, TAG);
@@ -472,15 +469,15 @@ NTSTATUS DumpInstanceName(_In_ PFLT_INSTANCE Instance)
 
 void EnumerateInstances(PFLT_FILTER Filter)
 {
-    //FltEnumerateInstances
-    //FltGetInstanceInformation 这个获取的全是数字,所以放弃使用.
-    //FltEnumerateInstanceInformationByFilter 这个获取的全是数字,所以放弃使用.
-    //FltEnumerateInstanceInformationByVolume 这个获取的全是数字,所以放弃使用.
+    // FltEnumerateInstances
+    // FltGetInstanceInformation 这个获取的全是数字,所以放弃使用.
+    // FltEnumerateInstanceInformationByFilter 这个获取的全是数字,所以放弃使用.
+    // FltEnumerateInstanceInformationByVolume 这个获取的全是数字,所以放弃使用.
 
     NTSTATUS Status = STATUS_SUCCESS;
     PFLT_INSTANCE * InstanceList{};
-    ULONG  InstanceListSize = 0;
-    ULONG  NumberInstancesReturned = 0;
+    ULONG InstanceListSize = 0;
+    ULONG NumberInstancesReturned = 0;
     Status = FltEnumerateInstances(nullptr, Filter, InstanceList, InstanceListSize, &NumberInstancesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -488,7 +485,7 @@ void EnumerateInstances(PFLT_FILTER Filter)
         }
     }
 
-    InstanceListSize = sizeof(PFLT_INSTANCE) * NumberInstancesReturned * 2;//多申请一倍.
+    InstanceListSize = sizeof(PFLT_INSTANCE) * NumberInstancesReturned * 2; // 多申请一倍.
     InstanceList = static_cast<PFLT_INSTANCE *>(ExAllocatePoolWithTag(NonPagedPool, InstanceListSize, TAG));
     if (InstanceList == nullptr) {
         return;
@@ -502,15 +499,15 @@ void EnumerateInstances(PFLT_FILTER Filter)
     }
 
     for (ULONG i = 0; i < NumberInstancesReturned; i++) {
-        //打印每个实例的信息.
-        //相信和卷设备是一样的,转换为卷设备再打印,这里就不打印详细信息的,只打印实例的地址.
+        // 打印每个实例的信息.
+        // 相信和卷设备是一样的,转换为卷设备再打印,这里就不打印详细信息的,只打印实例的地址.
         DbgPrint("PFLT_FILTER:%p\tInstances:%p\n", Filter, InstanceList[i]);
         DumpInstanceName(InstanceList[i]);
 
         FltObjectDereference(InstanceList[i]);
     }
 
-    //这里也要用FltObjectDereference再释放一下?
+    // 这里也要用FltObjectDereference再释放一下?
     FltObjectDereference(Filter);
 
     ExFreePoolWithTag(InstanceList, TAG);
@@ -519,13 +516,13 @@ void EnumerateInstances(PFLT_FILTER Filter)
 
 void EnumerateVolumes(PFLT_FILTER Filter)
 {
-    //FltEnumerateVolumes这个获取全了,要枚举.
-    //FltGetVolumeInformation
-    //FltEnumerateVolumeInformation这个不用,是获取单个的,要循环.
+    // FltEnumerateVolumes这个获取全了,要枚举.
+    // FltGetVolumeInformation
+    // FltEnumerateVolumeInformation这个不用,是获取单个的,要循环.
 
     PFLT_VOLUME * VolumeList{};
-    ULONG  VolumeListSize = 0;
-    ULONG  NumberVolumesReturned = 0;
+    ULONG VolumeListSize = 0;
+    ULONG NumberVolumesReturned = 0;
     NTSTATUS Status = FltEnumerateVolumes(Filter, VolumeList, VolumeListSize, &NumberVolumesReturned);
     if (!NT_SUCCESS(Status)) {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
@@ -533,7 +530,7 @@ void EnumerateVolumes(PFLT_FILTER Filter)
         }
     }
 
-    VolumeListSize = sizeof(PFLT_VOLUME) * NumberVolumesReturned * 2;//多申请一倍.
+    VolumeListSize = sizeof(PFLT_VOLUME) * NumberVolumesReturned * 2; // 多申请一倍.
 
     VolumeList = static_cast<PFLT_VOLUME *>(ExAllocatePoolWithTag(NonPagedPool, VolumeListSize, TAG));
     if (VolumeList == nullptr) {
@@ -548,13 +545,13 @@ void EnumerateVolumes(PFLT_FILTER Filter)
     }
 
     for (ULONG i = 0; i < NumberVolumesReturned; i++) {
-        //打印每个卷设备的信息.
+        // 打印每个卷设备的信息.
         PrintVolumeStandardInformation(VolumeList[i]);
 
         FltObjectDereference(VolumeList[i]);
     }
 
-    //这里也要用FltObjectDereference再释放一下?
+    // 这里也要用FltObjectDereference再释放一下?
     FltObjectDereference(Filter);
 
     ExFreePoolWithTag(VolumeList, TAG);
@@ -566,19 +563,19 @@ NTSTATUS EnumerateFilters()
     ULONG FilterListSize = 0;
     ULONG NumberFiltersReturned = 0;
 
-    //Because filters can register at any time, two calls to FltEnumerateFilters are not guaranteed to return the same result.
-    //确保两次调用FltEnumerateFilters期间不要加载或者卸载minifilter.建议使用rundown机制.
+    // Because filters can register at any time, two calls to FltEnumerateFilters are not guaranteed to return the same result.
+    // 确保两次调用FltEnumerateFilters期间不要加载或者卸载minifilter.建议使用rundown机制.
     NTSTATUS Status = FltEnumerateFilters(nullptr, FilterListSize, &NumberFiltersReturned);
-    if (!NT_SUCCESS(Status)) //#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
+    if (!NT_SUCCESS(Status)) // #define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
     {
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             return Status;
         }
     }
 
-    //建议每次成功的调用之后都调用:VOID FltObjectDereference(_Inout_  PVOID FltObject);
+    // 建议每次成功的调用之后都调用:VOID FltObjectDereference(_Inout_  PVOID FltObject);
 
-    FilterListSize = sizeof(PFLT_FILTER) * NumberFiltersReturned * 2;//多申请一倍.
+    FilterListSize = sizeof(PFLT_FILTER) * NumberFiltersReturned * 2; // 多申请一倍.
     auto FilterList = (PFLT_FILTER *)ExAllocatePoolWithTag(NonPagedPool, FilterListSize, TAG);
     if (FilterList == nullptr) {
         return Status;
@@ -591,11 +588,11 @@ NTSTATUS EnumerateFilters()
         return Status;
     }
 
-    //卸载所有已经注册的minifilter.理论上比抹去未公开的结构好.这里暂时注释掉.
-    //for (i = 0;i < NumberFiltersReturned;i++)
+    // 卸载所有已经注册的minifilter.理论上比抹去未公开的结构好.这里暂时注释掉.
+    // for (i = 0;i < NumberFiltersReturned;i++)
     //{
-    //    FltUnregisterFilter(FilterList[i]);//有的驱动会永远停止在这里.
-    //}
+    //     FltUnregisterFilter(FilterList[i]);//有的驱动会永远停止在这里.
+    // }
 
     /*
     在这里可以列举一些minifilter的信息
@@ -687,11 +684,11 @@ NTSTATUS EnumerateFilters()
     不过建议使用:FltEnumerateFilterInformation或者FltGetFilterInformation获取各种信息.
     */
 
-    //打印每个驱动的信息,这里选择FilterFullInformation类型.
+    // 打印每个驱动的信息,这里选择FilterFullInformation类型.
     for (ULONG i = 0; i < NumberFiltersReturned; i++) {
-        PrintFilterFullInformation(FilterList[i]);//打印系统的所有的minifilter 驱动.
-        EnumerateInstances(FilterList[i]);//枚举每个minifilter驱动的每个过滤设备的实例,里面可以获取更多的信息.
-        EnumerateVolumes(FilterList[i]);//枚举每个minifilter驱动的每个卷设备的信息,里面可以获取更多的信息,其实和上面的差不多.
+        PrintFilterFullInformation(FilterList[i]); // 打印系统的所有的minifilter 驱动.
+        EnumerateInstances(FilterList[i]);         // 枚举每个minifilter驱动的每个过滤设备的实例,里面可以获取更多的信息.
+        EnumerateVolumes(FilterList[i]);           // 枚举每个minifilter驱动的每个卷设备的信息,里面可以获取更多的信息,其实和上面的差不多.
 
         DbgPrint("\n\n");
     }

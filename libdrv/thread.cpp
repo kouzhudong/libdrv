@@ -9,11 +9,11 @@ volatile RtlCreateUserThreadFn RtlCreateUserThread;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddress)
+NTSTATUS GetThreadStartAddress(_In_ HANDLE ThreadId, _Inout_ PVOID * StartAddress)
 /*
 缺点：在某些平台下这个办法获取的系统线程的起始地址是0，在Windows 10下所有的都能获取到。
 */
-{    
+{
     PETHREAD Thread = nullptr;
     NTSTATUS Status = PsLookupThreadByThreadId(ThreadId, &Thread);
     if (!NT_SUCCESS(Status)) {
@@ -22,7 +22,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     }
 
     HANDLE kernelThreadHandle = nullptr;
-    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsThreadType, KernelMode, &kernelThreadHandle);//注意要关闭句柄。  
+    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsThreadType, KernelMode, &kernelThreadHandle); // 注意要关闭句柄。
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ObDereferenceObject(Thread);
@@ -39,9 +39,9 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
     }
 
     *StartAddress = (PVOID)ThreadInformation;
-    //KdPrint(("ProcessId:%d, ThreadId:%d, Win32 Start Address:0x%p\n", ProcessId, ThreadId, ThreadInformation)); 
-    //注意：Start Address kernel32!BaseThreadStartThunk (0x7c810729)
-    //注意这个和堆栈的里显示的地址是不一样的。
+    // KdPrint(("ProcessId:%d, ThreadId:%d, Win32 Start Address:0x%p\n", ProcessId, ThreadId, ThreadInformation));
+    // 注意：Start Address kernel32!BaseThreadStartThunk (0x7c810729)
+    // 注意这个和堆栈的里显示的地址是不一样的。
 
     ObDereferenceObject(Thread);
     ZwClose(kernelThreadHandle);
@@ -50,7 +50,7 @@ NTSTATUS GetThreadStartAddress(_In_ HANDLE  ThreadId, _Inout_ PVOID * StartAddre
 }
 
 
-NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
+NTSTATUS GetThreadNumbers(_In_ HANDLE ProcessId, _Inout_ PINT thread_number)
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION temp{};
@@ -62,13 +62,13 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
     PSYSTEM_THREAD_INFORMATION ThreadInfo{};
     int r = 0;
 
-    //获取需要的内存。
+    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
+    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
     if (ProcessInfo == nullptr) {
@@ -85,23 +85,23 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
         return Status;
     }
 
-    //枚举进程信息。
-    //判定系统进程的好的办法是和PEPROCESS PsInitialSystemProcess比较。
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //注释的都是有问题的，如少显示一个等，可以改为while。
+    // 枚举进程信息。
+    // 判定系统进程的好的办法是和PEPROCESS PsInitialSystemProcess比较。
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) // 注释的都是有问题的，如少显示一个等，可以改为while。
     {
-        //枚举线程信息。
+        // 枚举线程信息。
         i = 0;
-        ThreadInfo = (PSYSTEM_THREAD_INFORMATION)(it + 1); //it->TH;
+        ThreadInfo = (PSYSTEM_THREAD_INFORMATION)(it + 1); // it->TH;
         for (; i < it->NumberOfThreads; i++) {
             /*
             注意：
             1.有同一个地址跑多个线程的情况。特别是在系统进程。
             2.X64系统上有的线程地址为0等.感觉这个不重要，重要的是获取了TID。
             */
-            //KdPrint(("    TID:%d属于PID:%d，StartAddress:%p.\r\n",
-            //         ThreadInfo->ClientId.UniqueThread, 
-            //         ThreadInfo->ClientId.UniqueProcess, 
-            //         ThreadInfo->StartAddress));
+            // KdPrint(("    TID:%d属于PID:%d，StartAddress:%p.\r\n",
+            //          ThreadInfo->ClientId.UniqueThread,
+            //          ThreadInfo->ClientId.UniqueProcess,
+            //          ThreadInfo->StartAddress));
 
             if (ThreadInfo->ClientId.UniqueProcess == ProcessId) {
                 r++;
@@ -131,7 +131,7 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE  ProcessId, _Inout_ PINT thread_number)
 
     *thread_number = r;
 
-    return Status;//STATUS_SUCCESS
+    return Status; // STATUS_SUCCESS
 }
 
 
@@ -150,8 +150,8 @@ void ApcCallback(PKAPC Apc, PKNORMAL_ROUTINE NormalRoutine, PVOID NormalContext,
     }
 
     PsTerminateSystemThread(STATUS_SUCCESS);
-    //注意这里可能没有退出了。因为线程结束了。在调试状态下运行会出现那个断点(nt!DebugService2)。
-    //也就是说下面的代码就不会运行了。就是说这个函数不会运行退出的代码。
+    // 注意这里可能没有退出了。因为线程结束了。在调试状态下运行会出现那个断点(nt!DebugService2)。
+    // 也就是说下面的代码就不会运行了。就是说这个函数不会运行退出的代码。
 }
 
 
@@ -167,11 +167,11 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
     }
 
     KeInitializeApc(Apc,
-                    Thread,                           //这个很关键。
+                    Thread, // 这个很关键。
                     OriginalApcEnvironment,
-                    (PKKERNEL_ROUTINE)&ApcCallback,   // kernel-mode routine
-                    nullptr,                                // rundown routine
-                    nullptr,                                // user-mode routine
+                    (PKKERNEL_ROUTINE)&ApcCallback, // kernel-mode routine
+                    nullptr,                        // rundown routine
+                    nullptr,                        // user-mode routine
                     KernelMode,
                     (PVOID)(ULONG)1);
 
@@ -184,15 +184,15 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
 NTSTATUS KillUserThread(_In_ PETHREAD Thread)
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    HANDLE   kernelThreadHandle = nullptr;
+    HANDLE kernelThreadHandle = nullptr;
 
     if (nullptr == ZwTerminateThreadFn) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "获取ZwTerminateThread的地址失败");
         return STATUS_UNSUCCESSFUL;
     }
 
-    //KernelMode/UserMode获取的都是内核句柄，都可以用，且都可以杀死线程。
-    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsThreadType, KernelMode, &kernelThreadHandle);//注意要关闭句柄。  
+    // KernelMode/UserMode获取的都是内核句柄，都可以用，且都可以杀死线程。
+    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsThreadType, KernelMode, &kernelThreadHandle); // 注意要关闭句柄。
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
@@ -227,13 +227,13 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
     ULONG i = 0;
     PSYSTEM_THREAD_INFORMATION ThreadInfo{};
 
-    //获取需要的内存。
+    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2;//第一次需求0x9700，第二次需求0x9750,所以乘以2.
+    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
     SystemInformationLength = ReturnLength;
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
     if (ProcessInfo == nullptr) {
@@ -249,29 +249,29 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
         return Status;
     }
 
-    //枚举进程信息。
-    //判定系统进程的好的办法是和PEPROCESS PsInitialSystemProcess比较。
-    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) //注释的都是有问题的，如少显示一个等，可以改为while。
+    // 枚举进程信息。
+    // 判定系统进程的好的办法是和PEPROCESS PsInitialSystemProcess比较。
+    for (it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) // 注释的都是有问题的，如少显示一个等，可以改为while。
     {
-        //KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n",
-        //         it->UniqueProcessId, 
-        //         it->NumberOfThreads, 
-        //         it->HandleCount));
+        // KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n",
+        //          it->UniqueProcessId,
+        //          it->NumberOfThreads,
+        //          it->HandleCount));
 
         if (UniqueProcessId == it->UniqueProcessId) {
-            //枚举线程信息。
+            // 枚举线程信息。
             for (i = 0, ThreadInfo = it->TH; i < it->NumberOfThreads; i++) {
                 /*
                 注意：
                 1.有同一个地址跑多个线程的情况。特别是在系统进程。
                 2.X64系统上有的线程地址为0等.感觉这个不重要，重要的是获取了TID。
                 */
-                //KdPrint(("    TID:%d属于PID:%d，StartAddress:%p\n", 
-                //         ThreadInfo->ClientId.UniqueThread, 
-                //         ThreadInfo->ClientId.UniqueProcess,
-                //         ThreadInfo->StartAddress));
+                // KdPrint(("    TID:%d属于PID:%d，StartAddress:%p\n",
+                //          ThreadInfo->ClientId.UniqueThread,
+                //          ThreadInfo->ClientId.UniqueProcess,
+                //          ThreadInfo->StartAddress));
 
-                //KdPrint(("    ThreadState:%d\n", ThreadInfo->ThreadState));
+                // KdPrint(("    ThreadState:%d\n", ThreadInfo->ThreadState));
 
                 if (CallBack) {
                     Status = CallBack(&ThreadInfo->ClientId, Context);
@@ -303,7 +303,7 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 
     ExFreePoolWithTag(ProcessInfo, TAG);
 
-    return Status;//STATUS_SUCCESS
+    return Status; // STATUS_SUCCESS
 }
 
 
@@ -329,7 +329,7 @@ ProcessId
     bool ret = false;
 
     if (PsGetCurrentProcessId() == ProcessId) {
-        return ret;//自己给自己创建线程的放过。
+        return ret; // 自己给自己创建线程的放过。
     }
 
     INT ThreadNumbers = 0;
@@ -339,7 +339,7 @@ ProcessId
     }
 
     if (ThreadNumbers <= 1) {
-        return ret;//创建进程的放过。
+        return ret; // 创建进程的放过。
     }
 
     return true;
@@ -347,7 +347,7 @@ ProcessId
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//以下函数有待完善和测试，这里只是给出思路和原型。
+// 以下函数有待完善和测试，这里只是给出思路和原型。
 
 
 NTSTATUS
@@ -363,16 +363,16 @@ NTAPI RtlpStartThread(PUSER_THREAD_START_ROUTINE Function, PVOID Parameter, HAND
     }
 
     return RtlCreateUserThread(
-        NtCurrentProcess(),     // process handle
-        nullptr,                   // security descriptor
-        TRUE,                   // Create suspended?
-        0L,                     // ZeroBits: default
-        0L,                     // Max stack size: default
-        0L,                     // Committed stack size: default
-        Function,               // Function to start in
-        Parameter,              // Parameter to start with
-        ThreadHandleReturn,     // Thread handle return
-        nullptr                    // Thread id
+        NtCurrentProcess(), // process handle
+        nullptr,            // security descriptor
+        TRUE,               // Create suspended?
+        0L,                 // ZeroBits: default
+        0L,                 // Max stack size: default
+        0L,                 // Committed stack size: default
+        Function,           // Function to start in
+        Parameter,          // Parameter to start with
+        ThreadHandleReturn, // Thread handle return
+        nullptr             // Thread id
     );
 }
 
@@ -381,8 +381,7 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
                           _In_ PUSER_THREAD_START_ROUTINE Function,
                           _In_ PVOID Parameter,
                           _Inout_ PHANDLE ThreadHandleReturn,
-                          _Inout_ PCLIENT_ID ClientId
-)
+                          _Inout_ PCLIENT_ID ClientId)
 /*
 功能：RtlCreateUserThread的简单封装。
 
@@ -395,8 +394,8 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    PEPROCESS  Process = nullptr;
-    HANDLE  KernelHandle = nullptr;
+    PEPROCESS Process = nullptr;
+    HANDLE KernelHandle = nullptr;
 
     if (nullptr == ThreadHandleReturn || nullptr == ClientId) {
         return STATUS_UNSUCCESSFUL;
@@ -424,24 +423,23 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
         }
 
         Status = RtlCreateUserThread(
-            KernelHandle,           // process handle 内核句柄还是应用层的pid?有待实验。
-            nullptr,                   // security descriptor
-            FALSE,                  // Create suspended?
-            0L,                     // ZeroBits: default
-            0L,                     // Max stack size: default
-            0L,                     // Committed stack size: default
-            Function,               // Function to start in
-            Parameter,              // Parameter to start with
-            ThreadHandleReturn,    // Thread handle return
-            ClientId               // Thread id
+            KernelHandle,       // process handle 内核句柄还是应用层的pid?有待实验。
+            nullptr,            // security descriptor
+            FALSE,              // Create suspended?
+            0L,                 // ZeroBits: default
+            0L,                 // Max stack size: default
+            0L,                 // Committed stack size: default
+            Function,           // Function to start in
+            Parameter,          // Parameter to start with
+            ThreadHandleReturn, // Thread handle return
+            ClientId            // Thread id
         );
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p",
-                *ThreadHandleReturn, ClientId->UniqueThread, ClientId->UniqueProcess);
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p", *ThreadHandleReturn, ClientId->UniqueThread, ClientId->UniqueProcess);
     } __finally {
         if (KernelHandle) {
             ZwClose(KernelHandle);
@@ -456,12 +454,11 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
 }
 
 
-NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
+NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid, 
                             _In_ PUSER_THREAD_START_ROUTINE Function,
                             _In_ PVOID Parameter,
                             _Inout_ PHANDLE ThreadHandleReturn,
-                            _Inout_ PCLIENT_ID ClientId
-)
+                            _Inout_ PCLIENT_ID ClientId)
 /*
 功能：ZwCreateThreadEx的简单封装。
 
@@ -477,7 +474,7 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
 {
     NTSTATUS Status = STATUS_SUCCESS;
     PEPROCESS Process = nullptr;
-    HANDLE  KernelHandle = nullptr;
+    HANDLE KernelHandle = nullptr;
 
     if (nullptr == ThreadHandleReturn || nullptr == ClientId) {
         return STATUS_UNSUCCESSFUL;
@@ -504,19 +501,19 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
             __leave;
         }
 
-        //Status = RtlCreateUserThread(
-        //    KernelHandle,           // process handle 内核句柄还是应用层的pid?有待实验。
-        //    nullptr,                   // security descriptor
-        //    FALSE,                  // Create suspended?
-        //    0L,                     // ZeroBits: default
-        //    0L,                     // Max stack size: default
-        //    0L,                     // Committed stack size: default
-        //    Function,               // Function to start in
-        //    Parameter,              // Parameter to start with
-        //    ThreadHandleReturn,    // Thread handle return
-        //    ClientId               // Thread id
+        // Status = RtlCreateUserThread(
+        //     KernelHandle,           // process handle 内核句柄还是应用层的pid?有待实验。
+        //     nullptr,                   // security descriptor
+        //     FALSE,                  // Create suspended?
+        //     0L,                     // ZeroBits: default
+        //     0L,                     // Max stack size: default
+        //     0L,                     // Committed stack size: default
+        //     Function,               // Function to start in
+        //     Parameter,              // Parameter to start with
+        //     ThreadHandleReturn,    // Thread handle return
+        //     ClientId               // Thread id
         //);
-        Status = ZwCreateThreadEx(ThreadHandleReturn, //经测试发现：这个是tid。应用层的，非内核态的句柄。
+        Status = ZwCreateThreadEx(ThreadHandleReturn, // 经测试发现：这个是tid。应用层的，非内核态的句柄。
                                   THREAD_ALL_ACCESS,
                                   nullptr,
                                   KernelHandle,
@@ -535,14 +532,14 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
         ClientId->UniqueProcess = Pid;
         ClientId->UniqueProcess = *ThreadHandleReturn;
 
-        //PETHREAD Thread = nullptr;
-        //Status = ObReferenceObjectByHandle(*ThreadHandleReturn, THREAD_ALL_ACCESS, *PsThreadType, UserMode, (PVOID *)&Thread, nullptr);
-        //if (!NT_SUCCESS(Status)) {
-        //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
-        //    __leave;
-        //}
-        //ClientId->UniqueThread = PsGetThreadId(Thread);
-        //ObDereferenceObject(Thread);
+        // PETHREAD Thread = nullptr;
+        // Status = ObReferenceObjectByHandle(*ThreadHandleReturn, THREAD_ALL_ACCESS, *PsThreadType, UserMode, (PVOID *)&Thread, nullptr);
+        // if (!NT_SUCCESS(Status)) {
+        //     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        //     __leave;
+        // }
+        // ClientId->UniqueThread = PsGetThreadId(Thread);
+        // ObDereferenceObject(Thread);
         ////ZwClose(*ThreadHandleReturn);
 
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "ThreadHandle:%p, UniqueThread:%p, UniqueProcess:%p", *ThreadHandleReturn, ClientId->UniqueThread, Pid);
@@ -560,23 +557,23 @@ NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid,
 }
 
 
-//NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
+// NTSTATUS InjectDllByRtlCreateUserThread(HANDLE Process, LPCWSTR DllPullPath)
 ///*
 //
-//注意：WOW64的处理。
+// 注意：WOW64的处理。
 //"\\SystemRoot\\System32\\kernel32.dll"
 //"\\SystemRoot\\SysWOW64\\kernel32.dll"
 //
-//感叹！
-//多么的巧合。
-//PUSER_THREAD_START_ROUTINE和LoadLibraryW的原型竟然一致。
-//所以，这省去了在应用层申请可执行内存的操作。
-//当然更多的是复制代码（可以不是shellcode，当然要支持WOW64）到应用层的操作。
-//更不用说shellcode了。
+// 感叹！
+// 多么的巧合。
+// PUSER_THREAD_START_ROUTINE和LoadLibraryW的原型竟然一致。
+// 所以，这省去了在应用层申请可执行内存的操作。
+// 当然更多的是复制代码（可以不是shellcode，当然要支持WOW64）到应用层的操作。
+// 更不用说shellcode了。
 //
-//注意：WOW64的参数的大小，如：指针和size_t等。
+// 注意：WOW64的参数的大小，如：指针和size_t等。
 //
-//DllPullPath所在的内存是应用层的。
+// DllPullPath所在的内存是应用层的。
 //*/
 //{
 //    NTSTATUS Status = STATUS_SUCCESS;

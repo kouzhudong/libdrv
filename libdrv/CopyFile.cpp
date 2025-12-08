@@ -3,7 +3,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//以下代码摘自OSR.
+// 以下代码摘自OSR.
 
 
 #define KFC_MAX_TRANSFER_SIZE (0x10000)
@@ -293,7 +293,7 @@ NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
     LARGE_INTEGER AllocationSize{};
 
     InitializeObjectAttributes(&ob, name, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&source_fileHandle, 
+    Status = ZwOpenFile(&source_fileHandle,
                         FILE_GENERIC_READ | SYNCHRONIZE,
                         &ob,
                         &IoStatusBlock,
@@ -305,7 +305,7 @@ NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
     }
 
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    //Status = ZwOpenFile(&target_fileHandle, FILE_GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_VALID_FLAGS, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
+    // Status = ZwOpenFile(&target_fileHandle, FILE_GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_VALID_FLAGS, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
     Status = ZwCreateFile(&target_fileHandle,
                           FILE_ALL_ACCESS | SYNCHRONIZE,
                           &ob,
@@ -399,7 +399,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
     BOOLEAN b = FALSE;
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     UNICODE_STRING df{};
-    UNICODE_STRING f = RTL_CONSTANT_STRING(L"\\??\\"); //On Microsoft Windows 2000 and later versions of the operating system, \?? is equivalent to \DosDevices.
+    UNICODE_STRING f = RTL_CONSTANT_STRING(L"\\??\\"); // On Microsoft Windows 2000 and later versions of the operating system, \?? is equivalent to \DosDevices.
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
     HANDLE DestinationFileHandle = 0;
@@ -413,7 +413,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
     LARGE_INTEGER AllocationSize{};
     ULONG CreateDisposition = 0;
 
-    //如果SourceFile是文件夹,在下面打开的时候返回失败.
+    // 如果SourceFile是文件夹,在下面打开的时候返回失败.
 
     __try {
         df.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
@@ -452,9 +452,9 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
         }
         InitializeObjectAttributes(&ob, &df, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
         if (bFailIfExists) {
-            CreateDisposition = FILE_CREATE; //新建文件.
+            CreateDisposition = FILE_CREATE; // 新建文件.
         } else {
-            CreateDisposition = FILE_SUPERSEDE; //FILE_OVERWRITE_IF
+            CreateDisposition = FILE_SUPERSEDE; // FILE_OVERWRITE_IF
         }
         Status = ZwCreateFile(&DestinationFileHandle,
                               FILE_ALL_ACCESS | SYNCHRONIZE,
@@ -472,7 +472,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
             __leave;
         }
 
-        //可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
+        // 可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
 
         Status = ZwQueryInformationFile(FileHandle, &IoStatusBlock, &fsi, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
         if (!NT_SUCCESS(Status)) {
@@ -485,7 +485,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
         }
 
         file_size = fsi.EndOfFile;
-        Length = 9; //可用ZwQuerySystemInformation SystemBasicInformation取页的大小。
+        Length = 9; // 可用ZwQuerySystemInformation SystemBasicInformation取页的大小。
         Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
         if (Buffer == nullptr) {
             Status = STATUS_UNSUCCESSFUL;
@@ -503,21 +503,21 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
             }
 
             Status = ZwWriteFile(DestinationFileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, Buffer, (ULONG)IoStatusBlock.Information, &i, nullptr);
-            if (!NT_SUCCESS(Status)) //可以检查写入的数量或者写入的总量。
+            if (!NT_SUCCESS(Status)) // 可以检查写入的数量或者写入的总量。
             {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
                 __leave;
             }
 
-            i.QuadPart += IoStatusBlock.Information; //必须在这里，在ZwWriteFile的前面就会出现大小的问题。
+            i.QuadPart += IoStatusBlock.Information; // 必须在这里，在ZwWriteFile的前面就会出现大小的问题。
         }
     } __finally {
-        if (NT_SUCCESS(Status)) //检查上面的所有情况.
+        if (NT_SUCCESS(Status)) // 检查上面的所有情况.
         {
-            b = TRUE; //有时写文件会返回0x103,即重叠 I/O 操作在进行中,也会走到这里.
+            b = TRUE; // 有时写文件会返回0x103,即重叠 I/O 操作在进行中,也会走到这里.
         }
 
-        //关闭句柄.
+        // 关闭句柄.
         if (FileHandle) {
             Status = ZwClose(FileHandle);
             if (!NT_SUCCESS(Status)) {
@@ -531,7 +531,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
             }
         }
 
-        //释放内存.
+        // 释放内存.
         if (df.Buffer) {
             ExFreePoolWithTag(df.Buffer, TAG);
         }
@@ -540,11 +540,11 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
         }
     }
 
-    return b; //不做同步是要蓝屏的.
+    return b; // 不做同步是要蓝屏的.
 }
 
 
-BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
+BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) // CONST
 /*
     参数的形式是："\Device\HarddiskVolume1\XXX等。
 
@@ -569,7 +569,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND) {
             KdPrint(("file does not exist\n"));
         }
@@ -579,7 +579,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
+    // 可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
 
     Status = ZwQueryInformationFile(FileHandle, &IoStatusBlock, &fsi, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
     if (!NT_SUCCESS(Status)) {
@@ -588,7 +588,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //新建文件.
+    // 新建文件.
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -603,7 +603,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
                           nullptr,
                           0);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
         ZwClose(FileHandle);
         if (Status == STATUS_OBJECT_NAME_COLLISION) { //-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
             b = TRUE;
@@ -618,8 +618,8 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;                                                //测试专用。
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); //Length == 0时加驱动验证器，这里会蓝屏。
+    Length = 9;                                                // 测试专用。
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); // Length == 0时加驱动验证器，这里会蓝屏。
     if (Buffer == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -660,7 +660,7 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 }
 
 
-BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
+BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) // CONST
 /*
     参数的形式是："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS\\system32\\config\\SAM。
 
@@ -692,18 +692,18 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     FILE_FULL_EA_INFORMATION ffai{};
 
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    //Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
-    //if (!NT_SUCCESS (Status))
+    // Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
+    // if (!NT_SUCCESS (Status))
     //{
-    //    //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
-    //    if ( Status == STATUS_OBJECT_NAME_NOT_FOUND)  {
-    //        KdPrint(("file does not exist\n"));
-    //    }
-    //    if (IoStatusBlock.Information == FILE_DOES_NOT_EXIST ) {
-    //        KdPrint(("file does not exist\n"));
-    //    }
-    //    return b;
-    //}
+    //     //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
+    //     if ( Status == STATUS_OBJECT_NAME_NOT_FOUND)  {
+    //         KdPrint(("file does not exist\n"));
+    //     }
+    //     if (IoStatusBlock.Information == FILE_DOES_NOT_EXIST ) {
+    //         KdPrint(("file does not exist\n"));
+    //     }
+    //     return b;
+    // }
     Status = IoCreateFileSpecifyDeviceObjectHint(
         &FileHandle,
         GENERIC_READ | SYNCHRONIZE,
@@ -724,7 +724,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
         &ffai,
         sizeof(FILE_FULL_EA_INFORMATION),
-        CreateFileTypeNone, //其实命名管道和邮件槽也定义了。
+        CreateFileTypeNone, // 其实命名管道和邮件槽也定义了。
         nullptr,
         /*
         Indicates that the I/O manager should not perform share-access checks on the file object after it is created.
@@ -738,7 +738,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         */
         nullptr);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND) {
             KdPrint(("file does not exist\n"));
         }
@@ -748,8 +748,8 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
-    //可是This routine is available in Windows 7 and later versions of the Windows operating system.
+    // 可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
+    // 可是This routine is available in Windows 7 and later versions of the Windows operating system.
 
     Status = ZwQueryInformationFile(FileHandle, &IoStatusBlock, &fsi, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
     if (!NT_SUCCESS(Status)) {
@@ -758,7 +758,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //新建文件.
+    // 新建文件.
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -773,7 +773,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
                           nullptr,
                           0);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
         ZwClose(FileHandle);
         if (Status == STATUS_OBJECT_NAME_COLLISION) { //-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
             b = TRUE;
@@ -788,8 +788,8 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;                                                //测试专用。
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); //Length == 0时加驱动验证器，这里会蓝屏。
+    Length = 9;                                                // 测试专用。
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); // Length == 0时加驱动验证器，这里会蓝屏。
     if (Buffer == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -862,7 +862,7 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 */
 
 
-BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) //CONST
+BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName) // CONST
 /*
     参数的形式是："\Device\HarddiskVolume1\XXX或者\\??\\c:\\WINDOWS\\system32\\config\\SAM。
 
@@ -926,18 +926,18 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     SIZE_T ViewSize = 0;
 
     InitializeObjectAttributes(&ob, FileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    //Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
-    //if (!NT_SUCCESS (Status))
+    // Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
+    // if (!NT_SUCCESS (Status))
     //{
-    //    //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
-    //    if ( Status == STATUS_OBJECT_NAME_NOT_FOUND)  {
-    //        KdPrint(("file does not exist\n"));
-    //    }
-    //    if (IoStatusBlock.Information == FILE_DOES_NOT_EXIST ) {
-    //        KdPrint(("file does not exist\n"));
-    //    }
-    //    return b;
-    //}
+    //     //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
+    //     if ( Status == STATUS_OBJECT_NAME_NOT_FOUND)  {
+    //         KdPrint(("file does not exist\n"));
+    //     }
+    //     if (IoStatusBlock.Information == FILE_DOES_NOT_EXIST ) {
+    //         KdPrint(("file does not exist\n"));
+    //     }
+    //     return b;
+    // }
     Status = IoCreateFileSpecifyDeviceObjectHint(
         &FileHandle,
         GENERIC_READ | SYNCHRONIZE,
@@ -958,7 +958,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
         &ffai,
         sizeof(FILE_FULL_EA_INFORMATION),
-        CreateFileTypeNone, //其实命名管道和邮件槽也定义了。
+        CreateFileTypeNone, // 其实命名管道和邮件槽也定义了。
         nullptr,
         /*
         Indicates that the I/O manager should not perform share-access checks on the file object after it is created.
@@ -972,7 +972,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         */
         nullptr);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwOpenFile fail with 0x%x.\n", Status));
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND) {
             KdPrint(("file does not exist\n"));
         }
@@ -982,9 +982,9 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
-    //可是This routine is available in Windows 7 and later versions of the Windows operating system.
-    //不过NtLockFile和NtUnlockFile在XP下导出，可以使用。
+    // 可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
+    // 可是This routine is available in Windows 7 and later versions of the Windows operating system.
+    // 不过NtLockFile和NtUnlockFile在XP下导出，可以使用。
 
     Status = ZwQueryInformationFile(FileHandle, &IoStatusBlock, &fsi, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
     if (!NT_SUCCESS(Status)) {
@@ -993,7 +993,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //新建文件.
+    // 新建文件.
     CreateDisposition = FILE_OVERWRITE_IF;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwCreateFile(&DestinationFileHandle,
@@ -1008,7 +1008,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
                           nullptr,
                           0);
     if (!NT_SUCCESS(Status)) {
-        //KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
+        // KdPrint(("ZwCreateFile fail with 0x%x.\n", Status));
         ZwClose(FileHandle);
         if (Status == STATUS_OBJECT_NAME_COLLISION) { //-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
             b = TRUE;
@@ -1016,14 +1016,14 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         return b;
     }
 
-    //文件大小为零，就结束了。
+    // 文件大小为零，就结束了。
     if (fsi.EndOfFile.QuadPart == 0) {
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return TRUE;
     }
 
-    //不处理大于4G的文件。
+    // 不处理大于4G的文件。
     if (fsi.EndOfFile.HighPart != 0) {
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
@@ -1031,21 +1031,21 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = PAGE_SIZE; //测试专用。
-    //Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0时加驱动验证器，这里会蓝屏。
-    //if (Buffer == nullptr) {
-    //    Status = STATUS_UNSUCCESSFUL;
-    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
-    //    ZwClose(FileHandle);
-    //    ZwClose(DestinationFileHandle);
-    //    return b;
-    //}
+    Length = PAGE_SIZE; // 测试专用。
+    // Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);//Length == 0时加驱动验证器，这里会蓝屏。
+    // if (Buffer == nullptr) {
+    //     Status = STATUS_UNSUCCESSFUL;
+    //     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
+    //     ZwClose(FileHandle);
+    //     ZwClose(DestinationFileHandle);
+    //     return b;
+    // }
 
-    InitializeObjectAttributes(&ob, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr); //绝对不可以在这里设置路径。
+    InitializeObjectAttributes(&ob, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr); // 绝对不可以在这里设置路径。
     Status = ZwCreateSection(&SectionHandle, SECTION_MAP_READ | SECTION_QUERY, &ob, &fsi.EndOfFile, PAGE_READONLY, SEC_COMMIT, FileHandle);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
-        //ExFreePoolWithTag(Buffer, TAG);
+        // ExFreePoolWithTag(Buffer, TAG);
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return b;
@@ -1055,21 +1055,21 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     本想一页数据一页数据的读取的。
     现在是整个全部读取了。
     */
-    //for ( ;ByteOffset.QuadPart < file_size.QuadPart ; )
+    // for ( ;ByteOffset.QuadPart < file_size.QuadPart ; )
     {
-        //RtlZeroMemory(Buffer, Length);
+        // RtlZeroMemory(Buffer, Length);
 
-        //Status = ZwReadFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, Buffer, Length, &ByteOffset, nullptr);
-        //if (!NT_SUCCESS (Status)) //对于带锁的文件的打开会失败。
+        // Status = ZwReadFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, Buffer, Length, &ByteOffset, nullptr);
+        // if (!NT_SUCCESS (Status)) //对于带锁的文件的打开会失败。
         //{
-        //    KdPrint(("ZwReadFile fail with 0x%x.\n", Status));
-        //    ExFreePoolWithTag(Buffer, TAG);
-        //    ZwClose(FileHandle);
-        //    ZwClose(DestinationFileHandle);
-        //    return b;
-        //}
+        //     KdPrint(("ZwReadFile fail with 0x%x.\n", Status));
+        //     ExFreePoolWithTag(Buffer, TAG);
+        //     ZwClose(FileHandle);
+        //     ZwClose(DestinationFileHandle);
+        //     return b;
+        // }
 
-        //注意：这里的权限和上面的权限要对应。
+        // 注意：这里的权限和上面的权限要对应。
         Status = ZwMapViewOfSection(SectionHandle,
                                     ZwCurrentProcess(),
                                     &BaseAddress,
@@ -1082,26 +1082,26 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
                                     PAGE_READONLY);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
-            //ExFreePoolWithTag(Buffer, TAG);
+            // ExFreePoolWithTag(Buffer, TAG);
             ZwClose(SectionHandle);
             ZwClose(FileHandle);
             ZwClose(DestinationFileHandle);
             return b;
         }
 
-        //如果要处理大于4G的数据请加个循环。不过大于4G的数据也很难映射成功。
+        // 如果要处理大于4G的数据请加个循环。不过大于4G的数据也很难映射成功。
         Status = ZwWriteFile(DestinationFileHandle,
                              nullptr,
                              nullptr,
                              nullptr,
                              &IoStatusBlock,
                              /*Buffer*/ BaseAddress,
-                             fsi.EndOfFile.LowPart /*ViewSize  Length  IoStatusBlock.Information*/, //暂时没有处理大于4G的文件。
+                             fsi.EndOfFile.LowPart /*ViewSize  Length  IoStatusBlock.Information*/, // 暂时没有处理大于4G的文件。
                              &ByteOffset,
                              nullptr);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
-            //ExFreePoolWithTag(Buffer, TAG);
+            // ExFreePoolWithTag(Buffer, TAG);
             ZwUnmapViewOfSection(NtCurrentProcess(), BaseAddress);
             ZwClose(SectionHandle);
             ZwClose(FileHandle);
@@ -1109,12 +1109,12 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
             return b;
         }
 
-        //ByteOffset.QuadPart += IoStatusBlock.Information;
+        // ByteOffset.QuadPart += IoStatusBlock.Information;
 
         ZwUnmapViewOfSection(NtCurrentProcess(), BaseAddress);
     }
 
-    //ExFreePoolWithTag(Buffer, TAG);
+    // ExFreePoolWithTag(Buffer, TAG);
     ZwClose(SectionHandle);
     ZwClose(FileHandle);
     ZwClose(DestinationFileHandle);
@@ -1157,9 +1157,9 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
     }
 
     InitializeObjectAttributes(&ob, FileName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, nullptr);
-    Status = FltCreateFile( //FltCreateFileEx在XP SP2上没有导出。
+    Status = FltCreateFile( // FltCreateFileEx在XP SP2上没有导出。
         Filter,
-        Data->Iopb->TargetInstance, //FltObjects->Instance,
+        Data->Iopb->TargetInstance, // FltObjects->Instance,
         &FileHandle,
         //&source_FileObject,
         FILE_GENERIC_READ | SYNCHRONIZE,
@@ -1167,7 +1167,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
         &IoStatusBlock,
         nullptr,
         FILE_ATTRIBUTE_NORMAL,
-        FILE_SHARE_VALID_FLAGS, //这个不对，不过依据是对的。
+        FILE_SHARE_VALID_FLAGS, // 这个不对，不过依据是对的。
         FILE_OPEN,
         FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
         nullptr,
@@ -1194,21 +1194,21 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
     }
 
     ////可以考虑在这里给文件加锁,保护,不让别的操作再写入.ZwLockFile,再在适当的时候解锁:ZwUnlockFile.
-    //Status = NtLockFile(FileHandle, 0, 0, 0, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0, TRUE, FALSE);
-    //if (!NT_SUCCESS (Status))
+    // Status = NtLockFile(FileHandle, 0, 0, 0, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0, TRUE, FALSE);
+    // if (!NT_SUCCESS (Status))
     //{
-    //    KdPrint(("NtLockFile fail with 0x%x.\r\n", Status));
-    //    ZwClose(FileHandle);
-    //    return b;;
-    //}
+    //     KdPrint(("NtLockFile fail with 0x%x.\r\n", Status));
+    //     ZwClose(FileHandle);
+    //     return b;;
+    // }
 
-    //去掉后缀的斜杠。
+    // 去掉后缀的斜杠。
     if (newFileName->Buffer[newFileName->Length / 2 - 1] == L'\\') {
         newFileName->Length -= 2;
         IS_HAVE_slash = TRUE;
     }
 
-    //新建文件.
+    // 新建文件.
     AllocationSize.QuadPart = 0;
     CreateDisposition = FILE_CREATE;
     InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
@@ -1220,7 +1220,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
                            &IoStatusBlock,
                            nullptr,
                            FILE_ATTRIBUTE_NORMAL,
-                           FILE_SHARE_VALID_FLAGS, //这个不对，不过依据是对的。
+                           FILE_SHARE_VALID_FLAGS, // 这个不对，不过依据是对的。
                            FILE_OPEN_IF,
                            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
                            nullptr,
@@ -1228,36 +1228,36 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
                            IO_IGNORE_SHARE_ACCESS_CHECK);
     if (!NT_SUCCESS(Status)) {
         if (Status == STATUS_OBJECT_NAME_COLLISION) { //-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
-            b = TRUE;                                 //目标文件已经存在了，所以返回正确。
-        } else {                                      //对于NTFS的元文件/流文件，独占式访问的文件会走这里。应该在前面放过NTFS的元文件。
+            b = TRUE;                                 // 目标文件已经存在了，所以返回正确。
+        } else {                                      // 对于NTFS的元文件/流文件，独占式访问的文件会走这里。应该在前面放过NTFS的元文件。
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, file:%wZ", Status, newFileName);
-            b = FALSE; //再次声明失败，也可作为断点使用。
+            b = FALSE; // 再次声明失败，也可作为断点使用。
         }
 
-        //恢复后缀的斜杠。
+        // 恢复后缀的斜杠。
         if (IS_HAVE_slash) {
             newFileName->Length += 2;
             IS_HAVE_slash = FALSE;
         }
 
-        //Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
+        // Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
         return b;
     }
 
     if (file_size.QuadPart == 0) {
-        //Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
+        // Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
         ObDereferenceObject(source_FileObject);
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
         return TRUE;
     }
 
-    Length = 0x1000;                                           //测试专用。
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); //Length == 0时加驱动验证器，这里会蓝屏。
+    Length = 0x1000;                                           // 测试专用。
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); // Length == 0时加驱动验证器，这里会蓝屏。
     if (Buffer == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
-        //Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
+        // Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
         ObDereferenceObject(source_FileObject);
         ZwClose(DestinationFileHandle);
         ZwClose(FileHandle);
@@ -1273,7 +1273,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
                              &ByteOffset,
                              Length,
                              Buffer,
-                             //FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET, // | FLTFL_IO_OPERATION_PAGING | FLTFL_IO_OPERATION_NON_CACHED
+                             // FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET, // | FLTFL_IO_OPERATION_PAGING | FLTFL_IO_OPERATION_NON_CACHED
                              FLTFL_IO_OPERATION_PAGING, //
                              &BytesRead,
                              nullptr,
@@ -1288,16 +1288,16 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
         }
 
         Status = ZwWriteFile(DestinationFileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, Buffer, BytesRead, nullptr, nullptr);
-        //Status = FltWriteFile(
-        //    Data->Iopb->TargetInstance,
-        //    source_FileObject,
-        //    &ByteOffset,
-        //    Length,
-        //    Buffer,
-        //    FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET | FLTFL_IO_OPERATION_NON_CACHED | FLTFL_IO_OPERATION_PAGING,
-        //    &BytesRead,
-        //    nullptr,
-        //    nullptr);
+        // Status = FltWriteFile(
+        //     Data->Iopb->TargetInstance,
+        //     source_FileObject,
+        //     &ByteOffset,
+        //     Length,
+        //     Buffer,
+        //     FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET | FLTFL_IO_OPERATION_NON_CACHED | FLTFL_IO_OPERATION_PAGING,
+        //     &BytesRead,
+        //     nullptr,
+        //     nullptr);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             ExFreePoolWithTag(Buffer, TAG);
@@ -1307,7 +1307,7 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
             return b;
         }
 
-        ByteOffset.QuadPart += BytesRead; //IoStatusBlock.Information;
+        ByteOffset.QuadPart += BytesRead; // IoStatusBlock.Information;
     }
 
     ExFreePoolWithTag(Buffer, TAG);

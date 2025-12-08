@@ -1,8 +1,8 @@
 #include "idt.h"
 
 
-#pragma warning(disable:6066)
-#pragma warning(disable:26451)
+#pragma warning(disable : 6066)
+#pragma warning(disable : 26451)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ i的取值可以是0.
     SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    __sidt(&idtr);//KeGetPcr函数可是可用的哟！
+    __sidt(&idtr); // KeGetPcr函数可是可用的哟！
     KeRevertToUserAffinityThread();
 
     p = &idtr.Pad[1];
@@ -33,11 +33,11 @@ i的取值可以是0.
 
     pkidte = reinterpret_cast<PKIDTENTRY64>(r);
 
-    if (idtr.Pad[0] % sizeof(KIDTENTRY64) == 0) {//idtr.Pad[0] == 0xfff.
+    if (idtr.Pad[0] % sizeof(KIDTENTRY64) == 0) { // idtr.Pad[0] == 0xfff.
         maximun = idtr.Pad[0] / sizeof(KIDTENTRY64);
     } else {
         maximun = idtr.Pad[0] / sizeof(KIDTENTRY64);
-        maximun++;//这个数也是256.
+        maximun++; // 这个数也是256.
     }
 
     for (; index < maximun; index++) {
@@ -47,24 +47,24 @@ i的取值可以是0.
         ISR = (ISR << 32);
         ISR += (pkidte_t->OffsetLow + (pkidte_t->OffsetMiddle << 16));
 
-        #pragma warning(push)
+#pragma warning(push)
 #pragma warning(disable : 6271)
         if (pkidte_t->IstIndex == 0) {
             KdPrint(("第%d号CPU的第%02x中断的地址:%p\n", i, index, ISR));
         } else {
-            KdPrint(("第%d号CPU的第%02x中断的地址:%p\n", i, index, ISR)); //还可以进一步获取Stack的信息。
+            KdPrint(("第%d号CPU的第%02x中断的地址:%p\n", i, index, ISR)); // 还可以进一步获取Stack的信息。
         }
 #pragma warning(pop)
     }
 }
-#else 
+#else
 void show_idt(int i)
 /*
 i的取值可以是0.
 */
 {
-    //SIZE_T IDTR;
-    X86_DESCRIPTOR idtr = {0};//A pointer to the memory location where the IDTR is stored.
+    // SIZE_T IDTR;
+    X86_DESCRIPTOR idtr = {0}; // A pointer to the memory location where the IDTR is stored.
 
     SIZE_T r = 0;
     PVOID p = 0;
@@ -75,7 +75,7 @@ i的取值可以是0.
     SIZE_T ISR = 0;
 
     KeSetSystemAffinityThread(i + 1);
-    __sidt(&idtr);// http://msdn.microsoft.com/zh-cn/library/aa983358%28v=vs.120%29.aspx 另一个思路是自己实现：KeGetPcr()。
+    __sidt(&idtr); // http://msdn.microsoft.com/zh-cn/library/aa983358%28v=vs.120%29.aspx 另一个思路是自己实现：KeGetPcr()。
     KeRevertToUserAffinityThread();
 
     p = &idtr.Limit;
@@ -96,7 +96,7 @@ i的取值可以是0.
         maximun++;
     }
 
-    for (; index < maximun; index++) //另一个思路是根据Limit来遍历，这个数一般是2047 == 0x7ff.
+    for (; index < maximun; index++) // 另一个思路是根据Limit来遍历，这个数一般是2047 == 0x7ff.
     {
         PKIDTENTRY pkidte_t = &pkidte[index];
 
@@ -105,7 +105,7 @@ i的取值可以是0.
         if (pkidte_t->ExtendedOffset) {
             ISR = pkidte_t->Offset + (pkidte_t->ExtendedOffset << 16);
             KdPrint(("第%d号CPU的第0x%02x中断的地址:0x%p\n", i, index, ISR));
-        } else { //注意：pkidte_t->ExtendedOffset == 0的情况的分析。
+        } else { // 注意：pkidte_t->ExtendedOffset == 0的情况的分析。
             if (pkidte_t->Selector == 8) {
                 KdPrint(("第%d号CPU的第0x%02x中断没有使用。Offset:0x%x,Access:0x%x.\n", i, index, pkidte_t->Offset, pkidte_t->Access));
             } else {
@@ -120,7 +120,7 @@ i的取值可以是0.
 
 NTSTATUS TestIdt()
 {
-    for (CCHAR i = 0; i < KeNumberProcessors; i++) { //KeQueryMaximumProcessorCount()
+    for (CCHAR i = 0; i < KeNumberProcessors; i++) { // KeQueryMaximumProcessorCount()
         show_idt(i);
     }
 

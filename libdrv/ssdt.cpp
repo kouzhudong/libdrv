@@ -30,9 +30,9 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 */
 {
     HANDLE ProcessId = nullptr;
-    PEPROCESS    Process{};
-    NTSTATUS     Status = STATUS_SUCCESS;
-    KAPC_STATE   ApcState{};
+    PEPROCESS Process{};
+    NTSTATUS Status = STATUS_SUCCESS;
+    KAPC_STATE ApcState{};
     PVOID DllBase{};
     PVOID FunctionAddress{};
     int index = 0;
@@ -41,10 +41,10 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
     ASSERT(NT_SUCCESS(Status));
     ASSERT(ProcessId);
 
-    Status = PsLookupProcessByProcessId(ProcessId, &Process);//得到指定进程ID的进程环境块
+    Status = PsLookupProcessByProcessId(ProcessId, &Process); // 得到指定进程ID的进程环境块
     ASSERT(NT_SUCCESS(Status));
 
-    KeStackAttachProcess(Process, &ApcState); //附加当前线程到目标进程空间内   
+    KeStackAttachProcess(Process, &ApcState); // 附加当前线程到目标进程空间内
 
     DllBase = GetNtdllImageBase(Process);
     ASSERT(DllBase);
@@ -54,7 +54,7 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
 
     index = *reinterpret_cast<PULONG>(static_cast<PUCHAR>(FunctionAddress) + 4);
 
-    KeUnstackDetachProcess(&ApcState);//解除附加
+    KeUnstackDetachProcess(&ApcState); // 解除附加
 
     ObDereferenceObject(Process);
 
@@ -119,7 +119,7 @@ IDA中的信息：
     SIZE_T ViewSize{};
     KAPC_STATE ApcState{};
     NTSTATUS Status{};
-    HANDLE  Handle{};
+    HANDLE Handle{};
     int index = -1;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ IDA中的信息：
     }
 
     InitializeObjectAttributes(&ObjectAttributes, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwCreateSection(&Section, SECTION_MAP_READ,  &ObjectAttributes, nullptr, PAGE_READONLY,  SEC_COMMIT, ImageFileHandle);
+    Status = ZwCreateSection(&Section, SECTION_MAP_READ, &ObjectAttributes, nullptr, PAGE_READONLY, SEC_COMMIT, ImageFileHandle);
     if (!NT_SUCCESS(Status)) {
         ZwClose(ImageFileHandle);
         return index;
@@ -157,14 +157,14 @@ IDA中的信息：
     ViewBase = nullptr;
     ViewSize = 0;
 
-    // Since callees are not always in the context of the system process, 
+    // Since callees are not always in the context of the system process,
     // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
     KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
 
     Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_READONLY);//PAGE_EXECUTE
+    Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_READONLY); // PAGE_EXECUTE
     if (!NT_SUCCESS(Status)) {
         ZwClose(Handle);
         KeUnstackDetachProcess(&ApcState);
@@ -177,11 +177,11 @@ IDA中的信息：
         PVOID FunctionAddress = MiFindExportedRoutineByNameEx(ViewBase, NtRoutineName);
         ASSERT(FunctionAddress);
 
-    #ifdef _WIN64
+#ifdef _WIN64
         index = *reinterpret_cast<PULONG>(static_cast<PUCHAR>(FunctionAddress) + 4);
-    #else
+#else
         index = (*(PULONG)((PUCHAR)FunctionAddress + 1));
-    #endif 
+#endif
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
@@ -257,7 +257,7 @@ SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
 
 
 #ifdef _X86_
-//#ifndef _WIN64
+// #ifndef _WIN64
 
 
 ULONG GetIndexOfSsdtFunction(PCSTR function_name)
@@ -334,15 +334,15 @@ IDA的分析：
         return (ULONG)-1;
     }
 
-#if defined(_AMD64_) || defined(_IA64_) //defined(_WIN64_) 
-    //return SYSCALL_INDEX_64(FunctionAddress);
+#if defined(_AMD64_) || defined(_IA64_) // defined(_WIN64_)
+    // return SYSCALL_INDEX_64(FunctionAddress);
 #else
     return SYSCALL_INDEX(FunctionAddress);
-#endif 
+#endif
 }
 
 
-#endif 
+#endif
 
 
 SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
@@ -360,11 +360,11 @@ SIZE_T GetZwRoutineAddress(PCSTR RoutineName)
 
     RtlInitAnsiString(&ZwRoutineName, RoutineName);
 
-    //#if defined(_AMD64_) || defined(_IA64_) 
-    //    RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
-    //#else
-    //    RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
-    //#endif 
+    // #if defined(_AMD64_) || defined(_IA64_)
+    //     RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
+    // #else
+    //     RoutineAddress = (SIZE_T)(KeServiceDescriptorTable.ServiceTableBase[GetIndexOfSsdtFunction(RoutineName)]);
+    // #endif
 
     RoutineAddress = GetZwRoutineAddressByName(&ZwRoutineName);
 

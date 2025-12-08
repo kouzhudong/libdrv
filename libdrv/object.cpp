@@ -31,7 +31,7 @@ NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
         ASSERT(!NT_SUCCESS(Status));
 
         if (0 == Length) {
-            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
+            // PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
             break;
         }
 
@@ -47,7 +47,7 @@ NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
 
         Status = ObQueryNameString(Object, ObjectNameInfo, Length, &Length);
         if (!NT_SUCCESS(Status)) {
-            //PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
+            // PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
             break;
         }
 
@@ -86,7 +86,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
         return STATUS_UNSUCCESSFUL;
     }
 
-    auto Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, length, TAG); //函数内释放。
+    auto Temp = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, length, TAG); // 函数内释放。
     if (Temp == 0) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
         return STATUS_INSUFFICIENT_RESOURCES;
@@ -94,7 +94,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
 
     Status = ObQueryNameString(Object, (POBJECT_NAME_INFORMATION)Temp, length, &length);
     if (!NT_SUCCESS(Status)) {
-        //Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//这个也不少。
+        // Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//这个也不少。
         ExFreePoolWithTag(Temp, TAG);
         return Status;
     }
@@ -163,17 +163,17 @@ void GetKnownDllPath()
 {
     ULONG ActualLength{};
     HANDLE LinkHandle{};
-    WCHAR NameBuffer[128] = {0}; //这个可能定义的小了.
+    WCHAR NameBuffer[128] = {0}; // 这个可能定义的小了.
     OBJECT_ATTRIBUTES ObjectAttributes{};
     UNICODE_STRING LinkString{}, NameString{};
 
     LinkString.Buffer = NameBuffer;
     LinkString.MaximumLength = sizeof(NameBuffer);
-    RtlInitUnicodeString(&NameString, L"\\KnownDlls\\KnownDllPath"); //不可以用//,不然会ZwOpenSymbolicLinkObject调用失败.就是得到的句柄为0.
+    RtlInitUnicodeString(&NameString, L"\\KnownDlls\\KnownDllPath"); // 不可以用//,不然会ZwOpenSymbolicLinkObject调用失败.就是得到的句柄为0.
     InitializeObjectAttributes(&ObjectAttributes, &NameString, OBJ_KERNEL_HANDLE, nullptr, nullptr);
     ZwOpenSymbolicLinkObject(&LinkHandle, SYMBOLIC_LINK_QUERY, &ObjectAttributes);
 
-    ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength); //LinkString就是想要的值.
+    ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength); // LinkString就是想要的值.
     KdPrint(("KnownDllPath: %wZ \n", &LinkString));
 
     ZwClose(LinkHandle);
@@ -241,13 +241,13 @@ void GetSystemRootPathName(PUNICODE_STRING PathName, PUNICODE_STRING NtPathName,
     if (nullptr == FullName.Buffer) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
     } else {
-        //KdPrint(("NT name:%wZ.\r\n", &FullName));
+        // KdPrint(("NT name:%wZ.\r\n", &FullName));
         RtlCopyUnicodeString(NtPathName, &FullName);
 
         st = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
         ASSERT(NT_SUCCESS(st));
 
-        //KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
+        // KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
         RtlCopyUnicodeString(DosPathName, &FileNameInfo->Name);
 
         ExFreePool(FileNameInfo);
@@ -306,7 +306,7 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, _Inout_ PUNICO
             break;
         }
 
-        //KdPrint(("NT name:%wZ.\r\n", &NtPathName));
+        // KdPrint(("NT name:%wZ.\r\n", &NtPathName));
 
         Status = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
         if (!NT_SUCCESS(Status)) {
@@ -321,7 +321,7 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, _Inout_ PUNICO
             break;
         }
 
-        //KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
+        // KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
         RtlCopyUnicodeString(DosPathName, &FileNameInfo->Name);
     } while (FALSE);
 
@@ -356,7 +356,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
 {
     OBJECT_ATTRIBUTES ob{};
     HANDLE FileHandle{};
-    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION); //这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
+    ULONG Length = sizeof(FILE_DIRECTORY_INFORMATION); // 这个数设置的太小会导致ZwQueryDirectoryFile蓝屏。
     BOOLEAN RestartScan{};
     ULONG Context = 0;
     ULONG ReturnedLength{};
@@ -369,7 +369,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         return Status;
     }
 
-    Length = Length + 520; //为何加这个数字，请看ZwEnumerateFile1的说明。
+    Length = Length + 520; // 为何加这个数字，请看ZwEnumerateFile1的说明。
     PVOID FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
@@ -379,35 +379,35 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
     }
     RtlZeroMemory(FileInformation, Length);
 
-    //RestartScan = FALSE;//为TRUE会导致死循环;
-    //Status = ZwQueryDirectoryObject( FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength );
-    //if (!NT_SUCCESS (Status)) //此时也会得到数据。
+    // RestartScan = FALSE;//为TRUE会导致死循环;
+    // Status = ZwQueryDirectoryObject( FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength );
+    // if (!NT_SUCCESS (Status)) //此时也会得到数据。
     //{
-    //    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
-    //    ExFreePoolWithTag(FileInformation, TAG);
-    //    ZwClose(FileHandle);
-    //    return Status;
-    //}
+    //     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);//STATUS_BUFFER_TOO_SMALL == C0000023
+    //     ExFreePoolWithTag(FileInformation, TAG);
+    //     ZwClose(FileHandle);
+    //     return Status;
+    // }
 
     do {
         UNICODE_STRING FileName{};
         POBJECT_DIRECTORY_INFORMATION podi{};
         UNICODE_STRING FullName{};
 
-        RestartScan = FALSE; //为TRUE会导致死循环;
+        RestartScan = FALSE; // 为TRUE会导致死循环;
         Status = ZwQueryDirectoryObject(FileHandle, FileInformation, Length, TRUE, RestartScan, &Context, &ReturnedLength);
         if (Status != STATUS_NO_MORE_FILES && Status != STATUS_SUCCESS) {
-            break; //这里好像没有走过。
+            break; // 这里好像没有走过。
         }
 
         podi = (POBJECT_DIRECTORY_INFORMATION)FileInformation;
 
-        //不是驱动对象就放过。
+        // 不是驱动对象就放过。
         if (RtlCompareUnicodeString(&podi->TypeName, &driver, TRUE) != 0) {
             continue;
         }
 
-        //申请要显示的内存，另一思路是格式化。
+        // 申请要显示的内存，另一思路是格式化。
         FullName.MaximumLength = (USHORT)Length + Directory->MaximumLength;
         FullName.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, FullName.MaximumLength, TAG);
         if (FullName.Buffer == nullptr) {
@@ -433,7 +433,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
             break;
         }
 
-        //KdPrint(("NtName %wZ\n", &podi->NtName));
+        // KdPrint(("NtName %wZ\n", &podi->NtName));
         KdPrint(("Name %wZ\n", &FullName));
 
         ExFreePoolWithTag(FullName.Buffer, TAG);
@@ -540,7 +540,7 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
 {
     PVOID Object{};
     KPROCESSOR_MODE PreviousMode = ExGetPreviousMode();
-    ULONG Length = 1024; //取这个数的原因:参看ObQueryNameString函数的第三个参数的说明:A reasonable size for the buffer to accommodate most object names is 1024 bytes.
+    ULONG Length = 1024; // 取这个数的原因:参看ObQueryNameString函数的第三个参数的说明:A reasonable size for the buffer to accommodate most object names is 1024 bytes.
 
     NTSTATUS Status = ObReferenceObjectByHandle(Handle, 0, nullptr, PreviousMode, &Object, nullptr);
     if (!NT_SUCCESS(Status)) {
@@ -582,14 +582,14 @@ NTSTATUS ZwQueryObjectNameByHandle(IN HANDLE Handle, OUT PUNICODE_STRING ObjectN
 
     ObDereferenceObject(Object);
 
-    //有的对象是没有名字的。
+    // 有的对象是没有名字的。
     if (pu->Name.Length == 0) {
         Status = STATUS_UNSUCCESSFUL;
     } else {
         RtlCopyUnicodeString(ObjectName, &pu->Name);
-        //ObjectName->Buffer = pu->Name.Buffer;
-        //ObjectName->Length = pu->Name.Length;
-        //ObjectName->MaximumLength = pu->Name.MaximumLength;
+        // ObjectName->Buffer = pu->Name.Buffer;
+        // ObjectName->Length = pu->Name.Length;
+        // ObjectName->MaximumLength = pu->Name.MaximumLength;
     }
 
     ExFreePoolWithTag(pu, TAG);
@@ -610,7 +610,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
 {
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     DWORD nSize = 4096, nReturn{};
-    DWORD dwhandles = 0; //一个进程的所有的句柄数量。
+    DWORD dwhandles = 0; // 一个进程的所有的句柄数量。
 
     auto pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
     if (pSysHandleInfo == nullptr) {
@@ -630,7 +630,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
         RtlZeroMemory(pSysHandleInfo, nSize);
     }
 
-    CLIENT_ID ClientId = {}; //不初始化ZwOpenProcess有问题。
+    CLIENT_ID ClientId = {}; // 不初始化ZwOpenProcess有问题。
     ClientId.UniqueProcess = Pid;
     OBJECT_ATTRIBUTES ob{};
     InitializeObjectAttributes(&ob, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
@@ -645,10 +645,10 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     for (ULONG i = 0; i < pSysHandleInfo->NumberOfHandles; i++) {
         PSYSTEM_HANDLE_TABLE_ENTRY_INFO pHandle = &(pSysHandleInfo->Handles[i]);
 
-        //根据进程进行搜索。
+        // 根据进程进行搜索。
 #pragma prefast(push)
 #pragma warning(disable : 4302)
-        //#pragma prefast(disable:4302, "“类型强制转换”: 从“HANDLE”到“USHORT”截断")
+        // #pragma prefast(disable:4302, "“类型强制转换”: 从“HANDLE”到“USHORT”截断")
         if (pHandle->UniqueProcessId == (USHORT)Pid)
 #pragma prefast(pop)
         {
@@ -673,19 +673,19 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
                 continue;
             }
 
-            //Status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
-            //if (Status == STATUS_BUFFER_OVERFLOW || Status == STATUS_BUFFER_TOO_SMALL)
+            // Status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
+            // if (Status == STATUS_BUFFER_OVERFLOW || Status == STATUS_BUFFER_TOO_SMALL)
             //{
-            //    ObjectInformationLength = ReturnLength;
-            //}
-            //else
+            //     ObjectInformationLength = ReturnLength;
+            // }
+            // else
             //{
-            //    //continue;
-            //    break;//程序发出命令，但命令长度不正确。 C0000004
-            //}
+            //     //continue;
+            //     break;//程序发出命令，但命令长度不正确。 C0000004
+            // }
 
-            //查询句柄类型，这是字符串。
-            ObjectInformationLength = sizeof(PUBLIC_OBJECT_TYPE_INFORMATION) * 2; //这个应该再增加点。加个512应该合适点。
+            // 查询句柄类型，这是字符串。
+            ObjectInformationLength = sizeof(PUBLIC_OBJECT_TYPE_INFORMATION) * 2; // 这个应该再增加点。加个512应该合适点。
             ObjectInformation = ExAllocatePoolWithTag(NonPagedPool, ObjectInformationLength, TAG);
             if (ObjectInformation == nullptr) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
@@ -722,19 +722,19 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             if (NT_SUCCESS(Status)) {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ, NAME:%wZ\n", pHandle->HandleValue, &ppoti->TypeName, &object_name));
                 RtlFreeUnicodeString(&object_name);
-                //ExFreePoolWithTag(object_name.Buffer, tag );
+                // ExFreePoolWithTag(object_name.Buffer, tag );
             } else {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ\n", pHandle->HandleValue, &ppoti->TypeName));
             }
 
             Status = ZwClose(hCopy);
-            //if (!NT_SUCCESS(Status))
+            // if (!NT_SUCCESS(Status))
             //{//有的句柄保护起来，是不准关闭的。
-            //    Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
-            //    ExFreePoolWithTag( pSysHandleInfo, tag );
-            //    ExFreePoolWithTag( ObjectInformation, tag );
-            //    return Status;
-            //}
+            //     Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
+            //     ExFreePoolWithTag( pSysHandleInfo, tag );
+            //     ExFreePoolWithTag( ObjectInformation, tag );
+            //     return Status;
+            // }
 
             ExFreePoolWithTag(ObjectInformation, TAG);
         }
@@ -777,7 +777,7 @@ made at 2014.06.26
         return Status;
     }
 
-    return Status; //STATUS_SUCCESS
+    return Status; // STATUS_SUCCESS
 }
 
 

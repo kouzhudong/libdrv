@@ -6,8 +6,7 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
                                      _In_reads_bytes_opt_(CipherTextSize) PUCHAR CipherText,
                                      _In_ ULONG CipherTextSize,
                                      _Out_writes_bytes_opt_(PlainTextSize) PUCHAR PlainText,
-                                     _In_ ULONG PlainTextSize
-)
+                                     _In_ ULONG PlainTextSize)
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     BCRYPT_KEY_HANDLE hKey = nullptr;
@@ -51,8 +50,7 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
                                     _In_reads_bytes_opt_(PlainTextSize) PUCHAR PlainText,
                                     _In_ ULONG PlainTextSize,
                                     _Out_writes_bytes_opt_(CipherTextSize) PUCHAR CipherText,
-                                    _In_ ULONG CipherTextSize
-)
+                                    _In_ ULONG CipherTextSize)
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
@@ -100,26 +98,15 @@ Encrypting Data with CNG
 https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 */
 {
-    BCRYPT_ALG_HANDLE       hAesAlg = nullptr;
-    BCRYPT_KEY_HANDLE       hKey = nullptr;
-    NTSTATUS                Status = STATUS_UNSUCCESSFUL;
+    BCRYPT_ALG_HANDLE hAesAlg = nullptr;
+    BCRYPT_KEY_HANDLE hKey = nullptr;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
     DWORD cbCipherText = 0, cbPlainText = 0, cbData = 0, cbKeyObject = 0, cbBlockLen = 0, cbBlob = 0;
     PBYTE pbCipherText = nullptr, pbPlainText = nullptr, pbKeyObject = nullptr, pbIV = nullptr, pbBlob = nullptr;
 
-    const BYTE rgbPlaintext[] = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
-    };
-
-    static const BYTE rgbIV[] = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
-    };
-
-    static const BYTE rgbAES128Key[] = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
-    };
+    const BYTE rgbPlaintext[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+    static const BYTE rgbIV[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+    static const BYTE rgbAES128Key[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 
     __try {
         // Open an algorithm handle.
@@ -147,7 +134,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             __leave;
         }
 
-        if (cbBlockLen > sizeof(rgbIV)) {// Determine whether the cbBlockLen is not longer than the IV length.
+        if (cbBlockLen > sizeof(rgbIV)) { // Determine whether the cbBlockLen is not longer than the IV length.
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -232,8 +219,8 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         pbPlainText = nullptr;
 
-        memset(pbKeyObject, 0, cbKeyObject);// We can reuse the key object.    
-        memcpy(pbIV, rgbIV, cbBlockLen);// Reinitialize the IV because encryption would have modified it.
+        memset(pbKeyObject, 0, cbKeyObject); // We can reuse the key object.
+        memcpy(pbIV, rgbIV, cbBlockLen);     // Reinitialize the IV because encryption would have modified it.
         if (!NT_SUCCESS(Status = BCryptImportKey(hAesAlg, nullptr, BCRYPT_OPAQUE_KEY_BLOB, &hKey, pbKeyObject, cbKeyObject, pbBlob, cbBlob, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
@@ -256,15 +243,15 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             __leave;
         }
 
-    #pragma warning(push)
-    #pragma warning(disable:6385)//正在从 "pbPlainText" 读取无效数据。
+#pragma warning(push)
+#pragma warning(disable : 6385) // 正在从 "pbPlainText" 读取无效数据。
         if (0 != memcmp(pbPlainText, (PBYTE)rgbPlaintext, sizeof(rgbPlaintext))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-    #pragma warning(pop)           
+#pragma warning(pop)
 
-        //wprintf(L"Success!\n");
+        // wprintf(L"Success!\n");
     } __finally {
         if (hAesAlg) {
             BCryptCloseAlgorithmProvider(hAesAlg, 0);
