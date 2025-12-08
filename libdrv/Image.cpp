@@ -691,13 +691,7 @@ http://correy.webs.com
         }
 
         InitializeObjectAttributes(&ObjectAttributes, nullptr, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-        Status = ZwCreateSection(&Section,
-                                 SECTION_MAP_READ, // SECTION_MAP_EXECUTE
-                                 &ObjectAttributes,
-                                 nullptr,
-                                 PAGE_READONLY, // PAGE_EXECUTE
-                                 SEC_COMMIT,
-                                 ImageFileHandle);
+        Status = ZwCreateSection(&Section, SECTION_MAP_READ, &ObjectAttributes, nullptr, PAGE_READONLY, SEC_COMMIT, ImageFileHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -782,10 +776,9 @@ retry:
     Modules = (PRTL_PROCESS_MODULES)Buffer;
 
     if (NT_SUCCESS(Status)) {
-        PRTL_PROCESS_MODULE_INFORMATION ModuleInfo;
         ULONG i = 0;
 
-        for (ModuleInfo = &Modules->Modules[0]; i < Modules->NumberOfModules; i++, ModuleInfo++) {
+        for (PRTL_PROCESS_MODULE_INFORMATION ModuleInfo = &Modules->Modules[0]; i < Modules->NumberOfModules; i++, ModuleInfo++) {
             ANSI_STRING AstrModuleName;
             RtlInitAnsiString(&AstrModuleName, (PCSZ)ModuleInfo->FullPathName);
 
@@ -879,10 +872,7 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
 }
 
 
-VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName,
-                                   __in_opt PUNICODE_STRING FullImageName,
-                                   __in HANDLE ProcessId,
-                                   __in PIMAGE_INFO ImageInfo)
+VOID NTAPI RtlGetLoadImageFullName(_Inout_ PUNICODE_STRING LoadImageFullName, __in_opt PUNICODE_STRING FullImageName, __in HANDLE ProcessId, __in PIMAGE_INFO ImageInfo)
 /*
 功能：在LoadImageNotifyRoutine中获取LoadImage的全路径。
 

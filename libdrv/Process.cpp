@@ -1170,8 +1170,7 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
             // GetAllChildProcess(iter->UniqueProcessId);//可以考虑递归。注意断链。
         }
 
-        // KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n",
-        //          iter->UniqueProcessId, iter->NumberOfThreads, iter->HandleCount));
+        // KdPrint(("PID:%d\tNumberOfThreads:%d\tHandleCount:%d\n", iter->UniqueProcessId, iter->NumberOfThreads, iter->HandleCount));
 
         /*
         The start of the next item in the array is the address of the previous item plus the value in the NextEntryOffset member.
@@ -1370,15 +1369,12 @@ The updated version of the structure is defined in ntddk.h with the new IsSecure
 https://docs.microsoft.com/zh-cn/windows/win32/procthread/isolated-user-mode--ium--processes
 */
 {
-    NTSTATUS Status{};
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0}; // definition included in ntddk.h
-
-    PAGED_CODE();
-
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};  
     extendedInfo.Size = sizeof(extendedInfo);
 
-    // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
+    PAGED_CODE();    
+
+    NTSTATUS Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *SecureProcess = (BOOLEAN)(extendedInfo.IsSecureProcess != 0);
     }
@@ -1396,15 +1392,12 @@ NTSTATUS IsProtectedProcess(_In_ HANDLE ProcessHandle, _Out_ BOOLEAN * Protected
 注意适用的范围。
 */
 {
-    NTSTATUS Status{};
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0}; // definition included in ntddk.h
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};  
+    extendedInfo.Size = sizeof(extendedInfo);
 
     PAGED_CODE();
 
-    extendedInfo.Size = sizeof(extendedInfo);
-
-    // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
+    NTSTATUS Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *ProtectedProcess = (BOOLEAN)(extendedInfo.IsProtectedProcess != 0);
     }
@@ -1431,15 +1424,12 @@ ProcessHandle是内核态的句柄，不是用户层的pid.
 3.
 */
 {
-    NTSTATUS Status{};
-    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0}; // definition included in ntddk.h
-
-    PAGED_CODE();
-
+    PROCESS_EXTENDED_BASIC_INFORMATION extendedInfo = {0};  
     extendedInfo.Size = sizeof(extendedInfo);
 
-    // Query for the process information
-    Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
+    PAGED_CODE();
+    
+    NTSTATUS Status = ZwQueryInformationProcess(ProcessHandle, ProcessBasicInformation, &extendedInfo, sizeof(extendedInfo), nullptr);
     if (NT_SUCCESS(Status)) {
         *Wow64Process = static_cast<BOOLEAN>(extendedInfo.IsWow64Process != 0);
     }
