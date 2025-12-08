@@ -25,9 +25,6 @@ BraceWrapping:
   BeforeCatch: false
   BeforeElse: false
   BeforeWhile: false
-  BeforeCatch: false
-  BeforeWhile: false
-
 
 StatementMacros: [
     '__drv_allocatesMem',
