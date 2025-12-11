@@ -70,6 +70,8 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
 {
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
     KEVENT event{};
+
+    RtlZeroMemory(StandardInformation, sizeof(FILE_STANDARD_INFORMATION));
     KeInitializeEvent(&event, SynchronizationEvent, FALSE);
 
     PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
@@ -77,7 +79,6 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
         return;
     }
 
-    RtlZeroMemory(StandardInformation, sizeof(FILE_STANDARD_INFORMATION));
     irp->AssociatedIrp.SystemBuffer = StandardInformation;
 
     PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
