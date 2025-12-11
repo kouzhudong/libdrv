@@ -34,7 +34,7 @@ static NTSTATUS KfcIoCompletion(PDEVICE_OBJECT DeviceObject, PIRP Irp, PVOID Con
 
 
 static PIRP KfcAllocateAndInitializeIrp(PFILE_OBJECT FileObject, PKEVENT Event, PIO_STATUS_BLOCK IoStatusBlock)
-//  Helper function to allocate and initialize common IRP fields
+// Helper function to allocate and initialize common IRP fields
 // Inputs:
 //  FileObject - the file object for the operation
 //  Event - synchronization event for completion
@@ -70,8 +70,6 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
 {
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
     KEVENT event{};
-
-    RtlZeroMemory(StandardInformation, sizeof(FILE_STANDARD_INFORMATION));
     KeInitializeEvent(&event, SynchronizationEvent, FALSE);
 
     PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
@@ -79,6 +77,7 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
         return;
     }
 
+    RtlZeroMemory(StandardInformation, sizeof(FILE_STANDARD_INFORMATION));
     irp->AssociatedIrp.SystemBuffer = StandardInformation;
 
     PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
