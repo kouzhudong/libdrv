@@ -234,6 +234,9 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
     KfcGetFileStandardInformation(SourceFileObject, &standardInformation, &iosb); // Get the size of the input file.
     if (!NT_SUCCESS(iosb.Status)) {
         KdPrint(("KfcGetFileStandardInformation failed: 0x%0x\r\n", iosb.Status));
+        // PERFORMANCE: MDL should be freed here to avoid resource leak
+        // See PERFORMANCE.md Section 7 for details
+        IoFreeMdl(mdl);
         ExFreePoolWithTag(buffer, TAG);
         return (iosb.Status); // This is a failure condition.
     }
@@ -241,6 +244,9 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
     KfcSetFileAllocation(TargetFileObject, &standardInformation.AllocationSize, &iosb); // Set the allocation size of the output file.
     if (!NT_SUCCESS(iosb.Status)) {
         KdPrint(("SetFileAllocation failed: 0x%0x\r\n", iosb.Status));
+        // PERFORMANCE: MDL should be freed here to avoid resource leak
+        // See PERFORMANCE.md Section 7 for details
+        IoFreeMdl(mdl);
         ExFreePoolWithTag(buffer, TAG);
         return (iosb.Status); // Failure...
     }

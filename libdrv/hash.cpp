@@ -148,12 +148,17 @@ lpFileHash的值由调用者释放。
         }
 
         // 整个上下文都应该优化成一块自描述的完整的大结构, 然后以后备列表管理, 而不是分散到各处进行分配释放
+        // PERFORMANCE: Consider using 64KB buffer size for better I/O throughput
+        // See PERFORMANCE.md Section 6 for details
         buffer = ExAllocatePoolWithTag(PagedPool, nread, TAG);
         if (buffer == nullptr) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
 
+        // PERFORMANCE: BCrypt algorithm providers should be cached at module level and reused
+        // Opening/closing providers for each file hash is expensive
+        // See PERFORMANCE.md Section 4 for details
         Status = BCryptOpenAlgorithmProvider(&hAlg, algorithm, nullptr, 0);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);

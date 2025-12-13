@@ -291,6 +291,8 @@ Return Value:
         // It's a good practice to keep the contents of a try-except block to the bare minimum.
         // By keeping the pool allocation call outside of the try-except block we don't mask possible pool corruptions.
         __try {
+            // PERFORMANCE: RtlZeroMemory before RtlCopyMemory is redundant. Only the NULL terminator needs zeroing.
+            // See PERFORMANCE.md Section 1 for details
             RtlZeroMemory(DestString->Buffer, DestString->MaximumLength);
             RtlCopyMemory(DestString->Buffer, SourceString->Buffer, SourceString->Length);
         } __except (EXCEPTION_EXECUTE_HANDLER) {

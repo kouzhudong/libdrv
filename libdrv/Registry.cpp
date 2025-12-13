@@ -71,6 +71,8 @@ made at 2014.07.24
     }
 
     // 枚举子键。
+    // PERFORMANCE: Consider reusing buffer across iterations instead of allocate/free per iteration
+    // See PERFORMANCE.md Section 2 for details
     for (ULONG i = 0; i < pfi->SubKeys; i++) {
         PKEY_BASIC_INFORMATION pbi{};
         UNICODE_STRING us{};
@@ -86,6 +88,8 @@ made at 2014.07.24
             }
         }
 
+        // PERFORMANCE: PagedPool would be more appropriate here (PASSIVE_LEVEL operation)
+        // See PERFORMANCE.md Section 3 for details
         pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
         if (pbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
