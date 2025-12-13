@@ -20,7 +20,7 @@ This document identifies performance inefficiencies in the libdrv codebase and p
 - `hash.cpp`: Line 221
 
 **Recommendation:**
-The Windows kernel provides `ExAllocatePool2` (Windows 10 version 2004+) with the `POOL_FLAG_UNINITIALIZED` flag for when zero-initialization is not needed, or `POOL_FLAG_REQUIRED_START` which zeros memory by default. For code that explicitly needs zeroed memory, use this flag instead of separate `RtlZeroMemory` calls.
+The Windows kernel provides `ExAllocatePool2` (Windows 10 version 2004+) which zeros memory by default. For code that explicitly needs zeroed memory, the default behavior provides this. The `POOL_FLAG_UNINITIALIZED` flag can be used when zero-initialization is not needed. For code that needs to be compatible with older Windows versions, continue using `ExAllocatePoolWithTag` but consider whether the `RtlZeroMemory` call is truly necessary if the buffer will be immediately overwritten.
 
 **Example Fix:**
 ```c
