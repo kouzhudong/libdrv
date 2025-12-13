@@ -20,20 +20,30 @@ This document identifies performance inefficiencies in the libdrv codebase and p
 - `hash.cpp`: Line 221
 
 **Recommendation:**
-The Windows kernel provides `ExAllocatePool2` (Windows 10 version 2004+) which zeros memory by default. For code that explicitly needs zeroed memory, the default behavior provides this. The `POOL_FLAG_UNINITIALIZED` flag can be used when zero-initialization is not needed. For code that needs to be compatible with older Windows versions, continue using `ExAllocatePoolWithTag` but consider whether the `RtlZeroMemory` call is truly necessary if the buffer will be immediately overwritten.
+For many of the identified cases, the `RtlZeroMemory` call is redundant because the buffer is immediately overwritten with data. The zeroing operation wastes CPU cycles. Analyze each case:
+- If the entire buffer will be filled with data (e.g., by `RtlCopyMemory`, `ZwQuerySystemInformation`, etc.), remove the `RtlZeroMemory` call entirely
+- If only part of the buffer is filled, zero only the unused portion
+- For UNICODE_STRING operations where only a NULL terminator is needed, zero only the terminator bytes
+
+Note: `ExAllocatePool2` (Windows 10 version 2004+) does NOT zero memory by default. Both `ExAllocatePoolWithTag` and `ExAllocatePool2` return uninitialized memory unless explicitly zeroed.
 
 **Example Fix:**
 ```c
 // Instead of:
 Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
 RtlZeroMemory(Buffer, Length);
+SomeFunction(Buffer, Length);  // This fills the entire buffer
 
-// Use (if zeroing is actually needed):
+// Use:
 Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
-// Remove the RtlZeroMemory call if the buffer is immediately overwritten
+// No RtlZeroMemory needed - the buffer is immediately overwritten
+SomeFunction(Buffer, Length);
 
-// Or on Windows 10 2004+:
-Buffer = ExAllocatePool2(POOL_FLAG_NON_PAGED, Length, TAG);
+// For UNICODE_STRING copy operations:
+DestString->Buffer = (PWSTR)ExAllocatePoolWithTag(NonPagedPool, MaxLength, TAG);
+RtlCopyMemory(DestString->Buffer, SourceString->Buffer, SourceString->Length);
+// Zero only the NULL terminator:
+RtlZeroMemory((PUCHAR)DestString->Buffer + SourceString->Length, sizeof(WCHAR));
 ```
 
 ## 2. Repeated Memory Allocations in Loops
@@ -131,20 +141,43 @@ NTSTATUS InitializeCryptoHandles() {
     NTSTATUS status;
     
     status = BCryptOpenAlgorithmProvider(&g_hMD5Alg, BCRYPT_MD5_ALGORITHM, NULL, 0);
-    if (!NT_SUCCESS(status)) return status;
+    if (!NT_SUCCESS(status)) {
+        return status;
+    }
     
     status = BCryptOpenAlgorithmProvider(&g_hSHA1Alg, BCRYPT_SHA1_ALGORITHM, NULL, 0);
-    if (!NT_SUCCESS(status)) return status;
+    if (!NT_SUCCESS(status)) {
+        BCryptCloseAlgorithmProvider(g_hMD5Alg, 0);
+        g_hMD5Alg = NULL;
+        return status;
+    }
     
     status = BCryptOpenAlgorithmProvider(&g_hSHA256Alg, BCRYPT_SHA256_ALGORITHM, NULL, 0);
+    if (!NT_SUCCESS(status)) {
+        BCryptCloseAlgorithmProvider(g_hMD5Alg, 0);
+        BCryptCloseAlgorithmProvider(g_hSHA1Alg, 0);
+        g_hMD5Alg = NULL;
+        g_hSHA1Alg = NULL;
+        return status;
+    }
+    
     return status;
 }
 
 // In cleanup:
 VOID CleanupCryptoHandles() {
-    if (g_hMD5Alg) BCryptCloseAlgorithmProvider(g_hMD5Alg, 0);
-    if (g_hSHA1Alg) BCryptCloseAlgorithmProvider(g_hSHA1Alg, 0);
-    if (g_hSHA256Alg) BCryptCloseAlgorithmProvider(g_hSHA256Alg, 0);
+    if (g_hMD5Alg) {
+        BCryptCloseAlgorithmProvider(g_hMD5Alg, 0);
+        g_hMD5Alg = NULL;
+    }
+    if (g_hSHA1Alg) {
+        BCryptCloseAlgorithmProvider(g_hSHA1Alg, 0);
+        g_hSHA1Alg = NULL;
+    }
+    if (g_hSHA256Alg) {
+        BCryptCloseAlgorithmProvider(g_hSHA256Alg, 0);
+        g_hSHA256Alg = NULL;
+    }
 }
 
 // Then reuse handles in hash functions
@@ -154,30 +187,35 @@ VOID CleanupCryptoHandles() {
 
 **Impact:** Medium - Causes unnecessary allocations and memory fragmentation
 
-**Issue:** Code that queries for required buffer sizes grows allocations linearly (by 4096 bytes) instead of using exponential growth.
+**Issue:** Code that queries for required buffer sizes grows allocations linearly (by 4096 bytes) instead of using the returned size or exponential growth.
 
 **Affected Files:**
 - `object.cpp`: Lines 622-631 (EnumProcessHandle grows by 4096 per iteration)
 
 **Recommendation:**
-Use exponential growth (e.g., doubling) to reduce the number of allocation attempts.
+Use the `nReturn` parameter value returned by `ZwQuerySystemInformation` when it fails with `STATUS_INFO_LENGTH_MISMATCH`, as it contains the exact required buffer size. This eliminates multiple allocation attempts.
 
 **Example Fix:**
 ```c
 // Instead of:
 while (ZwQuerySystemInformation(...) == STATUS_INFO_LENGTH_MISMATCH) {
     ExFreePoolWithTag(pSysHandleInfo, TAG);
-    nSize += 4096;  // Linear growth
+    nSize += 4096;  // Linear growth - inefficient
     pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
-    RtlZeroMemory(pSysHandleInfo, nSize);
+    RtlZeroMemory(pSysHandleInfo, nSize);  // Unnecessary zeroing
 }
 
 // Use:
-while (ZwQuerySystemInformation(..., pSysHandleInfo, nSize, &nReturn) == STATUS_INFO_LENGTH_MISMATCH) {
+NTSTATUS status;
+while ((status = ZwQuerySystemInformation(..., pSysHandleInfo, nSize, &nReturn)) == STATUS_INFO_LENGTH_MISMATCH) {
     ExFreePoolWithTag(pSysHandleInfo, TAG);
-    // Use the returned size or double, whichever is larger
-    nSize = max(nReturn, nSize * 2);
+    // Use the returned required size directly
+    nSize = nReturn;
     pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
+    if (!pSysHandleInfo) return STATUS_INSUFFICIENT_RESOURCES;
+    // No RtlZeroMemory needed - buffer will be filled by ZwQuerySystemInformation
+}
+```
     if (!pSysHandleInfo) return STATUS_INSUFFICIENT_RESOURCES;
     // Note: Remove RtlZeroMemory as the data will be overwritten
 }

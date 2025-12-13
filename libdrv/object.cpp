@@ -621,7 +621,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     // See PERFORMANCE.md Section 1 for details
     RtlZeroMemory(pSysHandleInfo, nSize);
 
-    // PERFORMANCE: Linear growth (+=4096) is inefficient. Use exponential growth or nReturn value
+    // PERFORMANCE: Linear growth (+=4096) is inefficient. Use nReturn value directly for exact size
     // See PERFORMANCE.md Section 5 for details
     while (ZwQuerySystemInformation(SystemHandleInformation, pSysHandleInfo, nSize, &nReturn) == STATUS_INFO_LENGTH_MISMATCH) {
         ExFreePoolWithTag(pSysHandleInfo, TAG);
