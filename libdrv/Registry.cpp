@@ -25,6 +25,8 @@ made by correy
 made at 2014.07.24
 */
 {
+    PAGED_CODE();
+
     OBJECT_ATTRIBUTES ObjectAttributes{};
     HANDLE KeyHandle{};
     InitializeObjectAttributes(&ObjectAttributes, Name, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
@@ -54,7 +56,7 @@ made at 2014.07.24
 
     // ResultLength += MAX_PATH ;
     // ResultLength *= 2;//多申请一半。
-    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
     if (pfi == nullptr) {
         // If ExAllocatePool returns NULL, the caller should return the NTSTATUS value STATUS_INSUFFICIENT_RESOURCES or should delay processing to another point in time.
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -86,7 +88,7 @@ made at 2014.07.24
             }
         }
 
-        pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
         if (pbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -126,7 +128,7 @@ made at 2014.07.24
                 break;
             }
         }
-        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
         if (pkvbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -154,7 +156,7 @@ made at 2014.07.24
                 break;
             }
         }
-        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
         if (pkvpi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             ExFreePool(pkvbi);
