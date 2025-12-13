@@ -193,7 +193,7 @@ while (ZwQuerySystemInformation(..., pSysHandleInfo, nSize, &nReturn) == STATUS_
 - `hash.cpp`: Line 125 (`ULONG nread = PAGE_SIZE * 4;`)
 
 **Recommendation:**
-Use 64KB buffers for better I/O throughput, matching the `KFC_MAX_TRANSFER_SIZE` used in `CopyFile.cpp`.
+Use 64KB buffers for better I/O throughput, matching the `KFC_MAX_TRANSFER_SIZE` (0x10000 = 64KB) used in `CopyFile.cpp`. Larger buffers reduce the number of I/O operations needed to hash large files.
 
 **Example Fix:**
 ```c
@@ -201,7 +201,7 @@ Use 64KB buffers for better I/O throughput, matching the `KFC_MAX_TRANSFER_SIZE`
 ULONG nread = PAGE_SIZE * 4;  // 16KB
 
 // To:
-ULONG nread = 64 * 1024;  // 64KB for better I/O throughput
+ULONG nread = 0x10000;  // 64KB (same as KFC_MAX_TRANSFER_SIZE) for better I/O throughput
 ```
 
 ## 7. CopyFile.cpp Missing MDL Cleanup
