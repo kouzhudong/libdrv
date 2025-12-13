@@ -225,6 +225,10 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
 
     // Build an MDL describing the buffer.  We'll use THAT to do the I/O (rather than a direct buffer address.)
     PMDL mdl = IoAllocateMdl(buffer, KFC_MAX_TRANSFER_SIZE, FALSE, TRUE, nullptr);
+    if (!mdl) {
+        ExFreePoolWithTag(buffer, TAG);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
     MmBuildMdlForNonPagedPool(mdl);
     LARGE_INTEGER currentOffset{};
     currentOffset.QuadPart = 0; // Set up the current offset information
@@ -234,6 +238,9 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
     KfcGetFileStandardInformation(SourceFileObject, &standardInformation, &iosb); // Get the size of the input file.
     if (!NT_SUCCESS(iosb.Status)) {
         KdPrint(("KfcGetFileStandardInformation failed: 0x%0x\r\n", iosb.Status));
+        // PERFORMANCE: MDL should be freed here to avoid resource leak
+        // See PERFORMANCE.md Section 7 for details
+        IoFreeMdl(mdl);
         ExFreePoolWithTag(buffer, TAG);
         return (iosb.Status); // This is a failure condition.
     }
@@ -241,6 +248,9 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
     KfcSetFileAllocation(TargetFileObject, &standardInformation.AllocationSize, &iosb); // Set the allocation size of the output file.
     if (!NT_SUCCESS(iosb.Status)) {
         KdPrint(("SetFileAllocation failed: 0x%0x\r\n", iosb.Status));
+        // PERFORMANCE: MDL should be freed here to avoid resource leak
+        // See PERFORMANCE.md Section 7 for details
+        IoFreeMdl(mdl);
         ExFreePoolWithTag(buffer, TAG);
         return (iosb.Status); // Failure...
     }
@@ -254,6 +264,7 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
         KfcRead(SourceFileObject, &currentOffset, nextTransferSize, mdl, &iosb);
         if (!NT_SUCCESS(iosb.Status)) {
             if (iosb.Status != STATUS_END_OF_FILE) {
+                IoFreeMdl(mdl);
                 ExFreePoolWithTag(buffer, TAG);
                 return (iosb.Status); // An error condition occurred.
             }
@@ -261,6 +272,7 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
 
         KfcWrite(TargetFileObject, &currentOffset, nextTransferSize, mdl, &iosb);
         if (!NT_SUCCESS(iosb.Status)) {
+            IoFreeMdl(mdl);
             ExFreePoolWithTag(buffer, TAG);
             return (iosb.Status); // An error condition occurred.
         }
@@ -270,6 +282,7 @@ NTSTATUS KfcCopyFile(PFILE_OBJECT TargetFileObject, PFILE_OBJECT SourceFileObjec
         bytesToTransfer -= nextTransferSize;
     }
 
+    IoFreeMdl(mdl);
     ExFreePoolWithTag(buffer, TAG);
     return (STATUS_SUCCESS); // At this point, we're done with the copy operation.  Return success
 }

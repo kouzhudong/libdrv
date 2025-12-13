@@ -617,8 +617,12 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
         Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
+    // PERFORMANCE: RtlZeroMemory unnecessary - buffer will be filled by ZwQuerySystemInformation
+    // See PERFORMANCE.md Section 1 for details
     RtlZeroMemory(pSysHandleInfo, nSize);
 
+    // PERFORMANCE: Linear growth (+=4096) is inefficient. Use nReturn value directly for exact size
+    // See PERFORMANCE.md Section 5 for details
     while (ZwQuerySystemInformation(SystemHandleInformation, pSysHandleInfo, nSize, &nReturn) == STATUS_INFO_LENGTH_MISMATCH) {
         ExFreePoolWithTag(pSysHandleInfo, TAG);
         nSize += 4096;
@@ -627,6 +631,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             return STATUS_INSUFFICIENT_RESOURCES;
         }
+        // PERFORMANCE: RtlZeroMemory unnecessary - buffer will be filled by ZwQuerySystemInformation
         RtlZeroMemory(pSysHandleInfo, nSize);
     }
 

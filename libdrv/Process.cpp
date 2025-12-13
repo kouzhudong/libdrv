@@ -53,6 +53,8 @@ PCL由调用者释放。
                 if (nullptr == CommandLine->Buffer) {
                     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
                 } else {
+                    // PERFORMANCE: RtlZeroMemory before RtlCopyUnicodeString is redundant
+                    // See PERFORMANCE.md Section 1 for details
                     RtlZeroMemory(CommandLine->Buffer, CommandLine->MaximumLength);
 
                     RtlCopyUnicodeString(CommandLine, &ProcessParameters->CommandLine);
