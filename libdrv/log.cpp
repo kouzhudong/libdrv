@@ -1,13 +1,8 @@
 #include "log.h"
 
 
-#pragma warning(disable : 4244) // 从“unsigned __int64”转换到“UCHAR”，可能丢失数据
-#pragma warning(disable : 4267) // 从“size_t”转换到“UCHAR”，可能丢失数据
-
-#pragma warning(disable : 28719) // Banned API Usage:  wcscpy
-#pragma warning(disable : 28719) // Banned API Usage:  wcsncpy
-
-#pragma warning(disable : 4996)
+#pragma warning(disable : 4244) // 从”unsigned __int64”转换到”UCHAR”，可能丢失数据
+#pragma warning(disable : 4267) // 从”size_t”转换到”UCHAR”，可能丢失数据
 #pragma warning(disable : 6387)
 
 
@@ -98,56 +93,58 @@ http://hi.baidu.com/wesley0312/item/a35737511c3e13dbd58bac51
 
         RtlInitAnsiString(&asNtStatus, "QQ：112426112"); // 这个信息显示在后面。
         RtlAnsiStringToUnicodeString(&usNtStatus, &asNtStatus, TRUE);
-        ASSERT(usNtStatus.Buffer);
+        if (usNtStatus.Buffer) {
+            ucFinalSize = sizeof(IO_ERROR_LOG_PACKET) + sizeof(ULONG) + usNtStatus.Length + sizeof(WCHAR) + (wcslen(ErroeMessage) + 1) * sizeof(WCHAR);
+            pLogPacket = static_cast<PIO_ERROR_LOG_PACKET>(IoAllocateErrorLogEntry(DriverObject, ucFinalSize));
 
-        ucFinalSize = sizeof(IO_ERROR_LOG_PACKET) + sizeof(ULONG) + usNtStatus.Length + sizeof(WCHAR) + (wcslen(ErroeMessage) + 1) * sizeof(WCHAR);
-        pLogPacket = static_cast<PIO_ERROR_LOG_PACKET>(IoAllocateErrorLogEntry(DriverObject, ucFinalSize));
+            if (pLogPacket) {
+                RtlZeroMemory(pLogPacket, sizeof(IO_ERROR_LOG_PACKET));
 
-        RtlZeroMemory(pLogPacket, sizeof(IO_ERROR_LOG_PACKET));
+                // A variable-size array that can be used to store driver-specific binary data,
+                // Drivers must specify the size, in bytes, of the array in the DumpDataSize member of this structure.
+                pLogPacket->DumpData[0] = 0x12345678; // 感觉这个显示的没啥用。
 
-        // A variable-size array that can be used to store driver-specific binary data,
-        // Drivers must specify the size, in bytes, of the array in the DumpDataSize member of this structure.
-        pLogPacket->DumpData[0] = 0x12345678; // 感觉这个显示的没啥用。
+                // Indicates the size, in bytes, of the variable-length DumpData member of this structure.
+                // The specified value must be a multiple of sizeof(ULONG).
+                pLogPacket->DumpDataSize = sizeof(ULONG); // 估计是DumpData的个数 * sizeof(ULONG)
 
-        // Indicates the size, in bytes, of the variable-length DumpData member of this structure.
-        // The specified value must be a multiple of sizeof(ULONG).
-        pLogPacket->DumpDataSize = sizeof(ULONG); // 估计是DumpData的个数 * sizeof(ULONG)
+                // Indicates the offset, in bytes, from the beginning of the structure, at which any driver-supplied insertion string data begins.
+                // Normally this will be sizeof(IO_ERROR_LOG_PACKET) plus the value of the DumpDataSize member.
+                // If there are no driver-supplied insertion strings, StringOffset can be zero.
+                pLogPacket->StringOffset = sizeof(IO_ERROR_LOG_PACKET) + pLogPacket->DumpDataSize;
 
-        // Indicates the offset, in bytes, from the beginning of the structure, at which any driver-supplied insertion string data begins.
-        // Normally this will be sizeof(IO_ERROR_LOG_PACKET) plus the value of the DumpDataSize member.
-        // If there are no driver-supplied insertion strings, StringOffset can be zero.
-        pLogPacket->StringOffset = sizeof(IO_ERROR_LOG_PACKET) + pLogPacket->DumpDataSize;
+                // Indicates the number of insertion strings the driver will supply with this error log entry.
+                // Drivers set this value to zero for errors that need no insertion strings.
+                // The Event Viewer uses these strings to fill in the "%2" through "%n" entries in the string template for this error code.
+                // The null-terminated Unicode strings themselves follow the IO_ERROR_LOG_PACKET structure in memory.
+                pLogPacket->NumberOfStrings = 2; // 有两个字符串。
 
-        // Indicates the number of insertion strings the driver will supply with this error log entry.
-        // Drivers set this value to zero for errors that need no insertion strings.
-        // The Event Viewer uses these strings to fill in the "%2" through "%n" entries in the string template for this error code.
-        // The null-terminated Unicode strings themselves follow the IO_ERROR_LOG_PACKET structure in memory.
-        pLogPacket->NumberOfStrings = 2; // 有两个字符串。
+                // 复制ErroeMessage信息
+                pwzTarget = reinterpret_cast<PWSTR>(reinterpret_cast<PCHAR>(pLogPacket) + pLogPacket->StringOffset);
+                RtlStringCbCopyW(pwzTarget, usNtStatus.Length + (wcslen(ErroeMessage) + 1) * sizeof(WCHAR), ErroeMessage);
 
-        // 复制ErroeMessage信息
-        pwzTarget = reinterpret_cast<PWSTR>(reinterpret_cast<PCHAR>(pLogPacket) + pLogPacket->StringOffset);
-        wcscpy(pwzTarget, ErroeMessage); // 追加数据。追加是最好的用词。 The strcpy function copies strSource, including the terminating null character
+                // 复制usNtStatus信息
+                pwzTarget += wcslen(ErroeMessage) + 1;
+                RtlCopyMemory(pwzTarget, usNtStatus.Buffer, usNtStatus.Length);
 
-        // 复制usNtStatus信息
-        pwzTarget += wcslen(ErroeMessage) + 1;                                    // 这个空一个0.就是跳过一个0.
-        wcsncpy(pwzTarget, usNtStatus.Buffer, usNtStatus.Length / sizeof(WCHAR)); // 追加数据。感觉没有比较用字符串结构：UNICODE_STRING和ANSI_STRING
+                pwzTarget += usNtStatus.Length / sizeof(WCHAR);
+                *pwzTarget = 0; // 结尾置零。
 
-        pwzTarget += usNtStatus.Length / sizeof(WCHAR);
-        *pwzTarget = 0; // 结尾置零。
+                // Specifies the type of error.
+                // The Event Viewer uses the error code to determine which string to display as the Description value for the error.
+                // The Event Viewer takes the string template for the error supplied in the driver's message catalog,
+                // replaces "%1" in the template with the name of the driver's device object,
+                // and replaces "%2" through "%n" with the insertion strings supplied with the error log entry.
+                // ErrorCode is a system-defined or driver-defined constant;
+                pLogPacket->ErrorCode = 9; // 如果赋值为0x12345678，得到的结果为： 22136 == 0x5678.注意这个结构的这个成员的大小。
 
-        // Specifies the type of error.
-        // The Event Viewer uses the error code to determine which string to display as the Description value for the error.
-        // The Event Viewer takes the string template for the error supplied in the driver's message catalog,
-        // replaces "%1" in the template with the name of the driver's device object,
-        // and replaces "%2" through "%n" with the insertion strings supplied with the error log entry.
-        // ErrorCode is a system-defined or driver-defined constant;
-        pLogPacket->ErrorCode = 9; // 如果赋值为0x12345678，得到的结果为： 22136 == 0x5678.注意这个结构的这个成员的大小。
+                // 还有更多的参数没有填写。
 
-        // 还有更多的参数没有填写。
+                IoWriteErrorLogEntry(pLogPacket);
+            }
 
-        IoWriteErrorLogEntry(pLogPacket);
-
-        RtlFreeUnicodeString(&usNtStatus);
+            RtlFreeUnicodeString(&usNtStatus);
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,9 +28,7 @@ NTSTATUS GetObjectName(_In_ PVOID Object, _Inout_ PUNICODE_STRING ObjectName)
     do {
         ULONG Length = 0;
         Status = ObQueryNameString(Object, nullptr, Length, &Length);
-        ASSERT(!NT_SUCCESS(Status));
-
-        if (0 == Length) {
+        if (NT_SUCCESS(Status) || 0 == Length) {
             // PrintEx(DPFLTR_IHVNETWORK_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);//有很多对象是没有名字的。
             break;
         }
@@ -80,8 +78,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
 
     ULONG length = 0;
     NTSTATUS Status = ObQueryNameString(Object, nullptr, length, &length);
-    ASSERT(!NT_SUCCESS(Status));
-    if (0 == length) {
+    if (NT_SUCCESS(Status) || 0 == length) {
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
         return STATUS_UNSUCCESSFUL;
     }
@@ -231,26 +228,36 @@ void GetSystemRootPathName(PUNICODE_STRING PathName, PUNICODE_STRING NtPathName,
     // Initialize the system DLL
     InitializeObjectAttributes(&ObjectAttributes, PathName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     st = ZwOpenFile(&File, SYNCHRONIZE | FILE_READ_DATA, &ObjectAttributes, &IoStatus, FILE_SHARE_READ, 0);
-    ASSERT(NT_SUCCESS(st));
+    if (!NT_SUCCESS(st)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ZwOpenFile failed: %#x", st);
+        return;
+    }
 
     st = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, nullptr);
-    ASSERT(NT_SUCCESS(st));
+    if (!NT_SUCCESS(st)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ObReferenceObjectByHandle failed: %#x", st);
+        ZwClose(File);
+        return;
+    }
 
     st = GetObjectNtName(FileObject, &FullName);
-    ASSERT(NT_SUCCESS(st));
-    if (nullptr == FullName.Buffer) {
+    if (!NT_SUCCESS(st)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "GetObjectNtName failed: %#x", st);
+    } else if (nullptr == FullName.Buffer) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
     } else {
         // KdPrint(("NT name:%wZ.\r\n", &FullName));
         RtlCopyUnicodeString(NtPathName, &FullName);
 
         st = IoQueryFileDosDeviceName(FileObject, &FileNameInfo);
-        ASSERT(NT_SUCCESS(st));
+        if (NT_SUCCESS(st)) {
+            // KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
+            RtlCopyUnicodeString(DosPathName, &FileNameInfo->Name);
+            ExFreePool(FileNameInfo);
+        } else {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "IoQueryFileDosDeviceName failed: %#x", st);
+        }
 
-        // KdPrint(("dos name:%wZ.\r\n", &FileNameInfo->Name));
-        RtlCopyUnicodeString(DosPathName, &FileNameInfo->Name);
-
-        ExFreePool(FileNameInfo);
         ExFreePoolWithTag(FullName.Buffer, TAG);
     }
 
@@ -525,7 +532,9 @@ void EnumerateTransactionObject()
             break;
         }
 
-        ASSERT(Cursor.ObjectIdCount == 1);
+        if (Cursor.ObjectIdCount != 1) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Unexpected ObjectIdCount: %lu", Cursor.ObjectIdCount);
+        }
 
         KdPrint(("x:%d.\r\n", x));
     }

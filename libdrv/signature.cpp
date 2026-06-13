@@ -10,36 +10,63 @@ NTSTATUS WINAPI SignHash(_In_z_ LPCWSTR pszHashId,
                          _In_ ULONG DataSize,
                          _Out_writes_bytes_all_(*SignSize) PUCHAR * Sign,
                          _In_ ULONG * SignSize)
-/*
-参数越多，功能越强大。
-*/
 {
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
-    BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
-    ASSERT(ret);
-
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE hSignAlg = nullptr;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
-    ASSERT(NT_SUCCESS(status));
-
     BCRYPT_KEY_HANDLE hPrivateKey = nullptr;
-    status = BCryptImportKeyPair(hSignAlg, nullptr, BCRYPT_ECCPRIVATE_BLOB, &hPrivateKey, PrivateKey, PrivateKeyLen, BCRYPT_NO_KEY_VALIDATION);
-    ASSERT(NT_SUCCESS(status));
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
 
-    status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, nullptr, 0, SignSize, 0);
-    ASSERT(NT_SUCCESS(status));
+    __try {
+        BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
+        if (!ret) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "CngHashData failed");
+            __leave;
+        }
 
-    *Sign = static_cast<PUCHAR>(ExAllocatePoolWithTag(NonPagedPool, *SignSize, TAG));
-    ASSERT(*Sign);
+        status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
 
-    ULONG Result = 0;
-    status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, *Sign, *SignSize, &Result, 0);
-    ASSERT(NT_SUCCESS(status));
+        status = BCryptImportKeyPair(hSignAlg, nullptr, BCRYPT_ECCPRIVATE_BLOB, &hPrivateKey, PrivateKey, PrivateKeyLen, BCRYPT_NO_KEY_VALIDATION);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
 
-    BCryptCloseAlgorithmProvider(hSignAlg, 0);
-    BCryptDestroyKey(hPrivateKey);
+        status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, nullptr, 0, SignSize, 0);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
+
+        *Sign = static_cast<PUCHAR>(ExAllocatePoolWithTag(NonPagedPool, *SignSize, TAG));
+        if (!*Sign) {
+            status = STATUS_INSUFFICIENT_RESOURCES;
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
+        RtlZeroMemory(*Sign, *SignSize);
+        ULONG Result = 0;
+        status = BCryptSignHash(hPrivateKey, nullptr, Hash, HashSize, *Sign, *SignSize, &Result, 0);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            ExFreePoolWithTag(*Sign, TAG);
+            *Sign = nullptr;
+        }
+    } __finally {
+        if (hPrivateKey) {
+            BCryptDestroyKey(hPrivateKey);
+        }
+        if (hSignAlg) {
+            BCryptCloseAlgorithmProvider(hSignAlg, 0);
+        }
+        if (Hash) {
+            ExFreePoolWithTag(Hash, TAG);
+        }
+    }
 
     return status;
 }
@@ -53,36 +80,51 @@ BOOL WINAPI VerifySignature(_In_z_ LPCWSTR pszHashId,
                             _In_ ULONG DataSize,
                             _Out_writes_bytes_all_(SignSize) PUCHAR Sign,
                             _In_ ULONG SignSize)
-/*
-注意：不是所有的组合，Windows都支持。
-*/
 {
     PUCHAR Hash = nullptr;
     ULONG HashSize = 0;
     BOOL IsVerify = FALSE;
-    BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
-    ASSERT(ret);
-
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
     BCRYPT_ALG_HANDLE hSignAlg = nullptr;
-    status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
-    ASSERT(NT_SUCCESS(status));
-
     BCRYPT_KEY_HANDLE hPublicKey = nullptr;
-    status = BCryptImportKeyPair(hSignAlg, nullptr, BCRYPT_ECCPUBLIC_BLOB, &hPublicKey, PublicKey, PublicKeyLen, BCRYPT_NO_KEY_VALIDATION);
-    ASSERT(NT_SUCCESS(status));
+    NTSTATUS status = STATUS_UNSUCCESSFUL;
 
-    status = BCryptVerifySignature(hPublicKey, nullptr, Hash, HashSize, Sign, SignSize, 0);
-    if (NT_SUCCESS(status)) {
-        IsVerify = TRUE;
+    __try {
+        BOOL ret = CngHashData(pszHashId, Data, DataSize, &Hash, &HashSize);
+        if (!ret) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "CngHashData failed");
+            __leave;
+        }
+
+        status = BCryptOpenAlgorithmProvider(&hSignAlg, pszAlgId, nullptr, 0);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
+
+        status = BCryptImportKeyPair(hSignAlg, nullptr, BCRYPT_ECCPUBLIC_BLOB, &hPublicKey, PublicKey, PublicKeyLen, BCRYPT_NO_KEY_VALIDATION);
+        if (!NT_SUCCESS(status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", status);
+            __leave;
+        }
+
+        status = BCryptVerifySignature(hPublicKey, nullptr, Hash, HashSize, Sign, SignSize, 0);
+        if (NT_SUCCESS(status)) {
+            IsVerify = TRUE;
+        }
+    } __finally {
+        if (hPublicKey) {
+            BCryptDestroyKey(hPublicKey);
+        }
+        if (hSignAlg) {
+            BCryptCloseAlgorithmProvider(hSignAlg, 0);
+        }
+        if (Hash) {
+            ExFreePoolWithTag(Hash, TAG);
+        }
     }
-
-    BCryptCloseAlgorithmProvider(hSignAlg, 0);
-    BCryptDestroyKey(hPublicKey);
 
     return IsVerify;
 }
-
 
 
 NTSTATUS WINAPI SignHashByEcdsa(_In_reads_bytes_(PrivateKeyLen) PUCHAR PrivateKey,

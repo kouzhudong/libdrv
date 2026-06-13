@@ -43,7 +43,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/creating-a-hash-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbHashObject, cbHashObject);
         // calculate the length of the hash
         if (!NT_SUCCESS(Status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PBYTE)HashSize, sizeof(DWORD), &cbData, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
@@ -56,7 +56,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/creating-a-hash-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(*Hash, *HashSize);
         // create a hash
         if (!NT_SUCCESS(Status = BCryptCreateHash(hAlg, &hHash, pbHashObject, cbHashObject, nullptr, 0, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
@@ -153,7 +153,7 @@ lpFileHash的值由调用者释放。
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
             break;
         }
-
+        RtlZeroMemory(buffer, nread);
         Status = BCryptOpenAlgorithmProvider(&hAlg, algorithm, nullptr, 0);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
@@ -166,13 +166,22 @@ lpFileHash的值由调用者释放。
             break;
         }
 
-        ASSERT(nouse == 4);
+        if (nouse != sizeof(DWORD)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Unexpected hash length property size: %u", nouse);
+            break;
+        }
 
         Status = BCryptCreateHash(hAlg, &hHash, hashObj, sizeof(hashObj), nullptr, 0, 0);
-        ASSERT(NT_SUCCESS(Status));
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
+            break;
+        }
 
         Status = ObReferenceObjectByHandle(hFile, FILE_LIST_DIRECTORY | SYNCHRONIZE, *IoFileObjectType, KernelMode, (PVOID *)&FileObject, nullptr);
-        ASSERT(NT_SUCCESS(Status));
+        if (!NT_SUCCESS(Status)) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", Status, FileName);
+            break;
+        }
 
         for (;;) {
             ULONG BytesRead = 0;
@@ -219,7 +228,6 @@ lpFileHash的值由调用者释放。
             break;
         }
         RtlZeroMemory(lpFileHash->Buffer, lpFileHash->MaximumLength);
-
         {
             DWORD i = 0;
             WCHAR * ptr = lpFileHash->Buffer;

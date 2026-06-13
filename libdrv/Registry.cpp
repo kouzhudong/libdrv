@@ -56,7 +56,7 @@ made at 2014.07.24
 
     // ResultLength += MAX_PATH ;
     // ResultLength *= 2;//多申请一半。
-    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
+    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool,ResultLength, TAG);
     if (pfi == nullptr) {
         // If ExAllocatePool returns NULL, the caller should return the NTSTATUS value STATUS_INSUFFICIENT_RESOURCES or should delay processing to another point in time.
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -88,7 +88,7 @@ made at 2014.07.24
             }
         }
 
-        pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
+        pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool,ResultLength, TAG);
         if (pbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -128,7 +128,7 @@ made at 2014.07.24
                 break;
             }
         }
-        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
+        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool,ResultLength, TAG);
         if (pkvbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -156,7 +156,7 @@ made at 2014.07.24
                 break;
             }
         }
-        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ResultLength, TAG);
+        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(PagedPool,ResultLength, TAG);
         if (pkvpi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             ExFreePool(pkvbi);
@@ -240,7 +240,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
     // ResultLength += MAX_PATH ;
     // ResultLength *= 2;//多申请一半。
-    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+    auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ResultLength, TAG);
     if (pfi == nullptr) {
         // If ExAllocatePool returns NULL,
         // the caller should return the NTSTATUS value STATUS_INSUFFICIENT_RESOURCES or should delay processing to another point in time.
@@ -270,7 +270,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
             }
         }
 
-        auto pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        auto pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ResultLength, TAG);
         if (pbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -292,7 +292,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
 
         // 开始新建。
         UNICODE_STRING new_key{};
-        new_key.Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
+        new_key.Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool,MAX_PATH, TAG);
         if (new_key.Buffer == nullptr) {
             ExFreePool(pbi);
             Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -379,7 +379,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
                 break;
             }
         }
-        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        auto pkvbi = (PKEY_VALUE_BASIC_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ResultLength, TAG);
         if (pkvbi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
@@ -407,7 +407,7 @@ NTSTATUS ZwCopyKey(IN UNICODE_STRING * Name, IN UNICODE_STRING * Name2)
                 break;
             }
         }
-        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, ResultLength, TAG);
+        auto pkvpi = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ResultLength, TAG);
         if (pkvpi == nullptr) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             ExFreePool(pkvbi);
@@ -476,12 +476,12 @@ HiveFile：形如\\DosDevices\\c:\\correy.DAT，但必须是适合本机的且�
     if (NT_SUCCESS(Status)) {
         ULONG ulSize = 0;
         ZwQueryKey(hRegister, KeyFullInformation, nullptr, 0, &ulSize);
-        auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool, ulSize, TAG); // 第一次调用是为了获取需要的长度
+        auto pfi = (PKEY_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool,ulSize, TAG); // 第一次调用是为了获取需要的长度
 
         ZwQueryKey(hRegister, KeyFullInformation, pfi, ulSize, &ulSize); // 第二次调用是为了获取数据
         for (ULONG i = 0; i < pfi->SubKeys; i++) {
             ZwEnumerateKey(hRegister, i, KeyBasicInformation, nullptr, 0, &ulSize); // 获取第i个子项的长度
-            auto pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool, ulSize, TAG);
+            auto pbi = (PKEY_BASIC_INFORMATION)ExAllocatePoolWithTag(PagedPool,ulSize, TAG);
             if (pbi) {
                 ZwEnumerateKey(hRegister, i, KeyBasicInformation, pbi, ulSize, &ulSize); // 获取第i个子项的数据
 
@@ -556,14 +556,13 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
     do {
         if (CompleteName->Buffer == nullptr) {
             Status = ObQueryNameString(RootObject, nullptr, Length, &Length);
-            ASSERT(!NT_SUCCESS(Status));
             if (0 == Length) {
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
                 break;
             }
 
             Length += sizeof(WCHAR);
-            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool,Length, TAG);
             if (nullptr == ObjectNameInfo) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
@@ -580,7 +579,7 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
 
             RtlInitUnicodeString(&KeyPath, ObjectNameInfo->Buffer);
 
-            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,Length, TAG);
             if (nullptr == KeyFullName->Buffer) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
@@ -588,13 +587,13 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
             }
 
             KeyFullName->MaximumLength = (USHORT)Length;
-            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
             RtlCopyUnicodeString(KeyFullName, &KeyPath);
             break;
         }
 
         if (CompleteName->Buffer[0] == L'\\') {
-            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CompleteName->MaximumLength, TAG);
+            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,CompleteName->MaximumLength, TAG);
             if (nullptr == KeyFullName->Buffer) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
@@ -602,18 +601,17 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
             }
 
             KeyFullName->MaximumLength = CompleteName->MaximumLength;
-            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
             RtlCopyUnicodeString(KeyFullName, CompleteName);
         } else {
             Status = ObQueryNameString(RootObject, nullptr, Length, &Length);
-            ASSERT(!NT_SUCCESS(Status));
             if (0 == Length) {
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
                 break;
             }
 
+            RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
             Length += sizeof(WCHAR); // 保险期间给个空余。
-            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            ObjectNameInfo = (PUNICODE_STRING)ExAllocatePoolWithTag(PagedPool,Length, TAG);
             if (nullptr == ObjectNameInfo) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
@@ -632,15 +630,15 @@ NTSTATUS GetKeyFullName(__in PVOID RootObject,
 
             Length += sizeof(WCHAR); // 添加一个斜杠的长度。
             Length += CompleteName->Length;
-            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, Length, TAG);
+            KeyFullName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,Length, TAG);
             if (nullptr == KeyFullName->Buffer) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: %s", "ExAllocatePoolWithTag Fail");
                 break;
             }
 
-            KeyFullName->MaximumLength = (USHORT)Length;
             RtlZeroMemory(KeyFullName->Buffer, KeyFullName->MaximumLength);
+            KeyFullName->MaximumLength = (USHORT)Length;
             RtlCopyUnicodeString(KeyFullName, &KeyPath);
 
             if (L'\\' != KeyFullName->Buffer[KeyFullName->Length / sizeof(PWCH) - 1]) { // 判断结尾是否带斜杠。
@@ -680,7 +678,7 @@ typedef NTSTATUS(WINAPI * RtlFormatCurrentUserKeyPath)(_Out_ UNICODE_STRING * Cu
 
 PVOID ExpAllocateStringRoutine(IN SIZE_T NumberOfBytes)
 {
-    return ExAllocatePoolWithTag(PagedPool, NumberOfBytes, 'grtS');
+    return ExAllocatePoolWithTag(PagedPool,NumberOfBytes, 'grtS');
 }
 
 
@@ -805,7 +803,10 @@ homepage:https://correy.webs.com
 
     RtlInitUnicodeString(&us_RtlFormatCurrentUserKeyPath, L"RtlFormatCurrentUserKeyPath");
     g_p_RtlFormatCurrentUserKeyPath = static_cast<RtlFormatCurrentUserKeyPath>(MmGetSystemRoutineAddress(&us_RtlFormatCurrentUserKeyPath));
-    ASSERT(g_p_RtlFormatCurrentUserKeyPath);
+    if (!g_p_RtlFormatCurrentUserKeyPath) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "MmGetSystemRoutineAddress(RtlFormatCurrentUserKeyPath) failed");
+        return STATUS_PROCEDURE_NOT_FOUND;
+    }
     NTSTATUS Status = g_p_RtlFormatCurrentUserKeyPath(&CurrentUserKeyPath);
     if (!NT_SUCCESS(Status)) {
         return Status;

@@ -466,9 +466,6 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread);
 NTSTATUS KillUserThread(_In_ PETHREAD Thread);
 NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In_opt_ PVOID Context);
 
-//Win2K3\NT\public\sdk\inc\ntrtl.h
-typedef NTSTATUS (*PUSER_THREAD_START_ROUTINE)(PVOID ThreadParameter);
-
 NTSTATUS CreateUserThread(_In_ HANDLE Pid,
                           _In_ PUSER_THREAD_START_ROUTINE Function,
                           _In_ PVOID Parameter,
@@ -517,16 +514,17 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
                                      _In_reads_bytes_opt_(CipherTextSize) PUCHAR CipherText,
                                      _In_ ULONG CipherTextSize,
                                      _Out_writes_bytes_opt_(PlainTextSize) PUCHAR PlainText,
-                                     _In_ ULONG PlainTextSize);
+                                     _In_ ULONG PlainTextSize,
+                                     _Out_opt_ PULONG ActualSize);
 
 NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR PublicKey,
                                     _In_ ULONG PublicKeyLen,
                                     _In_reads_bytes_opt_(PlainTextSize) PUCHAR PlainText,
                                     _In_ ULONG PlainTextSize,
                                     _Out_writes_bytes_opt_(CipherTextSize) PUCHAR CipherText,
-                                    _In_ ULONG CipherTextSize);
+                                    _In_ ULONG CipherTextSize,
+                                    _Out_opt_ PULONG ActualSize);
 
-void WINAPI AesEncryptDecryptTest();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

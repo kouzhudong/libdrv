@@ -15,7 +15,9 @@ Purpose:  Delay the thread for the specified time.
 MSDN_Ref: HTTP://MSDN.Microsoft.com/En-US/Library/FF551986.aspx
 */
 {
-    ASSERT(numMS);
+    if (0 == numMS) {
+        return STATUS_INVALID_PARAMETER;
+    }
 
     // (numMS[milli] * (-1[relative] * 1000[milli to micro] * 1000[micro to nano]) / 100[ns]
     INT64 interval = numMS * -10000i64;
@@ -89,7 +91,7 @@ Return Value:
     if (String->Buffer == nullptr) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-
+    RtlZeroMemory(String->Buffer, String->MaximumLength);
     String->Length = 0;
     return STATUS_SUCCESS;
 }
@@ -111,7 +113,6 @@ Arguments:
     }
 
     String->Length = String->MaximumLength = 0;
-    String->Buffer = nullptr;
 }
 
 
@@ -131,21 +132,13 @@ EXCEPTION_CONTINUE_SEARCH - If a higher exception handler should take care of th
 用法示例：__except (ExceptionFilter(GetExceptionInformation()))
 --*/
 {
-#pragma warning(push)
-#pragma warning(disable : 4065) // switch 语句包含“default”但是未包含“case”标签
-#pragma warning(disable : 4189) // 局部变量已初始化但不引用
-
     NTSTATUS Status = ExceptionPointer->ExceptionRecord->ExceptionCode;
-    BOOLEAN IsNtstatusExpected = FsRtlIsNtstatusExpected(Status);
 
-    switch (Status) {
-    default:
-        break;
+    if (FsRtlIsNtstatusExpected(Status)) {
+        return EXCEPTION_EXECUTE_HANDLER;
     }
 
-    return EXCEPTION_EXECUTE_HANDLER;
-
-#pragma warning(pop)
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
 
@@ -169,7 +162,9 @@ void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st
     tf.Weekday = pst->wDayOfWeek;
 
     B = RtlTimeFieldsToTime(&tf, &temp);
-    ASSERT(B);
+    if (!B) {
+        return;
+    }
 
     ExLocalTimeToSystemTime(&temp, st);
 }
@@ -194,9 +189,11 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
                                 tf.Hour,
                                 tf.Minute,
                                 tf.Second);
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        return;
+    }
 
-    TimeString->Length = (USHORT)wcsnlen(TimeString->Buffer, TimeString->MaximumLength);
+    TimeString->Length = (USHORT)(wcsnlen(TimeString->Buffer, TimeString->MaximumLength / sizeof(WCHAR)) * sizeof(WCHAR));
 }
 
 
@@ -208,7 +205,9 @@ void StringToInteger(wchar_t * rule_text, PULONG y)
     RtlInitUnicodeString(&rule, rule_text);
 
     Status = RtlUnicodeStringToInteger(&rule, 0, y);
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
+    }
 }
 
 

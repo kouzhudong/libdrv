@@ -167,8 +167,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_UNICASTIPADDRESS_TABLE Table = nullptr;
 
     Status = GetUnicastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_UNICASTIPADDRESS_ROW pTable = &Table->Table[i];
@@ -190,7 +194,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
     }
@@ -211,8 +215,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IPPATH_TABLE Table = nullptr;
 
     Status = GetIpPathTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPPATH_ROW pTable = &Table->Table[i];
@@ -233,7 +241,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
 
@@ -251,7 +259,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
     }
@@ -272,8 +280,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_ANYCASTIPADDRESS_TABLE Table = nullptr;
 
     Status = GetAnycastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_ANYCASTIPADDRESS_ROW pTable = &Table->Table[i];
@@ -294,7 +306,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
     }
@@ -318,8 +330,12 @@ A call to the GetIfTable2Ex function with the Level parameter set to MibIfTableN
     PMIB_IF_TABLE2 Table = nullptr;
 
     Status = GetIfTable2(&Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IF_ROW2 pTable = &Table->Table[i];
@@ -346,8 +362,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IF_TABLE2 Table = nullptr;
 
     Status = GetIfTable2Ex(MibIfTableRaw, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IF_ROW2 pTable = &Table->Table[i];
@@ -374,8 +394,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IPINTERFACE_TABLE Table = nullptr;
 
     Status = GetIpInterfaceTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPINTERFACE_ROW pTable = &Table->Table[i];
@@ -401,8 +425,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IPFORWARD_TABLE2 Table = nullptr;
 
     Status = GetIpForwardTable2(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPFORWARD_ROW2 pTable = &Table->Table[i];
@@ -427,8 +455,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IFSTACK_TABLE Table = nullptr;
 
     Status = GetIfStackTable(&Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IFSTACK_ROW pTable = &Table->Table[i];
@@ -457,8 +489,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_IPNET_TABLE2 Table = nullptr;
 
     Status = GetIpNetTable2(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_IPNET_ROW2 pTable = &Table->Table[i];
@@ -479,7 +515,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
     }
@@ -500,8 +536,12 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
     PMIB_MULTICASTIPADDRESS_TABLE Table = nullptr;
 
     Status = GetMulticastIpAddressTable(AF_UNSPEC, &Table);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(Table);
+    if (!NT_SUCCESS(Status)) {
+        return Status;
+    }
+    if (!Table) {
+        return STATUS_UNSUCCESSFUL;
+    }
 
     for (ULONG i = 0; i < Table->NumEntries; i++) {
         PMIB_MULTICASTIPADDRESS_ROW pTable = &Table->Table[i];
@@ -522,7 +562,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/hardware/drivers/ff55
             KdPrint(("ipv6:%ws.\r\n", S));
         } break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "%s", "Unexpected address family in IP table entry");
             break;
         }
     }

@@ -1447,7 +1447,9 @@ homepage:http://correy.webs.com
 
         ULONGLONG Cache_Size = (nWaysAssociativity + 1) * (nPhysicalLinePartitions + 1) * (nSysLineSize + 1) * (nNumberSets + 1);
         // assert(Cache_Size == CacheSize);
-        ASSERT(Cache_Size == CacheSize);
+        if (Cache_Size != CacheSize) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Cache size mismatch: method1=%llu method2=%llu", Cache_Size, CacheSize);
+        }
         /*
         其实：
         nWaysAssociativity可命名为Ways
@@ -1470,49 +1472,34 @@ homepage:http://correy.webs.com
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+static ULONG_PTR DisSmepOnSingleCpu(_In_ ULONG_PTR Argument)
+{
+    UNREFERENCED_PARAMETER(Argument);
+
+#ifdef _AMD64_
+    unsigned __int64 cr4 = __readcr4();
+    if (_bittest64((LONG64 const *)&cr4, 20)) {
+        InterlockedBitTestAndReset64((LONG64 volatile *)&cr4, 20);
+        __writecr4(cr4);
+    }
+#else
+    unsigned int cr4 = __readcr4();
+    if (_bittest((LONG const *)&cr4, 20)) {
+        InterlockedBitTestAndReset((LONG volatile *)&cr4, 20);
+        __writecr4(cr4);
+    }
+#endif
+    return 0;
+}
+
+
 VOID DisSmep()
 /*
 https://github.com/zerosum0x0/ShellcodeDriver/blob/master/shellcodedriver/shellcodedriver.c
-SMEP机制是全局机制，不是限定某个进程的。
-先检查是否开启SMEP，如果开启了就关闭。
+SMEP是全局机制。必须在所有CPU上同步禁用，否则其他CPU仍会拦截用户态代码执行。
 */
 {
-#ifdef _AMD64_
-
-    unsigned __int64 cr4 = __readcr4();
-
-    if (_bittest64((LONG64 const *)&cr4, 20)) {
-        unsigned __int64 temp = cr4;
-        InterlockedBitTestAndReset64((LONG64 volatile *)&temp, 20); // 第20位设置为零。
-
-        // unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
-
-        __writecr4(temp); // disable SMEP
-    } else {
-    }
-
-    // 在驱动层执行用户态的代码（shellcode)了。
-
-    //__writecr4(cr4);//恢复。
-#else
-
-    unsigned int cr4 = __readcr4();
-
-    if (_bittest((LONG const *)&cr4, 20)) {
-        unsigned int temp = cr4;
-        InterlockedBitTestAndReset((LONG volatile *)&temp, 20); // 第20位设置为零。
-
-        // unsigned __int64 temp = cr4 ^ (cr4 & (1 << 20));
-
-        __writecr4(temp); // disable SMEP
-    } else {
-    }
-
-    // 在驱动层执行用户态的代码（shellcode)了。
-
-    //__writecr4(cr4);//恢复。
-
-#endif
+    KeIpiGenericCall(DisSmepOnSingleCpu, 0);
 }
 
 

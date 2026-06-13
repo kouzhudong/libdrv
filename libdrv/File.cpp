@@ -63,7 +63,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
             FileInformation = nullptr;
         }
 
-        FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
+        FileInformation = ExAllocatePoolWithTag(NonPagedPool,Length, TAG);
         if (FileInformation == nullptr) {
             Status = STATUS_UNSUCCESSFUL;
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -71,7 +71,6 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
             return Status;
         }
         RtlZeroMemory(FileInformation, Length);
-
         Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, FALSE, nullptr, TRUE);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
@@ -145,7 +144,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     }
 
     Length = Length + 520; // 为何加这个数字，请看ZwEnumerateFile1的说明。
-    FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
+    FileInformation = ExAllocatePoolWithTag(NonPagedPool,Length, TAG);
     if (FileInformation == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -153,7 +152,6 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
         return Status;
     }
     RtlZeroMemory(FileInformation, Length);
-
     Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, TRUE);
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
@@ -364,7 +362,7 @@ Return Value:
 
     // Use an optimal buffer size
     newMaxLength = FileNameLength;
-    buffer = ExAllocatePoolWithTag(NonPagedPool, newMaxLength, TAG); // PagedPool
+    buffer = ExAllocatePoolWithTag(NonPagedPool,newMaxLength, TAG); // PagedPool
     if (!buffer) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -410,7 +408,10 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
     }
 
     Status = FltParseFileNameInformation(nameInfo);
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        FltReleaseFileNameInformation(nameInfo);
+        return Status;
+    }
 
     Status = FltGetDiskDeviceObject(FltObjects->Volume, &DiskDeviceObject);
     if (NT_SUCCESS(Status)) {
@@ -418,17 +419,21 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
         if (NT_SUCCESS(Status)) {
             DosFileName->MaximumLength = VolumeName.MaximumLength + nameInfo->Name.MaximumLength;
             DosFileName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, DosFileName->MaximumLength, TAG);
-            ASSERT(nullptr != DosFileName->Buffer);
-            DosFileName->Length = 0;
-            RtlZeroMemory(DosFileName->Buffer, DosFileName->MaximumLength);
-
-            RtlCopyUnicodeString(DosFileName, &VolumeName);
-            // Status = RtlAppendUnicodeToString(DosFileName, L":");
-            // ASSERT(NT_SUCCESS(Status));
-            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); // 前后都有\.
-            ASSERT(NT_SUCCESS(Status));
-            Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
-            ASSERT(NT_SUCCESS(Status));
+            if (!DosFileName->Buffer) {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+            } else {
+                RtlZeroMemory(DosFileName->Buffer, DosFileName->MaximumLength);
+                DosFileName->Length = 0;
+                RtlCopyUnicodeString(DosFileName, &VolumeName);
+                // Status = RtlAppendUnicodeToString(DosFileName, L":");
+                Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->ParentDir, nameInfo->ParentDir.Length); // 前后都有\.
+                if (NT_SUCCESS(Status)) {
+                    Status = RtlUnicodeStringCbCatN(DosFileName, &nameInfo->FinalComponent, nameInfo->FinalComponent.Length);
+                }
+                if (!NT_SUCCESS(Status)) {
+                    PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
+                }
+            }
         } else {
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
         }
@@ -481,13 +486,12 @@ homepage:https://correy.webs.com
 
     // 建议申请内存，因为FILELINKINFORMATION->FileName的后面是秘密的内存。
     Length = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + HardLinkFileName->Length; // sizeof(FILE_RENAME_INFORMATION)
-    FILELINKINFORMATION = (PFILE_LINK_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
+    FILELINKINFORMATION = (PFILE_LINK_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,Length, TAG);
     if (FILELINKINFORMATION == nullptr) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
         return Status;
     }
     RtlZeroMemory(FILELINKINFORMATION, Length);
-
     FILELINKINFORMATION->FileNameLength = HardLinkFileName->Length;
     RtlCopyMemory(FILELINKINFORMATION->FileName, HardLinkFileName->Buffer, HardLinkFileName->Length);
 
@@ -536,12 +540,11 @@ homepage:http://correy.webs.com
 
     // XP下申请大小为0的内存竟然成功，而且还可以读写。
     DriverObjectListSize = ActualNumberDriverObjects * sizeof(DRIVER_OBJECT);
-    DriverObjectList = static_cast<PDRIVER_OBJECT *>(ExAllocatePoolWithTag(NonPagedPool, DriverObjectListSize, TAG));
+    DriverObjectList = static_cast<PDRIVER_OBJECT *>(ExAllocatePoolWithTag(NonPagedPool,DriverObjectListSize, TAG));
     if (DriverObjectList == nullptr) {
         return STATUS_UNSUCCESSFUL;
     }
     RtlZeroMemory(DriverObjectList, DriverObjectListSize);
-
     // XP下调用此函数仍然没有反应。就是各个参数及返回值依旧是原来的样子。
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
@@ -753,7 +756,7 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
             // ret = CREATE;
             break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Unexpected CreateDisposition: %u", (ULONG)CreateDisposition);
             break;
         }
     } else {
@@ -777,7 +780,7 @@ http://msdn.microsoft.com/en-us/library/bb432380(v=vs.85).aspx
             // ret = CREATE;
             break;
         default:
-            ASSERT(FALSE);
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Unexpected CreateDisposition: %u", (ULONG)CreateDisposition);
             break;
         }
     }

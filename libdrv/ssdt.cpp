@@ -38,19 +38,34 @@ int GetIndexByNameInMemory(PANSI_STRING NtRoutineName)
     int index = 0;
 
     Status = GetPidFromProcessName(L"smss.exe", &ProcessId);
-    ASSERT(NT_SUCCESS(Status));
-    ASSERT(ProcessId);
+    if (!NT_SUCCESS(Status) || !ProcessId) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "GetPidFromProcessName failed: %#x", Status);
+        return 0;
+    }
 
     Status = PsLookupProcessByProcessId(ProcessId, &Process); // 得到指定进程ID的进程环境块
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "PsLookupProcessByProcessId failed: %#x", Status);
+        return 0;
+    }
 
     KeStackAttachProcess(Process, &ApcState); // 附加当前线程到目标进程空间内
 
     DllBase = GetNtdllImageBase(Process);
-    ASSERT(DllBase);
+    if (!DllBase) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "GetNtdllImageBase returned null");
+        KeUnstackDetachProcess(&ApcState);
+        ObDereferenceObject(Process);
+        return 0;
+    }
 
     FunctionAddress = MiFindExportedRoutineByName(DllBase, NtRoutineName);
-    ASSERT(FunctionAddress);
+    if (!FunctionAddress) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "MiFindExportedRoutineByName returned null");
+        KeUnstackDetachProcess(&ApcState);
+        ObDereferenceObject(Process);
+        return 0;
+    }
 
     index = *reinterpret_cast<PULONG>(static_cast<PUCHAR>(FunctionAddress) + 4);
 
@@ -162,7 +177,13 @@ IDA中的信息：
     KeStackAttachProcess(PsInitialSystemProcess, &ApcState);
 
     Status = ObOpenObjectByPointer(PsInitialSystemProcess, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &Handle);
-    ASSERT(NT_SUCCESS(Status));
+    if (!NT_SUCCESS(Status)) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ObOpenObjectByPointer failed: %#x", Status);
+        KeUnstackDetachProcess(&ApcState);
+        ZwClose(Section);
+        ZwClose(ImageFileHandle);
+        return index;
+    }
 
     Status = ZwMapViewOfSection(Section, Handle, &ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_READONLY); // PAGE_EXECUTE
     if (!NT_SUCCESS(Status)) {
@@ -175,13 +196,15 @@ IDA中的信息：
 
     __try {
         PVOID FunctionAddress = MiFindExportedRoutineByNameEx(ViewBase, NtRoutineName);
-        ASSERT(FunctionAddress);
-
+        if (!FunctionAddress) {
+            PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "MiFindExportedRoutineByNameEx returned null");
+        } else {
 #ifdef _WIN64
-        index = *reinterpret_cast<PULONG>(static_cast<PUCHAR>(FunctionAddress) + 4);
+            index = *reinterpret_cast<PULONG>(static_cast<PUCHAR>(FunctionAddress) + 4);
 #else
-        index = (*(PULONG)((PUCHAR)FunctionAddress + 1));
+            index = (*(PULONG)((PUCHAR)FunctionAddress + 1));
 #endif
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
     }
@@ -242,7 +265,10 @@ SIZE_T GetZwRoutineAddressByName(PANSI_STRING ZwRoutineName)
     z = y / x;
 
     base = CreateFile - ZwCreateFileIndex * z;
-    ASSERT(base == CreateKey - ZwCreateKeyIndex * z);
+    if (base != CreateKey - ZwCreateKeyIndex * z) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "%s", "SSDT base calculation mismatch — cannot locate routine");
+        return 0;
+    }
 
     /*
     因为有的ZW函数没有在内核导出，所以这里要访问NTDLL.DLL。

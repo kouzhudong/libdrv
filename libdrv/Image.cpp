@@ -389,7 +389,6 @@ PVOID GetNtBase()
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
-
     // Obtain the module information.
     Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(Status)) {
@@ -448,7 +447,6 @@ PVOID GetImageBase(__in PCSTR Name)
         return ImageBase;
     }
     RtlZeroMemory(modules, modulesSize);
-
     // Obtain the module information.
     Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(Status)) {
@@ -512,7 +510,6 @@ NTSTATUS EnumKernelModule(_In_ HandleKernelModule CallBack, _In_opt_ PVOID Conte
         return Status;
     }
     RtlZeroMemory(modules, modulesSize);
-
     // Obtain the module information.
     Status = AuxKlibQueryModuleInformation(&modulesSize, sizeof(AUX_MODULE_EXTENDED_INFO), modules);
     if (!NT_SUCCESS(Status)) {
@@ -766,6 +763,7 @@ retry:
     if (!Buffer) {
         return STATUS_NO_MEMORY;
     }
+    RtlZeroMemory(Buffer, BufferSize);
     Status = ZwQuerySystemInformation(SystemModuleInformation, Buffer, BufferSize, &ReturnLength);
     if (Status == STATUS_INFO_LENGTH_MISMATCH) {
         ExFreePool(Buffer);
@@ -823,21 +821,21 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         ctx->info.Status = ObReferenceObjectByHandle(File, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, reinterpret_cast<PVOID *>(&FileObject), nullptr);
         if (NT_SUCCESS(ctx->info.Status)) {
             ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
-            ASSERT(NT_SUCCESS(ctx->info.Status));
-
-            ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
-            ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); // 由调用者释放。
-            if (ctx->info.ImageLoaded.Buffer) {
-                RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
-
-                // KdPrint(("DOS name:%wZ.\r\n", &FullName));
-                RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+            if (NT_SUCCESS(ctx->info.Status)) {
+                ctx->info.ImageLoaded.MaximumLength = FullName.MaximumLength + sizeof(wchar_t);
+                ctx->info.ImageLoaded.Buffer = reinterpret_cast<PWCH>(ExAllocatePoolWithTag(PagedPool, ctx->info.ImageLoaded.MaximumLength, TAG)); // 由调用者释放。
+                if (ctx->info.ImageLoaded.Buffer) {
+                    RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
+                    // KdPrint(("DOS name:%wZ.\r\n", &FullName));
+                    RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
+                } else {
+                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+                }
+                if (FullName.Buffer) {
+                    ExFreePoolWithTag(FullName.Buffer, TAG);
+                }
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
-            }
-
-            if (FullName.Buffer) {
-                ExFreePoolWithTag(FullName.Buffer, TAG);
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
             }
             ObDereferenceObject(FileObject);
         } else {
@@ -847,7 +845,6 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
         ZwClose(File);
     } else {
         FileObject = CONTAINING_RECORD(ctx->info.FullImageName, FILE_OBJECT, FileName);
-        ASSERT(FileObject);
 
         ctx->info.Status = GetFileObjectDosName(FileObject, &FullName);
         if (NT_SUCCESS(ctx->info.Status)) {
@@ -912,7 +909,10 @@ FreeUnicodeString(&LoadImageFullName);
 
     if (ImageInfo->ExtendedInfoPresent) {
         PIMAGE_INFO_EX ImageInfoEx = CONTAINING_RECORD(ImageInfo, IMAGE_INFO_EX, ImageInfo);
-        ASSERT(ImageInfoEx);
+        if (!ImageInfoEx) {
+            ExFreePoolWithTag(ctx, TAG);
+            return;
+        }
         ctx->info.ImageInfoEx = ImageInfoEx;
         ExInitializeWorkItem(&ctx->hdr, ImageLoadedThreadEx, ctx);
     } else { // 此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。

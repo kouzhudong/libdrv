@@ -77,7 +77,6 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE ProcessId, _Inout_ PINT thread_number)
         return Status;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
-
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
@@ -165,7 +164,7 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-
+    RtlZeroMemory(Apc, sizeof(KAPC));
     KeInitializeApc(Apc,
                     Thread, // 这个很关键。
                     OriginalApcEnvironment,
@@ -241,7 +240,6 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(ProcessInfo, ReturnLength);
-
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);

@@ -6,11 +6,13 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
                                      _In_reads_bytes_opt_(CipherTextSize) PUCHAR CipherText,
                                      _In_ ULONG CipherTextSize,
                                      _Out_writes_bytes_opt_(PlainTextSize) PUCHAR PlainText,
-                                     _In_ ULONG PlainTextSize)
+                                     _In_ ULONG PlainTextSize,
+                                     _Out_opt_ PULONG ActualSize)
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     BCRYPT_KEY_HANDLE hKey = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
+    ULONG cbResult = 0;
 
     __try {
         Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, nullptr, 0);
@@ -25,10 +27,14 @@ NTSTATUS WINAPI RsaPrivateKeyDecrypt(_In_reads_bytes_(PrivateKeyLen) PUCHAR Priv
             __leave;
         }
 
-        Status = BCryptDecrypt(hKey, CipherText, CipherTextSize, nullptr, nullptr, 0, PlainText, PlainTextSize, &PlainTextSize, BCRYPT_PAD_PKCS1);
+        Status = BCryptDecrypt(hKey, CipherText, CipherTextSize, nullptr, nullptr, 0, PlainText, PlainTextSize, &cbResult, BCRYPT_PAD_PKCS1);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
+        }
+
+        if (ActualSize) {
+            *ActualSize = cbResult;
         }
     } __finally {
         if (hKey) {
@@ -50,11 +56,13 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
                                     _In_reads_bytes_opt_(PlainTextSize) PUCHAR PlainText,
                                     _In_ ULONG PlainTextSize,
                                     _Out_writes_bytes_opt_(CipherTextSize) PUCHAR CipherText,
-                                    _In_ ULONG CipherTextSize)
+                                    _In_ ULONG CipherTextSize,
+                                    _Out_opt_ PULONG ActualSize)
 {
     BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
     NTSTATUS Status = STATUS_SUCCESS;
     BCRYPT_KEY_HANDLE hKey = nullptr;
+    ULONG cbResult = 0;
 
     __try {
         Status = BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_RSA_ALGORITHM, nullptr, 0);
@@ -69,10 +77,14 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
             __leave;
         }
 
-        Status = BCryptEncrypt(hKey, PlainText, PlainTextSize, nullptr, nullptr, 0, CipherText, CipherTextSize, &CipherTextSize, BCRYPT_PAD_PKCS1);
+        Status = BCryptEncrypt(hKey, PlainText, PlainTextSize, nullptr, nullptr, 0, CipherText, CipherTextSize, &cbResult, BCRYPT_PAD_PKCS1);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
+        }
+
+        if (ActualSize) {
+            *ActualSize = cbResult;
         }
     } __finally {
         if (hKey) {
@@ -88,12 +100,13 @@ NTSTATUS WINAPI RsaPublicKeyEncrypt(_In_reads_bytes_(PublicKeyLen) PUCHAR Public
 }
 
 
-void WINAPI AesEncryptDecryptTest()
+#pragma warning(suppress : 4505)
+static void AesEncryptDecryptTest()
 /*
 Encrypting Data with CNG
 2018/05/31
 
-“‘∫Û”–ø’¡À£¨∞—’‚∏ˆ∫Ø ˝≤∑÷Œ™º”√‹∫ÕΩ‚√‹µƒ¡Ω∏ˆ∫Ø ˝°£
+‰ª•ÂêéÊúâÁ©∫‰∫ÜÔºåÊääËøô‰∏™ÂáΩÊï∞ÊãÜÂàÜ‰∏∫Âä†ÂØÜÂíåËß£ÂØÜÁöÑ‰∏§‰∏™ÂáΩÊï∞„ÄÇ
 
 https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 */
@@ -127,7 +140,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbKeyObject, cbKeyObject);
         // Calculate the block length for the IV.
         if (!NT_SUCCESS(Status = BCryptGetProperty(hAesAlg, BCRYPT_BLOCK_LENGTH, (PBYTE)&cbBlockLen, sizeof(DWORD), &cbData, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
@@ -145,7 +158,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbIV, cbBlockLen);
         memcpy(pbIV, rgbIV, cbBlockLen);
 
         if (!NT_SUCCESS(Status = BCryptSetProperty(hAesAlg, BCRYPT_CHAINING_MODE, (PBYTE)BCRYPT_CHAIN_MODE_CBC, sizeof(BCRYPT_CHAIN_MODE_CBC), 0))) {
@@ -171,7 +184,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbBlob, cbBlob);
         if (!NT_SUCCESS(Status = BCryptExportKey(hKey, nullptr, BCRYPT_OPAQUE_KEY_BLOB, pbBlob, cbBlob, &cbBlob, 0))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
@@ -183,7 +196,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbPlainText, cbPlainText);
         memcpy(pbPlainText, rgbPlaintext, sizeof(rgbPlaintext));
 
         // Get the output buffer size.
@@ -197,7 +210,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbCipherText, cbCipherText);
         // Use the key to encrypt the plaintext buffer.
         // For block sized messages, block padding will add an extra block.
         if (!NT_SUCCESS(Status = BCryptEncrypt(hKey, pbPlainText, cbPlainText, nullptr, pbIV, cbBlockLen, pbCipherText, cbCipherText, &cbData, BCRYPT_BLOCK_PADDING))) {
@@ -237,14 +250,14 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
-
+        RtlZeroMemory(pbPlainText, cbPlainText);
         if (!NT_SUCCESS(Status = BCryptDecrypt(hKey, pbCipherText, cbCipherText, nullptr, pbIV, cbBlockLen, pbPlainText, cbPlainText, &cbPlainText, BCRYPT_BLOCK_PADDING))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
 
 #pragma warning(push)
-#pragma warning(disable : 6385) // ’˝‘⁄¥” "pbPlainText" ∂¡»°Œﬁ–ß ˝æ›°£
+#pragma warning(disable : 6385)
         if (0 != memcmp(pbPlainText, (PBYTE)rgbPlaintext, sizeof(rgbPlaintext))) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
