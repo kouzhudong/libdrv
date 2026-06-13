@@ -375,11 +375,8 @@ NTAPI RtlpStartThread(PUSER_THREAD_START_ROUTINE Function, PVOID Parameter, HAND
 }
 
 
-NTSTATUS CreateUserThread(_In_ HANDLE Pid,
-                          _In_ PUSER_THREAD_START_ROUTINE Function,
-                          _In_ PVOID Parameter,
-                          _Inout_ PHANDLE ThreadHandleReturn,
-                          _Inout_ PCLIENT_ID ClientId)
+NTSTATUS
+CreateUserThread(_In_ HANDLE Pid, _In_ PUSER_THREAD_START_ROUTINE Function, _In_ PVOID Parameter, _Inout_ PHANDLE ThreadHandleReturn, _Inout_ PCLIENT_ID ClientId)
 /*
 功能：RtlCreateUserThread的简单封装。
 
@@ -452,11 +449,8 @@ NTSTATUS CreateUserThread(_In_ HANDLE Pid,
 }
 
 
-NTSTATUS CreateUserThreadEx(_In_ HANDLE Pid, 
-                            _In_ PUSER_THREAD_START_ROUTINE Function,
-                            _In_ PVOID Parameter,
-                            _Inout_ PHANDLE ThreadHandleReturn,
-                            _Inout_ PCLIENT_ID ClientId)
+NTSTATUS
+CreateUserThreadEx(_In_ HANDLE Pid, _In_ PUSER_THREAD_START_ROUTINE Function, _In_ PVOID Parameter, _Inout_ PHANDLE ThreadHandleReturn, _Inout_ PCLIENT_ID ClientId)
 /*
 功能：ZwCreateThreadEx的简单封装。
 

@@ -180,15 +180,8 @@ void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING Tim
 
     RtlTimeToTimeFields(st, &tf);
 
-    Status = RtlStringCbPrintfW(TimeString->Buffer,
-                                TimeString->MaximumLength,
-                                L"%04d-%02d-%02d %02d:%02d:%02d",
-                                tf.Year,
-                                tf.Month,
-                                tf.Day,
-                                tf.Hour,
-                                tf.Minute,
-                                tf.Second);
+    Status =
+        RtlStringCbPrintfW(TimeString->Buffer, TimeString->MaximumLength, L"%04d-%02d-%02d %02d:%02d:%02d", tf.Year, tf.Month, tf.Day, tf.Hour, tf.Minute, tf.Second);
     if (!NT_SUCCESS(Status)) {
         return;
     }

@@ -21,12 +21,8 @@ VOID PspQueueApcSpecialApc(IN PKAPC Apc, IN PKNORMAL_ROUTINE * NormalRoutine, IN
 
 
 //NTSYSAPI 
-NTSTATUS NTAPI NtQueueApcThread(__in HANDLE ThreadHandle, 
-                                __in PPS_APC_ROUTINE ApcRoutine,
-                                __in_opt PVOID ApcArgument1,
-                                __in_opt PVOID ApcArgument2,
-                                __in_opt PVOID ApcArgument3
-)
+NTSTATUS NTAPI
+NtQueueApcThread(__in HANDLE ThreadHandle, __in PPS_APC_ROUTINE ApcRoutine, __in_opt PVOID ApcArgument1, __in_opt PVOID ApcArgument2, __in_opt PVOID ApcArgument3)
 /*
 Routine Description:
     This function is used to queue a user-mode APC to the specified thread.
@@ -76,14 +72,7 @@ Return Value:
             if (Apc == nullptr) {
                 st = STATUS_NO_MEMORY;
             } else {
-                KeInitializeApc(Apc,
-                                Thread,//&Thread->Tcb
-                                OriginalApcEnvironment,
-                                PspQueueApcSpecialApc,
-                                nullptr,
-                                (PKNORMAL_ROUTINE)ApcRoutine,
-                                UserMode,
-                                ApcArgument1);
+                KeInitializeApc(Apc, Thread, OriginalApcEnvironment, PspQueueApcSpecialApc, nullptr, (PKNORMAL_ROUTINE)ApcRoutine, UserMode, ApcArgument1);
                 if (!KeInsertQueueApc(Apc, ApcArgument2, ApcArgument3, 0)) {
                     ExFreePool(Apc);
                     st = STATUS_UNSUCCESSFUL;
@@ -98,12 +87,8 @@ Return Value:
 }
 
 
-NTSTATUS NTAPI NtQueueApcThreadEx(__in HANDLE ThreadHandle, 
-                                  __in PPS_APC_ROUTINE ApcRoutine,
-                                  __in_opt PVOID ApcArgument1,
-                                  __in_opt PVOID ApcArgument2,
-                                  __in_opt PVOID ApcArgument3
-)
+NTSTATUS NTAPI
+NtQueueApcThreadEx(__in HANDLE ThreadHandle, __in PPS_APC_ROUTINE ApcRoutine, __in_opt PVOID ApcArgument1, __in_opt PVOID ApcArgument2, __in_opt PVOID ApcArgument3)
 /*
 对NtQueueApcThread的封装。
 

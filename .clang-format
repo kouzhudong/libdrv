@@ -1,10 +1,18 @@
 #https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 
-ColumnLimit: 0
 IndentWidth: 4
 UseTab: Never
 MaxEmptyLinesToKeep: 3
 #SeparateDefinitionBlocks: Leave
+
+# 每行字符的限制，0表示没有限制
+ColumnLimit: 170
+
+#BinPackParameters: false 已经自带这个行为：
+#•	能放进一行 → 全部在一行
+#•	放不下 → 每个参数单独一行并对齐
+AlignAfterOpenBracket: Align
+BinPackParameters: false
 
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false

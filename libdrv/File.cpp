@@ -294,9 +294,7 @@ VOID NTAPI ReadMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, OUT PVOI
 #pragma warning(disable : 4996)                              // 被声明为已否决
     partitionTableOffset = RtlConvertUlongToLargeInteger(0); // Start at sector 0 of the device.
 #pragma warning(pop)
-    readBuffer = (PUCHAR)ExAllocatePoolWithTag(NonPagedPoolCacheAligned,
-                                               PAGE_SIZE > readSize ? PAGE_SIZE : readSize,
-                                               'btsF'); // Allocate a buffer that will hold the reads.
+    readBuffer = (PUCHAR)ExAllocatePoolWithTag(NonPagedPoolCacheAligned, PAGE_SIZE > readSize ? PAGE_SIZE : readSize, 'btsF');
     if (readBuffer == nullptr) {
         return;
     }
@@ -473,12 +471,8 @@ homepage:https://correy.webs.com
     */
 
     InitializeObjectAttributes(&ob, ExistingFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&FileHandle,
-                        FILE_WRITE_ATTRIBUTES | SYNCHRONIZE,
-                        &ob,
-                        &IoStatusBlock,
-                        FILE_SHARE_VALID_FLAGS,
-                        FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT); // FILE_NON_DIRECTORY_FILE
+    Status =
+        ZwOpenFile(&FileHandle, FILE_WRITE_ATTRIBUTES | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_VALID_FLAGS, FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("ZwOpenFile fail %d\n", Status));
         return Status;

@@ -302,12 +302,8 @@ NTSTATUS IrpCopyFile(UNICODE_STRING * name, UNICODE_STRING * newFileName)
     LARGE_INTEGER AllocationSize{};
 
     InitializeObjectAttributes(&ob, name, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    Status = ZwOpenFile(&source_fileHandle,
-                        FILE_GENERIC_READ | SYNCHRONIZE,
-                        &ob,
-                        &IoStatusBlock,
-                        FILE_SHARE_VALID_FLAGS,
-                        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
+    Status = ZwOpenFile(
+        &source_fileHandle, FILE_GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_VALID_FLAGS, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
     if (!NT_SUCCESS(Status)) {
 
         return Status;
@@ -1079,16 +1075,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         // }
 
         // 注意：这里的权限和上面的权限要对应。
-        Status = ZwMapViewOfSection(SectionHandle,
-                                    ZwCurrentProcess(),
-                                    &BaseAddress,
-                                    0,
-                                    0,
-                                    nullptr,
-                                    &ViewSize /* &Length*/,
-                                    ViewShare,
-                                    0 /*MEM_COMMIT*/,
-                                    PAGE_READONLY);
+        Status = ZwMapViewOfSection(SectionHandle, ZwCurrentProcess(), &BaseAddress, 0, 0, nullptr, &ViewSize, ViewShare, 0, PAGE_READONLY);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             // ExFreePoolWithTag(Buffer, TAG);
@@ -1104,7 +1091,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
                              nullptr,
                              nullptr,
                              &IoStatusBlock,
-                             /*Buffer*/ BaseAddress,
+                             BaseAddress,
                              fsi.EndOfFile.LowPart /*ViewSize  Length  IoStatusBlock.Information*/, // 暂时没有处理大于4G的文件。
                              &ByteOffset,
                              nullptr);

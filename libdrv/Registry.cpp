@@ -534,9 +534,7 @@ NTSTATUS SetValueKeyDword(_In_ PUNICODE_STRING KeyPath, _In_ PUNICODE_STRING Val
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NTSTATUS GetKeyFullName(__in PVOID RootObject,
-                        __in PUNICODE_STRING CompleteName,
-                        _Inout_ PUNICODE_STRING KeyFullName)
+NTSTATUS GetKeyFullName(__in PVOID RootObject, __in PUNICODE_STRING CompleteName, _Inout_ PUNICODE_STRING KeyFullName)
 /*
 功能：用于注册表回调中获取KEY的全路径。
 

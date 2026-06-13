@@ -5,11 +5,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-BOOL WINAPI CngHashData(_In_z_ LPCWSTR pszAlgId, 
-                        _In_reads_bytes_(DataSize) PUCHAR Data,
-                        _In_ ULONG DataSize,
-                        _Out_writes_bytes_all_(*HashSize) PUCHAR * Hash,
-                        _In_ ULONG * HashSize)
+BOOL WINAPI
+CngHashData(_In_z_ LPCWSTR pszAlgId, _In_reads_bytes_(DataSize) PUCHAR Data, _In_ ULONG DataSize, _Out_writes_bytes_all_(*HashSize) PUCHAR * Hash, _In_ ULONG * HashSize)
 /*++
 
 Hash需要由调用者调用ExFreePoolWithTag释放。
