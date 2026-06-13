@@ -1,0 +1,37 @@
+[package]
+name = "kernel-lib"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "供 sys 工程调用的 windows-drivers-rs 内核静态库,导出 C ABI 函数"
+
+# wdk-sys 在 build 时依据该元数据决定生成哪套绑定。WDM 即含 ntddk(DbgPrint)。
+# 本 crate 只是库不是驱动,但元数据必须存在,否则 wdk-sys 找不到 WDK 配置。
+[package.metadata.wdk.driver-model]
+driver-type = "WDM"
+
+[lib]
+name = "kernel_lib"
+# 默认只产 rlib,供第 2 个 Rust 驱动作普通 crate 依赖(干净,无需 panic_handler)。
+# 第 3 个 C++ 驱动要的静态库另行用:
+#   cargo rustc --release --features panic-handler --crate-type staticlib
+# 单独产出 kernel_lib.lib(见 build-staticlib.ps1 / README)。
+# 若把 staticlib 写进这里,它会随依赖一起被编译并强制要求 panic_handler。
+crate-type = ["rlib"]
+
+[dependencies]
+wdk-sys = "0.5"
+
+[features]
+default = []
+# 仅在编译独立 .lib 给 C++ 驱动时开启:为 no_std 静态库提供 #[panic_handler]。
+# Rust 驱动消费 rlib 时不开,改由 wdk-panic 提供,避免重复定义。
+panic-handler = []
+
+[profile.dev]
+panic = "abort"
+lto = true
+
+[profile.release]
+panic = "abort"
+lto = true

@@ -1,0 +1,3 @@
+# 内核驱动必须静态链接 CRT。
+[build]
+rustflags = ["-C", "target-feature=+crt-static"]

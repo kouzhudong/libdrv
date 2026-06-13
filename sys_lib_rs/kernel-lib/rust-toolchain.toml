@@ -1,0 +1,5 @@
+# 必须用 MSVC 工具链:windows-drivers-rs 链接 MSVC/WDK 库,且要与 C++ 驱动 ABI 互通。
+# 注意:仅当通过 rustup 代理(~/.cargo/bin/cargo)调用时此文件才生效。
+# 本机 PATH 上 chocolatey 的独立 gnu cargo 会忽略它 —— 见根目录 README。
+[toolchain]
+channel = "stable-x86_64-pc-windows-msvc"

@@ -1,0 +1,34 @@
+[package]
+name = "rust-sys"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "windows-drivers-rs WDM 驱动,调用 kernel-lib 导出的函数"
+
+[package.metadata.wdk.driver-model]
+driver-type = "WDM"
+
+[lib]
+# 驱动二进制以 cdylib 形式产出(.dll),cargo make 再改名为 .sys 并打包
+crate-type = ["cdylib"]
+
+[build-dependencies]
+wdk-build = "0.5"
+
+# 注意版本错位:umbrella/alloc/panic 仍是 0.4.1,但它们依赖 wdk-sys/wdk-build ^0.5.1。
+[dependencies]
+wdk = "0.4"
+wdk-alloc = "0.4"
+wdk-panic = "0.4"
+wdk-sys = "0.5"
+# 第 1 个工程:作为 rlib 依赖。default-features=false 关掉 panic-handler,
+# 避免与本驱动 wdk-panic 提供的 #[panic_handler] 重复定义。
+kernel-lib = { path = "../01-kernel-lib", default-features = false }
+
+[profile.dev]
+panic = "abort"
+lto = true
+
+[profile.release]
+panic = "abort"
+lto = true

@@ -1,0 +1,3 @@
+# 必须 MSVC 工具链(链接 WDK/MSVC 库)。仅经 rustup 代理调用时生效。
+[toolchain]
+channel = "stable-x86_64-pc-windows-msvc"

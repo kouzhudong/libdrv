@@ -1,0 +1,14 @@
+# cargo make 入口:拉取并扩展 windows-drivers-rs 的驱动打包 Makefile。
+# `cargo make` 会编译 cdylib、改名为 .sys、用 stampinf/inf2cat/signtool 生成 .inf/.cat 并测试签名。
+extend = "target/rust-driver-makefile.toml"
+
+[config]
+load_script = '''
+#!@rust
+//! ```cargo
+//! [dependencies]
+//! wdk-build = "0.5.1"
+//! ```
+#![allow(unused_doc_comments)]
+wdk_build::cargo_make::load_rust_driver_makefile()?
+'''
