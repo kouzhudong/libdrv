@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <!-- 第 1 个工程产出的 Rust 静态库目录 -->
-    <KernelLibDir>$(MSBuildProjectDirectory)\..\01-kernel-lib\target\release</KernelLibDir>
+    <KernelLibDir>$(MSBuildProjectDirectory)\..\kernel-lib\target\release</KernelLibDir>
   </PropertyGroup>
 
   <ItemDefinitionGroup>

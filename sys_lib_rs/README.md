@@ -4,10 +4,10 @@
 
 ```
 test/
-├── 01-kernel-lib/      Rust 库(windows-drivers-rs / wdk-sys),导出 extern "C" kernel_lib_add
+├── kernel-lib/      Rust 库(windows-drivers-rs / wdk-sys),导出 extern "C" kernel_lib_add
 │                        产出 libkernel_lib.rlib(给 02 用) + kernel_lib.lib(给 03 用)
-├── 02-rust-sys/        Rust WDM 驱动(windows-drivers-rs),DriverEntry 调 kernel_lib_add
-├── 03-cpp-wdm-sys/     C++ WDM 驱动(WDK MSBuild),DriverEntry 链接并调 kernel_lib_add
+├── rust-sys/        Rust WDM 驱动(windows-drivers-rs),DriverEntry 调 kernel_lib_add
+├── cpp-wdm-sys/     C++ WDM 驱动(WDK MSBuild),DriverEntry 链接并调 kernel_lib_add
 ├── build-all.ps1       一键编译三者
 └── README.md
 ```
@@ -75,17 +75,17 @@ powershell -File .\build-all.ps1
 
 ```powershell
 # 1) 先编 Rust 静态库(给 03 链接)。crate-type 默认 rlib,这里临时以 staticlib 产出
-cd 01-kernel-lib
+cd kernel-lib
 cargo rustc --release --features panic-handler --crate-type staticlib
 #   -> target\release\kernel_lib.lib   以及作为依赖会自动产出的 libkernel_lib.rlib
 
 # 2) Rust WDM 驱动(把 01 当普通 rlib 依赖)
-cd ..\02-rust-sys
+cd ..\rust-sys
 cargo build --release
 #   -> target\release\rust_sys.dll  (改名即 .sys)
 
 # 3) C++ WDM 驱动(链接 01 的 kernel_lib.lib)
-cd ..\03-cpp-wdm-sys
+cd ..\cpp-wdm-sys
 & "<MSBuild.exe>" cpp-wdm-sys.vcxproj /p:Configuration=Release /p:Platform=x64
 #   -> x64\Release\cpp-wdm-sys.sys
 ```
@@ -94,9 +94,9 @@ cd ..\03-cpp-wdm-sys
 
 | 工程 | 产物 | 大小 |
 |------|------|------|
-| 01-kernel-lib | `target\release\kernel_lib.lib` + `libkernel_lib.rlib` | 2.9 MB / 7 KB |
-| 02-rust-sys | `target\release\rust_sys.sys` | 14.8 KB |
-| 03-cpp-wdm-sys | `x64\Release\cpp-wdm-sys.sys` | 5 KB |
+| kernel-lib | `target\release\kernel_lib.lib` + `libkernel_lib.rlib` | 2.9 MB / 7 KB |
+| rust-sys | `target\release\rust_sys.sys` | 14.8 KB |
+| cpp-wdm-sys | `x64\Release\cpp-wdm-sys.sys` | 5 KB |
 
 ---
 
@@ -137,14 +137,14 @@ certmgr /add testcert.cer /s /r localMachine root
 certmgr /add testcert.cer /s /r localMachine trustedpublisher
 
 signtool sign /v /s PrivateCertStore /n TestDriverCert /fd SHA256 `
-    /t http://timestamp.digicert.com .\03-cpp-wdm-sys\x64\Release\cpp-wdm-sys.sys
-# 同样可签 .\02-rust-sys\target\release\rust_sys.sys
+    /t http://timestamp.digicert.com .\cpp-wdm-sys\x64\Release\cpp-wdm-sys.sys
+# 同样可签 .\rust-sys\target\release\rust_sys.sys
 ```
 
 ### 3. 安装 / 启动 / 卸载(管理员)
 
 ```powershell
-sc.exe create cppwdmsys type= kernel binPath= "C:\...\03-cpp-wdm-sys\x64\Release\cpp-wdm-sys.sys"
+sc.exe create cppwdmsys type= kernel binPath= "C:\...\cpp-wdm-sys\x64\Release\cpp-wdm-sys.sys"
 sc.exe start  cppwdmsys      # 触发 DriverEntry
 sc.exe stop   cppwdmsys      # 触发 DriverUnload
 sc.exe delete cppwdmsys

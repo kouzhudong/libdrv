@@ -23,7 +23,7 @@ wdk-panic = "0.4"
 wdk-sys = "0.5"
 # 第 1 个工程:作为 rlib 依赖。default-features=false 关掉 panic-handler,
 # 避免与本驱动 wdk-panic 提供的 #[panic_handler] 重复定义。
-kernel-lib = { path = "../01-kernel-lib", default-features = false }
+kernel-lib = { path = "../kernel-lib", default-features = false }
 
 [profile.dev]
 panic = "abort"
