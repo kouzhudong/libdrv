@@ -33,6 +33,31 @@ static NTSTATUS KfcIoCompletion(PDEVICE_OBJECT DeviceObject, PIRP Irp, PVOID Con
 }
 
 
+static PIRP KfcAllocateAndInitializeIrp(PFILE_OBJECT FileObject, PKEVENT Event, PIO_STATUS_BLOCK IoStatusBlock)
+// Helper function to allocate and initialize common IRP fields
+// Inputs:
+//  FileObject - the file object for the operation
+//  Event - synchronization event for completion
+//  IoStatusBlock - status block for the operation
+// Returns:
+//  Allocated and initialized IRP, or nullptr on failure
+{
+    PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
+    PIRP irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);
+    if (!irp) {
+        return nullptr;
+    }
+
+    irp->UserEvent = Event;
+    irp->UserIosb = IoStatusBlock;
+    irp->Tail.Overlay.Thread = PsGetCurrentThread();
+    irp->Tail.Overlay.OriginalFileObject = FileObject;
+    irp->RequestorMode = KernelMode;
+
+    return irp;
+}
+
+
 static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDARD_INFORMATION StandardInformation, PIO_STATUS_BLOCK IoStatusBlock)
 //  This function retrieves the "standard" information for the underlying file system.
 // Inputs:
@@ -46,80 +71,60 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
     KEVENT event{};
 
-    // Start off on the right foot - zero the information block.
     RtlZeroMemory(StandardInformation, sizeof(FILE_STANDARD_INFORMATION));
+    KeInitializeEvent(&event, SynchronizationEvent, FALSE);
 
-    // Allocate an irp for this request.  This could also come from a private pool, for instance.
-    PIRP irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);
+    PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
     if (!irp) {
-
-        return; // Failure!
+        return;
     }
 
     irp->AssociatedIrp.SystemBuffer = StandardInformation;
-    irp->UserEvent = &event;
-    irp->UserIosb = IoStatusBlock;
-    irp->Tail.Overlay.Thread = PsGetCurrentThread();
-    irp->Tail.Overlay.OriginalFileObject = FileObject;
-    irp->RequestorMode = KernelMode;
 
-    KeInitializeEvent(&event, SynchronizationEvent, FALSE); // Initialize the event
-
-    // Set up the I/O stack location.
-    PIO_STACK_LOCATION ioStackLocation{};
-    ioStackLocation = IoGetNextIrpStackLocation(irp);
+    PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
     ioStackLocation->MajorFunction = IRP_MJ_QUERY_INFORMATION;
     ioStackLocation->DeviceObject = fsdDevice;
     ioStackLocation->FileObject = FileObject;
     ioStackLocation->Parameters.QueryFile.Length = sizeof(FILE_STANDARD_INFORMATION);
     ioStackLocation->Parameters.QueryFile.FileInformationClass = FileStandardInformation;
 
-    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE); // Set the completion routine.
-    (void)IoCallDriver(fsdDevice, irp);                                      // Send it to the FSD
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);     // Wait for the I/O
+    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
+    (void)IoCallDriver(fsdDevice, irp);
+    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);
 }
 
 
 static VOID KfcRead(PFILE_OBJECT FileObject, PLARGE_INTEGER Offset, ULONG Length, PMDL Mdl, PIO_STATUS_BLOCK IoStatusBlock)
 {
-    KEVENT event{};
-    PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
-
     if (nullptr == Mdl) {
         return;
     }
 
-    KeInitializeEvent(&event, SynchronizationEvent, FALSE); // Set up the event we'll use.
-    PIRP irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);  // Allocate and build the IRP we'll be sending to the FSD.
+    PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
+    KEVENT event{};
+    KeInitializeEvent(&event, SynchronizationEvent, FALSE);
+
+    PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
     if (!irp) {
-        IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES; // Allocation failed, presumably due to memory allocation failure.
+        IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES;
         IoStatusBlock->Information = 0;
         return;
     }
 
     irp->MdlAddress = Mdl;
-    irp->UserEvent = &event;
-    irp->UserIosb = IoStatusBlock;
-    irp->Tail.Overlay.Thread = PsGetCurrentThread();
-    irp->Tail.Overlay.OriginalFileObject = FileObject;
-    irp->RequestorMode = KernelMode;
-    irp->Flags = IRP_READ_OPERATION; // Indicate that this is a READ operation.
+    irp->Flags = IRP_READ_OPERATION;
 
-    // Set up the next I/O stack location.  These are the parameters that will be passed to the underlying driver.
     PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
     ioStackLocation->MajorFunction = IRP_MJ_READ;
     ioStackLocation->MinorFunction = 0;
     ioStackLocation->DeviceObject = fsdDevice;
     ioStackLocation->FileObject = FileObject;
-
-    // We use a completion routine to keep the I/O Manager from doing "cleanup" on our IRP - like freeing our MDL.
-    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
     ioStackLocation->Parameters.Read.Length = Length;
     ioStackLocation->Parameters.Read.ByteOffset = *Offset;
 
-    (void)IoCallDriver(fsdDevice, irp);                                  // Send it on.  Ignore the return code.
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr); // Wait for the I/O to complete.
-    // Done.  Return results are in the io Status block.
+    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
+    (void)IoCallDriver(fsdDevice, irp);
+    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);
 }
 
 
@@ -134,78 +139,61 @@ static VOID KfcSetFileAllocation(PFILE_OBJECT FileObject, PLARGE_INTEGER Allocat
 {
     PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
     KEVENT event{};
+    KeInitializeEvent(&event, SynchronizationEvent, FALSE);
 
-    // Allocate an irp for this request.  This could also come from a private pool, for instance.
-    PIRP irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);
+    PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
     if (!irp) {
-        return; // Failure!
+        return;
     }
 
     irp->AssociatedIrp.SystemBuffer = AllocationSize;
-    irp->UserEvent = &event;
-    irp->UserIosb = IoStatusBlock;
-    irp->Tail.Overlay.Thread = PsGetCurrentThread();
-    irp->Tail.Overlay.OriginalFileObject = FileObject;
-    irp->RequestorMode = KernelMode;
 
-    KeInitializeEvent(&event, SynchronizationEvent, FALSE); // Initialize the event
-
-    // Set up the I/O stack location.
     PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
     ioStackLocation->MajorFunction = IRP_MJ_SET_INFORMATION;
     ioStackLocation->DeviceObject = fsdDevice;
     ioStackLocation->FileObject = FileObject;
     ioStackLocation->Parameters.SetFile.Length = sizeof(LARGE_INTEGER);
     ioStackLocation->Parameters.SetFile.FileInformationClass = FileAllocationInformation;
-    ioStackLocation->Parameters.SetFile.FileObject = nullptr; // not used for allocation
+    ioStackLocation->Parameters.SetFile.FileObject = nullptr;
     ioStackLocation->Parameters.SetFile.AdvanceOnly = FALSE;
 
-    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE); // Set the completion routine.
-    (void)IoCallDriver(fsdDevice, irp);                                      // Send it to the FSD
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);     // Wait for the I/O
+    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
+    (void)IoCallDriver(fsdDevice, irp);
+    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);
 }
 
 
 static VOID KfcWrite(PFILE_OBJECT FileObject, PLARGE_INTEGER Offset, ULONG Length, PMDL Mdl, PIO_STATUS_BLOCK IoStatusBlock)
 {
-    KEVENT event{};
-    PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
-
     if (nullptr == Mdl) {
         return;
     }
 
-    KeInitializeEvent(&event, SynchronizationEvent, FALSE); // Set up the event we'll use.
-    PIRP irp = IoAllocateIrp(fsdDevice->StackSize, FALSE);  // Allocate and build the IRP we'll be sending to the FSD.
+    PDEVICE_OBJECT fsdDevice = IoGetRelatedDeviceObject(FileObject);
+    KEVENT event{};
+    KeInitializeEvent(&event, SynchronizationEvent, FALSE);
+
+    PIRP irp = KfcAllocateAndInitializeIrp(FileObject, &event, IoStatusBlock);
     if (!irp) {
-        IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES; // Allocation failed, presumably due to memory allocation failure.
+        IoStatusBlock->Status = STATUS_INSUFFICIENT_RESOURCES;
         IoStatusBlock->Information = 0;
         return;
     }
 
     irp->MdlAddress = Mdl;
-    irp->UserEvent = &event;
-    irp->UserIosb = IoStatusBlock;
-    irp->Tail.Overlay.Thread = PsGetCurrentThread();
-    irp->Tail.Overlay.OriginalFileObject = FileObject;
-    irp->RequestorMode = KernelMode;
-    irp->Flags = IRP_WRITE_OPERATION; // Indicate that this is a WRITE operation.
+    irp->Flags = IRP_WRITE_OPERATION;
 
-    // Set up the next I/O stack location.  These are the parameters that will be passed to the underlying driver.
     PIO_STACK_LOCATION ioStackLocation = IoGetNextIrpStackLocation(irp);
     ioStackLocation->MajorFunction = IRP_MJ_WRITE;
     ioStackLocation->MinorFunction = 0;
     ioStackLocation->DeviceObject = fsdDevice;
     ioStackLocation->FileObject = FileObject;
-
-    // We use a completion routine to keep the I/O Manager from doing "cleanup" on our IRP - like freeing our MDL.
-    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
     ioStackLocation->Parameters.Write.Length = Length;
     ioStackLocation->Parameters.Write.ByteOffset = *Offset;
 
-    (void)IoCallDriver(fsdDevice, irp);                                  // Send it on.  Ignore the return code.
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr); // Wait for the I/O to complete.
-    // Done.  Return results are in the io Status block.
+    IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE);
+    (void)IoCallDriver(fsdDevice, irp);
+    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);
 }
 
 
