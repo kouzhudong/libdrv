@@ -137,6 +137,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         // Allocate the key object on the heap.
         pbKeyObject = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbKeyObject, TAG);
         if (nullptr == pbKeyObject) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -148,6 +149,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         if (cbBlockLen > sizeof(rgbIV)) { // Determine whether the cbBlockLen is not longer than the IV length.
+            Status = STATUS_INVALID_BUFFER_SIZE;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -155,6 +157,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         // Allocate a buffer for the IV. The buffer is consumed during the encrypt/decrypt process.
         pbIV = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbBlockLen, TAG);
         if (nullptr == pbIV) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -181,6 +184,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         // Allocate the buffer to hold the BLOB.
         pbBlob = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbBlob, TAG);
         if (nullptr == pbBlob) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -193,6 +197,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         cbPlainText = sizeof(rgbPlaintext);
         pbPlainText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbPlainText, TAG);
         if (nullptr == pbPlainText) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -207,6 +212,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         pbCipherText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbCipherText, TAG);
         if (nullptr == pbCipherText) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -247,6 +253,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 
         pbPlainText = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, cbPlainText, TAG);
         if (nullptr == pbPlainText) {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
@@ -259,6 +266,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
 #pragma warning(push)
 #pragma warning(disable : 6385)
         if (0 != memcmp(pbPlainText, (PBYTE)rgbPlaintext, sizeof(rgbPlaintext))) {
+            Status = STATUS_UNSUCCESSFUL; // 解密结果与明文不一致，往返校验失败。
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
             __leave;
         }
