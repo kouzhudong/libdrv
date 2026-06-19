@@ -50,7 +50,7 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND || IoStatusBlock.Information == FILE_DOES_NOT_EXIST) {
             KdPrint(("file does not exist\n"));
         }
@@ -73,29 +73,28 @@ NTSTATUS ZwEnumerateFile(IN UNICODE_STRING * directory)
         RtlZeroMemory(FileInformation, Length);
         Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, FALSE, nullptr, TRUE);
         if (!NT_SUCCESS(Status)) {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
             // return Status;
         }
 
         Length *= 2;
     } while (!NT_SUCCESS(Status));
 
-    for (fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;
-         ;
+    for (fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;;
          fibdi = (FILE_DIRECTORY_INFORMATION *)((char *)fibdi + fibdi->NextEntryOffset)) {
-        UNICODE_STRING FileName{};
-
-        if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
+        // FileAttributes 是位掩码，目录可能同时带 HIDDEN/SYSTEM 等位；旧代码用 == 只匹配“纯目录”，
+        // 会把带额外属性的目录当文件输出。用 FlagOn 判定。
+        if (!FlagOn(fibdi->FileAttributes, FILE_ATTRIBUTE_DIRECTORY)) {
             // 这里可以考虑递归。这里放弃了文件夹的显示。
-            continue;
+            UNICODE_STRING FileName{};
+            FileName.Buffer = fibdi->FileName;
+            FileName.Length = (USHORT)fibdi->FileNameLength;
+            FileName.MaximumLength = FileName.Length;
+            KdPrint(("FileName %wZ\n", &FileName));
         }
 
-        FileName.Buffer = fibdi->FileName;
-        FileName.Length = (USHORT)fibdi->FileNameLength;
-        FileName.MaximumLength = FileName.Length + 2;
-
-        KdPrint(("FileName %wZ\n", &FileName));
-
+        // NextEntryOffset==0 必须无条件判断：旧代码在目录项 continue 后跳过此判断，
+        // 当最后一项是目录时 fibdi 不前进，造成死循环。
         if (fibdi->NextEntryOffset == 0) {
             break;
         }
@@ -136,7 +135,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     InitializeObjectAttributes(&ob, directory, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = ZwOpenFile(&FileHandle, GENERIC_READ | SYNCHRONIZE, &ob, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT | FILE_DIRECTORY_FILE);
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         if (Status == STATUS_OBJECT_NAME_NOT_FOUND || IoStatusBlock.Information == FILE_DOES_NOT_EXIST) {
             KdPrint(("file does not exist\n"));
         }
@@ -154,7 +153,7 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
     RtlZeroMemory(FileInformation, Length);
     Status = ZwQueryDirectoryFile(FileHandle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileDirectoryInformation, TRUE, nullptr, TRUE);
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status); // STATUS_BUFFER_TOO_SMALL == C0000023
         ExFreePoolWithTag(FileInformation, TAG);
         ZwClose(FileHandle);
         return Status;
@@ -171,14 +170,14 @@ NTSTATUS ZwEnumerateFileEx(IN UNICODE_STRING * directory)
 
         fibdi = (FILE_DIRECTORY_INFORMATION *)FileInformation;
 
-        if (FILE_ATTRIBUTE_DIRECTORY == fibdi->FileAttributes) {
+        if (FlagOn(fibdi->FileAttributes, FILE_ATTRIBUTE_DIRECTORY)) {
             // 这里可以考虑递归。这里放弃了文件夹的显示。
             continue;
         }
 
         FileName.Buffer = fibdi->FileName;
         FileName.Length = (USHORT)fibdi->FileNameLength;
-        FileName.MaximumLength = FileName.Length + 2;
+        FileName.MaximumLength = FileName.Length;
 
         KdPrint(("FileName %wZ\n", &FileName));
     } while (Status != STATUS_NO_MORE_FILES);
@@ -430,8 +429,14 @@ IoVolumeDeviceToDosName比IoQueryFileDosDeviceName安全，因为卷已经挂载
                 }
                 if (!NT_SUCCESS(Status)) {
                     PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
+                    ExFreePoolWithTag(DosFileName->Buffer, TAG); // 拼接失败，释放并清空，避免把半成品/泄露的缓冲交给调用者。
+                    DosFileName->Buffer = nullptr;
+                    DosFileName->Length = 0;
+                    DosFileName->MaximumLength = 0;
                 }
             }
+
+            ExFreePool(VolumeName.Buffer); // IoVolumeDeviceToDosName 分配，调用者负责释放。
         } else {
             PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_WARNING_LEVEL, "Status:%#X, FileName:%wZ", Status, &FltObjects->FileObject->FileName);
         }
@@ -479,7 +484,7 @@ homepage:https://correy.webs.com
     }
 
     // 建议申请内存，因为FILELINKINFORMATION->FileName的后面是秘密的内存。
-    Length = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + HardLinkFileName->Length; // sizeof(FILE_RENAME_INFORMATION)
+    Length = FIELD_OFFSET(FILE_LINK_INFORMATION, FileName) + HardLinkFileName->Length;
     FILELINKINFORMATION = (PFILE_LINK_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,Length, TAG);
     if (FILELINKINFORMATION == nullptr) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -542,6 +547,7 @@ homepage:http://correy.webs.com
     // XP下调用此函数仍然没有反应。就是各个参数及返回值依旧是原来的样子。
     Status = IoEnumerateRegisteredFiltersList(DriverObjectList, DriverObjectListSize, &ActualNumberDriverObjects);
     if (!NT_SUCCESS(Status)) {
+        ExFreePoolWithTag(DriverObjectList, TAG); // 失败也要释放，避免泄露。
         return Status;
     }
 
