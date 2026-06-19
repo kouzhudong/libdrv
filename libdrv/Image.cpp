@@ -309,12 +309,10 @@ homepage:http://correy.webs.com
     if (peb) {
         __try {
             if (peb->Ldr) {
-                PLIST_ENTRY le1 = peb->Ldr->InMemoryOrderModuleList.Flink;
-                PLIST_ENTRY le2 = le1;
-                do {
-                    auto pldte = CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-                    if (pldte->FullDllName.Length && pldte->DllBase) // 过滤掉最后一个，多余的。
-                    {
+                PLIST_ENTRY head = &peb->Ldr->InMemoryOrderModuleList;
+                for (PLIST_ENTRY le = head->Flink; le != head; le = le->Flink) {
+                    auto pldte = CONTAINING_RECORD(le, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+                    if (pldte->FullDllName.Length && pldte->DllBase) {
                         KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
 
                         if (CallBack) {
@@ -324,9 +322,7 @@ homepage:http://correy.webs.com
                             }
                         }
                     }
-
-                    le1 = le1->Flink;
-                } while (le1 != le2);
+                }
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
@@ -593,37 +589,34 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
-    PPEB ppeb{};
-    PLDR_DATA_TABLE_ENTRY pldte{};
-    PLIST_ENTRY le1{}, le2{};
     PVOID ImageBase{};
 
-    ppeb = PsGetProcessPeb(Process);    // 注意：IDLE和system这两个应该获取不到。
-#if defined(_AMD64_) || defined(_IA64_) // defined(_WIN64_)
-    le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-#else
-    le1 = ppeb->Ldr->InMemoryOrderModuleList.Flink;
-#endif
-    le2 = le1;
+    PPEB ppeb = PsGetProcessPeb(Process);
+    if (!ppeb || !ppeb->Ldr) {
+        return ImageBase;
+    }
 
-    do {
-        pldte = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(le1, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-        if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) // 过滤掉最后一个，多余的。
-        {
-            // KdPrint(("FullDllName:%wZ \n", &pldte->FullDllName));
+    KAPC_STATE ApcState{};
+    KeStackAttachProcess(Process, &ApcState);
 
-            if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
-                RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
-                RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0
-                // 内核里没见过以环境变量开头的路径，如：%systemroot%.
-            ) {
-                ImageBase = pldte->DllBase;
-                break;
+    __try {
+        PLIST_ENTRY head = &ppeb->Ldr->InMemoryOrderModuleList;
+        for (PLIST_ENTRY le = head->Flink; le != head; le = le->Flink) {
+            auto pldte = CONTAINING_RECORD(le, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+            if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) {
+                if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
+                    RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
+                    RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0) {
+                    ImageBase = pldte->DllBase;
+                    break;
+                }
             }
         }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ExceptionCode:%#X", GetExceptionCode());
+    }
 
-        le1 = le1->Flink;
-    } while (le1 != le2);
+    KeUnstackDetachProcess(&ApcState);
 
     return ImageBase;
 }
@@ -681,7 +674,7 @@ http://correy.webs.com
         // Attempt to open the driver image itself.
         // If this fails, then the driver image cannot be located, so nothing else matters.
         InitializeObjectAttributes(&ObjectAttributes, ImageFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-        Status = ZwOpenFile(&ImageFileHandle, FILE_ALL_ACCESS, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, 0);
+        Status = ZwOpenFile(&ImageFileHandle, GENERIC_READ | SYNCHRONIZE, &ObjectAttributes, &IoStatus, FILE_SHARE_READ | FILE_SHARE_DELETE, FILE_SYNCHRONOUS_IO_NONALERT);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             __leave;
@@ -755,20 +748,28 @@ NTSTATUS ZwGetSystemModuleInformation()
     NTSTATUS Status{};
     PRTL_PROCESS_MODULES Modules{};
     PVOID Buffer{};
-    ULONG BufferSize = 4096;
+    ULONG BufferSize = PAGE_SIZE;
     ULONG ReturnLength{};
 
-retry:
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
+    for (int retries = 0; retries < 3; retries++) {
+        Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
+        if (!Buffer) {
+            return STATUS_NO_MEMORY;
+        }
+        RtlZeroMemory(Buffer, BufferSize);
+        Status = ZwQuerySystemInformation(SystemModuleInformation, Buffer, BufferSize, &ReturnLength);
+        if (Status != STATUS_INFO_LENGTH_MISMATCH) {
+            break;
+        }
+        ExFreePoolWithTag(Buffer, TAG);
+        Buffer = nullptr;
+        if (ReturnLength == 0) {
+            return STATUS_UNSUCCESSFUL;
+        }
+        BufferSize = ReturnLength + PAGE_SIZE;
+    }
     if (!Buffer) {
         return STATUS_NO_MEMORY;
-    }
-    RtlZeroMemory(Buffer, BufferSize);
-    Status = ZwQuerySystemInformation(SystemModuleInformation, Buffer, BufferSize, &ReturnLength);
-    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
-        ExFreePool(Buffer);
-        BufferSize = ReturnLength;
-        goto retry;
     }
 
     Modules = (PRTL_PROCESS_MODULES)Buffer;
@@ -909,10 +910,6 @@ FreeUnicodeString(&LoadImageFullName);
 
     if (ImageInfo->ExtendedInfoPresent) {
         PIMAGE_INFO_EX ImageInfoEx = CONTAINING_RECORD(ImageInfo, IMAGE_INFO_EX, ImageInfo);
-        if (!ImageInfoEx) {
-            ExFreePoolWithTag(ctx, TAG);
-            return;
-        }
         ctx->info.ImageInfoEx = ImageInfoEx;
         ExInitializeWorkItem(&ctx->hdr, ImageLoadedThreadEx, ctx);
     } else { // 此时，FileFullName会有几种不同的表现形式，这应该在VISTA之前出现。
