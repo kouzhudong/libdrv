@@ -47,12 +47,22 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
     }
 
     if (NT_SUCCESS(Status)) {
+        // 把规范化后的全路径回填给调用方。函数成功了，函数外释放。
+        USHORT NameLength = pfni->Name.Length;
+        usFullPath->Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, NameLength + sizeof(WCHAR), TAG);
+        if (!usFullPath->Buffer) {
+            FltReleaseFileNameInformation(pfni);
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(usFullPath->Buffer, NameLength + sizeof(WCHAR));
+        RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, NameLength + sizeof(WCHAR));
+        RtlCopyUnicodeString(usFullPath, &pfni->Name);
+
         FltReleaseFileNameInformation(pfni);
         return Status;
     }
 
     if (!NT_SUCCESS(Status)) {
-        UNICODE_STRING VolumeName{};
         ULONG BufferSizeNeeded = 0;
 
         Status = FltGetVolumeName(FltObjects->Volume, nullptr, &BufferSizeNeeded);
@@ -60,13 +70,19 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
             return Status;
         }
 
+        // 缓冲需容纳：卷名 + 可选的父目录名 + 分隔符 + 文件名。
+        ULONG TotalSize = BufferSizeNeeded + FltObjects->FileObject->FileName.Length + sizeof(WCHAR);
+        if (nullptr != FltObjects->FileObject->RelatedFileObject) {
+            TotalSize += FltObjects->FileObject->RelatedFileObject->FileName.Length + sizeof(WCHAR);
+        }
+
         // 函数成功了，函数外释放。
-        usFullPath->Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, BufferSizeNeeded, TAG);
+        usFullPath->Buffer = (wchar_t *)ExAllocatePoolWithTag(NonPagedPool, TotalSize, TAG);
         if (!usFullPath->Buffer) {
             return STATUS_INSUFFICIENT_RESOURCES;
         }
-        RtlZeroMemory(usFullPath->Buffer, BufferSizeNeeded);
-        RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, (USHORT)BufferSizeNeeded); // 效果是只是改变最大值,这个结构成员.
+        RtlZeroMemory(usFullPath->Buffer, TotalSize);
+        RtlInitEmptyUnicodeString(usFullPath, usFullPath->Buffer, (USHORT)TotalSize); // 效果是只是改变最大值,这个结构成员.
 
         Status = FltGetVolumeName(FltObjects->Volume, usFullPath, &BufferSizeNeeded);
         if (!NT_SUCCESS(Status)) {
@@ -76,8 +92,16 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
         }
 
         if (nullptr != FltObjects->FileObject->RelatedFileObject) {
-            RtlAppendUnicodeStringToString(usFullPath, &FltObjects->FileObject->RelatedFileObject->FileName);
-            RtlAppendUnicodeToString(usFullPath, L"\\");
+            Status = RtlAppendUnicodeStringToString(usFullPath, &FltObjects->FileObject->RelatedFileObject->FileName);
+            if (!NT_SUCCESS(Status)) {
+                FreeUnicodeString(usFullPath);
+                return Status;
+            }
+            Status = RtlAppendUnicodeToString(usFullPath, L"\\");
+            if (!NT_SUCCESS(Status)) {
+                FreeUnicodeString(usFullPath);
+                return Status;
+            }
         }
 
         Status = RtlAppendUnicodeStringToString(usFullPath, &FltObjects->FileObject->FileName);
@@ -87,7 +111,6 @@ NTSTATUS FltGetFileNameInformationEx(__inout PFLT_CALLBACK_DATA Cbd, __in PCFLT_
         }
 
         return Status;
-        ;
     }
 
     return Status;
@@ -199,7 +222,7 @@ VOID PrintVolume(__in PCFLT_RELATED_OBJECTS FltObjects)
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     } else {
-        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "��Ϣ��attached device:%wZ", &Volume);
+        PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_INFO_LEVEL, "信息：attached device:%wZ", &Volume);
     }
 
     ExFreePoolWithTag(Buffer, TAG);
@@ -260,8 +283,8 @@ void PrintFilterFullInformation(PFLT_FILTER Filter)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2; // 多申请一倍.
-    Buffer = static_cast<PFLT_FILTER *>(ExAllocatePoolWithTag(NonPagedPool,BufferSize, TAG));
+    BufferSize = BytesReturned; // BytesReturned 已是所需字节数.
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (Buffer == nullptr) {
         return;
     }
@@ -314,8 +337,8 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
         }
     }
 
-    BufferSize = sizeof(PFLT_FILTER) * BytesReturned * 2;
-    Buffer = static_cast<PFLT_FILTER *>(ExAllocatePoolWithTag(NonPagedPool,BufferSize, TAG));
+    BufferSize = BytesReturned; // BytesReturned 已是所需字节数.
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, BufferSize, TAG);
     if (Buffer == nullptr) {
         return;
     }
@@ -434,7 +457,7 @@ void PrintVolumeStandardInformation(PFLT_VOLUME Volume)
         break;
     }
 
-    FltObjectDereference(Volume);
+    // Volume 由调用方拥有，这里不 deref（否则与调用方重复释放）。
 
     ExFreePoolWithTag(Buffer, TAG);
 }
@@ -462,7 +485,7 @@ NTSTATUS DumpInstanceName(_In_ PFLT_INSTANCE Instance)
         InstanceName.Length = Info->InstanceNameLength;
         InstanceName.MaximumLength = InstanceName.Length;
         InstanceName.Buffer = (PWCH)((PBYTE)Info + Info->InstanceNameBufferOffset);
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "InstanceName:%wZ", InstanceName);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "InstanceName:%wZ", &InstanceName);
     }
 
     ExFreePoolWithTag(Info, TAG);
@@ -510,7 +533,7 @@ void EnumerateInstances(PFLT_FILTER Filter)
         FltObjectDereference(InstanceList[i]);
     }
 
-    FltObjectDereference(Filter);
+    // Filter 由调用方 EnumerateFilters 拥有并释放，这里不 deref。
 
     ExFreePoolWithTag(InstanceList, TAG);
 }
@@ -552,7 +575,7 @@ void EnumerateVolumes(PFLT_FILTER Filter)
         FltObjectDereference(VolumeList[i]);
     }
 
-    FltObjectDereference(Filter);
+    // Filter 由调用方 EnumerateFilters 拥有并释放，这里不 deref。
 
     ExFreePoolWithTag(VolumeList, TAG);
 }

@@ -153,7 +153,7 @@ void ApcCallback(PKAPC Apc, PKNORMAL_ROUTINE NormalRoutine, PVOID NormalContext,
     UNREFERENCED_PARAMETER(SystemArgument2);
 
     if (Apc) {
-        ExFreePool(Apc);
+        ExFreePoolWithTag(Apc, TAG);
     }
 
     PsTerminateSystemThread(STATUS_SUCCESS);
@@ -180,9 +180,12 @@ NTSTATUS KillSystemThread(_In_ PETHREAD Thread)
                     nullptr,                        // rundown routine
                     nullptr,                        // user-mode routine
                     KernelMode,
-                    (PVOID)(ULONG)1);
+                    (PVOID)(ULONG_PTR)1);
 
-    KeInsertQueueApc(Apc, (PVOID)(ULONG)2, (PVOID)(ULONG)3, 0);
+    if (!KeInsertQueueApc(Apc, (PVOID)(ULONG_PTR)2, (PVOID)(ULONG_PTR)3, 0)) {
+        ExFreePoolWithTag(Apc, TAG);
+        return STATUS_UNSUCCESSFUL;
+    }
 
     return Status;
 }
@@ -199,7 +202,7 @@ NTSTATUS KillUserThread(_In_ PETHREAD Thread)
     }
 
     // KernelMode/UserMode获取的都是内核句柄，都可以用，且都可以杀死线程。
-    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsThreadType, KernelMode, &kernelThreadHandle); // 注意要关闭句柄。
+    Status = ObOpenObjectByPointer(Thread, OBJ_KERNEL_HANDLE, nullptr, THREAD_TERMINATE, *PsThreadType, KernelMode, &kernelThreadHandle); // 注意要关闭句柄。
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
@@ -225,6 +228,10 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 注释：回调函数返回成功，结束枚举。
 */
 {
+    if (!CallBack) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
     SYSTEM_PROCESS_INFORMATION_EX buffer{};
     PSYSTEM_PROCESS_INFORMATION_EX ProcessInfo = &buffer;
@@ -286,11 +293,9 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
 
                 // KdPrint(("    ThreadState:%d\n", ThreadInfo->ThreadState));
 
-                if (CallBack) {
-                    Status = CallBack(&ThreadInfo->ClientId, Context);
-                    if (NT_SUCCESS(Status)) {
-                        break;
-                    }
+                Status = CallBack(&ThreadInfo->ClientId, Context);
+                if (NT_SUCCESS(Status)) {
+                    break;
                 }
 
                 /*
@@ -426,7 +431,7 @@ CreateUserThread(_In_ HANDLE Pid, _In_ PUSER_THREAD_START_ROUTINE Function, _In_
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsProcessType, KernelMode, &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
@@ -502,7 +507,7 @@ CreateUserThreadEx(_In_ HANDLE Pid, _In_ PUSER_THREAD_START_ROUTINE Function, _I
             __leave;
         }
 
-        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_ALL, *PsProcessType, KernelMode, &KernelHandle);
+        Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle);
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             __leave;
