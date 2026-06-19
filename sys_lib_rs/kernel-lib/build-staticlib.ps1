@@ -1,4 +1,4 @@
-# 产出 kernel_lib.lib(供第 3 个 C++ WDM 驱动链接)。
+﻿# 产出 kernel_lib.lib(供第 3 个 C++ WDM 驱动链接)。
 # 关键:必须走 rustup 的 MSVC 工具链,故把 ~/.cargo/bin 前置到 PATH,
 # 避免 chocolatey 的独立 gnu rustc(见根目录 README“工具链陷阱”)。
 $ErrorActionPreference = "Stop"

@@ -1,9 +1,12 @@
-# 一键编译三个工程(按依赖顺序)。普通(非提权)PowerShell 即可编译。
+﻿# 一键编译三个工程(按依赖顺序)。普通(非提权)PowerShell 即可编译。
 # 注意:加载/运行驱动需另行测试签名 + 管理员,见 README。
 $ErrorActionPreference = "Stop"
 # 让 cargo / rustc 走 rustup 的 MSVC 工具链(绕开 PATH 上 chocolatey 的 gnu rustc)
 $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
 $root = $PSScriptRoot
+# 记下调用者当前目录,结束时还原。脚本内多次 Set-Location,否则跑完会把 shell 留在最后一个子目录。
+$origin = Get-Location
+try {
 
 Write-Host "==> [1/4] 编译 kernel-lib 静态库 (kernel_lib.lib)" -ForegroundColor Cyan
 Set-Location "$root\kernel-lib"
@@ -32,3 +35,8 @@ Write-Host "  01: $root\kernel-lib\target\release\kernel_lib.lib  (+ libkernel_l
 Write-Host "  02: $root\rust-sys\target\release\rust_sys.sys"
 Write-Host "  03: $root\cpp-wdm-sys\x64\Release\cpp-wdm-sys.sys"
 Write-Host "  04: $root\app-test\target\release\app-test.exe"
+}
+finally {
+    # 无论成功或抛错,都把当前目录还原回调用者处。
+    Set-Location $origin
+}
