@@ -1,6 +1,6 @@
 //! app-test:用户态测试程序。
 //!
-//! 打开 rust-sys 驱动创建的符号链接 `\\.\KernelLibGetPath`,通过
+//! 打开 rust-sys 驱动创建的符号链接 `\\.\RustWdmDemo`,通过
 //! `IOCTL_GET_PROCESS_PATH` 传入一个 PID,取回该进程镜像的 NT 设备全路径。
 //!
 //! 用法:
@@ -53,8 +53,8 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
 
 const IOCTL_GET_PROCESS_PATH: u32 = ctl_code(FILE_DEVICE_UNKNOWN, FUNCTION_GET_PROCESS_PATH, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
-/// 设备符号链接(对应驱动的 `\??\KernelLibGetPath`)。
-const DEVICE_PATH: &str = r"\\.\KernelLibGetPath";
+/// 设备符号链接(对应驱动的 `\??\RustWdmDemo`)。
+const DEVICE_PATH: &str = r"\\.\RustWdmDemo";
 
 /// 路径最长 32767 个 WCHAR(UNICODE_STRING.Length 为 USHORT),+1 容纳结尾 NUL。
 const MAX_PATH_CHARS: usize = 32767;

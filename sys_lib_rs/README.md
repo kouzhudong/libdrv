@@ -8,9 +8,9 @@ test/
 │                        + kernel_lib_get_process_path(按 PID 取进程 NT 全路径)
 │                        产出 libkernel_lib.rlib(给 02 用) + kernel_lib.lib(给 03 用)
 ├── rust-sys/        Rust WDM 驱动(windows-drivers-rs),DriverEntry 调 kernel_lib_add;
-│                        并创建控制设备 \Device\KernelLibGetPath + 符号链接,经 IOCTL 暴露取路径功能
+│                        并创建控制设备 \Device\RustWdmDemo + 符号链接,经 IOCTL 暴露取路径功能
 ├── cpp-wdm-sys/     C++ WDM 驱动(WDK MSBuild),DriverEntry 链接并调 kernel_lib_add
-├── app-test/        用户态 Rust EXE,经 \\.\KernelLibGetPath 与 rust-sys 通讯,按 PID 查全路径
+├── app-test/        用户态 Rust EXE,经 \\.\RustWdmDemo 与 rust-sys 通讯,按 PID 查全路径
 ├── build-all.ps1       一键编译四者
 └── README.md
 ```
@@ -172,8 +172,8 @@ cpp-wdm-sys: kernel_lib_add(2, 3) = 5      # 或 rust-sys: kernel_lib_add(2, 3) 
 
 rust-sys 在 DriverEntry 里创建了控制设备:
 
-- 设备名:`\Device\KernelLibGetPath`
-- 符号链接:`\??\KernelLibGetPath`(应用层以 `\\.\KernelLibGetPath` 打开)
+- 设备名:`\Device\RustWdmDemo`
+- 符号链接:`\??\RustWdmDemo`(应用层以 `\\.\RustWdmDemo` 打开)
 - IOCTL:`IOCTL_GET_PROCESS_PATH = 0x00222000`(`CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)`)
   - 输入缓冲:`u32` PID(METHOD_BUFFERED,输入输出共用 SystemBuffer)
   - 输出缓冲:UTF-16 路径;成功时 `BytesReturned` = 路径字节数(含结尾 NUL)

@@ -1,7 +1,7 @@
 //! 02-rust-sys:用 windows-drivers-rs 写的 WDM 驱动。
 //!
 //! - DriverEntry 调用第 1 个工程 `kernel-lib` 导出的 `kernel_lib_add`(演示库链接)。
-//! - 创建控制设备 `\Device\KernelLibGetPath` + 符号链接 `\??\KernelLibGetPath`,
+//! - 创建控制设备 `\Device\RustWdmDemo` + 符号链接 `\??\RustWdmDemo`,
 //!   暴露 IOCTL `IOCTL_GET_PROCESS_PATH`:应用层传 PID,驱动回填该进程的 NT 设备全路径。
 //!   配套用户态程序见同目录 `app-test`。
 #![no_std]
@@ -44,9 +44,9 @@ macro_rules! utf16z {
     }};
 }
 
-/// 设备名(内核命名空间)与符号链接名(`\??\` 即 `\DosDevices\`,应用层以 `\\.\KernelLibGetPath` 打开)。
-static DEVICE_NAME: &[u16] = &utf16z!("\\Device\\KernelLibGetPath");
-static SYMLINK_NAME: &[u16] = &utf16z!("\\??\\KernelLibGetPath");
+/// 设备名(内核命名空间)与符号链接名(`\??\` 即 `\DosDevices\`,应用层以 `\\.\RustWdmDemo` 打开)。
+static DEVICE_NAME: &[u16] = &utf16z!("\\Device\\RustWdmDemo");
+static SYMLINK_NAME: &[u16] = &utf16z!("\\??\\RustWdmDemo");
 
 /// 自定义功能号:0x800 起为厂商自定义区(0x000..0x7FF 由微软保留)。
 const FUNCTION_GET_PROCESS_PATH: u32 = 0x800;
@@ -89,7 +89,7 @@ pub unsafe extern "system" fn driver_entry(driver: &mut DRIVER_OBJECT, _registry
         return status;
     }
 
-    // 2) 创建符号链接,供应用层以 \\.\KernelLibGetPath 打开。
+    // 2) 创建符号链接,供应用层以 \\.\RustWdmDemo 打开。
     let mut dev_name2 = init_unicode_string(DEVICE_NAME);
     let mut link_name = init_unicode_string(SYMLINK_NAME);
     // SAFETY: 两个 UNICODE_STRING 均有效。
@@ -107,7 +107,7 @@ pub unsafe extern "system" fn driver_entry(driver: &mut DRIVER_OBJECT, _registry
     driver.MajorFunction[IRP_MJ_DEVICE_CONTROL as usize] = Some(dispatch_device_control);
     driver.DriverUnload = Some(driver_exit);
 
-    println!("rust-sys: device \\Device\\KernelLibGetPath ready");
+    println!("rust-sys: device \\Device\\RustWdmDemo ready");
     STATUS_SUCCESS
 }
 
