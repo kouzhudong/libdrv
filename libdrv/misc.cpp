@@ -87,7 +87,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    String->Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, String->MaximumLength, TAG);
+    String->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, String->MaximumLength, TAG);
     if (String->Buffer == nullptr) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -142,15 +142,17 @@ EXCEPTION_CONTINUE_SEARCH - If a higher exception handler should take care of th
 }
 
 
-void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st)
+void ConvertFormatTimeToSystemTime(IN PSYSTEMTIME pst, OUT PLARGE_INTEGER st)
 /*
-参数rule_text是本地时间的字符串。
+参数pst是本地时间的SYSTEMTIME结构。
 */
 {
-    PSYSTEMTIME pst = (PSYSTEMTIME)rule_text;
+    if (!pst || !st) {
+        return;
+    }
+
     TIME_FIELDS tf{};
     LARGE_INTEGER temp{};
-    BOOLEAN B = FALSE;
 
     tf.Year = pst->wYear;
     tf.Month = pst->wMonth;
@@ -161,8 +163,7 @@ void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st
     tf.Milliseconds = pst->wMilliseconds;
     tf.Weekday = pst->wDayOfWeek;
 
-    B = RtlTimeFieldsToTime(&tf, &temp);
-    if (!B) {
+    if (!RtlTimeFieldsToTime(&tf, &temp)) {
         return;
     }
 
@@ -219,17 +220,26 @@ ULONG GetCurrnetTime()
 
 void StringToLUID(wchar_t * rule_text, PLARGE_INTEGER pli)
 {
+    if (!rule_text || !pli) {
+        return;
+    }
+
+    // LUID as hex string requires at least 16 wide chars (8 high + 8 low)
+    if (wcsnlen(rule_text, 16) < 16) {
+        return;
+    }
+
     wchar_t HighPart[32] = {0};
     wchar_t LowPart[32] = {0};
     ULONG High = 0;
     ULONG Low = 0;
 
     RtlStringCchCopyW(HighPart, _ARRAYSIZE(HighPart), L"0x");
-    RtlCopyMemory(&HighPart[2], rule_text, 16);
+    RtlCopyMemory(&HighPart[2], rule_text, 8 * sizeof(wchar_t));      // 8 hex chars = HighPart
     StringToInteger(HighPart, &High);
 
     RtlStringCchCopyW(LowPart, _ARRAYSIZE(LowPart), L"0x");
-    RtlCopyMemory(&LowPart[2], &rule_text[8], 16);
+    RtlCopyMemory(&LowPart[2], &rule_text[8], 8 * sizeof(wchar_t));   // 8 hex chars = LowPart
     StringToInteger(LowPart, &Low);
 
     pli->HighPart = High;

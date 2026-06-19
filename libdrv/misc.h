@@ -24,7 +24,7 @@ NTSTATUS CopyUnicodeString(_Inout_ PUNICODE_STRING DestString, _In_ PCUNICODE_ST
 
 LONG ExceptionFilter(_In_ PEXCEPTION_POINTERS ExceptionPointer);
 
-void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st);
+void ConvertFormatTimeToSystemTime(IN PSYSTEMTIME SystemTime, OUT PLARGE_INTEGER st);
 void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING pus);
 ULONG GetCurrnetTime();
 

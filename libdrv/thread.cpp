@@ -62,22 +62,30 @@ NTSTATUS GetThreadNumbers(_In_ HANDLE ProcessId, _Inout_ PINT thread_number)
     PSYSTEM_THREAD_INFORMATION ThreadInfo{};
     int r = 0;
 
-    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
-    SystemInformationLength = ReturnLength;
-    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, ReturnLength, TAG);
+    SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, SystemInformationLength, TAG);
     if (ProcessInfo == nullptr) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    RtlZeroMemory(ProcessInfo, ReturnLength);
+    RtlZeroMemory(ProcessInfo, SystemInformationLength);
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
+        ExFreePoolWithTag(ProcessInfo, TAG);
+        SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+        ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, SystemInformationLength, TAG);
+        if (ProcessInfo == nullptr) {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(ProcessInfo, SystemInformationLength);
+        Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    }
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
@@ -226,21 +234,28 @@ NTSTATUS EnumThread(_In_ HANDLE UniqueProcessId, _In_ HandleThread CallBack, _In
     ULONG i = 0;
     PSYSTEM_THREAD_INFORMATION ThreadInfo{};
 
-    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
-    SystemInformationLength = ReturnLength;
-    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, ReturnLength, TAG);
+    SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
     if (ProcessInfo == nullptr) {
-        KdPrint(("ExAllocatePoolWithTag fail with 0x%x\n", Status));
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-    RtlZeroMemory(ProcessInfo, ReturnLength);
+    RtlZeroMemory(ProcessInfo, SystemInformationLength);
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
+        ExFreePoolWithTag(ProcessInfo, TAG);
+        SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+        ProcessInfo = (PSYSTEM_PROCESS_INFORMATION_EX)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
+        if (ProcessInfo == nullptr) {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(ProcessInfo, SystemInformationLength);
+        Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    }
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
@@ -522,7 +537,7 @@ CreateUserThreadEx(_In_ HANDLE Pid, _In_ PUSER_THREAD_START_ROUTINE Function, _I
         }
 
         ClientId->UniqueProcess = Pid;
-        ClientId->UniqueProcess = *ThreadHandleReturn;
+        ClientId->UniqueThread = *ThreadHandleReturn;
 
         // PETHREAD Thread = nullptr;
         // Status = ObReferenceObjectByHandle(*ThreadHandleReturn, THREAD_ALL_ACCESS, *PsThreadType, UserMode, (PVOID *)&Thread, nullptr);

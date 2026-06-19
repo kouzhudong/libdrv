@@ -54,8 +54,7 @@ bool IsValidPE(_In_ PVOID Data)
         }
 #endif // 0
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        ret = GetExceptionCode();
-        /// LOGA(ERROR_LEVEL, "ExceptionCode:%#x", ret);
+        ret = false;
     }
 
     return ret;

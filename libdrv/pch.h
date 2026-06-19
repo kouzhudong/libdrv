@@ -66,7 +66,10 @@ netioapi.h包含ws2def.h等文件.
 所以在WDK7600.16385.1中,如果不包含应用层的头文件,应该在包含netioapi.h之前,加上u_short的定义.
 否者,每个包含(包括间接包含)ws2def.h的c/cpp文件都出现一大堆的错误.
 */
-typedef unsigned short  u_short;
+#ifndef _U_SHORT_DEFINED
+typedef unsigned short u_short;
+#define _U_SHORT_DEFINED
+#endif
 #include <netioapi.h>
 //#include <ws2def.h>
 #include <ws2ipdef.h>
@@ -84,7 +87,6 @@ typedef unsigned short  u_short;
 #include <dontuse.h>
 #include <suppress.h>
 #include <aux_klib.h>
-#include <assert.h>
 #include <Ntdddisk.h>
 #include <intrin.h> //VS2012编译。
 #include <immintrin.h>//VS2012编译。

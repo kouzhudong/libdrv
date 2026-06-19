@@ -15,7 +15,6 @@
 
 #define POOL_NX_OPTIN 1
 #define _CRT_NON_CONFORMING_SWPRINTFS
-#define INITGUID
 #define NTSTRSAFE_LIB
 
 #pragma warning(disable : 4200)  // 使用了非标准扩展 : 结构/联合中的零大小数组
@@ -34,7 +33,7 @@
 #include <ip2string.h>
 #include <guiddef.h>
 #include <ndis.h>
-#include <initguid.h> //静态定义UUID用的，否则：error LNK2001。
+// #include <initguid.h> 已从公共头移除，由消费方在唯一翻译单元中自行定义 INITGUID
 #include <Ntstrsafe.h>
 #include <ipmib.h>
 #include <netpnp.h>
@@ -55,18 +54,17 @@ netioapi.h包含ws2def.h等文件.
 所以在WDK7600.16385.1中,如果不包含应用层的头文件,应该在包含netioapi.h之前,加上u_short的定义.
 否者,每个包含(包括间接包含)ws2def.h的c/cpp文件都出现一大堆的错误.
 */
+#ifndef _U_SHORT_DEFINED
 typedef unsigned short u_short;
+#define _U_SHORT_DEFINED
+#endif
 #include <netioapi.h>
 //#include <ws2def.h>
 #include <ws2ipdef.h>
 #include <mstcpip.h>
 #include <wmilib.h>
 #include <wmistr.h>
-#include <tdi.h>
-#include <tdiinfo.h>
-#include <tdikrnl.h>
-#include <tdistat.h>
-//#include <fwpmk.h>
+// TDI 头文件(tdi.h/tdiinfo.h/tdikrnl.h/tdistat.h)已废弃(Vista起)，不暴露在公共接口
 #include <wsk.h>
 #include <ntimage.h>
 #include <fwpsk.h> //NDIS61
@@ -246,7 +244,7 @@ VOID FreeUnicodeString(_In_ PUNICODE_STRING String);
 
 LONG ExceptionFilter(_In_ PEXCEPTION_POINTERS ExceptionPointer);
 
-void ConvertFormatTimeToSystemTime(IN wchar_t * rule_text, OUT PLARGE_INTEGER st);
+void ConvertFormatTimeToSystemTime(IN PSYSTEMTIME SystemTime, OUT PLARGE_INTEGER st);
 void ConvertSystemTimeToFormatTime(IN PLARGE_INTEGER st, OUT PUNICODE_STRING pus);
 ULONG GetCurrnetTime();
 

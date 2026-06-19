@@ -656,7 +656,7 @@ DWORD GetProcessIntegrityLevelFromDword(_In_ DWORD Integrity)
     } else if (Integrity >= SECURITY_MANDATORY_SYSTEM_RID && Integrity < SECURITY_MANDATORY_PROTECTED_PROCESS_RID) {
         return SECURITY_MANDATORY_SYSTEM_RID;
     } else {
-        KdBreakPoint();
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "unknown integrity value: %lu", Integrity);
     }
 
     return static_cast<DWORD>(-1);
@@ -668,20 +668,15 @@ DWORD GetProcessIntegrityLevelFromString(_In_ PWCHAR Integrity)
     if (_wcsicmp(Integrity, L"Untrusted") == 0) {
         return SECURITY_MANDATORY_UNTRUSTED_RID;
     } else if (_wcsicmp(Integrity, L"Low") == 0) {
-        return SECURITY_MANDATORY_LOW_RID; // Process Explorer显示为AppContainer。
+        return SECURITY_MANDATORY_LOW_RID;
     } else if (_wcsicmp(Integrity, L"Medium") == 0) {
         return SECURITY_MANDATORY_MEDIUM_RID;
-    }
-    // else if (Integrity >= SECURITY_MANDATORY_MEDIUM_PLUS_RID && Integrity < SECURITY_MANDATORY_HIGH_RID)
-    //{
-    //     return L"Medium Plus";
-    // }
-    else if (_wcsicmp(Integrity, L"High") == 0) {
+    } else if (_wcsicmp(Integrity, L"High") == 0) {
         return SECURITY_MANDATORY_HIGH_RID;
     } else if (_wcsicmp(Integrity, L"System") == 0) {
         return SECURITY_MANDATORY_SYSTEM_RID;
     } else {
-        KdBreakPoint();
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "unknown integrity string");
     }
 
     return static_cast<DWORD>(-1);
@@ -788,28 +783,26 @@ DWORD GetSessionId(_In_ PEPROCESS Process)
 {
     DWORD SessionId = 0;
 
-    PACCESS_TOKEN AccessToken = PsReferencePrimaryToken(Process); // PsGetCurrentProcess()
+    PACCESS_TOKEN AccessToken = PsReferencePrimaryToken(Process);
 
-    /*
-    The buffer receives a DWORD value that indicates the Terminal Services session identifier associated with the token.
-    If the token is associated with the Terminal Server console session, the session identifier is zero.
-    A nonzero session identifier indicates a Terminal Services client session.
-    In a non-Terminal Services environment, the session identifier is zero.
-    */
-    PVOID TokenInformation = nullptr;
-    NTSTATUS Status = SeQueryInformationToken(AccessToken, TokenSessionId, &TokenInformation);
+    HANDLE TokenHandle{};
+    NTSTATUS Status = ObOpenObjectByPointer(
+        AccessToken, OBJ_KERNEL_HANDLE, nullptr,
+        TOKEN_QUERY, *SeTokenObjectType, KernelMode, &TokenHandle);
     if (NT_SUCCESS(Status)) {
-        // SessionId = *(DWORD *)TokenInformation;//TokenInformation有肯能为0.
-
-#pragma warning(push)
-#pragma warning(disable : 4311)
-#pragma warning(disable : 4302)
-        SessionId = (DWORD)TokenInformation;
-#pragma warning(pop)
-
-        // KdPrint(("TokenSessionId:%d.\r\n", SessionId));
+        ULONG ReturnLength = 0;
+        ULONG SessionIdValue = 0;
+        Status = ZwQueryInformationToken(TokenHandle, TokenSessionId,
+                                         &SessionIdValue, sizeof(SessionIdValue),
+                                         &ReturnLength);
+        if (NT_SUCCESS(Status)) {
+            SessionId = SessionIdValue;
+        } else {
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ZwQueryInformationToken: 0x%#x", Status);
+        }
+        ZwClose(TokenHandle);
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ObOpenObjectByPointer(token): 0x%#x", Status);
     }
 
     PsDereferencePrimaryToken(AccessToken);
@@ -875,20 +868,24 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
             __leave;
         }
 
-        // 从末尾开始搜索斜杠。
-        USHORT i = 0;
-        for (i = p->Length / 2 - 1;; i--) {
+        // 从末尾向前搜索最后一个反斜杠。
+        int i = (int)(p->Length / 2) - 1;
+        for (; i >= 0; i--) {
             if (p->Buffer[i] == L'\\') {
                 break;
             }
+        }
+
+        if (i < 0) {
+            __leave; // 路径中无反斜杠，格式非法
         }
 
         i++; // 跳过斜杠。
 
         // 构造文件名结构，复制用的。
         UNICODE_STRING temp = {0};
-        temp.Length = p->Length - i * 2;
-        temp.MaximumLength = p->MaximumLength - i * 2;
+        temp.Length = static_cast<USHORT>(p->Length - i * 2);
+        temp.MaximumLength = static_cast<USHORT>(p->MaximumLength - i * 2);
         temp.Buffer = &p->Buffer[i];
 
         ProcessName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,MAX_PATH, TAG); // 这个内存由调用者释放。
@@ -948,25 +945,32 @@ made at 2015.07.08.
 
     RtlInitUnicodeString(&temp, ProcessName);
 
-    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
-    SystemInformationLength = ReturnLength;
-    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool,ReturnLength, TAG);
+    SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, SystemInformationLength, TAG);
     if (ProcessInfo == nullptr) {
-        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-    RtlZeroMemory(ProcessInfo, ReturnLength);
+    RtlZeroMemory(ProcessInfo, SystemInformationLength);
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
+        ExFreePoolWithTag(ProcessInfo, TAG);
+        SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+        ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(PagedPool, SystemInformationLength, TAG);
+        if (ProcessInfo == nullptr) {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(ProcessInfo, SystemInformationLength);
+        Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    }
     if (!NT_SUCCESS(Status)) {
         PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
-        return STATUS_INSUFFICIENT_RESOURCES;
+        return Status;
     }
 
     for (auto it = ProcessInfo; /* it->NextEntryOffset != 0 */; /*it++*/) // 注释的都是有问题的，如少显示一个等。
@@ -1030,24 +1034,34 @@ NTSTATUS EnumProcess(_In_ HandleProcess CallBack, _In_opt_ PVOID Context)
     ULONG SystemInformationLength = 0;
     ULONG ReturnLength = 0;
 
-    // 获取需要的内存。
+    // 探测所需大小，加余量应对进程列表在两次调用间增长的竞态
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
-    SystemInformationLength = ReturnLength;
-    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ReturnLength, TAG);
+    SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
     if (ProcessInfo == nullptr) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return Status;
     }
-    RtlZeroMemory(ProcessInfo, ReturnLength);
+    RtlZeroMemory(ProcessInfo, SystemInformationLength);
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
+        // 竞态：进程数增加导致缓冲区不足，按报告大小重试一次
+        ExFreePoolWithTag(ProcessInfo, TAG);
+        SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+        ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
+        if (ProcessInfo == nullptr) {
+            PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", STATUS_INSUFFICIENT_RESOURCES);
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(ProcessInfo, SystemInformationLength);
+        Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    }
     if (!NT_SUCCESS(Status)) {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
         PrintEx(DPFLTR_FLTMGR_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
         return Status;
@@ -1100,10 +1114,9 @@ HANDLE GetParentsPID(_In_ HANDLE UniqueProcessId)
         return ParentsPID;
     }
 
-    ObDereferenceObject(Process); // 微软建议加上。
-
     HANDLE KernelHandle{};
     Status = ObOpenObjectByPointer(Process, OBJ_KERNEL_HANDLE, nullptr, GENERIC_READ, *PsProcessType, KernelMode, &KernelHandle); // 注意要关闭句柄。
+    ObDereferenceObject(Process); // 在 ObOpenObjectByPointer 之后释放引用，防止 UAF
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return ParentsPID;
@@ -1145,25 +1158,32 @@ NTSTATUS GetAllChildProcess(_In_ HANDLE UniqueProcessId)
 
     // 参数检查就不做了。
 
-    // 获取需要的内存。
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
     if (!NT_SUCCESS(Status) && Status != STATUS_INFO_LENGTH_MISMATCH) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         return Status;
     }
-    ReturnLength *= 2; // 第一次需求0x9700，第二次需求0x9750,所以乘以2.
-    SystemInformationLength = ReturnLength;
-    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool,ReturnLength, TAG);
+    SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+    ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
     if (ProcessInfo == nullptr) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-    RtlZeroMemory(ProcessInfo, ReturnLength);
+    RtlZeroMemory(ProcessInfo, SystemInformationLength);
     Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    if (Status == STATUS_INFO_LENGTH_MISMATCH) {
+        ExFreePoolWithTag(ProcessInfo, TAG);
+        SystemInformationLength = ReturnLength + 4 * PAGE_SIZE;
+        ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, SystemInformationLength, TAG);
+        if (ProcessInfo == nullptr) {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+        RtlZeroMemory(ProcessInfo, SystemInformationLength);
+        Status = ZwQuerySystemInformation(SystemProcessInformation, ProcessInfo, SystemInformationLength, &ReturnLength);
+    }
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(ProcessInfo, TAG);
-        return STATUS_INSUFFICIENT_RESOURCES;
+        return Status;
     }
 
     for (iter = ProcessInfo; /* iter->NextEntryOffset != 0 */; /*iter++*/) // 注释的都是有问题的，如少显示一个等。
@@ -1587,11 +1607,16 @@ unsigned int64 0xa40
     size_t * ProcessObjectAddress = (size_t *)ProcessObject;
     size_t TokenObjectAddress = (size_t)TokenObject;
 
-    for (int i = 0; i < 0xa00 / sizeof(size_t); i++) {
-        size_t tmp = ProcessObjectAddress[i];
-        tmp = tmp & ~0xf;
+    // Token 字段在 EPROCESS 中的偏移随 Windows 版本变化(XP~Win11 范围 0x100~0xC00)。
+    // 仅在合理范围内搜索，避免读出对象边界外的池内存。
+    const int kMinTokenOffset = 0x100;
+    const int kMaxTokenOffset = 0x1200;
+    for (int i = kMinTokenOffset / (int)sizeof(size_t);
+         i < kMaxTokenOffset / (int)sizeof(size_t);
+         i++) {
+        size_t tmp = ProcessObjectAddress[i] & ~(size_t)0xf;
         if (tmp == TokenObjectAddress) {
-            TokenOffset = i * sizeof(size_t);
+            TokenOffset = i * (int)sizeof(size_t);
             break;
         }
     }
@@ -1643,9 +1668,22 @@ char __fastcall PsGetProcessProtection(_EPROCESS *Process)
         return ProtectionOffset;
     }
 
-    PsGetProcessProtection += 2;
+    // 校验期望的指令字节序列：MOV AL, [RCX+disp32] = 8A 81 xx xx xx xx
+    if (PsGetProcessProtection[0] != 0x8A || PsGetProcessProtection[1] != 0x81) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL,
+              "PsGetProcessProtection opcode mismatch: %02X %02X",
+              PsGetProcessProtection[0], PsGetProcessProtection[1]);
+        return 0;
+    }
 
+    PsGetProcessProtection += 2;
     ProtectionOffset = *(PDWORD)PsGetProcessProtection;
+
+    // 合理性检查：Protection 字段偏移应在 EPROCESS 合理范围内
+    if (ProtectionOffset == 0 || ProtectionOffset > 0x2000) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Protection offset out of range: %#x", ProtectionOffset);
+        return 0;
+    }
 
     return ProtectionOffset;
 }
