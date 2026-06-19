@@ -1,0 +1,6 @@
+# 让 app-test.exe 静态链接并嵌入 CRT(等价 MSVC /MT):
+# 去掉对 vcruntime140.dll 与 UCRT(api-ms-win-crt-*.dll / ucrtbase.dll)的运行期依赖,
+# 单个 exe 即可在未装 VC++ 运行库的机器直接跑。
+# 注意:.cargo/config.toml 按当前工作目录向上查找生效,须在本目录内 cargo build。
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
