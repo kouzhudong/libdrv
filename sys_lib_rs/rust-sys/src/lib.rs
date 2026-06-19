@@ -15,15 +15,10 @@ use kernel_lib::{kernel_lib_add, kernel_lib_get_process_path};
 use wdk::println;
 #[cfg(not(test))]
 use wdk_alloc::WdkAllocator;
-use wdk_sys::ntddk::{
-    IoCreateDevice, IoCreateSymbolicLink, IoDeleteDevice, IoDeleteSymbolicLink,
-    IofCompleteRequest, RtlInitUnicodeString,
-};
+use wdk_sys::ntddk::{IoCreateDevice, IoCreateSymbolicLink, IoDeleteDevice, IoDeleteSymbolicLink, IofCompleteRequest, RtlInitUnicodeString};
 use wdk_sys::{
-    BOOLEAN, CCHAR, DRIVER_OBJECT, FALSE, FILE_ANY_ACCESS, FILE_DEVICE_UNKNOWN, IO_NO_INCREMENT,
-    IRP_MJ_CLOSE, IRP_MJ_CREATE, IRP_MJ_DEVICE_CONTROL, METHOD_BUFFERED, NTSTATUS,
-    PCUNICODE_STRING, PDEVICE_OBJECT, PIRP, STATUS_INVALID_DEVICE_REQUEST,
-    STATUS_INVALID_PARAMETER, STATUS_SUCCESS, UNICODE_STRING, ULONG_PTR,
+    BOOLEAN, CCHAR, DRIVER_OBJECT, FALSE, FILE_ANY_ACCESS, FILE_DEVICE_UNKNOWN, IO_NO_INCREMENT, IRP_MJ_CLOSE, IRP_MJ_CREATE, IRP_MJ_DEVICE_CONTROL, METHOD_BUFFERED,
+    NTSTATUS, PCUNICODE_STRING, PDEVICE_OBJECT, PIRP, STATUS_INVALID_DEVICE_REQUEST, STATUS_INVALID_PARAMETER, STATUS_SUCCESS, ULONG_PTR, UNICODE_STRING,
 };
 
 #[cfg(not(test))]
@@ -64,12 +59,7 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
 /// IOCTL:按 PID 取进程 NT 全路径。
 /// 输入缓冲 = `u32` PID;输出缓冲 = UTF-16 路径(METHOD_BUFFERED,输入输出共用 SystemBuffer)。
 /// 应用层须用同一数值(见 app-test)。
-pub const IOCTL_GET_PROCESS_PATH: u32 = ctl_code(
-    FILE_DEVICE_UNKNOWN,
-    FUNCTION_GET_PROCESS_PATH,
-    METHOD_BUFFERED,
-    FILE_ANY_ACCESS,
-);
+pub const IOCTL_GET_PROCESS_PATH: u32 = ctl_code(FILE_DEVICE_UNKNOWN, FUNCTION_GET_PROCESS_PATH, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
 /// 由 `&[u16]`(含结尾 NUL)构造 `UNICODE_STRING`。
 fn init_unicode_string(buf: &'static [u16]) -> UNICODE_STRING {
@@ -84,10 +74,7 @@ fn init_unicode_string(buf: &'static [u16]) -> UNICODE_STRING {
 /// # Safety
 /// 解引用由 WDM 传入的裸指针 `driver`。
 #[unsafe(export_name = "DriverEntry")]
-pub unsafe extern "system" fn driver_entry(
-    driver: &mut DRIVER_OBJECT,
-    _registry_path: PCUNICODE_STRING,
-) -> NTSTATUS {
+pub unsafe extern "system" fn driver_entry(driver: &mut DRIVER_OBJECT, _registry_path: PCUNICODE_STRING) -> NTSTATUS {
     // 演示库链接:调用第 1 个工程导出的函数(其内部 DbgPrint)。
     let sum = kernel_lib_add(2, 3);
     println!("rust-sys: kernel_lib_add(2, 3) = {sum}");
@@ -96,17 +83,7 @@ pub unsafe extern "system" fn driver_entry(
     let mut device: PDEVICE_OBJECT = core::ptr::null_mut();
     let mut dev_name = init_unicode_string(DEVICE_NAME);
     // SAFETY: 参数均有效;device 接收新建设备对象。
-    let status = unsafe {
-        IoCreateDevice(
-            driver,
-            0,
-            &mut dev_name,
-            FILE_DEVICE_UNKNOWN,
-            0,
-            FALSE as BOOLEAN,
-            &mut device,
-        )
-    };
+    let status = unsafe { IoCreateDevice(driver, 0, &mut dev_name, FILE_DEVICE_UNKNOWN, 0, FALSE as BOOLEAN, &mut device) };
     if status < 0 {
         println!("rust-sys: IoCreateDevice failed, status = {status:#010x}");
         return status;
@@ -155,12 +132,7 @@ unsafe extern "C" fn dispatch_device_control(_device: PDEVICE_OBJECT, irp: PIRP)
 
     // SAFETY: irp 有效;取当前 IO 栈位置(等价 IoGetCurrentIrpStackLocation)。
     unsafe {
-        let stack = (*irp)
-            .Tail
-            .Overlay
-            .__bindgen_anon_2
-            .__bindgen_anon_1
-            .CurrentStackLocation;
+        let stack = (*irp).Tail.Overlay.__bindgen_anon_2.__bindgen_anon_1.CurrentStackLocation;
         let ioctl = (*stack).Parameters.DeviceIoControl.IoControlCode;
         let in_len = (*stack).Parameters.DeviceIoControl.InputBufferLength;
         let out_len = (*stack).Parameters.DeviceIoControl.OutputBufferLength;
@@ -174,12 +146,7 @@ unsafe extern "C" fn dispatch_device_control(_device: PDEVICE_OBJECT, irp: PIRP)
                 let pid = core::ptr::read_unaligned(sysbuf as *const u32);
                 let out_chars = out_len / (core::mem::size_of::<u16>() as u32);
                 let mut needed: u32 = 0;
-                status = kernel_lib_get_process_path(
-                    pid,
-                    sysbuf as *mut u16,
-                    out_chars,
-                    &mut needed,
-                );
+                status = kernel_lib_get_process_path(pid, sysbuf as *mut u16, out_chars, &mut needed);
                 // 成功时回报写入字节数(含结尾 NUL),供应用层据 BytesReturned 取串。
                 if status >= 0 {
                     info = ((needed as usize + 1) * core::mem::size_of::<u16>()) as ULONG_PTR;

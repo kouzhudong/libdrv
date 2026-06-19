@@ -17,15 +17,7 @@ type Bool = i32;
 // kernel32 导入(手写 FFI,避免任何第三方依赖)。
 #[link(name = "kernel32")]
 unsafe extern "system" {
-    fn CreateFileW(
-        name: *const u16,
-        access: u32,
-        share: u32,
-        security: *mut c_void,
-        disposition: u32,
-        flags: u32,
-        template: Handle,
-    ) -> Handle;
+    fn CreateFileW(name: *const u16, access: u32, share: u32, security: *mut c_void, disposition: u32, flags: u32, template: Handle) -> Handle;
     fn DeviceIoControl(
         device: Handle,
         code: u32,
@@ -59,12 +51,7 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
     (device_type << 16) | (access << 14) | (function << 2) | method
 }
 
-const IOCTL_GET_PROCESS_PATH: u32 = ctl_code(
-    FILE_DEVICE_UNKNOWN,
-    FUNCTION_GET_PROCESS_PATH,
-    METHOD_BUFFERED,
-    FILE_ANY_ACCESS,
-);
+const IOCTL_GET_PROCESS_PATH: u32 = ctl_code(FILE_DEVICE_UNKNOWN, FUNCTION_GET_PROCESS_PATH, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
 /// 设备符号链接(对应驱动的 `\??\KernelLibGetPath`)。
 const DEVICE_PATH: &str = r"\\.\KernelLibGetPath";
@@ -80,9 +67,7 @@ fn to_wide(s: &str) -> Vec<u16> {
 fn run() -> Result<(), String> {
     // PID:命令行参数优先,否则查自身。
     let pid: u32 = match std::env::args().nth(1) {
-        Some(arg) => arg
-            .parse::<u32>()
-            .map_err(|_| format!("非法 PID 参数: {arg}"))?,
+        Some(arg) => arg.parse::<u32>().map_err(|_| format!("非法 PID 参数: {arg}"))?,
         None => unsafe { GetCurrentProcessId() },
     };
 
@@ -101,9 +86,7 @@ fn run() -> Result<(), String> {
     };
     if device as isize == INVALID_HANDLE {
         let gle = unsafe { GetLastError() };
-        return Err(format!(
-            "打开 {DEVICE_PATH} 失败 (GetLastError={gle})。驱动是否已加载(sc start)?"
-        ));
+        return Err(format!("打开 {DEVICE_PATH} 失败 (GetLastError={gle})。驱动是否已加载(sc start)?"));
     }
 
     // 2) 下发 IOCTL:输入 = u32 PID,输出 = UTF-16 路径。
@@ -125,9 +108,7 @@ fn run() -> Result<(), String> {
     unsafe { CloseHandle(device) };
 
     if ok == 0 {
-        return Err(format!(
-            "DeviceIoControl 失败 (GetLastError={gle})。PID {pid} 可能不存在或无访问权限。"
-        ));
+        return Err(format!("DeviceIoControl 失败 (GetLastError={gle})。PID {pid} 可能不存在或无访问权限。"));
     }
 
     // 3) 解析返回:returned 为字节数(含结尾 NUL),取到首个 NUL 为止。

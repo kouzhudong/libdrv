@@ -4,14 +4,8 @@
 //! 同时产出 `rlib`(给 Rust 驱动)与 `staticlib`(`kernel_lib.lib`,给 C++ 驱动)。
 #![no_std]
 
-use wdk_sys::ntddk::{
-    DbgPrint, ExFreePool, ObfDereferenceObject, PsLookupProcessByProcessId,
-    SeLocateProcessImageName,
-};
-use wdk_sys::{
-    HANDLE, NTSTATUS, PEPROCESS, PUNICODE_STRING, STATUS_BUFFER_TOO_SMALL,
-    STATUS_INVALID_PARAMETER, STATUS_SUCCESS, STATUS_UNSUCCESSFUL,
-};
+use wdk_sys::ntddk::{DbgPrint, ExFreePool, ObfDereferenceObject, PsLookupProcessByProcessId, SeLocateProcessImageName};
+use wdk_sys::{HANDLE, NTSTATUS, PEPROCESS, PUNICODE_STRING, STATUS_BUFFER_TOO_SMALL, STATUS_INVALID_PARAMETER, STATUS_SUCCESS, STATUS_UNSUCCESSFUL};
 
 /// 导出给 sys 调用的函数:用 `DbgPrint` 打一行日志,返回 `a + b`。
 ///
@@ -21,11 +15,7 @@ use wdk_sys::{
 pub extern "C" fn kernel_lib_add(a: i32, b: i32) -> i32 {
     // SAFETY: 格式串是编译期 null 结尾 C 字面量,两个 %d 与两个 i32 变参匹配。
     unsafe {
-        DbgPrint(
-            c"[kernel-lib] kernel_lib_add(%d, %d)\n".as_ptr().cast(),
-            a,
-            b,
-        );
+        DbgPrint(c"[kernel-lib] kernel_lib_add(%d, %d)\n".as_ptr().cast(), a, b);
     }
     a + b
 }
@@ -49,12 +39,7 @@ pub extern "C" fn kernel_lib_add(a: i32, b: i32) -> i32 {
 /// # Safety
 /// `out_buf` 须指向至少 `buf_chars` 个可写 WCHAR,或为 null;`out_chars` 须指向可写 `u32`(为 null 时返回非法参数)。
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn kernel_lib_get_process_path(
-    pid: u32,
-    out_buf: *mut u16,
-    buf_chars: u32,
-    out_chars: *mut u32,
-) -> NTSTATUS {
+pub unsafe extern "C" fn kernel_lib_get_process_path(pid: u32, out_buf: *mut u16, buf_chars: u32, out_chars: *mut u32) -> NTSTATUS {
     if pid == 0 || out_chars.is_null() {
         return STATUS_INVALID_PARAMETER;
     }
@@ -62,8 +47,7 @@ pub unsafe extern "C" fn kernel_lib_get_process_path(
     // 1) PID -> PEPROCESS(加引用,末尾必须 ObfDereferenceObject 释放)。
     let mut process: PEPROCESS = core::ptr::null_mut();
     // SAFETY: pid 转 HANDLE 是内核 PID 的标准约定;process 指向本地可写指针。
-    let status =
-        unsafe { PsLookupProcessByProcessId(pid as usize as HANDLE, &mut process) };
+    let status = unsafe { PsLookupProcessByProcessId(pid as usize as HANDLE, &mut process) };
     if status < 0 {
         return status;
     }
@@ -87,8 +71,7 @@ pub unsafe extern "C" fn kernel_lib_get_process_path(
     // 3) 拷贝 + 收尾。UNICODE_STRING.Length 是字节数,字符数 = Length / size_of::<WCHAR>。
     // Length 为 USHORT,needed_chars <= 32767,后续 needed_chars + 1 不会溢出 u32。
     // SAFETY: image_name 已判非空。
-    let needed_chars =
-        unsafe { (*image_name).Length } as u32 / (core::mem::size_of::<u16>() as u32);
+    let needed_chars = unsafe { (*image_name).Length } as u32 / (core::mem::size_of::<u16>() as u32);
     // SAFETY: out_chars 已判非空。先写所需长度(供调用方据此重试或扩容)。
     unsafe { *out_chars = needed_chars };
 
@@ -99,11 +82,7 @@ pub unsafe extern "C" fn kernel_lib_get_process_path(
         unsafe {
             // needed_chars==0 时 Buffer 可能为空,跳过拷贝,避免对空指针调用 copy_nonoverlapping。
             if needed_chars > 0 {
-                core::ptr::copy_nonoverlapping(
-                    (*image_name).Buffer,
-                    out_buf,
-                    needed_chars as usize,
-                );
+                core::ptr::copy_nonoverlapping((*image_name).Buffer, out_buf, needed_chars as usize);
             }
             // 源 UNICODE_STRING 不保证 NUL 结尾,自补一个,供 C 侧 %ws 安全打印。
             *out_buf.add(needed_chars as usize) = 0;
