@@ -96,8 +96,7 @@ NTSTATUS GetObjectNtName(_In_ PVOID Object, _Inout_ PUNICODE_STRING NtName)
         return Status;
     }
 
-    UNICODE_STRING KeyPath{};
-    RtlInitUnicodeString(&KeyPath, Temp->Buffer);
+    UNICODE_STRING KeyPath = ((POBJECT_NAME_INFORMATION)Temp)->Name;
 
     NtName->MaximumLength = KeyPath.MaximumLength + sizeof(wchar_t);
     NtName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, NtName->MaximumLength, TAG);
@@ -136,6 +135,7 @@ NTSTATUS GetFileObjectDosName(_In_ PFILE_OBJECT FileObject, _Inout_ PUNICODE_STR
     DosName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, DosName->MaximumLength, TAG);
     if (0 == DosName->Buffer) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
+        ExFreePool(FileNameInfo);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
@@ -168,10 +168,16 @@ void GetKnownDllPath()
     LinkString.MaximumLength = sizeof(NameBuffer);
     RtlInitUnicodeString(&NameString, L"\\KnownDlls\\KnownDllPath"); // 不可以用//,不然会ZwOpenSymbolicLinkObject调用失败.就是得到的句柄为0.
     InitializeObjectAttributes(&ObjectAttributes, &NameString, OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    ZwOpenSymbolicLinkObject(&LinkHandle, SYMBOLIC_LINK_QUERY, &ObjectAttributes);
+    NTSTATUS Status = ZwOpenSymbolicLinkObject(&LinkHandle, SYMBOLIC_LINK_QUERY, &ObjectAttributes);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return;
+    }
 
-    ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength); // LinkString就是想要的值.
-    KdPrint(("KnownDllPath: %wZ \n", &LinkString));
+    Status = ZwQuerySymbolicLinkObject(LinkHandle, &LinkString, &ActualLength); // LinkString就是想要的值.
+    if (NT_SUCCESS(Status)) {
+        KdPrint(("KnownDllPath: %wZ \n", &LinkString));
+    }
 
     ZwClose(LinkHandle);
 }
@@ -191,17 +197,31 @@ void GetKnownDllPathEx()
 
     RtlInitUnicodeString(&usDirName, L"\\KnownDlls");
     InitializeObjectAttributes(&ObjDir, &usDirName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-    ZwOpenDirectoryObject(&hDir, DIRECTORY_QUERY, &ObjDir);
+    NTSTATUS Status = ZwOpenDirectoryObject(&hDir, DIRECTORY_QUERY, &ObjDir);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        return;
+    }
 
     RtlInitUnicodeString(&usSymbolicName, L"KnownDllPath");
     InitializeObjectAttributes(&ObjSymbolic, &usSymbolicName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, hDir, nullptr);
-    ZwOpenSymbolicLinkObject(&hSymbolic, GENERIC_READ, &ObjSymbolic);
+    Status = ZwOpenSymbolicLinkObject(&hSymbolic, SYMBOLIC_LINK_QUERY, &ObjSymbolic);
+    if (!NT_SUCCESS(Status)) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        ZwClose(hDir);
+        return;
+    }
 
     usSymbolic.Buffer = wchBuffer;
-    usSymbolic.MaximumLength = 256 * sizeof(WCHAR);
+    usSymbolic.MaximumLength = sizeof(wchBuffer);
     usSymbolic.Length = 0;
-    ZwQuerySymbolicLinkObject(hSymbolic, &usSymbolic, nullptr);
-    KdPrint(("KnownDllPath: %wZ \n", &usSymbolic));
+    Status = ZwQuerySymbolicLinkObject(hSymbolic, &usSymbolic, nullptr);
+    if (NT_SUCCESS(Status)) {
+        KdPrint(("KnownDllPath: %wZ \n", &usSymbolic));
+    }
+
+    ZwClose(hSymbolic);
+    ZwClose(hDir);
 }
 
 
@@ -321,7 +341,7 @@ NTSTATUS GetSystemRootName(_In_ PUNICODE_STRING SymbolicLinkName, _Inout_ PUNICO
             break;
         }
 
-        DosPathName->MaximumLength = FileNameInfo->Name.Length;
+        DosPathName->MaximumLength = FileNameInfo->Name.Length + sizeof(WCHAR);
         Status = AllocateUnicodeString(DosPathName);
         if (!NT_SUCCESS(Status)) {
             PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error: Status:%#x", Status);
@@ -376,7 +396,7 @@ NTSTATUS ZwEnumerateObject(_In_ PUNICODE_STRING Directory)
         return Status;
     }
 
-    Length = Length + 520; // 为何加这个数字，请看ZwEnumerateFile1的说明。
+    Length = Length + MAX_PATH * sizeof(WCHAR); // 为何加这个数字，请看ZwEnumerateFile1的说明。
     PVOID FileInformation = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (FileInformation == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
@@ -628,15 +648,23 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
     }
     RtlZeroMemory(pSysHandleInfo, nSize);
 
-    while (ZwQuerySystemInformation(SystemHandleInformation, pSysHandleInfo, nSize, &nReturn) == STATUS_INFO_LENGTH_MISMATCH) {
+    for (int retries = 0; retries < 8; retries++) {
+        Status = ZwQuerySystemInformation(SystemHandleInformation, pSysHandleInfo, nSize, &nReturn);
+        if (Status != STATUS_INFO_LENGTH_MISMATCH) {
+            break;
+        }
         ExFreePoolWithTag(pSysHandleInfo, TAG);
-        nSize += 4096;
+        nSize += PAGE_SIZE * 4;
         pSysHandleInfo = (PSYSTEM_HANDLE_INFORMATION)ExAllocatePoolWithTag(NonPagedPool, nSize, TAG);
         if (pSysHandleInfo == nullptr) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
             return STATUS_INSUFFICIENT_RESOURCES;
         }
         RtlZeroMemory(pSysHandleInfo, nSize);
+    }
+    if (!NT_SUCCESS(Status)) {
+        ExFreePoolWithTag(pSysHandleInfo, TAG);
+        return Status;
     }
 
     CLIENT_ID ClientId = {}; // 不初始化ZwOpenProcess有问题。
@@ -699,7 +727,8 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             if (ObjectInformation == nullptr) {
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ZwClose(hCopy);
-                return STATUS_INSUFFICIENT_RESOURCES;
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                break;
             }
             RtlZeroMemory(ObjectInformation, ObjectInformationLength);
             Status = ZwQueryObject(hCopy, ObjectTypeInformation, ObjectInformation, ObjectInformationLength, &ReturnLength);
@@ -707,7 +736,7 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
                 Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "Status:%#x", Status);
                 ExFreePoolWithTag(ObjectInformation, TAG);
                 ZwClose(hCopy);
-                return Status;
+                break;
             }
 
             object_name.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
@@ -730,11 +759,11 @@ NTSTATUS EnumerateProcessHandles(IN HANDLE Pid, OUT PDWORD ProcessHandles)
             Status = ZwQueryObjectNameByHandle(hCopy, &object_name);
             if (NT_SUCCESS(Status)) {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ, NAME:%wZ\n", pHandle->HandleValue, &ppoti->TypeName, &object_name));
-                RtlFreeUnicodeString(&object_name);
-                // ExFreePoolWithTag(object_name.Buffer, tag );
             } else {
                 KdPrint(("HANDLE:0x%x, TYPE:%wZ\n", pHandle->HandleValue, &ppoti->TypeName));
             }
+            ExFreePoolWithTag(object_name.Buffer, TAG);
+            object_name.Buffer = nullptr;
 
             Status = ZwClose(hCopy);
             // if (!NT_SUCCESS(Status))
