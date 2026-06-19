@@ -1,0 +1,3 @@
+# 用户态 x64 程序,统一走 MSVC 工具链(避开 PATH 上 chocolatey 的 gnu rustc)。仅经 rustup 代理时生效。
+[toolchain]
+channel = "stable-x86_64-pc-windows-msvc"

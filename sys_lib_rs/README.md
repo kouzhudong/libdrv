@@ -5,10 +5,13 @@
 ```
 test/
 ├── kernel-lib/      Rust 库(windows-drivers-rs / wdk-sys),导出 extern "C" kernel_lib_add
+│                        + kernel_lib_get_process_path(按 PID 取进程 NT 全路径)
 │                        产出 libkernel_lib.rlib(给 02 用) + kernel_lib.lib(给 03 用)
-├── rust-sys/        Rust WDM 驱动(windows-drivers-rs),DriverEntry 调 kernel_lib_add
+├── rust-sys/        Rust WDM 驱动(windows-drivers-rs),DriverEntry 调 kernel_lib_add;
+│                        并创建控制设备 \Device\KernelLibGetPath + 符号链接,经 IOCTL 暴露取路径功能
 ├── cpp-wdm-sys/     C++ WDM 驱动(WDK MSBuild),DriverEntry 链接并调 kernel_lib_add
-├── build-all.ps1       一键编译三者
+├── app-test/        用户态 Rust EXE,经 \\.\KernelLibGetPath 与 rust-sys 通讯,按 PID 查全路径
+├── build-all.ps1       一键编译四者
 └── README.md
 ```
 
@@ -162,6 +165,41 @@ cpp-wdm-sys: kernel_lib_add(2, 3) = 5      # 或 rust-sys: kernel_lib_add(2, 3) 
 
 > 提示:Win10/11 默认会过滤 `DbgPrint`。如看不到,设注册表
 > `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Debug Print Filter`,新建 DWORD `DEFAULT = 0xFFFFFFFF` 后重启。
+
+---
+
+## 六、用户态测试(app-test ↔ rust-sys 通讯设备)
+
+rust-sys 在 DriverEntry 里创建了控制设备:
+
+- 设备名:`\Device\KernelLibGetPath`
+- 符号链接:`\??\KernelLibGetPath`(应用层以 `\\.\KernelLibGetPath` 打开)
+- IOCTL:`IOCTL_GET_PROCESS_PATH = 0x00222000`(`CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)`)
+  - 输入缓冲:`u32` PID(METHOD_BUFFERED,输入输出共用 SystemBuffer)
+  - 输出缓冲:UTF-16 路径;成功时 `BytesReturned` = 路径字节数(含结尾 NUL)
+  - 内部调 `kernel_lib_get_process_path`,即 `kernel-lib` 导出的同一函数
+
+`app-test`(用户态 Rust EXE,手写 FFI 调 kernel32,无第三方依赖)演示完整通讯:
+
+```powershell
+# 先确保 rust-sys 驱动已加载(见第四节:测试签名 + sc create/start)
+sc.exe create rustsys type= kernel binPath= "<...>\rust-sys\target\release\rust_sys.sys"
+sc.exe start  rustsys
+
+# 查自身进程全路径
+.\app-test\target\release\app-test.exe
+# pid 12345 -> \Device\HarddiskVolume3\...\app-test.exe
+
+# 查指定 PID(从任务管理器/tasklist 取一个真实 PID)
+.\app-test\target\release\app-test.exe 1234
+```
+
+要点:
+
+- 返回的是 **NT 设备路径**(`\Device\HarddiskVolumeX\...`),非盘符路径。
+- 查 PID 4(System)等无用户态镜像的进程会得到**空路径**,这是正常现象(`SeLocateProcessImageName` 对其返回空串)。
+- `app-test` 输出缓冲按最大 32767 WCHAR(+NUL)分配,单次 IOCTL 即可覆盖任意长度路径,无需二次调用。
+- 打开设备报 `GetLastError=2` 表示驱动未加载。
 
 ---
 

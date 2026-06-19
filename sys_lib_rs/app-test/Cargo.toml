@@ -1,0 +1,17 @@
+[package]
+name = "app-test"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "用户态测试程序:通过 \\\\.\\KernelLibGetPath 与 rust-sys 驱动通讯,按 PID 取进程全路径"
+
+[[bin]]
+name = "app-test"
+path = "src/main.rs"
+
+# 仅靠手写 FFI 调 kernel32(CreateFileW/DeviceIoControl/...),无第三方依赖。
+[dependencies]
+
+[profile.release]
+opt-level = "z"
+strip = true
