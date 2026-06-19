@@ -48,7 +48,11 @@ PCL由调用者释放。
         __try {
             PRTL_USER_PROCESS_PARAMETERS ProcessParameters = peb->ProcessParameters;
             if (ProcessParameters) {
-                CommandLine->MaximumLength = ProcessParameters->CommandLine.MaximumLength + sizeof(WCHAR);
+                USHORT srcMax = ProcessParameters->CommandLine.MaximumLength;
+                if (srcMax == 0 || srcMax > 0x7FFE) {
+                    __leave; // 防止 USHORT 溢出或 0 字节分配
+                }
+                CommandLine->MaximumLength = srcMax + sizeof(WCHAR);
                 CommandLine->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CommandLine->MaximumLength, TAG);
                 if (nullptr == CommandLine->Buffer) {
                     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -620,17 +624,19 @@ NTSTATUS GetLogonId(_Inout_ PLUID LogonId)
 打印当前操作的当前进程的用户名等.
 */
 {
+    if (!LogonId) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
     PACCESS_TOKEN pat = PsReferencePrimaryToken(PsGetCurrentProcess());
 
     PTOKEN_STATISTICS pts{};
     NTSTATUS Status = SeQueryInformationToken(pat, TokenStatistics, (PVOID *)&pts);
-    if (!NT_SUCCESS(Status)) {
-        PsDereferencePrimaryToken(pat);
-        return Status;
+    if (NT_SUCCESS(Status)) {
+        LogonId->HighPart = pts->AuthenticationId.HighPart;
+        LogonId->LowPart = pts->AuthenticationId.LowPart;
+        ExFreePool(pts); // SeQueryInformationToken 分配，必须释放
     }
-
-    LogonId->HighPart = pts->AuthenticationId.HighPart;
-    LogonId->LowPart = pts->AuthenticationId.LowPart;
 
     PsDereferencePrimaryToken(pat);
 
@@ -693,6 +699,8 @@ DWORD GetProcessIntegrityLevel(_In_ HANDLE UniqueProcess)
     if (!UniqueProcess) { // IDLE进程放过。
         return 0;
     }
+
+    PAGED_CODE();
 
     ClientId.UniqueProcess = UniqueProcess;
     InitializeObjectAttributes(&ob, 0, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
@@ -1538,7 +1546,10 @@ NTSTATUS AdjustPrivilege(ULONG Privilege, BOOLEAN Enable)
                                      nullptr,  // old privileges - don't care
                                      nullptr); // returned length
     if (!NT_SUCCESS(Status)) {
-        DbgPrint("ZwAdjustPrivilegesToken failed, Status 0x%x\n", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ZwAdjustPrivilegesToken failed: %#x", Status);
+    } else if (Status == STATUS_NOT_ALL_ASSIGNED) {
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "privilege %lu not held by token", Privilege);
+        Status = STATUS_PRIVILEGE_NOT_HELD;
     }
 
     (void)ZwClose(tokenHandle); // Close the process token handle
