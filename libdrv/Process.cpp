@@ -49,8 +49,8 @@ PCL由调用者释放。
             PRTL_USER_PROCESS_PARAMETERS ProcessParameters = peb->ProcessParameters;
             if (ProcessParameters) {
                 USHORT srcMax = ProcessParameters->CommandLine.MaximumLength;
-                if (srcMax == 0 || srcMax > 0x7FFE) {
-                    __leave; // 防止 USHORT 溢出或 0 字节分配
+                if (srcMax == 0 || srcMax > UNICODE_STRING_MAX_BYTES - sizeof(WCHAR)) {
+                    __leave; // 防止 srcMax + sizeof(WCHAR) 的 USHORT 溢出或 0 字节分配
                 }
                 CommandLine->MaximumLength = srcMax + sizeof(WCHAR);
                 CommandLine->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CommandLine->MaximumLength, TAG);
@@ -181,8 +181,8 @@ ZwQueryInformationToken(TokenUser) + RtlConvertSidToUnicodeString(SeConvertSidTo
         }
 
         // 还有一种情况也会发生如下情况,就是在Windows server 2008 X64上,具体的有待检查和添加.
-        if (TokenInformation->AuthenticationId.HighPart == 0 &&
-            TokenInformation->AuthenticationId.LowPart == 999) { // 此数字即logon ID。
+        LUID SystemLuid = SYSTEM_LUID; // {0x3e7, 0}，本地系统账户的登录会话 LUID，避免硬编码 999。
+        if (RtlEqualLuid(&TokenInformation->AuthenticationId, &SystemLuid)) {
             /*
             https://msdn.microsoft.com/zh-cn/library/aa378290(v=vs.85).aspx
 
@@ -912,14 +912,15 @@ NTSTATUS GetProcessImageFileName(_In_ HANDLE Pid, _Inout_ PUNICODE_STRING Proces
         temp.MaximumLength = static_cast<USHORT>(p->MaximumLength - i * 2);
         temp.Buffer = &p->Buffer[i];
 
-        ProcessName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool,MAX_PATH, TAG); // 这个内存由调用者释放。
+        const USHORT NameBytes = MAX_PATH * sizeof(WCHAR); // MAX_PATH 是字符数，缓冲区按字节分配。
+        ProcessName->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, NameBytes, TAG); // 这个内存由调用者释放。
         if (ProcessName->Buffer == nullptr) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL, "");
             Status = STATUS_INSUFFICIENT_RESOURCES;
             __leave;
         }
-        RtlZeroMemory(ProcessName->Buffer, MAX_PATH);
-        RtlInitEmptyUnicodeString(ProcessName, ProcessName->Buffer, MAX_PATH);
+        RtlZeroMemory(ProcessName->Buffer, NameBytes);
+        RtlInitEmptyUnicodeString(ProcessName, ProcessName->Buffer, NameBytes);
 
         RtlCopyUnicodeString(ProcessName, &temp);
         // KdPrint(("ProcessImageFileName:%wZ\n",ProcessName));
