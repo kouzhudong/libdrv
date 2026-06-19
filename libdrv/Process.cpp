@@ -125,7 +125,11 @@ homepage:http://correy.webs.com
         __try {
             auto ProcessParameters = (PRTL_USER_PROCESS_PARAMETERS_WRK)peb->ProcessParameters;
             if (ProcessParameters) {
-                CurrentDirectory->MaximumLength = ProcessParameters->CurrentDirectory.DosPath.MaximumLength;
+                USHORT srcMax = ProcessParameters->CurrentDirectory.DosPath.MaximumLength;
+                if (srcMax == 0) {
+                    __leave; // 防止 0 字节分配
+                }
+                CurrentDirectory->MaximumLength = srcMax;
                 CurrentDirectory->Buffer = (PWCH)ExAllocatePoolWithTag(PagedPool, CurrentDirectory->MaximumLength, TAG);
                 if (nullptr == CurrentDirectory->Buffer) {
                     Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -246,6 +250,12 @@ ZwQueryInformationToken(TokenUser) + RtlConvertSidToUnicodeString(SeConvertSidTo
 
 NTSTATUS GetUserOfProcess(_In_ PEPROCESS Process, _Out_ PUNICODE_STRING User)
 {
+    if (!User) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    *User = {}; // 保证 _Out_ 契约：失败路径也是确定值，避免调用者释放未初始化内存
+
     NTSTATUS Status{};
 
     PACCESS_TOKEN PrimaryToken = PsReferencePrimaryToken(Process);
@@ -281,12 +291,17 @@ made by correy
 made at 2013.11.15
 */
 {
+    if (!User) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    *User = {}; // 同上：保证 _Out_ 契约，失败路径也是确定值
+
     PEPROCESS Process{};
     NTSTATUS Status = PsLookupProcessByProcessId(Pid, &Process);
     if (NT_SUCCESS(Status)) {
         Status = GetUserOfProcess(Process, User);
         ObDereferenceObject(Process);
-    } else {
     }
 
     return Status;
@@ -532,6 +547,7 @@ Registry进程的路径竟然能获取到：Registry，因为存在\Registry对�
     if (!NT_SUCCESS(Status)) {
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
         ExFreePoolWithTag(*ProcessFileName, TAG);
+        *ProcessFileName = nullptr; // 防止悬空指针：调用者按非空判断释放会导致 double-free
         ret = FALSE;
     }
 

@@ -103,8 +103,9 @@ void EnumWow64Module0(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _I
     PPEB32 Peb32 = reinterpret_cast<PPEB32>(pwp);
 
     __try {
-        ULONG Tmp = *(PULONG)(Peb32->Ldr);
-        auto Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Tmp));
+        // Peb32->Ldr 本身就是指向 PEB_LDR_DATA32 的 32 位指针，直接转换即可（参考下方“方法一”）。
+        // 旧代码 *(PULONG)(Peb32->Ldr) 多解一层，读到的是 PEB_LDR_DATA32.Length，遍历必然异常（被 __try 吞掉）。
+        auto Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Peb32->Ldr));
         auto LdrHead32 = &Ldr32->InLoadOrderModuleList;
         for (auto LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrHead32->Flink));
              LdrNext32 != LdrHead32;
@@ -164,8 +165,8 @@ void EnumWow64Module(PWOW64_PROCESS pwp, _In_opt_ HandleUserModule CallBack, _In
 
     // 方法三：原来（2017.02.17）测试成功的，今天（2022/9/26）却不行了，修正一下，又测试（2025/8/25）通过了。。
     __try {
-        ULONG Tmp = *(PULONG)(Peb32->Ldr);
-        Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Tmp));
+        // Peb32->Ldr 本身就是指向 PEB_LDR_DATA32 的 32 位指针，直接转换即可（参考下方“方法一”）。
+        Ldr32 = reinterpret_cast<PPEB_LDR_DATA32>(UlongToPtr(Peb32->Ldr));
         LdrHead32 = &Ldr32->InLoadOrderModuleList;
 
         for (LdrNext32 = reinterpret_cast<PLIST_ENTRY32>(UlongToPtr(LdrHead32->Flink));
@@ -333,7 +334,7 @@ homepage:http://correy.webs.com
         // ZwQueryInformationProcess +　ProcessWow64Information
         PWOW64_PROCESS pwp = (PWOW64_PROCESS)PsGetProcessWow64Process(Process);
         if (pwp) {
-            EnumWow64Module(pwp, CallBack, Context);
+            EnumWow64Module0(pwp, CallBack, Context); // 用会回调 CallBack 的版本；EnumWow64Module 仅打印不回调。
         }
 #endif
     } else { // win10上有不少进程是没有用户空间的，也没有命令行。
@@ -421,7 +422,7 @@ PVOID GetImageBase(__in PCSTR Name)
 
     NTSTATUS Status = AuxKlibInitialize();
     if (!NT_SUCCESS(Status)) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
         return ImageBase;
     }
 
@@ -536,63 +537,25 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
 {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
-    UNICODE_STRING g_SystemRoot = RTL_CONSTANT_STRING(L"\\SystemRoot");
-    wchar_t NtSystemRoot[MAX_PATH]{};
-    UNICODE_STRING g_NtSystemRoot{};
-    wchar_t DosSystemRoot[MAX_PATH]{};
-    UNICODE_STRING g_DosSystemRoot{};
-
     UNICODE_STRING g_NTDLL = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\ntdll.dll");
     wchar_t NtNTDLL[MAX_PATH]{};
     UNICODE_STRING g_NtNTDLL{};
     wchar_t DosNTDLL[MAX_PATH]{};
     UNICODE_STRING g_DosNTDLL{};
 
-    UNICODE_STRING g_Smss = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\smss.exe");
-    wchar_t NtSmss[MAX_PATH]{};
-    UNICODE_STRING g_NtSmss{};
-    wchar_t DosSmss[MAX_PATH]{};
-    UNICODE_STRING g_DosSmss{};
-
-    UNICODE_STRING g_Csrss = RTL_CONSTANT_STRING(L"\\SystemRoot\\System32\\csrss.exe");
-    wchar_t NtCsrss[MAX_PATH]{};
-    UNICODE_STRING g_NtCsrss{};
-    wchar_t DosCsrss[MAX_PATH]{};
-    UNICODE_STRING g_DosCsrss{};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-    RtlInitUnicodeString(&g_NtSystemRoot, NtSystemRoot);
-    g_NtSystemRoot.MaximumLength = sizeof(NtSystemRoot);
-    RtlInitUnicodeString(&g_DosSystemRoot, DosSystemRoot);
-    g_DosSystemRoot.MaximumLength = sizeof(DosSystemRoot);
-
     RtlInitUnicodeString(&g_NtNTDLL, NtNTDLL);
     g_NtNTDLL.MaximumLength = sizeof(NtNTDLL);
     RtlInitUnicodeString(&g_DosNTDLL, DosNTDLL);
     g_DosNTDLL.MaximumLength = sizeof(DosNTDLL);
 
-    RtlInitUnicodeString(&g_NtSmss, NtSmss);
-    g_NtSmss.MaximumLength = sizeof(NtSmss);
-    RtlInitUnicodeString(&g_DosSmss, DosSmss);
-    g_DosSmss.MaximumLength = sizeof(DosSmss);
-
-    RtlInitUnicodeString(&g_NtCsrss, NtCsrss);
-    g_NtCsrss.MaximumLength = sizeof(NtCsrss);
-    RtlInitUnicodeString(&g_DosCsrss, DosCsrss);
-    g_DosCsrss.MaximumLength = sizeof(DosCsrss);
-
-    GetSystemRootPathName(&g_SystemRoot, &g_NtSystemRoot, &g_DosSystemRoot);
     GetSystemRootPathName(&g_NTDLL, &g_NtNTDLL, &g_DosNTDLL);
-    GetSystemRootPathName(&g_Smss, &g_NtSmss, &g_DosSmss);
-    GetSystemRootPathName(&g_Csrss, &g_NtCsrss, &g_DosCsrss);
 
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     PVOID ImageBase{};
 
-    PPEB ppeb = PsGetProcessPeb(Process);
-    if (!ppeb || !ppeb->Ldr) {
+    PPEB ppeb = PsGetProcessPeb(Process); // IDLE和system等无用户空间的进程返回空。
+    if (!ppeb) {
         return ImageBase;
     }
 
@@ -600,15 +563,18 @@ PVOID GetNtdllImageBase(PEPROCESS Process)
     KeStackAttachProcess(Process, &ApcState);
 
     __try {
-        PLIST_ENTRY head = &ppeb->Ldr->InMemoryOrderModuleList;
-        for (PLIST_ENTRY le = head->Flink; le != head; le = le->Flink) {
-            auto pldte = CONTAINING_RECORD(le, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-            if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) {
-                if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
-                    RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
-                    RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0) {
-                    ImageBase = pldte->DllBase;
-                    break;
+        // PEB 位于目标进程用户空间，必须在 KeStackAttachProcess 之后才能解引用 ppeb->Ldr。
+        if (ppeb->Ldr) {
+            PLIST_ENTRY head = &ppeb->Ldr->InMemoryOrderModuleList;
+            for (PLIST_ENTRY le = head->Flink; le != head; le = le->Flink) {
+                auto pldte = CONTAINING_RECORD(le, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+                if (pldte->FullDllName.Length && pldte->FullDllName.Buffer) {
+                    if (RtlCompareUnicodeString(&pldte->FullDllName, &g_NtNTDLL, TRUE) == 0 ||
+                        RtlCompareUnicodeString(&pldte->FullDllName, &g_DosNTDLL, TRUE) == 0 ||
+                        RtlCompareUnicodeString(&pldte->FullDllName, &g_NTDLL, TRUE) == 0) {
+                        ImageBase = pldte->DllBase;
+                        break;
+                    }
                 }
             }
         }
@@ -769,7 +735,7 @@ NTSTATUS ZwGetSystemModuleInformation()
         BufferSize = ReturnLength + PAGE_SIZE;
     }
     if (!Buffer) {
-        return STATUS_NO_MEMORY;
+        return Status; // 重试耗尽仍 STATUS_INFO_LENGTH_MISMATCH，返回真实状态而非 STATUS_NO_MEMORY。
     }
 
     Modules = (PRTL_PROCESS_MODULES)Buffer;
@@ -830,17 +796,17 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
                     // KdPrint(("DOS name:%wZ.\r\n", &FullName));
                     RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
                 } else {
-                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+                    Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:%s", "内存申请失败");
                 }
                 if (FullName.Buffer) {
                     ExFreePoolWithTag(FullName.Buffer, TAG);
                 }
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
             }
             ObDereferenceObject(FileObject);
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
         }
 
         ZwClose(File);
@@ -855,10 +821,10 @@ VOID ImageLoadedThread(_In_ PVOID Parameter)
                 RtlZeroMemory(ctx->info.ImageLoaded.Buffer, ctx->info.ImageLoaded.MaximumLength);
                 RtlCopyUnicodeString(&ctx->info.ImageLoaded, &FullName);
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:%s", "内存申请失败");
             }
         } else {
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x, FileName:%wZ", ctx->info.Status, ctx->info.FullImageName);
         }
 
         if (FullName.Buffer) {
@@ -900,7 +866,7 @@ FreeUnicodeString(&LoadImageFullName);
 
     auto ctx = (PLOAD_IMAGE_CONTEXT)ExAllocatePoolWithTag(NonPagedPool, sizeof(LOAD_IMAGE_CONTEXT), TAG);
     if (nullptr == ctx) {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:%s", "内存申请失败");
         return;
     }
 
@@ -929,7 +895,7 @@ FreeUnicodeString(&LoadImageFullName);
                 RtlZeroMemory(LoadImageFullName->Buffer, LoadImageFullName->MaximumLength);
                 RtlCopyUnicodeString(LoadImageFullName, &ctx->info.ImageLoaded);
             } else {
-                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:0x%s", "内存申请失败");
+                Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Error:%s", "内存申请失败");
             }
 
             ExFreePoolWithTag(ctx->info.ImageLoaded.Buffer, TAG);
@@ -937,7 +903,7 @@ FreeUnicodeString(&LoadImageFullName);
             KdPrint(("FILE:%s, LINE:%d.\r\n", __FILE__, __LINE__));
         }
     } else {
-        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:0x%#x", Status);
+        Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Status:%#x", Status);
     }
 
     ExFreePoolWithTag(ctx, TAG);
