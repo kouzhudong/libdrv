@@ -1,0 +1,13 @@
+# 统一控制本目录下三个 Rust 工程(kernel-lib / rust-sys / app-test)的代码格式。
+# rustfmt 从被格式化文件所在目录逐级向上查找 rustfmt.toml,放在此处即对三者同时生效
+# (这三个是各自独立的 crate、非同一 workspace,靠"向上查找"机制共享本配置)。
+#
+# 用法:在任一工程目录执行
+#   cargo fmt            # 按本配置重排格式
+#   cargo fmt --check    # 只检查不改动(CI 用)
+
+# 一行最多 170 个字符(rustfmt 默认 100)。
+max_width = 170
+
+# 与各工程 Cargo.toml 的 edition 保持一致,确保直接用 rustfmt(而非 cargo fmt)时行为一致。
+edition = "2024"
