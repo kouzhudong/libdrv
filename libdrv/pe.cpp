@@ -18,6 +18,9 @@ bool IsValidPE(_In_ PVOID Data)
         }
 
         PIMAGE_NT_HEADERS NtHeader = RtlImageNtHeader(Data); // 不是有效的PE，这里会崩溃，应用层也是。
+        if (!NtHeader) {
+            __leave;
+        }
         switch (NtHeader->Signature) {
         case IMAGE_OS2_SIGNATURE:
             // LOGA(ERROR_LEVEL, "恭喜你:发现一个NE文件!");
@@ -151,6 +154,9 @@ UINT Rva2Va(_In_ PBYTE Data, _In_ UINT Rva)
     UINT Offset = 0; // 返回值。
 
     PIMAGE_NT_HEADERS NtHeader = RtlImageNtHeader(Data);
+    if (!NtHeader) {
+        return 0;
+    }
     PIMAGE_FILE_HEADER FileHeader = static_cast<PIMAGE_FILE_HEADER>(&NtHeader->FileHeader);
     PIMAGE_OPTIONAL_HEADER OptionalHeader = static_cast<PIMAGE_OPTIONAL_HEADER>(&NtHeader->OptionalHeader);
     PIMAGE_SECTION_HEADER SectionHeader = reinterpret_cast<PIMAGE_SECTION_HEADER>(reinterpret_cast<PBYTE>(OptionalHeader) + FileHeader->SizeOfOptionalHeader);
@@ -216,12 +222,21 @@ Return Value:
 
     Rva = (ULONG)((SIZE_T)ExportDirectory - (SIZE_T)DllBase);
     Offset = Rva2Offset(DllBase, Rva);
+    if (!Offset) {
+        return nullptr;
+    }
     ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)((SIZE_T)DllBase + Offset);
 
     Offset = Rva2Offset(DllBase, ExportDirectory->AddressOfNames);
+    if (!Offset) {
+        return nullptr;
+    }
     NameTableBase = (PULONG)((SIZE_T)DllBase + Offset);
 
     Offset = Rva2Offset(DllBase, ExportDirectory->AddressOfNameOrdinals);
+    if (!Offset) {
+        return nullptr;
+    }
     NameOrdinalTableBase = (PUSHORT)((SIZE_T)DllBase + Offset);
 
     Low = 0;
@@ -236,6 +251,10 @@ Return Value:
         Middle = (Low + High) >> 1; // Compute the next probe index and compare the import name with the export name entry.
 
         Offset = Rva2Offset(DllBase, NameTableBase[Middle]);
+        if (!Offset) {
+            High = -1;
+            break;
+        }
         temp = (SIZE_T)((SIZE_T)DllBase + Offset);
         p = (PCHAR)temp;
 
@@ -265,9 +284,15 @@ Return Value:
 
     // Index into the array of RVA export addresses by ordinal number.
     Offset = Rva2Offset(DllBase, ExportDirectory->AddressOfFunctions);
+    if (!Offset) {
+        return nullptr;
+    }
     Addr = (PULONG)((PCHAR)DllBase + Offset);
 
     Offset = Rva2Offset(DllBase, Addr[OrdinalNumber]);
+    if (!Offset) {
+        return nullptr;
+    }
     FunctionAddress = (PVOID)((PCHAR)DllBase + Offset);
 
     // Forwarders are not used by the kernel and HAL to each other.
@@ -468,6 +493,8 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid, _In_ PMEMORY_BASIC_INFOR
     PEPROCESS Process = nullptr;
     HANDLE KernelHandle{};
     PGetUserFunctionAddressInfo UserFunctionAddress = static_cast<PGetUserFunctionAddressInfo>(Context);
+    KAPC_STATE ApcState{};
+    bool attached = false;
 
     //\nt4\private\sdktools\psapi\mapfile.c
     struct {
@@ -508,8 +535,8 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid, _In_ PMEMORY_BASIC_INFOR
             __leave;
         }
 
-        KAPC_STATE ApcState;
         KeStackAttachProcess(Process, &ApcState);
+        attached = true;
 
         ANSI_STRING FunctionName{};
         RtlInitAnsiString(&FunctionName, UserFunctionAddress->FunctionName);
@@ -519,7 +546,12 @@ NTSTATUS WINAPI GetUserFunctionAddress(_In_ HANDLE Pid, _In_ PMEMORY_BASIC_INFOR
         }
 
         KeUnstackDetachProcess(&ApcState);
+        attached = false;
     } __finally {
+        if (attached) {
+            KeUnstackDetachProcess(&ApcState);
+        }
+
         if (KernelHandle) {
             ZwClose(KernelHandle);
         }
@@ -819,6 +851,11 @@ NewFileName：新文件的名字，如："\Device\HarddiskVolume1\XXX或者\\??\
     }
 
     BaseAddress = GetImageBase(FileName); // 上面的ZwMapViewOfSection等几个函数是没有用的。
+    if (!BaseAddress) {
+        PrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "GetImageBase failed for: %s", FileName);
+        ZwClose(DestinationFileHandle);
+        return STATUS_NOT_FOUND;
+    }
 
     ResourceIdPath[0] = Type;
     ResourceIdPath[1] = Id;
@@ -958,7 +995,7 @@ PVOID NTAPI GetRoutineAddress(_In_ PCSTR ModuleName, _In_ PCSTR RoutineName)
     NTSTATUS Status = STATUS_SUCCESS;
     AUX_MODULE_EXTENDED_INFO ModuleInfo{}; // 临时借用，不再自己定义结构了。最好是自己定义，里面可以是指针。
 
-    strcpy_s((char *)ModuleInfo.FullPathName, AUX_KLIB_MODULE_PATH_LEN, ModuleName);
+    RtlStringCchCopyA((char *)ModuleInfo.FullPathName, AUX_KLIB_MODULE_PATH_LEN, ModuleName);
     Status = EnumKernelModule(GetRoutineAddressCallBack, &ModuleInfo);
     if (!NT_SUCCESS(Status) || !ModuleInfo.BasicInfo.ImageBase) {
         return RoutineAddress;
