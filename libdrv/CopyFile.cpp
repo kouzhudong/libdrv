@@ -76,7 +76,7 @@ static VOID KfcGetFileStandardInformation(PFILE_OBJECT FileObject, PFILE_STANDAR
 
     IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE); // Set the completion routine.
     (void)IoCallDriver(fsdDevice, irp);                                      // Send it to the FSD
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);     // Wait for the I/O
+    KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, nullptr);    // Wait for the I/O
 }
 
 
@@ -117,8 +117,8 @@ static VOID KfcRead(PFILE_OBJECT FileObject, PLARGE_INTEGER Offset, ULONG Length
     ioStackLocation->Parameters.Read.Length = Length;
     ioStackLocation->Parameters.Read.ByteOffset = *Offset;
 
-    (void)IoCallDriver(fsdDevice, irp);                                  // Send it on.  Ignore the return code.
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr); // Wait for the I/O to complete.
+    (void)IoCallDriver(fsdDevice, irp);                                   // Send it on.  Ignore the return code.
+    KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, nullptr); // Wait for the I/O to complete.
     // Done.  Return results are in the io Status block.
 }
 
@@ -162,7 +162,7 @@ static VOID KfcSetFileAllocation(PFILE_OBJECT FileObject, PLARGE_INTEGER Allocat
 
     IoSetCompletionRoutine(irp, KfcIoCompletion, nullptr, TRUE, TRUE, TRUE); // Set the completion routine.
     (void)IoCallDriver(fsdDevice, irp);                                      // Send it to the FSD
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr);     // Wait for the I/O
+    KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, nullptr);    // Wait for the I/O
 }
 
 
@@ -203,8 +203,8 @@ static VOID KfcWrite(PFILE_OBJECT FileObject, PLARGE_INTEGER Offset, ULONG Lengt
     ioStackLocation->Parameters.Write.Length = Length;
     ioStackLocation->Parameters.Write.ByteOffset = *Offset;
 
-    (void)IoCallDriver(fsdDevice, irp);                                  // Send it on.  Ignore the return code.
-    KeWaitForSingleObject(&event, Executive, KernelMode, TRUE, nullptr); // Wait for the I/O to complete.
+    (void)IoCallDriver(fsdDevice, irp);                                   // Send it on.  Ignore the return code.
+    KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, nullptr); // Wait for the I/O to complete.
     // Done.  Return results are in the io Status block.
 }
 
@@ -418,7 +418,9 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
     LARGE_INTEGER AllocationSize{};
     ULONG CreateDisposition = 0;
 
-    // 如果SourceFile是文件夹,在下面打开的时候返回失败.
+    if (!DestinationFile || !SourceFile) {
+        return FALSE;
+    }
 
     __try {
         df.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, MAX_PATH, TAG);
@@ -490,7 +492,7 @@ bFailIfExists == FALSE时,如果DestinationFile存在就新建或者覆盖;
         }
 
         file_size = fsi.EndOfFile;
-        Length = 9; // 可用ZwQuerySystemInformation SystemBasicInformation取页的大小。
+        Length = PAGE_SIZE;
         Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
         if (Buffer == nullptr) {
             Status = STATUS_UNSUCCESSFUL;
@@ -623,8 +625,8 @@ BOOLEAN CopyFileEx(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;                                                // 测试专用。
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); // Length == 0时加驱动验证器，这里会蓝屏。
+    Length = PAGE_SIZE;
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (Buffer == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -793,8 +795,8 @@ BOOLEAN ZwCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     }
 
     file_size = fsi.EndOfFile;
-    Length = 9;                                                // 测试专用。
-    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG); // Length == 0时加驱动验证器，这里会蓝屏。
+    Length = PAGE_SIZE;
+    Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, TAG);
     if (Buffer == nullptr) {
         Status = STATUS_UNSUCCESSFUL;
         Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "申请内存失败");
@@ -1032,7 +1034,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
     if (fsi.EndOfFile.HighPart != 0) {
         ZwClose(FileHandle);
         ZwClose(DestinationFileHandle);
-        return TRUE;
+        return FALSE;
     }
 
     file_size = fsi.EndOfFile;
@@ -1098,7 +1100,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
         if (!NT_SUCCESS(Status)) {
             Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x", Status);
             // ExFreePoolWithTag(Buffer, TAG);
-            ZwUnmapViewOfSection(NtCurrentProcess(), BaseAddress);
+            ZwUnmapViewOfSection(ZwCurrentProcess(), BaseAddress);
             ZwClose(SectionHandle);
             ZwClose(FileHandle);
             ZwClose(DestinationFileHandle);
@@ -1107,7 +1109,7 @@ BOOLEAN IoCopyFile(IN UNICODE_STRING * FileName, IN UNICODE_STRING * newFileName
 
         // ByteOffset.QuadPart += IoStatusBlock.Information;
 
-        ZwUnmapViewOfSection(NtCurrentProcess(), BaseAddress);
+        ZwUnmapViewOfSection(ZwCurrentProcess(), BaseAddress);
     }
 
     // ExFreePoolWithTag(Buffer, TAG);
@@ -1198,16 +1200,18 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
     //     return b;;
     // }
 
-    // 去掉后缀的斜杠。
-    if (newFileName->Buffer[newFileName->Length / 2 - 1] == L'\\') {
-        newFileName->Length -= 2;
+    // 去掉后缀的斜杠（用本地副本，不修改调用方结构）。
+    UNICODE_STRING localNewFileName = *newFileName;
+    if (localNewFileName.Length >= sizeof(WCHAR) &&
+        localNewFileName.Buffer[localNewFileName.Length / sizeof(WCHAR) - 1] == L'\\') {
+        localNewFileName.Length -= sizeof(WCHAR);
         IS_HAVE_slash = TRUE;
     }
 
     // 新建文件.
     AllocationSize.QuadPart = 0;
     CreateDisposition = FILE_CREATE;
-    InitializeObjectAttributes(&ob, newFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
+    InitializeObjectAttributes(&ob, &localNewFileName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
     Status = FltCreateFile(Filter,
                            Data->Iopb->TargetInstance,
                            &DestinationFileHandle,
@@ -1226,14 +1230,8 @@ BOOLEAN FltCopyFile(_In_ PFLT_FILTER Filter, __inout PFLT_CALLBACK_DATA Data, IN
         if (Status == STATUS_OBJECT_NAME_COLLISION) { //-1073741771 ((NTSTATUS)0xC0000035L) Object Name already exists.
             b = TRUE;                                 // 目标文件已经存在了，所以返回正确。
         } else {                                      // 对于NTFS的元文件/流文件，独占式访问的文件会走这里。应该在前面放过NTFS的元文件。
-            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, file:%wZ", Status, newFileName);
-            b = FALSE; // 再次声明失败，也可作为断点使用。
-        }
-
-        // 恢复后缀的斜杠。
-        if (IS_HAVE_slash) {
-            newFileName->Length += 2;
-            IS_HAVE_slash = FALSE;
+            Print(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "0x%#x, file:%wZ", Status, &localNewFileName);
+            b = FALSE;
         }
 
         // Status =  NtUnlockFile(FileHandle, &IoStatusBlock, &LIboffs, &fsi.EndOfFile, 0);
