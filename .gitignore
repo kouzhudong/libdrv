@@ -58,3 +58,5 @@ dkms.conf
 x64/
 Debug/
 Release/
+sys_lib_rs/rust-sys/target/*
+sys_lib_rs/kernel-lib/target/*
