@@ -233,6 +233,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         hKey = nullptr;
 
         if (pbPlainText) {
+            RtlSecureZeroMemory(pbPlainText, cbPlainText); // 明文敏感，释放前清零。
             ExFreePoolWithTag(pbPlainText, TAG);
         }
 
@@ -287,10 +288,12 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         if (pbPlainText) {
+            RtlSecureZeroMemory(pbPlainText, cbPlainText); // 明文敏感，释放前清零。
             ExFreePoolWithTag(pbPlainText, TAG);
         }
 
         if (pbKeyObject) {
+            RtlSecureZeroMemory(pbKeyObject, cbKeyObject); // 密钥对象含密钥材料，释放前清零。
             ExFreePoolWithTag(pbKeyObject, TAG);
         }
 
@@ -299,6 +302,7 @@ https://docs.microsoft.com/zh-cn/windows/win32/seccng/encrypting-data-with-cng
         }
 
         if (pbBlob) {
+            RtlSecureZeroMemory(pbBlob, cbBlob); // 导出的密钥 BLOB 含密钥材料，释放前清零。
             ExFreePoolWithTag(pbBlob, TAG);
         }
     }
